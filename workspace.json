@@ -1,8 +1,6 @@
 {
   "version": 2,
-  "cli": {
-    "defaultCollection": "@nrwl/node"
-  },
+  "cli": { "defaultCollection": "@nrwl/node" },
   "defaultProject": "playground",
   "projects": {
     "playground": {
@@ -35,21 +33,36 @@
         },
         "serve": {
           "executor": "@nrwl/node:execute",
-          "options": {
-            "buildTarget": "playground:build"
-          }
+          "options": { "buildTarget": "playground:build" }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["apps/playground/**/*.ts"]
-          }
+          "options": { "lintFilePatterns": ["apps/playground/**/*.ts"] }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/apps/playground"],
           "options": {
             "jestConfig": "apps/playground/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "js-to-lua": {
+      "root": "libs/js-to-lua",
+      "sourceRoot": "libs/js-to-lua/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": { "lintFilePatterns": ["libs/js-to-lua/**/*.ts"] }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/js-to-lua"],
+          "options": {
+            "jestConfig": "libs/js-to-lua/jest.config.js",
             "passWithNoTests": true
           }
         }
