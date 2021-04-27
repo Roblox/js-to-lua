@@ -1,10 +1,59 @@
 {
-  
-  
   "version": 2,
-  
-  "projects": {},
   "cli": {
-    "defaultCollection": "@nrwl/workspace"
+    "defaultCollection": "@nrwl/node"
+  },
+  "defaultProject": "playground",
+  "projects": {
+    "playground": {
+      "root": "apps/playground",
+      "sourceRoot": "apps/playground/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/playground",
+            "main": "apps/playground/src/main.ts",
+            "tsConfig": "apps/playground/tsconfig.app.json",
+            "assets": ["apps/playground/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/playground/src/environments/environment.ts",
+                  "with": "apps/playground/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "playground:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/playground/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/playground"],
+          "options": {
+            "jestConfig": "apps/playground/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    }
   }
 }
