@@ -3,7 +3,7 @@
     "package.json": { "dependencies": "*", "devDependencies": "*" },
     ".eslintrc.json": "*"
   },
-  "affected": { "defaultBase": "master" },
+  "affected": { "defaultBase": "main" },
   "npmScope": "js-to-lua",
   "tasksRunnerOptions": {
     "default": {
