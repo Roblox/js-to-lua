@@ -23,7 +23,8 @@
     "update": "nx migrate latest",
     "workspace-generator": "nx workspace-generator",
     "dep-graph": "nx dep-graph",
-    "help": "nx help"
+    "help": "nx help",
+    "prepare": "husky install"
   },
   "private": true,
   "dependencies": {
@@ -46,7 +47,9 @@
     "dotenv": "8.2.0",
     "eslint": "7.25.0",
     "eslint-config-prettier": "8.1.0",
+    "husky": "^6.0.0",
     "jest": "26.2.2",
+    "lint-staged": "^10.5.4",
     "prettier": "2.2.1",
     "ts-jest": "26.4.0",
     "ts-node": "~9.1.1",
