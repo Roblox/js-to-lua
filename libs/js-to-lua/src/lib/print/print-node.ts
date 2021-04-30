@@ -9,9 +9,13 @@ export const printNode = (node: LuaNode, source: string): string => {
     case 'NumericLiteral':
       return node.value.toString();
     case 'StringLiteral':
-      return node.value;
+      return `"${node.value}"`;
     case 'BooleanLiteral':
       return node.value.toString();
+    case 'TableConstructor':
+      return `{ ${node.elements.map((e) => printNode(e, source)).join(', ')} }`;
+    case 'TableNoKeyField':
+      return printNode(node.value, source);
     case 'UnhandledNode':
       return `
 --[[
@@ -19,6 +23,6 @@ ${source.slice(node.start, node.end)}
 ]]
       `;
     default:
-      return '';
+      return '--[[ default ]]';
   }
 };

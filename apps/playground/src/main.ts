@@ -6,6 +6,7 @@ import { parse } from '@babel/parser';
 // import { printNode } from "./print-node";
 
 const code = `
+[1,2,3, 'string']
 1
 2
 3
@@ -34,14 +35,14 @@ const file = parse(code, {
     'jsx',
     'typescript',
   ],
-}); // ?
+});
 
 //   file.comments // ?
 //   file.toString() // ?
 
 //   file.program.body // ?
 
-console.log(JSON.stringify(file, undefined, 2)); // ?
+console.log(JSON.stringify(file.program.body, undefined, 2)); // ?
 //
 
 console.log(`
