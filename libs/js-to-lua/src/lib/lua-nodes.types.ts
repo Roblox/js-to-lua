@@ -6,7 +6,8 @@ export type LuaNode =
   | LuaBooleanLiteral
   | LuaTableConstructor
   | TableField
-  | UnhandledNode;
+  | UnhandledNode
+  | LuaNilLiteral;
 
 export interface BaseLuaNode {
   type: string;
@@ -15,7 +16,8 @@ export interface BaseLuaNode {
 export type LuaLiteral =
   | LuaNumericLiteral
   | LuaStringLiteral
-  | LuaBooleanLiteral;
+  | LuaBooleanLiteral
+  | LuaNilLiteral;
 
 export type LuaExpression = LuaLiteral | LuaTableConstructor | UnhandledNode;
 
@@ -40,6 +42,12 @@ export interface LuaStringLiteral extends BaseLuaNode {
 export interface LuaBooleanLiteral extends BaseLuaNode {
   type: 'BooleanLiteral';
   value: boolean;
+}
+
+export interface LuaNilLiteral extends BaseLuaNode {
+  type: 'NilLiteral';
+  value: null;
+  raw: 'nil';
 }
 
 export interface LuaTableNoKeyField extends BaseLuaNode {

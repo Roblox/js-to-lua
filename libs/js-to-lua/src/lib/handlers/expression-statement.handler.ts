@@ -4,6 +4,7 @@ import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
+import { handleIdentifier } from './identifier.handler';
 import {
   LuaExpression,
   LuaExpressionStatement,
@@ -53,4 +54,5 @@ export const handleExpression = combineHandlers<
   handleStringLiteral,
   handleBooleanLiteral,
   handleArrayExpression,
+  handleIdentifier,
 ]);
