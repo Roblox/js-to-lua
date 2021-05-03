@@ -27,6 +27,9 @@ export interface LuaExpressionStatement extends BaseLuaNode {
 export interface LuaNumericLiteral extends BaseLuaNode {
   type: 'NumericLiteral';
   value: number;
+  extra?: {
+    raw?: string;
+  };
 }
 
 export interface LuaStringLiteral extends BaseLuaNode {

@@ -22,6 +22,9 @@ describe('Program handler', () => {
             expression: {
               type: 'NumericLiteral',
               value: 1,
+              extra: {
+                raw: '1',
+              },
             },
           },
           {
@@ -29,6 +32,9 @@ describe('Program handler', () => {
             expression: {
               type: 'NumericLiteral',
               value: 2,
+              extra: {
+                raw: '2',
+              },
             },
           },
           {
@@ -36,6 +42,9 @@ describe('Program handler', () => {
             expression: {
               type: 'NumericLiteral',
               value: 34,
+              extra: {
+                raw: '34',
+              },
             },
           },
           {
@@ -43,6 +52,9 @@ describe('Program handler', () => {
             expression: {
               type: 'NumericLiteral',
               value: 1,
+              extra: {
+                raw: '1',
+              },
             },
           },
           {
@@ -50,6 +62,9 @@ describe('Program handler', () => {
             expression: {
               type: 'NumericLiteral',
               value: 2,
+              extra: {
+                raw: '2',
+              },
             },
           },
           {
@@ -57,6 +72,9 @@ describe('Program handler', () => {
             expression: {
               type: 'NumericLiteral',
               value: 34,
+              extra: {
+                raw: '34',
+              },
             },
           },
         ],
