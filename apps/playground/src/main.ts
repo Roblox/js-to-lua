@@ -13,6 +13,7 @@ const code = `
 'string'
 1 + 1
 undefined
+null
 `;
 
 `

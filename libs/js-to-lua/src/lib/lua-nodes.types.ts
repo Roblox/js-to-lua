@@ -46,8 +46,6 @@ export interface LuaBooleanLiteral extends BaseLuaNode {
 
 export interface LuaNilLiteral extends BaseLuaNode {
   type: 'NilLiteral';
-  value: null;
-  raw: 'nil';
 }
 
 export interface LuaTableNoKeyField extends BaseLuaNode {

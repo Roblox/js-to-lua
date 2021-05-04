@@ -9,8 +9,6 @@ export const handleIdentifier: BaseNodeHandler<Identifier, LuaNilLiteral> = {
       case 'undefined':
         return {
           type: 'NilLiteral',
-          value: null,
-          raw: 'nil',
         };
     }
   },

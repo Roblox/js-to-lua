@@ -18,7 +18,7 @@ export const printNode = (node: LuaNode, source: string): string => {
     case 'TableNoKeyField':
       return printNode(node.value, source);
     case 'NilLiteral':
-      return node.raw;
+      return 'nil';
     case 'UnhandledNode':
       return `
 --[[

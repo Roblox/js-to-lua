@@ -11,7 +11,7 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
-describe('NilLiteral Handler', () => {
+describe('Identifier Handler', () => {
   it(`should return Lua NilLiteral Node`, () => {
     const given: Identifier = {
       ...DEFAULT_NODE,
@@ -20,8 +20,6 @@ describe('NilLiteral Handler', () => {
     };
     const expected: LuaNilLiteral = {
       type: 'NilLiteral',
-      value: null,
-      raw: 'nil',
     };
 
     expect(handleIdentifier.handler(given)).toEqual(expected);
