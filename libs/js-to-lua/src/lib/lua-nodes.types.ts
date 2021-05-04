@@ -7,7 +7,13 @@ export type LuaNode =
   | LuaTableConstructor
   | TableField
   | UnhandledNode
-  | LuaNilLiteral;
+  | LuaIdentifier
+  | LuaNilLiteral
+  | LuaVariableDeclaration
+  | LuaVariableDeclarator
+  | LuaVariableDeclaratorIdentifier
+  | LuaVariableDeclaratorValue
+  | UnhandledNode;
 
 export interface BaseLuaNode {
   type: string;
@@ -19,7 +25,13 @@ export type LuaLiteral =
   | LuaBooleanLiteral
   | LuaNilLiteral;
 
-export type LuaExpression = LuaLiteral | LuaTableConstructor | UnhandledNode;
+export type LuaExpression =
+  | LuaLiteral
+  | LuaTableConstructor
+  | LuaIdentifier
+  | UnhandledNode;
+
+export type LuaDeclaration = LuaVariableDeclaration;
 
 export interface LuaExpressionStatement extends BaseLuaNode {
   type: 'ExpressionStatement';
@@ -84,4 +96,33 @@ export interface UnhandledNode extends BaseLuaNode {
 export interface LuaProgram extends BaseLuaNode {
   type: 'Program';
   body: LuaNode[];
+}
+
+export interface LuaIdentifier extends BaseLuaNode {
+  type: 'Identifier';
+  name: string;
+}
+
+export interface LuaVariableDeclaration extends BaseLuaNode {
+  type: 'VariableDeclaration';
+  identifiers: LuaVariableDeclaratorIdentifier[];
+  values: LuaVariableDeclaratorValue[];
+}
+
+export interface LuaVariableDeclarator {
+  type: 'VariableDeclarator';
+  id: LuaLVal;
+  init: LuaExpression | null;
+}
+
+export type LuaLVal = LuaIdentifier;
+
+export interface LuaVariableDeclaratorIdentifier {
+  type: 'VariableDeclaratorIdentifier';
+  value: LuaLVal;
+}
+
+export interface LuaVariableDeclaratorValue {
+  type: 'VariableDeclaratorValue';
+  value: LuaExpression | null;
 }

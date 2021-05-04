@@ -1,6 +1,6 @@
 import { Identifier } from '@babel/types';
+import { LuaIdentifier, LuaNilLiteral } from '../lua-nodes.types';
 import { handleIdentifier } from './identifier.handler';
-import { LuaNilLiteral } from '../lua-nodes.types';
 
 const DEFAULT_NODE = {
   leadingComments: null,
@@ -12,7 +12,7 @@ const DEFAULT_NODE = {
 };
 
 describe('Identifier Handler', () => {
-  it(`should return Lua NilLiteral Node`, () => {
+  it(`should return Lua NilLiteral Node if name is 'undefined'`, () => {
     const given: Identifier = {
       ...DEFAULT_NODE,
       type: 'Identifier',
@@ -23,5 +23,21 @@ describe('Identifier Handler', () => {
     };
 
     expect(handleIdentifier.handler(given)).toEqual(expected);
+  });
+
+  ['foo', 'bar', 'baz'].forEach((name) => {
+    it(`should return Lua Identifier Node when name is not undefined`, () => {
+      const given: Identifier = {
+        ...DEFAULT_NODE,
+        type: 'Identifier',
+        name,
+      };
+      const expected: LuaIdentifier = {
+        type: 'Identifier',
+        name,
+      };
+
+      expect(handleIdentifier.handler(given)).toEqual(expected);
+    });
   });
 });

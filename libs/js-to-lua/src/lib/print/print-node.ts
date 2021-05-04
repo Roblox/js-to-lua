@@ -13,6 +13,20 @@ export const printNode = (node: LuaNode, source: string): string => {
       return `"${node.value}"`;
     case 'BooleanLiteral':
       return node.value.toString();
+    case 'Identifier':
+      return node.name;
+    case 'VariableDeclaration':
+      return `local ${node.identifiers
+        .map((id) => printNode(id, source))
+        .join(', ')}${
+        node.values.length
+          ? ` = ${node.values.map((value) => printNode(value, source))}`
+          : ''
+      }`;
+    case 'VariableDeclaratorIdentifier':
+      return node.value.name;
+    case 'VariableDeclaratorValue':
+      return `${node.value ? ` ${printNode(node.value, source)}` : 'nil'}`;
     case 'TableConstructor':
       return `{ ${node.elements.map((e) => printNode(e, source)).join(', ')} }`;
     case 'TableNoKeyField':

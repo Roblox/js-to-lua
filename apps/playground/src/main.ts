@@ -14,6 +14,14 @@ const code = `
 1 + 1
 undefined
 null
+let a
+let b = 10
+let c, d = 'd'
+var e
+var f = 15
+var g = 'g'
+const aConstant = 13
+const greeting = 'Hey', name = 'Jude'
 `;
 
 `
