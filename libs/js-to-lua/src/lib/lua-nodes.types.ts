@@ -5,14 +5,14 @@ export type LuaNode =
   | LuaStringLiteral
   | LuaBooleanLiteral
   | LuaTableConstructor
-  | TableField
+  | LuaTableField
   | LuaIdentifier
   | LuaNilLiteral
   | LuaVariableDeclaration
   | LuaVariableDeclarator
   | LuaVariableDeclaratorIdentifier
   | LuaVariableDeclaratorValue
-  | UnhandledNode
+  | UnhandledNode;
 
 export interface BaseLuaNode {
   type: string;
@@ -71,19 +71,23 @@ export interface LuaTableExpressionKeyField extends BaseLuaNode {
 }
 
 export interface LuaTableNameKeyField extends BaseLuaNode {
-  type: 'TableExpressionKeyField';
-  key: LuaStringLiteral | LuaNumericLiteral;
+  type: 'TableNameKeyField';
+  key: LuaIdentifier;
   value: LuaExpression;
 }
 
-export type TableField =
+export type LuaTableKeyField =
+  | LuaTableNameKeyField
+  | LuaTableExpressionKeyField;
+
+export type LuaTableField =
   | LuaTableNoKeyField
   | LuaTableNameKeyField
   | LuaTableExpressionKeyField;
 
 export interface LuaTableConstructor extends BaseLuaNode {
   type: 'TableConstructor';
-  elements: TableField[];
+  elements: LuaTableField[];
 }
 
 export interface UnhandledNode extends BaseLuaNode {
