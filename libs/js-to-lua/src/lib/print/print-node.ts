@@ -1,5 +1,6 @@
 import { LuaNode } from '../lua-nodes.types';
 import { printNumeric } from './primitives/print-numeric';
+import { printString } from './primitives/print-string';
 
 export const printNode = (node: LuaNode, source: string): string => {
   switch (node.type) {
@@ -10,7 +11,7 @@ export const printNode = (node: LuaNode, source: string): string => {
     case 'NumericLiteral':
       return printNumeric(node);
     case 'StringLiteral':
-      return `"${node.value}"`;
+      return printString(node);
     case 'BooleanLiteral':
       return node.value.toString();
     case 'Identifier':

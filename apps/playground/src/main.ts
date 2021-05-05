@@ -22,6 +22,10 @@ var f = 15
 var g = 'g'
 const aConstant = 13
 const greeting = 'Hey', name = 'Jude'
+
+"a string with a \\"quote\\" in it"
+"😀"
+"👩‍⚕️"
 `;
 
 `

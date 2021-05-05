@@ -6,14 +6,13 @@ export type LuaNode =
   | LuaBooleanLiteral
   | LuaTableConstructor
   | TableField
-  | UnhandledNode
   | LuaIdentifier
   | LuaNilLiteral
   | LuaVariableDeclaration
   | LuaVariableDeclarator
   | LuaVariableDeclaratorIdentifier
   | LuaVariableDeclaratorValue
-  | UnhandledNode;
+  | UnhandledNode
 
 export interface BaseLuaNode {
   type: string;
