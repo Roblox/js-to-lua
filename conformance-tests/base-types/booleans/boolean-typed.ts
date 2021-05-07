@@ -1,0 +1,1 @@
+const flag: boolean = false;

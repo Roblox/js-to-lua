@@ -1,0 +1,1 @@
+const value: String = 'foo';
