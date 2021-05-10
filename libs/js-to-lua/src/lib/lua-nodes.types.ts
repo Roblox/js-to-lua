@@ -13,6 +13,7 @@ export type LuaNode =
   | LuaVariableDeclarator
   | LuaVariableDeclaratorIdentifier
   | LuaVariableDeclaratorValue
+  | LuaFunctionDeclaration
   | UnhandledNode;
 
 export interface BaseLuaNode {
@@ -32,7 +33,7 @@ export type LuaExpression =
   | LuaCallExpression
   | UnhandledNode;
 
-export type LuaDeclaration = LuaVariableDeclaration;
+export type LuaDeclaration = LuaFunctionDeclaration | LuaVariableDeclaration;
 
 export interface LuaExpressionStatement extends BaseLuaNode {
   type: 'ExpressionStatement';
@@ -126,7 +127,7 @@ export interface LuaVariableDeclarator {
   init: LuaExpression | null;
 }
 
-export type LuaLVal = LuaIdentifier;
+export type LuaLVal = LuaIdentifier /*| MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty*/;
 
 export interface LuaVariableDeclaratorIdentifier {
   type: 'VariableDeclaratorIdentifier';
@@ -137,3 +138,13 @@ export interface LuaVariableDeclaratorValue {
   type: 'VariableDeclaratorValue';
   value: LuaExpression | null;
 }
+
+export interface LuaFunctionDeclaration {
+  type: 'FunctionDeclaration';
+  id: LuaIdentifier;
+  params: Array<LuaFunctionDeclarationParam>;
+  defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
+  body: Array<LuaNode>;
+}
+
+export type LuaFunctionDeclarationParam = LuaIdentifier; /*| Pattern | RestElement | TSParameterProperty*/

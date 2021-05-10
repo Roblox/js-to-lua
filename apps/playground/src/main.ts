@@ -26,7 +26,6 @@ var g = 'g'
 var Symbol = function() {}
 const aConstant = 13
 const greeting = 'Hey', name = 'Jude'
-
 "a string with a \\"quote\\" in it"
 "😀"
 "👩‍⚕️"
@@ -37,6 +36,15 @@ Symbol(true)
 Symbol(false)
 test(2)
 "test"(call(3))
+function foo(){}
+function fooWithParams(bar, baz){}
+function fooWithParamsAndDefaultValues(bar, baz = 12){}
+function fee(){
+  let anything
+  function fee(){
+    let myvar = 30
+  }
+}
 `;
 
 `

@@ -33,6 +33,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       return printVariableDeclaratorIdentifier(node);
     case 'VariableDeclaratorValue':
       return printVariableDeclaratorValue(node, source);
+    case 'FunctionDeclaration':
+      return printFunctionDeclaration(node, source);
     case 'TableConstructor':
       return printTableConstructor(node, source);
     case 'CallExpression':
@@ -126,4 +128,34 @@ function printCalleeExpression(callee: LuaExpression, source: string): string {
     default:
       return `(${printNode(callee, source)})`;
   }
+}
+
+function printFunctionDeclaration(node, source) {
+  const name = printNode(node.id, source);
+  const parameters = node.params
+    .map((parameter) => printNode(parameter, source))
+    .join(', ');
+
+  const body = node.body
+    .map((statement) => printNode(statement, source))
+    .join('\n');
+
+  return `function ${name}(${parameters})\n${printFunctionDefaultValues(
+    node.defaultValues,
+    source
+  )}
+    ${body}\nend`;
+}
+
+function printFunctionDefaultValues(defaultValues, source) {
+  return defaultValues
+    .map(
+      (assignmentPattern) =>
+        `${assignmentPattern.left.name} = ${
+          assignmentPattern.left.name
+        } == nil and ${printNode(assignmentPattern.right, source)} or ${
+          assignmentPattern.left.name
+        }`
+    )
+    .join('\n');
 }
