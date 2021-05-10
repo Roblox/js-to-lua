@@ -6,6 +6,9 @@ import { parse } from '@babel/parser';
 // import { printNode } from "./print-node";
 
 const code = `
+
+var myfu
+
 [1,2,3, 'string']
 1
 2
@@ -20,12 +23,20 @@ let c, d = 'd'
 var e
 var f = 15
 var g = 'g'
+var Symbol = function() {}
 const aConstant = 13
 const greeting = 'Hey', name = 'Jude'
 
 "a string with a \\"quote\\" in it"
 "😀"
 "👩‍⚕️"
+Symbol
+Symbol(1)
+Symbol("one")
+Symbol(true)
+Symbol(false)
+test(2)
+"test"(call(3))
 `;
 
 `

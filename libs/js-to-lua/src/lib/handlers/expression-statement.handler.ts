@@ -3,11 +3,13 @@ import {
   ArrayExpression,
   Expression,
   ExpressionStatement,
+  CallExpression,
   ObjectExpression,
   ObjectMethod,
   ObjectProperty,
   PatternLike,
   SpreadElement,
+  V8IntrinsicIdentifier,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
@@ -24,6 +26,7 @@ import {
   LuaTableField,
   LuaTableKeyField,
   LuaTableNoKeyField,
+  LuaCallExpression,
 } from '../lua-nodes.types';
 import { defaultHandler } from '../utils/default.handler';
 
@@ -62,6 +65,20 @@ export const handleArrayExpression: BaseNodeHandler<
   },
 };
 
+export const handleCallExpression: BaseNodeHandler<
+  CallExpression,
+  LuaCallExpression
+> = {
+  type: 'CallExpression',
+  handler: (expression) => {
+    return {
+      type: 'CallExpression',
+      callee: handleCalleeExpression.handler(expression.callee),
+      arguments: expression.arguments.map(handleExpression.handler),
+    };
+  },
+};
+
 export const handleObjectExpression: BaseNodeHandler<
   ObjectExpression,
   LuaTableConstructor
@@ -82,6 +99,7 @@ export const handleExpression = combineHandlers<
   handleStringLiteral,
   handleBooleanLiteral,
   handleArrayExpression,
+  handleCallExpression,
   handleObjectExpression,
   handleIdentifier,
   handleNullLiteral,
@@ -151,3 +169,7 @@ export const handleSpread: BaseNodeHandler<
 export const handleObjectField = combineHandlers<
   BaseNodeHandler<ObjectMethod | ObjectProperty | SpreadElement, LuaTableField>
 >([handleObjectProperty, handleObjectMethod, handleSpread]);
+
+const handleCalleeExpression = combineHandlers<
+  BaseNodeHandler<Expression | V8IntrinsicIdentifier, LuaExpression>
+>([handleExpression]);

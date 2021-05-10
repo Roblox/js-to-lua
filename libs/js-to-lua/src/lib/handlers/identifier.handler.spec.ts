@@ -24,6 +24,19 @@ describe('Identifier Handler', () => {
 
     expect(handleIdentifier.handler(given)).toEqual(expected);
   });
+  it(`should return Lua Identifier Node if Symbol is present`, () => {
+    const given: Identifier = {
+      ...DEFAULT_NODE,
+      type: 'Identifier',
+      name: 'Symbol',
+    };
+    const expected: LuaIdentifier = {
+      type: 'Identifier',
+      name: 'Symbol',
+    };
+
+    expect(handleIdentifier.handler(given)).toEqual(expected);
+  });
 
   ['foo', 'bar', 'baz'].forEach((name) => {
     it(`should return Lua Identifier Node when name is not undefined`, () => {

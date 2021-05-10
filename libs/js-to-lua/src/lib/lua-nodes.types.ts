@@ -8,6 +8,7 @@ export type LuaNode =
   | LuaTableField
   | LuaIdentifier
   | LuaNilLiteral
+  | LuaCallExpression
   | LuaVariableDeclaration
   | LuaVariableDeclarator
   | LuaVariableDeclaratorIdentifier
@@ -28,6 +29,7 @@ export type LuaExpression =
   | LuaLiteral
   | LuaTableConstructor
   | LuaIdentifier
+  | LuaCallExpression
   | UnhandledNode;
 
 export type LuaDeclaration = LuaVariableDeclaration;
@@ -35,6 +37,12 @@ export type LuaDeclaration = LuaVariableDeclaration;
 export interface LuaExpressionStatement extends BaseLuaNode {
   type: 'ExpressionStatement';
   expression: LuaExpression;
+}
+
+export interface LuaCallExpression extends BaseLuaNode {
+  type: 'CallExpression';
+  callee: LuaExpression;
+  arguments: LuaExpression[];
 }
 
 export interface LuaNumericLiteral extends BaseLuaNode {

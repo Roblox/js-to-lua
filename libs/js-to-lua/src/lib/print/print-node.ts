@@ -1,4 +1,6 @@
 import {
+  LuaCallExpression,
+  LuaExpression,
   LuaNode,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
@@ -33,6 +35,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       return printVariableDeclaratorValue(node, source);
     case 'TableConstructor':
       return printTableConstructor(node, source);
+    case 'CallExpression':
+      return printCallExpression(node, source);
     case 'TableNoKeyField':
       return printTableNoKeyField(node, source);
     case 'TableNameKeyField':
@@ -104,4 +108,22 @@ function printTableExpressionKeyField(
   source: string
 ): string {
   return `[${printNode(node.key, source)}] = ${printNode(node.value, source)}`;
+}
+
+function printCallExpression(node: LuaCallExpression, source: string): string {
+  return `${printCalleeExpression(
+    node.callee,
+    source
+  )}(${node.arguments.map((e) => printNode(e, source)).join(', ')})`;
+}
+
+function printCalleeExpression(callee: LuaExpression, source: string): string {
+  switch (callee.type) {
+    case 'CallExpression':
+      return `${printNode(callee, source)}`;
+    case 'Identifier':
+      return `${printNode(callee, source)}`;
+    default:
+      return `(${printNode(callee, source)})`;
+  }
 }
