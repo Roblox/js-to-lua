@@ -11,6 +11,30 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const KEYWORDS = [
+  'and',
+  'break',
+  'do',
+  'else',
+  'elseif',
+  'end',
+  'false',
+  'for',
+  'function',
+  'if',
+  'in',
+  'local',
+  'nil',
+  'not',
+  'or',
+  'repeat',
+  'return',
+  'then',
+  'true',
+  'until',
+  'while',
+];
+
 describe('Identifier Handler', () => {
   it(`should return Lua NilLiteral Node if name is 'undefined'`, () => {
     const given: Identifier = {
@@ -39,7 +63,7 @@ describe('Identifier Handler', () => {
   });
 
   ['foo', 'bar', 'baz'].forEach((name) => {
-    it(`should return Lua Identifier Node when name is not undefined`, () => {
+    it(`should return Lua Identifier Node when name is not undefined and is not a keyword`, () => {
       const given: Identifier = {
         ...DEFAULT_NODE,
         type: 'Identifier',
@@ -48,6 +72,22 @@ describe('Identifier Handler', () => {
       const expected: LuaIdentifier = {
         type: 'Identifier',
         name,
+      };
+
+      expect(handleIdentifier.handler(given)).toEqual(expected);
+    });
+  });
+
+  KEYWORDS.forEach((name) => {
+    it(`should return Lua Identifier Node with '_' prepended when name is not undefined and is a keyword`, () => {
+      const given: Identifier = {
+        ...DEFAULT_NODE,
+        type: 'Identifier',
+        name,
+      };
+      const expected: LuaIdentifier = {
+        type: 'Identifier',
+        name: `${name}_`,
       };
 
       expect(handleIdentifier.handler(given)).toEqual(expected);

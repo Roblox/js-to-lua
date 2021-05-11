@@ -13,6 +13,31 @@ export const handleIdentifier: BaseNodeHandler<
         return {
           type: 'NilLiteral',
         };
+      case 'and':
+      case 'break':
+      case 'do':
+      case 'else':
+      case 'elseif':
+      case 'end':
+      case 'false':
+      case 'for':
+      case 'function':
+      case 'if':
+      case 'in':
+      case 'local':
+      case 'nil':
+      case 'not':
+      case 'or':
+      case 'repeat':
+      case 'return':
+      case 'then':
+      case 'true':
+      case 'until':
+      case 'while':
+        return {
+          type: 'Identifier',
+          name: `${node.name}_`,
+        };
       default:
         return {
           type: 'Identifier',
