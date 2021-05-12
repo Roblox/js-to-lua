@@ -1,7 +1,7 @@
 {
   "version": 2,
   "cli": { "defaultCollection": "@nrwl/node" },
-  "defaultProject": "playground",
+  "defaultProject": "convert-js-to-lua",
   "projects": {
     "playground": {
       "root": "apps/playground",
@@ -64,6 +64,75 @@
           "options": {
             "jestConfig": "libs/js-to-lua/jest.config.js",
             "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "convert-js-to-lua": {
+      "root": "apps/convert-js-to-lua",
+      "sourceRoot": "apps/convert-js-to-lua/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/convert-js-to-lua",
+            "main": "apps/convert-js-to-lua/src/main.ts",
+            "tsConfig": "apps/convert-js-to-lua/tsconfig.app.json",
+            "assets": [
+              "apps/convert-js-to-lua/src/assets",
+              "apps/convert-js-to-lua/src/fixtures"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/convert-js-to-lua/src/environments/environment.ts",
+                  "with": "apps/convert-js-to-lua/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": { "buildTarget": "convert-js-to-lua:build" }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": { "lintFilePatterns": ["apps/convert-js-to-lua/**/*.ts"] }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/convert-js-to-lua"],
+          "options": {
+            "jestConfig": "apps/convert-js-to-lua/jest.config.js",
+            "passWithNoTests": true
+          },
+          "configurations": {
+            "conformance": {
+              "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.js"
+            }
+          }
+        },
+        "e2e": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/convert-js-to-lua"],
+          "options": {
+            "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "verify": {
+          "executor": "@nrwl/workspace:run-commands",
+          "outputs": [],
+          "options": {
+            "command": "node tools/scripts/verify-conformance-tests.js"
           }
         }
       }

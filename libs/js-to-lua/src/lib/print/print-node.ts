@@ -2,6 +2,7 @@ import {
   LuaCallExpression,
   LuaExpression,
   LuaNode,
+  LuaProgram,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
@@ -16,7 +17,7 @@ import { printString } from './primitives/print-string';
 export const printNode = (node: LuaNode, source: string): string => {
   switch (node.type) {
     case 'Program':
-      return node.body.map((node) => printNode(node, source)).join('\n');
+      return printProgram(node, source);
     case 'ExpressionStatement':
       return printNode(node.expression, source);
     case 'NumericLiteral':
@@ -58,17 +59,22 @@ ${source.slice(node.start, node.end)}
   }
 };
 
+function printProgram(node: LuaProgram, source: string) {
+  const program = node.body.map((node) => printNode(node, source)).join('\n');
+  return `${program}\n`;
+}
+
 export function printVariableDeclaration(
   node: LuaVariableDeclaration,
   source: string
 ): string {
-  return `local ${node.identifiers
+  const identifiers = node.identifiers
     .map((id) => printNode(id, source))
-    .join(', ')}${
-    node.values.length
-      ? ` = ${node.values.map((value) => printNode(value, source))}`
-      : ''
-  }`;
+    .join(', ');
+  const initializers = node.values.length
+    ? ` = ${node.values.map((value) => printNode(value, source)).join(', ')}`
+    : '';
+  return `local ${identifiers}${initializers}`;
 }
 
 export function printVariableDeclaratorIdentifier(
@@ -81,7 +87,7 @@ export function printVariableDeclaratorValue(
   node: LuaVariableDeclaratorValue,
   source: string
 ): string {
-  return `${node.value ? ` ${printNode(node.value, source)}` : 'nil'}`;
+  return `${node.value ? `${printNode(node.value, source)}` : 'nil'}`;
 }
 
 export function printTableConstructor(

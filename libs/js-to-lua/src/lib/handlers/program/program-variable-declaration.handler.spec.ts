@@ -22,7 +22,7 @@ describe('Program handler', () => {
                 },
               },
             ],
-            values: [{ type: 'VariableDeclaratorValue', value: null }],
+            values: [],
           },
         ],
       };
@@ -116,6 +116,49 @@ describe('Program handler', () => {
     expect(luaProgram).toEqual(expected);
   });
 
+  it('should handle let: multiple - partially initialized', () => {
+    const given = getProgramNode(`
+    let foo = 'foo', bar;
+  `);
+    const expected: LuaProgram = {
+      type: 'Program',
+      body: [
+        {
+          type: 'VariableDeclaration',
+          identifiers: [
+            {
+              type: 'VariableDeclaratorIdentifier',
+              value: {
+                type: 'Identifier',
+                name: 'foo',
+              },
+            },
+            {
+              type: 'VariableDeclaratorIdentifier',
+              value: {
+                type: 'Identifier',
+                name: 'bar',
+              },
+            },
+          ],
+          values: [
+            {
+              type: 'VariableDeclaratorValue',
+              value: {
+                type: 'StringLiteral',
+                value: 'foo',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const luaProgram = handleProgram.handler(given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
   it('should handle const', () => {
     const given = getProgramNode(`
    const foo = 'foo';
@@ -155,7 +198,7 @@ describe('Program handler', () => {
   it('should handle const: multiple', () => {
     const given = getProgramNode(`
     const foo = 'foo', bar = 'bar';
-  
+
   `);
     const expected: LuaProgram = {
       type: 'Program',
@@ -221,7 +264,7 @@ describe('Program handler', () => {
               },
             },
           ],
-          values: [{ type: 'VariableDeclaratorValue', value: null }],
+          values: [],
         },
       ],
     };
@@ -302,6 +345,49 @@ describe('Program handler', () => {
               value: {
                 type: 'StringLiteral',
                 value: 'bar',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const luaProgram = handleProgram.handler(given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it('should handle var: multiple - partially initialized', () => {
+    const given = getProgramNode(`
+   var foo = 'foo', bar;
+  `);
+    const expected: LuaProgram = {
+      type: 'Program',
+      body: [
+        {
+          type: 'VariableDeclaration',
+          identifiers: [
+            {
+              type: 'VariableDeclaratorIdentifier',
+              value: {
+                type: 'Identifier',
+                name: 'foo',
+              },
+            },
+            {
+              type: 'VariableDeclaratorIdentifier',
+              value: {
+                type: 'Identifier',
+                name: 'bar',
+              },
+            },
+          ],
+          values: [
+            {
+              type: 'VariableDeclaratorValue',
+              value: {
+                type: 'StringLiteral',
+                value: 'foo',
               },
             },
           ],

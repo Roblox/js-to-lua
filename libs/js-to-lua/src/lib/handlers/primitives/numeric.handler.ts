@@ -34,8 +34,8 @@ export const handleNumericLiteral: BaseNodeHandler<
 };
 
 const validNumberStrings = [
-  /^[1-9][\d]*$/, // decimal without leading 0
-  /^0\d*[8-9+]\d*$/, // decimal with leading 0 - has to contain at least one digit larger than 7
+  /^[1-9][\d]*([E|e][+-]?[\d]*)?$/, // decimal without leading 0 - optional scientific notation
+  /^0\d*[8-9+]\d*([E|e][+-]?[\d]*)?$/, // decimal with leading 0 - has to contain at least one digit larger than 7 - optional scientific notation
   /^0[xX][\da-fA-F]+$/, // hex representation
   /^0[bB][01]+$/, // binary representation
   /^[+-]?[\d]+\.[\d]*([E|e][+-]?[\d]*)?$/, // floating point number - possible no digits after '.'

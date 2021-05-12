@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
-const CONFORMANCE_TESTS = './conformance-tests';
+const CONFORMANCE_TESTS = path.join(__dirname, '../../conformance-tests');
 
 // returns a list of all the files recursively
 async function getFiles(directory) {

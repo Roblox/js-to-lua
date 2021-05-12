@@ -11,20 +11,24 @@ export const handleVariableDeclaration: BaseNodeHandler<
   handler: (declaration) => {
     return {
       type: 'VariableDeclaration',
-      ...declaration.declarations.map(handleVariableDeclarator.handler).reduce(
-        (obj, declarator) => {
-          obj.identifiers.push({
-            type: 'VariableDeclaratorIdentifier',
-            value: declarator.id,
-          });
-          obj.values.push({
-            type: 'VariableDeclaratorValue',
-            value: declarator.init,
-          });
-          return obj;
-        },
-        { identifiers: [], values: [] }
-      ),
+      ...declaration.declarations
+        .map(handleVariableDeclarator.handler)
+        .reduceRight(
+          (obj, declarator) => {
+            obj.identifiers.unshift({
+              type: 'VariableDeclaratorIdentifier',
+              value: declarator.id,
+            });
+            if (declarator.init !== null || obj.values.length > 0) {
+              obj.values.unshift({
+                type: 'VariableDeclaratorValue',
+                value: declarator.init,
+              });
+            }
+            return obj;
+          },
+          { identifiers: [], values: [] }
+        ),
     };
   },
 };
