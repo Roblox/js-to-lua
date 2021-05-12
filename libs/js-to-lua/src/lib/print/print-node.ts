@@ -27,11 +27,13 @@ export const printNode = (node: LuaNode, source: string): string => {
     case 'BooleanLiteral':
       return node.value.toString();
     case 'Identifier':
-      return node.name;
+      return `${node.name}${
+        node.typeAnnotation ? printNode(node.typeAnnotation, source) : ''
+      }`;
     case 'VariableDeclaration':
       return printVariableDeclaration(node, source);
     case 'VariableDeclaratorIdentifier':
-      return printVariableDeclaratorIdentifier(node);
+      return printVariableDeclaratorIdentifier(node, source);
     case 'VariableDeclaratorValue':
       return printVariableDeclaratorValue(node, source);
     case 'FunctionDeclaration':
@@ -48,6 +50,12 @@ export const printNode = (node: LuaNode, source: string): string => {
       return printTableExpressionKeyField(node, source);
     case 'NilLiteral':
       return 'nil';
+    case 'LuaTypeAnnotation':
+      return `${
+        node.typeAnnotation ? `: ${printNode(node.typeAnnotation, source)}` : ''
+      }`;
+    case 'LuaTypeAny':
+      return 'any';
     case 'UnhandledNode':
       return `
 --[[
@@ -78,9 +86,10 @@ export function printVariableDeclaration(
 }
 
 export function printVariableDeclaratorIdentifier(
-  node: LuaVariableDeclaratorIdentifier
+  node: LuaVariableDeclaratorIdentifier,
+  source: string
 ): string {
-  return node.value.name;
+  return printNode(node.value, source);
 }
 
 export function printVariableDeclaratorValue(

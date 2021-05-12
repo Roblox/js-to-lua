@@ -1,3 +1,5 @@
+import { TypeAnnotation } from '@babel/types';
+
 export type LuaNode =
   | LuaProgram
   | LuaExpressionStatement
@@ -14,6 +16,8 @@ export type LuaNode =
   | LuaVariableDeclaratorIdentifier
   | LuaVariableDeclaratorValue
   | LuaFunctionDeclaration
+  | LuaTypeAnnotation
+  | LuaType
   | UnhandledNode;
 
 export interface BaseLuaNode {
@@ -113,6 +117,7 @@ export interface LuaProgram extends BaseLuaNode {
 export interface LuaIdentifier extends BaseLuaNode {
   type: 'Identifier';
   name: string;
+  typeAnnotation?: LuaTypeAnnotation;
 }
 
 export interface LuaVariableDeclaration extends BaseLuaNode {
@@ -148,3 +153,13 @@ export interface LuaFunctionDeclaration {
 }
 
 export type LuaFunctionDeclarationParam = LuaIdentifier; /*| Pattern | RestElement | TSParameterProperty*/
+
+export interface LuaTypeAny {
+  type: 'LuaTypeAny';
+}
+
+export type LuaType = LuaTypeAny;
+export interface LuaTypeAnnotation {
+  type: 'LuaTypeAnnotation';
+  typeAnnotation: LuaType | null;
+}

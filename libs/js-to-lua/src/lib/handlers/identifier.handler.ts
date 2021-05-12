@@ -1,6 +1,7 @@
 import { Identifier } from '@babel/types';
 import { LuaIdentifier, LuaNilLiteral } from '../lua-nodes.types';
 import { BaseNodeHandler } from '../types';
+import { typesHandler } from './type-annotation.handler';
 
 export const handleIdentifier: BaseNodeHandler<
   Identifier,
@@ -42,6 +43,9 @@ export const handleIdentifier: BaseNodeHandler<
         return {
           type: 'Identifier',
           name: node.name,
+          ...(node.typeAnnotation
+            ? { typeAnnotation: typesHandler(node.typeAnnotation) }
+            : {}),
         };
     }
   },

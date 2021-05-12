@@ -45,6 +45,9 @@ function fee(){
     let myvar = 30
   }
 }
+let typedA: any = 'ts type any'
+let typedB: number = 123
+
 `;
 
 `
