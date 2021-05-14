@@ -1,5 +1,3 @@
-const value = `
-foo
-bar
-baz
-`;
+const value = `foo
+
+bar  baz`;

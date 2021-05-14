@@ -1,6 +1,3 @@
-local value = [[
+local value = [[foo
 
-foo
-bar
-baz
-]]
+bar  baz]]

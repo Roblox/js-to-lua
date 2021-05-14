@@ -1,1 +1,1 @@
-const value: String = 'foo';
+const value: string = 'foo';

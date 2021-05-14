@@ -1,8 +1,15 @@
 import { execSync } from 'child_process';
 import { readdirSync, statSync } from 'fs';
 import { readFile } from 'fs/promises';
-import { format, join, parse, ParsedPath } from 'path';
+import { format, join, normalize, parse, ParsedPath } from 'path';
 import config from './conformance.config';
+
+const normalizedConfig = {
+  ...config,
+  excludeFiles: config.excludeFiles.map((filePath) => {
+    return normalize(filePath);
+  }),
+};
 
 function getFiles(directory): ParsedPath[] {
   const dirContent = readdirSync(directory);
@@ -27,7 +34,7 @@ function changeExtension(filePath: string, extension: string): string {
 }
 
 describe('conformance tests', () => {
-  const files = getFiles(config.inputPath);
+  const files = getFiles(normalizedConfig.inputPath);
   const translateFiles = files.filter((filePath) => {
     return filePath.ext === '.js' || filePath.ext === '.ts';
   });
@@ -35,13 +42,15 @@ describe('conformance tests', () => {
   translateFiles.forEach((givenFile) => {
     const filePath = format(givenFile);
 
-    const testCase = config.excludeFiles.includes(filePath) ? xit : it;
+    const testCase = normalizedConfig.excludeFiles.includes(normalize(filePath))
+      ? xit
+      : it;
 
     testCase(`should convert: ${filePath}`, () => {
       const expectedFile = changeExtension(filePath, '.lua');
-      const resultFile = join(config.outputPath, expectedFile);
+      const resultFile = join(normalizedConfig.outputPath, expectedFile);
 
-      const command = `node dist/apps/convert-js-to-lua/main.js --i ${filePath} -o ${config.outputPath}`;
+      const command = `node dist/apps/convert-js-to-lua/main.js --i ${filePath} -o ${normalizedConfig.outputPath}`;
       execSync(command, {
         stdio: [],
       });
