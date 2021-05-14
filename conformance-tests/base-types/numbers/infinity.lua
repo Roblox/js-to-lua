@@ -1,1 +1,1 @@
-local value = math.huge;
+local value = math.huge
