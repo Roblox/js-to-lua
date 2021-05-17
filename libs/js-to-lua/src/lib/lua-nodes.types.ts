@@ -1,5 +1,3 @@
-import { TypeAnnotation } from '@babel/types';
-
 export type LuaNode =
   | LuaProgram
   | LuaExpressionStatement
@@ -166,7 +164,12 @@ export interface LuaTypeString {
   type: 'LuaTypeString';
 }
 
-export type LuaType = LuaTypeAny | LuaTypeString;
+export interface LuaTypeNumber {
+  type: 'LuaTypeNumber';
+}
+
+export type LuaType = LuaTypeAny | LuaTypeString | LuaTypeNumber;
+
 export interface LuaTypeAnnotation {
   type: 'LuaTypeAnnotation';
   typeAnnotation: LuaType | null;

@@ -3,6 +3,7 @@ import {
   Noop,
   TSAnyKeyword,
   TSStringKeyword,
+  TSNumberKeyword,
   TSType,
   TSTypeAnnotation,
   TypeAnnotation,
@@ -12,6 +13,7 @@ import {
   LuaTypeAnnotation,
   LuaTypeAny,
   LuaTypeString,
+  LuaTypeNumber,
 } from '../lua-nodes.types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { BaseNodeHandler } from '../types';
@@ -75,8 +77,17 @@ const handleTsStringKeyword: BaseNodeHandler<TSStringKeyword, LuaTypeString> = {
   },
 };
 
+const handleTsNumberKeyword: BaseNodeHandler<TSNumberKeyword, LuaTypeNumber> = {
+  type: 'TSNumberKeyword',
+  handler: () => {
+    return {
+      type: 'LuaTypeNumber',
+    };
+  },
+};
+
 export const handleTsTypes = combineHandlers<BaseNodeHandler<TSType, LuaType>>(
-  [handleTsStringKeyword, handleTsAnyKeyword],
+  [handleTsStringKeyword, handleTsNumberKeyword, handleTsAnyKeyword],
   defaultTypeHandler
 );
 

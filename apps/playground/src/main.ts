@@ -45,6 +45,8 @@ function fee(){
     let myvar = 30
   }
 }
+
+let unhandled: UnhandledType = 123
 let typedA: any = 'ts type any'
 let typedB: number = 123
 let typedC: string = 'ts type string'
