@@ -47,6 +47,7 @@ function fee(){
 }
 let typedA: any = 'ts type any'
 let typedB: number = 123
+let typedC: string = 'ts type string'
 
 type MyNewType = any
 `;

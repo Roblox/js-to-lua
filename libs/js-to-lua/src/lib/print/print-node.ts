@@ -56,6 +56,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       }`;
     case 'LuaTypeAny':
       return 'any';
+    case 'LuaTypeString':
+      return 'string';
     case 'LuaTypeAliasDeclaration':
       return printTypeAliasDeclaration(node, source);
     case 'UnhandledNode':

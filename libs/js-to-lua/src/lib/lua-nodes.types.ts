@@ -162,7 +162,11 @@ export interface LuaTypeAny {
   type: 'LuaTypeAny';
 }
 
-export type LuaType = LuaTypeAny;
+export interface LuaTypeString {
+  type: 'LuaTypeString';
+}
+
+export type LuaType = LuaTypeAny | LuaTypeString;
 export interface LuaTypeAnnotation {
   type: 'LuaTypeAnnotation';
   typeAnnotation: LuaType | null;

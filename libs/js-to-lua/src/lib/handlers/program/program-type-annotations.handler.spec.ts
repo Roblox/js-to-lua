@@ -38,6 +38,40 @@ describe('Program handler', () => {
       expect(luaProgram).toEqual(expected);
     });
 
+    it('should handle "string"', () => {
+      const given = getProgramNode(`
+     let foo: string;
+    `);
+      const expected: LuaProgram = {
+        type: 'Program',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            identifiers: [
+              {
+                type: 'VariableDeclaratorIdentifier',
+                value: {
+                  type: 'Identifier',
+                  name: 'foo',
+                  typeAnnotation: {
+                    type: 'LuaTypeAnnotation',
+                    typeAnnotation: {
+                      type: 'LuaTypeString',
+                    },
+                  },
+                },
+              },
+            ],
+            values: [],
+          },
+        ],
+      };
+
+      const luaProgram = handleProgram.handler(given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
     it('should default unhandled types to "any"', () => {
       const given = getProgramNode(`
        let foo: UnhandledType;
