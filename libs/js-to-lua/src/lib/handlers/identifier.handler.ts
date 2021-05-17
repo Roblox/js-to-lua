@@ -14,6 +14,11 @@ export const handleIdentifier: BaseNodeHandler<
         return {
           type: 'NilLiteral',
         };
+      case 'Infinity':
+        return {
+          type: 'Identifier',
+          name: 'math.huge',
+        };
       case 'and':
       case 'break':
       case 'do':

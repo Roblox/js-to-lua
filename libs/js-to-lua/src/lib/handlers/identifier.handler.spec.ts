@@ -48,6 +48,19 @@ describe('Identifier Handler', () => {
 
     expect(handleIdentifier.handler(given)).toEqual(expected);
   });
+  it(`should return math.huge name if identifier name is 'Infinity'`, () => {
+    const given: Identifier = {
+      ...DEFAULT_NODE,
+      type: 'Identifier',
+      name: 'Infinity',
+    };
+    const expected: LuaIdentifier = {
+      type: 'Identifier',
+      name: 'math.huge',
+    };
+
+    expect(handleIdentifier.handler(given)).toEqual(expected);
+  });
   it(`should return Lua Identifier Node if Symbol is present`, () => {
     const given: Identifier = {
       ...DEFAULT_NODE,

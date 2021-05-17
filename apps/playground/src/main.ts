@@ -50,6 +50,8 @@ let typedB: number = 123
 let typedC: string = 'ts type string'
 
 type MyNewType = any
+
+Infinity
 `;
 
 `
