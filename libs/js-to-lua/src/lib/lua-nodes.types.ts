@@ -18,6 +18,7 @@ export type LuaNode =
   | LuaFunctionDeclaration
   | LuaTypeAnnotation
   | LuaType
+  | LuaTypeAliasDeclaration
   | UnhandledNode;
 
 export interface BaseLuaNode {
@@ -37,7 +38,10 @@ export type LuaExpression =
   | LuaCallExpression
   | UnhandledNode;
 
-export type LuaDeclaration = LuaFunctionDeclaration | LuaVariableDeclaration;
+export type LuaDeclaration =
+  | LuaFunctionDeclaration
+  | LuaVariableDeclaration
+  | LuaTypeAliasDeclaration;
 
 export interface LuaExpressionStatement extends BaseLuaNode {
   type: 'ExpressionStatement';
@@ -162,4 +166,10 @@ export type LuaType = LuaTypeAny;
 export interface LuaTypeAnnotation {
   type: 'LuaTypeAnnotation';
   typeAnnotation: LuaType | null;
+}
+
+export interface LuaTypeAliasDeclaration {
+  type: 'LuaTypeAliasDeclaration';
+  id: LuaIdentifier;
+  typeAnnotation: LuaType;
 }

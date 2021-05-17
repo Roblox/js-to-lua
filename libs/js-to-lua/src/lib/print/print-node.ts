@@ -56,6 +56,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       }`;
     case 'LuaTypeAny':
       return 'any';
+    case 'LuaTypeAliasDeclaration':
+      return printTypeAliasDeclaration(node, source);
     case 'UnhandledNode':
       return `
 --[[
@@ -173,4 +175,11 @@ function printFunctionDefaultValues(defaultValues, source) {
         }`
     )
     .join('\n');
+}
+
+function printTypeAliasDeclaration(node, source) {
+  return `type ${printNode(node.id, source)} = ${printNode(
+    node.typeAnnotation,
+    source
+  )}`;
 }
