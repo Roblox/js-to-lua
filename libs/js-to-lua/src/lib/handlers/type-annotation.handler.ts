@@ -4,6 +4,7 @@ import {
   TSAnyKeyword,
   TSStringKeyword,
   TSNumberKeyword,
+  TSBooleanKeyword,
   TSType,
   TSTypeAnnotation,
   TypeAnnotation,
@@ -14,6 +15,7 @@ import {
   LuaTypeAny,
   LuaTypeString,
   LuaTypeNumber,
+  LuaTypeBoolean,
 } from '../lua-nodes.types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { BaseNodeHandler } from '../types';
@@ -61,7 +63,7 @@ export const typesHandler = combineHandlers<
 
 const handleTsAnyKeyword: BaseNodeHandler<TSAnyKeyword, LuaTypeAny> = {
   type: 'TSAnyKeyword',
-  handler: (node) => {
+  handler: () => {
     return {
       type: 'LuaTypeAny',
     };
@@ -70,7 +72,7 @@ const handleTsAnyKeyword: BaseNodeHandler<TSAnyKeyword, LuaTypeAny> = {
 
 const handleTsStringKeyword: BaseNodeHandler<TSStringKeyword, LuaTypeString> = {
   type: 'TSStringKeyword',
-  handler: (node) => {
+  handler: () => {
     return {
       type: 'LuaTypeString',
     };
@@ -86,8 +88,20 @@ const handleTsNumberKeyword: BaseNodeHandler<TSNumberKeyword, LuaTypeNumber> = {
   },
 };
 
+const handleTsBooleanKeyword: BaseNodeHandler<
+  TSBooleanKeyword,
+  LuaTypeBoolean
+> = {
+  type: 'TSBooleanKeyword',
+  handler: () => {
+    return {
+      type: 'LuaTypeBoolean',
+    };
+  },
+};
+
 export const handleTsTypes = combineHandlers<BaseNodeHandler<TSType, LuaType>>(
-  [handleTsStringKeyword, handleTsNumberKeyword, handleTsAnyKeyword],
+  [handleTsStringKeyword, handleTsNumberKeyword, handleTsBooleanKeyword, handleTsAnyKeyword],
   defaultTypeHandler
 );
 

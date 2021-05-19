@@ -50,6 +50,7 @@ let unhandled: UnhandledType = 123
 let typedA: any = 'ts type any'
 let typedB: number = 123
 let typedC: string = 'ts type string'
+let typedD: boolean = true
 
 type MyNewType = any
 

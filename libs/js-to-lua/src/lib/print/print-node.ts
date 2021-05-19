@@ -60,6 +60,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       return 'string';
     case 'LuaTypeNumber':
       return 'number';
+    case 'LuaTypeBoolean':
+      return 'boolean';
     case 'LuaTypeAliasDeclaration':
       return printTypeAliasDeclaration(node, source);
     case 'UnhandledNode':

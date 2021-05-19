@@ -106,6 +106,40 @@ describe('Program handler', () => {
       expect(luaProgram).toEqual(expected);
     });
 
+    it('should handle "boolean"', () => {
+      const given = getProgramNode(`
+     let foo: boolean;
+    `);
+      const expected: LuaProgram = {
+        type: 'Program',
+        body: [
+          {
+            type: 'VariableDeclaration',
+            identifiers: [
+              {
+                type: 'VariableDeclaratorIdentifier',
+                value: {
+                  type: 'Identifier',
+                  name: 'foo',
+                  typeAnnotation: {
+                    type: 'LuaTypeAnnotation',
+                    typeAnnotation: {
+                      type: 'LuaTypeBoolean',
+                    },
+                  },
+                },
+              },
+            ],
+            values: [],
+          },
+        ],
+      };
+
+      const luaProgram = handleProgram.handler(given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
     it('should default unhandled types to "any"', () => {
       const given = getProgramNode(`
        let foo: UnhandledType;

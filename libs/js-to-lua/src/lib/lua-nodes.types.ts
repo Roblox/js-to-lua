@@ -168,7 +168,11 @@ export interface LuaTypeNumber {
   type: 'LuaTypeNumber';
 }
 
-export type LuaType = LuaTypeAny | LuaTypeString | LuaTypeNumber;
+export interface LuaTypeBoolean {
+  type: 'LuaTypeBoolean';
+}
+
+export type LuaType = LuaTypeAny | LuaTypeString | LuaTypeNumber | LuaTypeBoolean;
 
 export interface LuaTypeAnnotation {
   type: 'LuaTypeAnnotation';
