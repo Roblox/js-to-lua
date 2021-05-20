@@ -14,9 +14,11 @@ export type LuaNode =
   | LuaVariableDeclaratorIdentifier
   | LuaVariableDeclaratorValue
   | LuaFunctionDeclaration
+  | LuaBlockStatement
   | LuaTypeAnnotation
   | LuaType
   | LuaTypeAliasDeclaration
+  | LuaBlockStatement
   | UnhandledNode;
 
 export interface BaseLuaNode {
@@ -126,6 +128,11 @@ export interface LuaVariableDeclaration extends BaseLuaNode {
   type: 'VariableDeclaration';
   identifiers: LuaVariableDeclaratorIdentifier[];
   values: LuaVariableDeclaratorValue[];
+}
+
+export interface LuaBlockStatement extends BaseLuaNode {
+  type: 'BlockStatement';
+  body: LuaNode[];
 }
 
 export interface LuaVariableDeclarator {

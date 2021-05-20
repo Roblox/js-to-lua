@@ -41,7 +41,6 @@ describe('conformance tests', () => {
 
   translateFiles.forEach((givenFile) => {
     const filePath = format(givenFile);
-
     const testCase = normalizedConfig.excludeFiles.includes(normalize(filePath))
       ? xit
       : it;

@@ -6,7 +6,6 @@ import { parse } from '@babel/parser';
 // import { printNode } from "./print-node";
 
 const code = `
-
 var myfu
 
 [1,2,3, 'string']
@@ -46,6 +45,21 @@ function fee(){
   }
 }
 
+
+{
+  var nameInBlock = "wole"
+  var arr = [1, true, "roblox"]
+  {
+    var nameInNestedBlock = "wole"
+    var nestedArr = [1, true, "roblox"]
+    "roblox"
+    1
+  }
+}
+{
+
+}
+
 let unhandled: UnhandledType = 123
 let typedA: any = 'ts type any'
 let typedB: number = 123
@@ -55,6 +69,21 @@ let typedD: boolean = true
 type MyNewType = any
 
 Infinity
+{
+  var nameObject = "wole"
+  var arr = [1, true, "roblox"]
+{
+  var nameInBlock = "wole"
+  var arr = [1, true, "roblox"]
+  {
+    var nameInNestedBlock = "wole"
+    var nestedArr = [1, true, "roblox"]
+    "roblox"
+    1
+  }
+}
+
+}
 `;
 
 `
@@ -83,17 +112,13 @@ const file = parse(code, {
 //   file.comments // ?
 //   file.toString() // ?
 
-//   file.program.body // ?
-
 console.log(JSON.stringify(file.program.body, undefined, 2)); // ?
 //
 
 console.log(`
 code start
 ----------
-
 ${printNode(handleProgram.handler(file.program), code)}
-
 ----------
 code end
 `);

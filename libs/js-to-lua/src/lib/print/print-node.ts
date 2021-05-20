@@ -1,6 +1,7 @@
 import {
   LuaCallExpression,
   LuaExpression,
+  LuaBlockStatement,
   LuaNode,
   LuaProgram,
   LuaTableConstructor,
@@ -20,6 +21,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       return printProgram(node, source);
     case 'ExpressionStatement':
       return printNode(node.expression, source);
+    case 'BlockStatement':
+      return printBlockStatement(node, source);
     case 'NumericLiteral':
       return printNumeric(node);
     case 'StringLiteral':
@@ -133,6 +136,21 @@ function printTableExpressionKeyField(
   source: string
 ): string {
   return `[${printNode(node.key, source)}] = ${printNode(node.value, source)}`;
+}
+
+export function printBlockStatement(node: LuaBlockStatement, source: string) {
+  const blockBody = node.body
+    .map((value) => printNode(value, source))
+    .join('\n  ');
+
+  if (blockBody.length > 0) {
+    return `do
+  ${blockBody}
+end`;
+  }
+
+  return `do
+end`;
 }
 
 function printCallExpression(node: LuaCallExpression, source: string): string {
