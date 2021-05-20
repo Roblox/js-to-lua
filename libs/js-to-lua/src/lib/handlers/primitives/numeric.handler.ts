@@ -34,10 +34,10 @@ export const handleNumericLiteral: BaseNodeHandler<
 };
 
 const validNumberStrings = [
-  /^[1-9][\d]*([E|e][+-]?[\d]*)?$/, // decimal without leading 0 - optional scientific notation
-  /^0\d*[8-9+]\d*([E|e][+-]?[\d]*)?$/, // decimal with leading 0 - has to contain at least one digit larger than 7 - optional scientific notation
-  /^0[xX][\da-fA-F]+$/, // hex representation
-  /^0[bB][01]+$/, // binary representation
-  /^[+-]?[\d]+\.[\d]*([E|e][+-]?[\d]*)?$/, // floating point number - possible no digits after '.'
-  /^[+-]?[\d]*\.[\d]+([E|e][+-]?[\d]*)?$/, // floating point number - possible no digits before '.'
+  /^[1-9]_?((\d+_?)*?([E|e][+-]?(\d+_?)*)?)?\d*(?<!_)$/, // decimal without leading 0 and support for `_` separator - optional scientific notation
+  /^0_?(\d+_?)*[8-9+]_?(\d+_?)*([E|e][+-]?(\d+_?)*)?\d*(?<!_)$/, // decimal with leading 0 - has to contain at least one digit larger than 7 and support for `_` separator - optional scientific notation
+  /^0[xX]([\da-fA-F]+_?)+[\da-fA-F]*(?<!_)$/, // hex representation and support for `_` separator
+  /^0[bB]([01]+_?)*[01]*(?<!_)$/, // binary representation and support for `_` separator
+  /^[+-]?(\d+_?)+\.(\d+_?)*([E|e][+-]?(\d+_?)*\d)?\d*(?<!_)$/, // floating point number - possible no digits after '.'  and support for `_` separator
+  /^[+-]?((\d+_?)*\d)?\.(\d+_?)*([E|e][+-]?(\d+_?)*\d)?\d*(?<!_)$/, // floating point number - possible no digits before '.'
 ];

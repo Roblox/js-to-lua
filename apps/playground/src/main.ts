@@ -46,6 +46,15 @@ function fee(){
 }
 
 
+1_2_3_456
+1_2_3e10
+1_2_3e1_23
+0b10000000000000000000000000000000
+0b1_00000_000_00000_00000000000_0000000
+0o10
+0o1_0
+0o1_0000_223
+
 {
   var nameInBlock = "wole"
   var arr = [1, true, "roblox"]
@@ -59,6 +68,7 @@ function fee(){
 {
 
 }
+
 
 let unhandled: UnhandledType = 123
 let typedA: any = 'ts type any'

@@ -40,4 +40,34 @@ describe('Print Numeric Literal', () => {
       expect(printNumeric(given)).toEqual(expected);
     });
   });
+
+  createTestCases([
+    {
+      given: { value: 123456, extra: { raw: '123_456' } },
+      expected: '123_456',
+    },
+    {
+      given: { value: 123456, extra: { raw: '1_2_3_456' } },
+      expected: '1_2_3_456',
+    },
+    {
+      given: { value: 1230000000000, extra: { raw: '1_2_3e10' } },
+      expected: '1_2_3e10',
+    },
+    {
+      given: { value: 1.23e125, extra: { raw: '1_2_3e1_23' } },
+      expected: '1_2_3e1_23',
+    },
+    {
+      given: {
+        value: 2147483648,
+        extra: { raw: '0b1_00000_000_00000_00000000000_0000000' },
+      },
+      expected: '0b1_00000_000_00000_00000000000_0000000',
+    },
+  ]).forEach(({ given, expected }, index) => {
+    it(`should print numeric literal with '_' separator still present - ${index}`, () => {
+      expect(printNumeric(given)).toEqual(expected);
+    });
+  });
 });
