@@ -1,117 +1,16 @@
 import { handleProgram, printNode } from '@js-to-lua/js-to-lua';
-
-console.log('Hello World!');
-
 import { parse } from '@babel/parser';
-// import { printNode } from "./print-node";
+
+// THIS IS A PLAYGROUND FILE
+// PLEASE DO NOT COMMIT CHANGES TO THIS FILE
 
 const code = `
-var myfu
-
-[1,2,3, 'string']
-1
-2
-3
-'string'
-1 + 1
-undefined
-null
-let a
-let b = 10
-let c, d = 'd'
-var e
-var f = 15
-var g = 'g'
-var Symbol = function() {}
-const aConstant = 13
-const greeting = 'Hey', name = 'Jude'
-"a string with a \\"quote\\" in it"
-"😀"
-"👩‍⚕️"
-Symbol
-Symbol(1)
-Symbol("one")
-Symbol(true)
-Symbol(false)
-test(2)
-"test"(call(3))
-function foo(){}
-function fooWithParams(bar, baz){}
-function fooWithParamsAndDefaultValues(bar, baz = 12){}
-function fee(){
-  let anything
-  function fee(){
-    let myvar = 30
-  }
-}
-
-
-1_2_3_456
-1_2_3e10
-1_2_3e1_23
-0b10000000000000000000000000000000
-0b1_00000_000_00000_00000000000_0000000
-0o10
-0o1_0
-0o1_0000_223
-
-{
-  var nameInBlock = "wole"
-  var arr = [1, true, "roblox"]
-  {
-    var nameInNestedBlock = "wole"
-    var nestedArr = [1, true, "roblox"]
-    "roblox"
-    1
-  }
-}
-{
-
-}
-
-
-let unhandled: UnhandledType = 123
-let typedA: any = 'ts type any'
-let typedB: number = 123
-let typedC: string = 'ts type string'
-let typedD: boolean = true
-
-type MyNewType = any
-
-Infinity
-{
-  var nameObject = "wole"
-  var arr = [1, true, "roblox"]
-{
-  var nameInBlock = "wole"
-  var arr = [1, true, "roblox"]
-  {
-    var nameInNestedBlock = "wole"
-    var nestedArr = [1, true, "roblox"]
-    "roblox"
-    1
-  }
-}
-
-}
-`;
-
-`
-    // function test() {
-    //     console.log('test');
-    //     // comment
-    //     return 1;
-    // }
-    // function test1() {
-    //     console.log('test');
-    //     // comment
-    // }
+// put code that you want to test here
 `;
 
 const file = parse(code, {
   // parse in strict mode and allow module declarations
   sourceType: 'module',
-
   plugins: [
     // enable jsx and flow syntax
     'jsx',
@@ -119,20 +18,26 @@ const file = parse(code, {
   ],
 });
 
-//   file.comments // ?
-//   file.toString() // ?
-
+// Babel AST JSON is printed here
 console.log(JSON.stringify(file.program.body, undefined, 2)); // ?
-//
 
+// result Luau code is printed here
 console.log(`
 code start
 ----------
+
 ${printNode(handleProgram.handler(file.program), code)}
+
 ----------
 code end
 `);
+// result Luau code is printed here
+console.log(`
+code start
+----------
 
-// printNode(file.program, code);
-//
-// console.log(code.slice(file.program.body.start, file.program.body.end))
+${printNode(handleProgram.handler(file.program), code)}
+
+----------
+code end
+`);
