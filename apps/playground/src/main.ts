@@ -31,13 +31,3 @@ ${printNode(handleProgram.handler(file.program), code)}
 ----------
 code end
 `);
-// result Luau code is printed here
-console.log(`
-code start
-----------
-
-${printNode(handleProgram.handler(file.program), code)}
-
-----------
-code end
-`);
