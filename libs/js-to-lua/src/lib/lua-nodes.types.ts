@@ -19,6 +19,7 @@ export type LuaNode =
   | LuaType
   | LuaTypeAliasDeclaration
   | LuaBlockStatement
+  | LuaPropertySignature
   | UnhandledNode;
 
 export interface BaseLuaNode {
@@ -179,7 +180,12 @@ export interface LuaTypeBoolean {
   type: 'LuaTypeBoolean';
 }
 
-export type LuaType = LuaTypeAny | LuaTypeString | LuaTypeNumber | LuaTypeBoolean;
+export interface LuaTypeLiteral {
+  type: 'LuaTypeLiteral';
+  members: Array<LuaTypeElement>;
+}
+
+export type LuaType = LuaTypeAny | LuaTypeString | LuaTypeNumber | LuaTypeBoolean | LuaTypeLiteral;
 
 export interface LuaTypeAnnotation {
   type: 'LuaTypeAnnotation';
@@ -191,3 +197,10 @@ export interface LuaTypeAliasDeclaration {
   id: LuaIdentifier;
   typeAnnotation: LuaType;
 }
+export interface LuaPropertySignature {
+  type: 'LuaPropertySignature';
+  key: LuaExpression;
+  typeAnnotation?: LuaTypeAnnotation;
+}
+
+type LuaTypeElement = LuaPropertySignature; /*| TSCallSignatureDeclaration | TSConstructSignatureDeclaration |  TSMethodSignature | TSIndexSignature*/

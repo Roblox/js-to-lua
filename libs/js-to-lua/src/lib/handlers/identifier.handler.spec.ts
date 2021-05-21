@@ -1,6 +1,6 @@
 import { Identifier } from '@babel/types';
 import { LuaIdentifier, LuaNilLiteral } from '../lua-nodes.types';
-import { handleIdentifier } from './identifier.handler';
+import { handleIdentifier } from './expression-statement.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,

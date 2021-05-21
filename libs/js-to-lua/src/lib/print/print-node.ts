@@ -67,6 +67,10 @@ export const printNode = (node: LuaNode, source: string): string => {
       return 'boolean';
     case 'LuaTypeAliasDeclaration':
       return printTypeAliasDeclaration(node, source);
+    case 'LuaTypeLiteral':
+      return printTypeLiteral(node, source);
+    case 'LuaPropertySignature':
+      return printPropertySignature(node, source);
     case 'UnhandledNode':
       return `
 --[[
@@ -203,6 +207,19 @@ function printFunctionDefaultValues(defaultValues, source) {
 
 function printTypeAliasDeclaration(node, source) {
   return `type ${printNode(node.id, source)} = ${printNode(
+    node.typeAnnotation,
+    source
+  )}`;
+}
+
+function printTypeLiteral(node, source) {
+  return `{ ${node.members
+    .map((member) => printNode(member, source))
+    .join(', ')}${node.members.length ? ' ' : ''}}`;
+}
+
+function printPropertySignature(node, source) {
+  return `${printNode(node.key, source)}${printNode(
     node.typeAnnotation,
     source
   )}`;

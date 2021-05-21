@@ -10,12 +10,12 @@ import {
   PatternLike,
   SpreadElement,
   V8IntrinsicIdentifier,
+  Identifier,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
-import { handleIdentifier } from './identifier.handler';
 import { handleNullLiteral } from './primitives/null.handler';
 import {
   LuaExpression,
@@ -27,8 +27,10 @@ import {
   LuaTableKeyField,
   LuaTableNoKeyField,
   LuaCallExpression,
+  LuaNilLiteral,
 } from '../lua-nodes.types';
 import { defaultHandler } from '../utils/default.handler';
+import { typesHandler } from './type-annotation.handler';
 
 export const handleExpressionStatement: BaseNodeHandler<
   ExpressionStatement,
@@ -89,6 +91,59 @@ export const handleObjectExpression: BaseNodeHandler<
       type: 'TableConstructor',
       elements: expression.properties.map(handleObjectField.handler),
     };
+  },
+};
+
+export const handleIdentifier: BaseNodeHandler<
+  Identifier,
+  LuaNilLiteral | LuaIdentifier
+> = {
+  type: 'Identifier',
+  handler: (node) => {
+    switch (node.name) {
+      case 'undefined':
+        return {
+          type: 'NilLiteral',
+        };
+      case 'Infinity':
+        return {
+          type: 'Identifier',
+          name: 'math.huge',
+        };
+      case 'and':
+      case 'break':
+      case 'do':
+      case 'else':
+      case 'elseif':
+      case 'end':
+      case 'false':
+      case 'for':
+      case 'function':
+      case 'if':
+      case 'in':
+      case 'local':
+      case 'nil':
+      case 'not':
+      case 'or':
+      case 'repeat':
+      case 'return':
+      case 'then':
+      case 'true':
+      case 'until':
+      case 'while':
+        return {
+          type: 'Identifier',
+          name: `${node.name}_`,
+        };
+      default:
+        return {
+          type: 'Identifier',
+          name: node.name,
+          ...(node.typeAnnotation
+            ? { typeAnnotation: typesHandler(node.typeAnnotation) }
+            : {}),
+        };
+    }
   },
 };
 

@@ -2,7 +2,7 @@ import { FunctionDeclaration } from '@babel/types';
 import { LuaFunctionDeclaration, LuaIdentifier } from '../lua-nodes.types';
 import { BaseNodeHandler } from '../types';
 import { functionDeclarationParamsHandler } from './function-declaration-params.handler';
-import { handleIdentifier } from './identifier.handler';
+import { handleIdentifier } from './expression-statement.handler';
 import { handleStatement } from './statement.handler';
 
 export const handleFunctionDeclaration: BaseNodeHandler<

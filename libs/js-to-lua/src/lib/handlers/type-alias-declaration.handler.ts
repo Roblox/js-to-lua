@@ -1,7 +1,7 @@
 import { TSTypeAliasDeclaration } from '@babel/types';
 import { LuaIdentifier, LuaTypeAliasDeclaration } from '../lua-nodes.types';
 import { BaseNodeHandler } from '../types';
-import { handleIdentifier } from './identifier.handler';
+import { handleIdentifier } from './expression-statement.handler';
 import { handleTsTypes } from './type-annotation.handler';
 
 export const handleTypeAliasDeclaration: BaseNodeHandler<

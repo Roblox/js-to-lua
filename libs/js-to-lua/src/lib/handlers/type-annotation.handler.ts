@@ -5,8 +5,10 @@ import {
   TSStringKeyword,
   TSNumberKeyword,
   TSBooleanKeyword,
+  TSPropertySignature,
   TSType,
   TSTypeAnnotation,
+  TSTypeLiteral,
   TypeAnnotation,
 } from '@babel/types';
 import {
@@ -16,10 +18,13 @@ import {
   LuaTypeString,
   LuaTypeNumber,
   LuaTypeBoolean,
+  LuaPropertySignature,
+  LuaTypeLiteral,
 } from '../lua-nodes.types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { BaseNodeHandler } from '../types';
 import { defaultTypeHandler } from '../utils/default-type.handler';
+import { handleExpression } from './expression-statement.handler';
 
 export const handleNoop: BaseNodeHandler<Noop, LuaTypeAnnotation> = {
   type: 'Noop',
@@ -100,8 +105,34 @@ const handleTsBooleanKeyword: BaseNodeHandler<
   },
 };
 
+const handleTsTypeLiteral: BaseNodeHandler<TSTypeLiteral, LuaTypeLiteral> = {
+  type: 'TSTypeLiteral',
+  handler: (node) => {
+    return {
+      type: 'LuaTypeLiteral',
+      members: node.members.map(handleTsPropertySignature.handler),
+    };
+  },
+};
+
+const handleTsPropertySignature: BaseNodeHandler<
+  TSPropertySignature,
+  LuaPropertySignature
+> = {
+  type: 'TSPropertySignature',
+  handler: (node) => {
+    return {
+      type: 'LuaPropertySignature',
+      key: handleExpression.handler(node.key),
+      ...(node.typeAnnotation
+        ? { typeAnnotation: typesHandler(node.typeAnnotation) }
+        : {}),
+    };
+  },
+};
+
 export const handleTsTypes = combineHandlers<BaseNodeHandler<TSType, LuaType>>(
-  [handleTsStringKeyword, handleTsNumberKeyword, handleTsBooleanKeyword, handleTsAnyKeyword],
+  [handleTsStringKeyword, handleTsNumberKeyword, handleTsBooleanKeyword, handleTsAnyKeyword, handleTsTypeLiteral],
   defaultTypeHandler
 );
 

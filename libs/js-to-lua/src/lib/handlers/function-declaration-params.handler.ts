@@ -1,5 +1,5 @@
 import { AssignmentPattern, Identifier, LVal } from '@babel/types';
-import { handleIdentifier } from './identifier.handler';
+import { handleIdentifier } from './expression-statement.handler';
 import { LuaFunctionDeclarationParam } from '../lua-nodes.types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { BaseNodeHandler } from '../types';
