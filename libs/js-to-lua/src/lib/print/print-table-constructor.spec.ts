@@ -1,5 +1,5 @@
 import { LuaTableConstructor } from '../lua-nodes.types';
-import { printTableConstructor } from '@js-to-lua/js-to-lua';
+import { printTableConstructor } from './print-node';
 
 describe('Print Table Constructor', () => {
   it(`should print Lua Table Constructor Node with empty elements`, () => {

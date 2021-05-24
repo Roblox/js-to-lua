@@ -28,7 +28,7 @@ import { handleExpression } from './expression-statement.handler';
 
 export const handleNoop: BaseNodeHandler<Noop, LuaTypeAnnotation> = {
   type: 'Noop',
-  handler: (node) => {
+  handler: () => {
     return {
       type: 'LuaTypeAnnotation',
       typeAnnotation: null,
@@ -132,7 +132,13 @@ const handleTsPropertySignature: BaseNodeHandler<
 };
 
 export const handleTsTypes = combineHandlers<BaseNodeHandler<TSType, LuaType>>(
-  [handleTsStringKeyword, handleTsNumberKeyword, handleTsBooleanKeyword, handleTsAnyKeyword, handleTsTypeLiteral],
+  [
+    handleTsStringKeyword,
+    handleTsNumberKeyword,
+    handleTsBooleanKeyword,
+    handleTsAnyKeyword,
+    handleTsTypeLiteral,
+  ],
   defaultTypeHandler
 );
 

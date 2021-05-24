@@ -1,5 +1,5 @@
 import { LuaBlockStatement } from '../lua-nodes.types';
-import { printBlockStatement } from '@js-to-lua/js-to-lua';
+import { printBlockStatement } from './print-node';
 
 describe('Print Block Statement', () => {
   it(`should print Block Statement Node with body`, () => {

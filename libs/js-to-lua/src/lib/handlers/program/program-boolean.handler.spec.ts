@@ -1,6 +1,6 @@
-import { handleProgram } from '@js-to-lua/js-to-lua';
 import { LuaProgram } from '../../lua-nodes.types';
 import { getProgramNode } from './program.spec.utils';
+import { handleProgram } from './program.handler';
 
 describe('Program handler', () => {
   describe('Boolean', () => {

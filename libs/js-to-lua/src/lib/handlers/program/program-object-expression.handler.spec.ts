@@ -1,6 +1,6 @@
 import { getProgramNode } from './program.spec.utils';
 import { LuaProgram } from '../../lua-nodes.types';
-import { handleProgram } from '@js-to-lua/js-to-lua';
+import { handleProgram } from './program.handler';
 
 describe('Program handler', () => {
   describe('Object expression', () => {
