@@ -20,6 +20,7 @@ export type LuaNode =
   | LuaTypeAliasDeclaration
   | LuaBlockStatement
   | LuaPropertySignature
+  | LuaBinaryExpression
   | UnhandledNode;
 
 export interface BaseLuaNode {
@@ -37,6 +38,7 @@ export type LuaExpression =
   | LuaTableConstructor
   | LuaIdentifier
   | LuaCallExpression
+  | LuaBinaryExpression
   | UnhandledNode;
 
 export type LuaDeclaration =
@@ -204,3 +206,19 @@ export interface LuaPropertySignature {
 }
 
 type LuaTypeElement = LuaPropertySignature; /*| TSCallSignatureDeclaration | TSConstructSignatureDeclaration |  TSMethodSignature | TSIndexSignature*/
+
+// TODO: may have to add later any of these'&' | '|' | '>>' | '>>>' | '<<' | '^' | '==' | '===' | '!=' | '!==' | 'in' | 'instanceof' | '>' | '<' | '>=' | '<=';
+export type LuaBinaryExpressionOperator =
+  | '+'
+  | '-'
+  | '/'
+  | '%'
+  | '^'
+  | '*'
+  | '..';
+export interface LuaBinaryExpression {
+  type: 'LuaBinaryExpression';
+  operator: LuaBinaryExpressionOperator;
+  left: LuaExpression;
+  right: LuaExpression;
+}

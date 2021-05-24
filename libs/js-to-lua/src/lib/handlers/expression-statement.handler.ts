@@ -11,6 +11,7 @@ import {
   SpreadElement,
   V8IntrinsicIdentifier,
   Identifier,
+  BinaryExpression,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
@@ -28,6 +29,9 @@ import {
   LuaTableNoKeyField,
   LuaCallExpression,
   LuaNilLiteral,
+  LuaBinaryExpression,
+  LuaBinaryExpressionOperator,
+  UnhandledNode,
 } from '../lua-nodes.types';
 import { defaultHandler } from '../utils/default.handler';
 import { typesHandler } from './type-annotation.handler';
@@ -147,6 +151,54 @@ export const handleIdentifier: BaseNodeHandler<
   },
 };
 
+const handleBinaryExpressionOperator = (
+  node: BinaryExpression
+): LuaBinaryExpressionOperator => {
+  if (node.operator === '**') {
+    return '^';
+  }
+
+  if (
+    node.operator === '+' &&
+    node.left.type === 'StringLiteral' &&
+    node.right.type === 'StringLiteral'
+  ) {
+    return '..';
+  }
+
+  return node.operator as LuaBinaryExpressionOperator;
+};
+
+export const handleBinaryExpression: BaseNodeHandler<
+  BinaryExpression,
+  LuaBinaryExpression | UnhandledNode
+> = {
+  type: 'BinaryExpression',
+  handler: (node) => {
+    switch (node.operator) {
+      case '**':
+      case '+':
+      case '-':
+      case '/':
+      case '*':
+      case '%':
+        return {
+          type: 'LuaBinaryExpression',
+          operator: handleBinaryExpressionOperator(node),
+          left: handleExpression.handler(node.left as Expression),
+          right: handleExpression.handler(node.right),
+        };
+
+      default:
+        return {
+          type: 'UnhandledNode',
+          start: node.start,
+          end: node.end,
+        };
+    }
+  },
+};
+
 export const handleExpression = combineHandlers<
   BaseNodeHandler<Expression, LuaExpression>
 >([
@@ -158,6 +210,7 @@ export const handleExpression = combineHandlers<
   handleObjectExpression,
   handleIdentifier,
   handleNullLiteral,
+  handleBinaryExpression,
 ]);
 
 const handleObjectPropertyValue: BaseNodeHandler<

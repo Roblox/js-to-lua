@@ -71,6 +71,11 @@ export const printNode = (node: LuaNode, source: string): string => {
       return printTypeLiteral(node, source);
     case 'LuaPropertySignature':
       return printPropertySignature(node, source);
+    case 'LuaBinaryExpression':
+      return `${printNode(node.left, source)} ${node.operator} ${printNode(
+        node.right,
+        source
+      )}`;
     case 'UnhandledNode':
       return `
 --[[
