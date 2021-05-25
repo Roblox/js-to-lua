@@ -22,7 +22,7 @@ import {
   LuaPropertySignature,
   LuaTypeLiteral,
   LuaTypeVoid,
-} from '../lua-nodes.types';
+} from '@js-to-lua/lua-types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { BaseNodeHandler } from '../types';
 import { defaultTypeHandler } from '../utils/default-type.handler';

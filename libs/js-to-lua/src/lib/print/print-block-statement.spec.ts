@@ -1,4 +1,4 @@
-import { LuaBlockStatement } from '../lua-nodes.types';
+import { LuaBlockStatement } from '@js-to-lua/lua-types';
 import { printBlockStatement } from './print-node';
 
 describe('Print Block Statement', () => {

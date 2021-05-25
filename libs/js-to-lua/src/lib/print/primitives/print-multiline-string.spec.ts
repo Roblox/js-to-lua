@@ -1,4 +1,4 @@
-import { LuaMultilineStringLiteral } from '../../lua-nodes.types';
+import { LuaMultilineStringLiteral } from '@js-to-lua/lua-types';
 import { printMultilineString } from './print-multiline-string';
 
 interface TestCase {

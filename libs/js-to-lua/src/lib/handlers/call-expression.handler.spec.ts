@@ -1,5 +1,5 @@
 import { CallExpression } from '@babel/types';
-import { LuaCallExpression } from '../lua-nodes.types';
+import { LuaCallExpression } from '@js-to-lua/lua-types';
 import { handleCallExpression } from './expression-statement.handler';
 
 const DEFAULT_NODE = {

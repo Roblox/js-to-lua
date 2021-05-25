@@ -1,4 +1,4 @@
-import { LuaMultilineStringLiteral } from '../../lua-nodes.types';
+import { LuaMultilineStringLiteral } from '@js-to-lua/lua-types';
 
 export function printMultilineString(node: LuaMultilineStringLiteral) {
   const numberOfEquals = calculateEqualsForDelimiter(node.value);

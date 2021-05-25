@@ -1,5 +1,5 @@
 import { StringLiteral } from '@babel/types';
-import { LuaStringLiteral } from '../../lua-nodes.types';
+import { LuaStringLiteral } from '@js-to-lua/lua-types';
 import { handleStringLiteral } from './string.handler';
 
 const DEFAULT_NODE = {

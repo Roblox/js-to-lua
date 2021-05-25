@@ -1,6 +1,6 @@
 import { BaseNodeHandler } from '../types';
 import { TemplateLiteral } from '@babel/types';
-import { LuaMultilineStringLiteral } from '../lua-nodes.types';
+import { LuaMultilineStringLiteral } from '@js-to-lua/lua-types';
 
 export const handleMultilineStringLiteral: BaseNodeHandler<
   TemplateLiteral,

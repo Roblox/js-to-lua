@@ -1,4 +1,4 @@
-import { LuaTableConstructor } from '../lua-nodes.types';
+import { LuaTableConstructor } from '@js-to-lua/lua-types';
 import { printTableConstructor } from './print-node';
 
 describe('Print Table Constructor', () => {

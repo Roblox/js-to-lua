@@ -1,10 +1,8 @@
-import { LuaStringLiteral } from '../../lua-nodes.types';
+import { LuaStringLiteral } from '@js-to-lua/lua-types';
 
 export const printString = (node: LuaStringLiteral): string => {
-  return Array
-    .from(
-      `"${node.value.replace(/"/g, '\\"')}"`)
-    .map(value => {
+  return Array.from(`"${node.value.replace(/"/g, '\\"')}"`)
+    .map((value) => {
       const codePoint = value.codePointAt(0);
       if (codePoint > 127) {
         const hex = codePoint.toString(16).toUpperCase();

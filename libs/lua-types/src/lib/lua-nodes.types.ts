@@ -18,9 +18,9 @@ export type LuaNode =
   | LuaTypeAnnotation
   | LuaType
   | LuaTypeAliasDeclaration
-  | LuaBlockStatement
   | LuaPropertySignature
   | LuaBinaryExpression
+  | LuaBlockStatement
   | LuaFunctionExpression
   | UnhandledNode;
 
@@ -242,6 +242,7 @@ export type LuaBinaryExpressionOperator =
   | '^'
   | '*'
   | '..';
+
 export interface LuaBinaryExpression {
   type: 'LuaBinaryExpression';
   operator: LuaBinaryExpressionOperator;

@@ -12,7 +12,7 @@ import {
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
   LuaFunctionDeclaration,
-} from '../lua-nodes.types';
+} from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
 import { printMultilineString } from './primitives/print-multiline-string';
@@ -193,7 +193,7 @@ function printFunction(node, source) {
   const parameters = node.params
     .map((parameter) => printNode(parameter, source))
     .join(', ');
-    
+
   const defaults = node.defaultValues
     .map(
       (assignmentPattern) =>

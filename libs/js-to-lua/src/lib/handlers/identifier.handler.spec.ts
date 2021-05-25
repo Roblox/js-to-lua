@@ -1,5 +1,5 @@
 import { Identifier } from '@babel/types';
-import { LuaIdentifier, LuaNilLiteral } from '../lua-nodes.types';
+import { LuaIdentifier, LuaNilLiteral } from '@js-to-lua/lua-types';
 import { handleIdentifier } from './expression-statement.handler';
 
 const DEFAULT_NODE = {

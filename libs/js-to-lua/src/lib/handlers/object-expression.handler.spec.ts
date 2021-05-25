@@ -1,5 +1,5 @@
 import { ObjectExpression } from '@babel/types';
-import { LuaTableConstructor } from '../lua-nodes.types';
+import { LuaTableConstructor } from '@js-to-lua/lua-types';
 import { handleObjectExpression } from './expression-statement.handler';
 
 const DEFAULT_NODE = {

@@ -1,6 +1,8 @@
 {
   "version": 2,
-  "cli": { "defaultCollection": "@nrwl/node" },
+  "cli": {
+    "defaultCollection": "@nrwl/node"
+  },
   "defaultProject": "convert-js-to-lua",
   "projects": {
     "playground": {
@@ -33,11 +35,15 @@
         },
         "serve": {
           "executor": "@nrwl/node:execute",
-          "options": { "buildTarget": "playground:build" }
+          "options": {
+            "buildTarget": "playground:build"
+          }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["apps/playground/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["apps/playground/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -56,7 +62,9 @@
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["libs/js-to-lua/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["libs/js-to-lua/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -101,11 +109,15 @@
         },
         "serve": {
           "executor": "@nrwl/node:execute",
-          "options": { "buildTarget": "convert-js-to-lua:build" }
+          "options": {
+            "buildTarget": "convert-js-to-lua:build"
+          }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["apps/convert-js-to-lua/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["apps/convert-js-to-lua/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -133,6 +145,27 @@
           "outputs": [],
           "options": {
             "command": "node tools/scripts/verify-conformance-tests.js"
+          }
+        }
+      }
+    },
+    "lua-types": {
+      "root": "libs/lua-types",
+      "sourceRoot": "libs/lua-types/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/lua-types/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/lua-types"],
+          "options": {
+            "jestConfig": "libs/lua-types/jest.config.js",
+            "passWithNoTests": true
           }
         }
       }

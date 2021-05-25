@@ -1,5 +1,5 @@
 import { VariableDeclaration } from '@babel/types';
-import { LuaVariableDeclaration } from '../lua-nodes.types';
+import { LuaVariableDeclaration } from '@js-to-lua/lua-types';
 import { handleVariableDeclaration } from './expression-statement.handler';
 
 const DEFAULT_NODE = {

@@ -1,5 +1,5 @@
 import { NumericLiteral } from '@babel/types';
-import { LuaNumericLiteral } from '../../lua-nodes.types';
+import { LuaNumericLiteral } from '@js-to-lua/lua-types';
 import { handleNumericLiteral } from './numeric.handler';
 
 const DEFAULT_NODE = {

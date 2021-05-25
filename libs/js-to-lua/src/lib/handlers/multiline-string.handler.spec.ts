@@ -1,5 +1,5 @@
 import { TemplateLiteral } from '@babel/types';
-import { LuaMultilineStringLiteral } from '../lua-nodes.types';
+import { LuaMultilineStringLiteral } from '@js-to-lua/lua-types';
 import { handleMultilineStringLiteral } from './multiline-string.handler';
 
 const DEFAULT_NODE = {

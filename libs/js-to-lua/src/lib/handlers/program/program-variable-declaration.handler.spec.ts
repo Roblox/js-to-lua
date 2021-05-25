@@ -1,4 +1,4 @@
-import { LuaProgram } from '../../lua-nodes.types';
+import { LuaProgram } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 

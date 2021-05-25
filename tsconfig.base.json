@@ -15,8 +15,17 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@js-to-lua/js-to-lua": ["libs/js-to-lua/src/index.ts"]
-    }
+      "@js-to-lua/js-to-lua": ["libs/js-to-lua/src/index.ts"],
+      "@js-to-lua/lua-types": ["libs/lua-types/src/index.ts"]
+    },
+    "alwaysStrict": true,
+    "strictNullChecks": false,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "noImplicitThis": true,
+    "noImplicitReturns": true
   },
   "exclude": ["node_modules", "tmp"]
 }

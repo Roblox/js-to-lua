@@ -1,6 +1,6 @@
 import { NullLiteral } from '@babel/types';
 import { handleNullLiteral } from './null.handler';
-import { LuaNilLiteral } from '../../lua-nodes.types';
+import { LuaNilLiteral } from '@js-to-lua/lua-types';
 
 const DEFAULT_NODE = {
   leadingComments: null,

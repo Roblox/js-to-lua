@@ -1,6 +1,6 @@
 import { BaseNodeHandler } from '../../types';
 import { StringLiteral } from '@babel/types';
-import { LuaStringLiteral } from '../../lua-nodes.types';
+import { LuaStringLiteral } from '@js-to-lua/lua-types';
 
 export const handleStringLiteral: BaseNodeHandler<
   StringLiteral,

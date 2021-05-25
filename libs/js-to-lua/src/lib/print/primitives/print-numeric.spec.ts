@@ -1,4 +1,4 @@
-import { LuaNumericLiteral } from '../../lua-nodes.types';
+import { LuaNumericLiteral } from '@js-to-lua/lua-types';
 import { printNumeric } from './print-numeric';
 
 interface TestCase {

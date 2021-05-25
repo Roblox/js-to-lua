@@ -1,5 +1,5 @@
 import { BlockStatement } from '@babel/types';
-import { LuaBlockStatement } from '../lua-nodes.types';
+import { LuaBlockStatement } from '@js-to-lua/lua-types';
 import { BaseNodeHandler } from '../types';
 import { handleStatement } from './expression-statement.handler';
 

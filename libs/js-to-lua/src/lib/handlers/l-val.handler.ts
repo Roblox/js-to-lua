@@ -1,6 +1,6 @@
 import { Identifier, LVal } from '@babel/types';
 import { handleIdentifier } from './expression-statement.handler';
-import { LuaLVal } from '../lua-nodes.types';
+import { LuaLVal } from '@js-to-lua/lua-types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { BaseNodeHandler } from '../types';
 

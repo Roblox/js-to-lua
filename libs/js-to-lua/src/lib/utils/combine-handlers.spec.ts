@@ -1,7 +1,7 @@
 import { combineHandlers } from './combine-handlers';
 import { defaultHandler } from './default.handler';
 import { BabelNode, BaseNodeHandler } from '../types';
-import { LuaNode } from '../lua-nodes.types';
+import { LuaNode } from '@js-to-lua/lua-types';
 
 jest.mock('./default.handler');
 

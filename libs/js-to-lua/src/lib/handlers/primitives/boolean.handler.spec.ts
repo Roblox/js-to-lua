@@ -1,6 +1,6 @@
 import { BooleanLiteral } from '@babel/types';
 import { handleBooleanLiteral } from './boolean.handler';
-import { LuaBooleanLiteral } from '../../lua-nodes.types';
+import { LuaBooleanLiteral } from '@js-to-lua/lua-types';
 
 const DEFAULT_NODE = {
   leadingComments: null,

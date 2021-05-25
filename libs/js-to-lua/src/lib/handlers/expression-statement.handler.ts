@@ -1,4 +1,4 @@
-import { BaseNodeHandler } from '../types';
+import { BaseNodeHandler, HandlerFunction } from '../types';
 import {
   ArrayExpression,
   BinaryExpression,
@@ -6,6 +6,7 @@ import {
   Expression,
   ExpressionStatement,
   Identifier,
+  isSpreadElement,
   ObjectExpression,
   ObjectMethod,
   ObjectProperty,
@@ -33,7 +34,6 @@ import {
   LuaIdentifier,
   LuaNilLiteral,
   LuaTableConstructor,
-  LuaTableExpressionKeyField,
   LuaTableField,
   LuaTableKeyField,
   LuaTableNoKeyField,
@@ -43,7 +43,7 @@ import {
   LuaVariableDeclarator,
   LuaFunctionDeclaration,
   LuaVariableDeclaration,
-} from '../lua-nodes.types';
+} from '@js-to-lua/lua-types';
 import { defaultHandler } from '../utils/default.handler';
 import { handleMultilineStringLiteral } from './multiline-string.handler';
 import { typesHandler } from './type-annotation.handler';
@@ -51,6 +51,15 @@ import { functionParamsHandler } from './function-params.handler';
 import { lValHandler } from './l-val.handler';
 import { handleTypeAliasDeclaration } from './type-alias-declaration.handler';
 import { handleBlockStatement } from './block-statement.handler';
+import { splitBy } from '../utils/split-by';
+import { Unpacked } from '../utils/types';
+
+type NoSpreadObjectProperty = Exclude<
+  Unpacked<ObjectExpression['properties']>,
+  SpreadElement
+>;
+type ObjectExpressionProperty = Unpacked<ObjectExpression['properties']>;
+type ArrayExpressionElement = Unpacked<ArrayExpression['elements']>;
 
 export const handleExpressionStatement: BaseNodeHandler<
   ExpressionStatement,
@@ -63,27 +72,88 @@ export const handleExpressionStatement: BaseNodeHandler<
   }),
 };
 
+const handleExpressionTableNoKeyFieldHandler: HandlerFunction<
+  Expression,
+  LuaTableNoKeyField
+> = (expression) => ({
+  type: 'TableNoKeyField',
+  value: handleExpression.handler(expression),
+});
+
+const handleSpreadExpression: HandlerFunction<SpreadElement, LuaExpression> = (
+  spreadElement
+) =>
+  spreadElement.argument.type === 'ArrayExpression'
+    ? handleExpression.handler(spreadElement.argument)
+    : {
+        type: 'CallExpression',
+        callee: {
+          // TODO: Replace identifier with member expression.
+          type: 'Identifier',
+          name: 'Array.spread',
+        },
+        arguments: [handleExpression.handler(spreadElement.argument)],
+      };
+
+const handleArrayExpressionWithSpread: HandlerFunction<
+  ArrayExpression,
+  LuaCallExpression
+> = (expression) => {
+  const propertiesGroups = expression.elements
+    .filter(Boolean)
+    .reduce(
+      splitBy<ArrayExpressionElement, SpreadElement>(isSpreadElement),
+      []
+    );
+  const args: LuaExpression[] = propertiesGroups.map((group) => {
+    return Array.isArray(group)
+      ? {
+          type: 'TableConstructor',
+          elements: group.map(handleExpressionTableNoKeyFieldHandler),
+        }
+      : handleSpreadExpression(group);
+  });
+
+  // TODO: Replace identifier with member expression.
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'Identifier',
+      name: 'Array.concat',
+    },
+    arguments: [
+      {
+        type: 'TableConstructor',
+        elements: [],
+      },
+      ...args,
+    ],
+  };
+};
+
+type ArrayExpressionWithoutSpread = ArrayExpression;
+
+const handleArrayExpressionWithoutSpread: HandlerFunction<
+  ArrayExpressionWithoutSpread,
+  LuaTableConstructor
+> = ({ elements }) => {
+  return {
+    type: 'TableConstructor',
+    elements: elements.map(handleExpressionTableNoKeyFieldHandler),
+  };
+};
+
 export const handleArrayExpression: BaseNodeHandler<
   ArrayExpression,
-  LuaTableConstructor
+  LuaTableConstructor | LuaCallExpression
 > = {
   type: 'ArrayExpression',
-  handler: ({ elements }) => {
-    const handleExpressionTableNoKeyField: BaseNodeHandler<
-      Expression,
-      LuaTableNoKeyField
-    > = {
-      type: handleExpression.type,
-      handler: (expression) => ({
-        type: 'TableNoKeyField',
-        value: handleExpression.handler(expression),
-      }),
-    };
-
-    return {
-      type: 'TableConstructor',
-      elements: elements.map(handleExpressionTableNoKeyField.handler),
-    };
+  handler: (expression) => {
+    return expression.elements.every(
+      (element) => element.type !== 'SpreadElement'
+    )
+      ? handleArrayExpressionWithoutSpread(expression)
+      : handleArrayExpressionWithSpread(expression);
   },
 };
 
@@ -101,17 +171,56 @@ export const handleCallExpression: BaseNodeHandler<
   },
 };
 
-export const handleObjectExpression: BaseNodeHandler<
+const handleObjectExpressionWithSpread: HandlerFunction<
+  ObjectExpression,
+  LuaCallExpression
+> = (expression) => {
+  const propertiesGroups = expression.properties.reduce(
+    splitBy<ObjectExpressionProperty, SpreadElement>(isSpreadElement),
+    []
+  );
+  const args: LuaExpression[] = propertiesGroups.map((group) => {
+    return Array.isArray(group)
+      ? {
+          type: 'TableConstructor',
+          elements: group.map(handleObjectField.handler),
+        }
+      : handleExpression.handler(group.argument);
+  });
+
+  // TODO: Replace identifier with member expression.
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'Identifier',
+      name: 'Object.assign',
+    },
+    arguments: [
+      {
+        type: 'TableConstructor',
+        elements: [],
+      },
+      ...args,
+    ],
+  };
+};
+const handleObjectExpressionWithoutSpread: HandlerFunction<
   ObjectExpression,
   LuaTableConstructor
+> = (expression) => ({
+  type: 'TableConstructor',
+  elements: expression.properties.map(handleObjectField.handler),
+});
+
+export const handleObjectExpression: BaseNodeHandler<
+  ObjectExpression,
+  LuaTableConstructor | LuaCallExpression
 > = {
   type: 'ObjectExpression',
-  handler: (expression) => {
-    return {
-      type: 'TableConstructor',
-      elements: expression.properties.map(handleObjectField.handler),
-    };
-  },
+  handler: (expression) =>
+    expression.properties.every((prop) => prop.type !== 'SpreadElement')
+      ? handleObjectExpressionWithoutSpread(expression)
+      : handleObjectExpressionWithSpread(expression),
 };
 
 export const handleIdentifier: BaseNodeHandler<
@@ -315,19 +424,9 @@ export const handleObjectMethod: BaseNodeHandler<
   },
 };
 
-export const handleSpread: BaseNodeHandler<
-  SpreadElement,
-  LuaTableExpressionKeyField
-> = {
-  type: 'SpreadElement',
-  handler: (node) => {
-    return defaultHandler(node) as any; // TODO: handle SpreadElement
-  },
-};
-
 export const handleObjectField = combineHandlers<
-  BaseNodeHandler<ObjectMethod | ObjectProperty | SpreadElement, LuaTableField>
->([handleObjectProperty, handleObjectMethod, handleSpread]);
+  BaseNodeHandler<NoSpreadObjectProperty, LuaTableField>
+>([handleObjectProperty, handleObjectMethod]);
 
 const handleCalleeExpression = combineHandlers<
   BaseNodeHandler<Expression | V8IntrinsicIdentifier, LuaExpression>

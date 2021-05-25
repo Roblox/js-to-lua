@@ -1,7 +1,7 @@
 import { BaseNodeHandler } from '../../types';
 import { Program } from '@babel/types';
 import { handleStatement } from '../expression-statement.handler';
-import { LuaProgram } from '../../lua-nodes.types';
+import { LuaProgram } from '@js-to-lua/lua-types';
 
 export const handleProgram: BaseNodeHandler<Program, LuaProgram> = {
   type: 'Program',

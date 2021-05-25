@@ -1,6 +1,19 @@
 import { getProgramNode } from './program.spec.utils';
-import { LuaProgram } from '../../lua-nodes.types';
+import { LuaProgram } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
+import {
+  booleanLiteral,
+  callExpression,
+  expressionStatement,
+  identifier,
+  numericLiteral,
+  objectAssign,
+  program,
+  stringLiteral,
+  tableConstructor,
+  tableExpressionKeyField,
+  tableNameKeyField,
+} from '@js-to-lua/lua-types';
 
 describe('Program handler', () => {
   describe('Object expression', () => {
@@ -8,18 +21,9 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         ({})
       `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'TableConstructor',
-              elements: [],
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(tableConstructor([])),
+      ]);
 
       expect(handleProgram.handler(given)).toEqual(expected);
     });
@@ -32,55 +36,15 @@ describe('Program handler', () => {
           baz: 'abc'
         })
       `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'TableConstructor',
-              elements: [
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo',
-                  },
-                  value: {
-                    type: 'BooleanLiteral',
-                    value: true,
-                  },
-                },
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'bar',
-                  },
-                  value: {
-                    type: 'NumericLiteral',
-                    value: 1,
-                    extra: {
-                      raw: '1',
-                    },
-                  },
-                },
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'baz',
-                  },
-                  value: {
-                    type: 'StringLiteral',
-                    value: 'abc',
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          tableConstructor([
+            tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+            tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+            tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+          ])
+        ),
+      ]);
 
       expect(handleProgram.handler(given)).toEqual(expected);
     });
@@ -93,52 +57,15 @@ describe('Program handler', () => {
           baz,
         })
       `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'TableConstructor',
-              elements: [
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo',
-                  },
-                  value: {
-                    type: 'Identifier',
-                    name: 'foo',
-                  },
-                },
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'bar',
-                  },
-                  value: {
-                    type: 'Identifier',
-                    name: 'bar',
-                  },
-                },
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'baz',
-                  },
-                  value: {
-                    type: 'Identifier',
-                    name: 'baz',
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          tableConstructor([
+            tableNameKeyField(identifier('foo'), identifier('foo')),
+            tableNameKeyField(identifier('bar'), identifier('bar')),
+            tableNameKeyField(identifier('baz'), identifier('baz')),
+          ])
+        ),
+      ]);
 
       expect(handleProgram.handler(given)).toEqual(expected);
     });
@@ -151,55 +78,18 @@ describe('Program handler', () => {
           ['baz']: 'abc'
         })
       `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'TableConstructor',
-              elements: [
-                {
-                  type: 'TableExpressionKeyField',
-                  key: {
-                    type: 'StringLiteral',
-                    value: 'foo',
-                  },
-                  value: {
-                    type: 'BooleanLiteral',
-                    value: true,
-                  },
-                },
-                {
-                  type: 'TableExpressionKeyField',
-                  key: {
-                    type: 'StringLiteral',
-                    value: 'bar',
-                  },
-                  value: {
-                    type: 'NumericLiteral',
-                    value: 1,
-                    extra: {
-                      raw: '1',
-                    },
-                  },
-                },
-                {
-                  type: 'TableExpressionKeyField',
-                  key: {
-                    type: 'StringLiteral',
-                    value: 'baz',
-                  },
-                  value: {
-                    type: 'StringLiteral',
-                    value: 'abc',
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          tableConstructor([
+            tableExpressionKeyField(stringLiteral('foo'), booleanLiteral(true)),
+            tableExpressionKeyField(
+              stringLiteral('bar'),
+              numericLiteral(1, '1')
+            ),
+            tableExpressionKeyField(stringLiteral('baz'), stringLiteral('abc')),
+          ])
+        ),
+      ]);
 
       expect(handleProgram.handler(given)).toEqual(expected);
     });
@@ -218,91 +108,30 @@ describe('Program handler', () => {
           },
         })
       `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'TableConstructor',
-              elements: [
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo0',
-                  },
-                  value: {
-                    type: 'TableConstructor',
-                    elements: [
-                      {
-                        type: 'TableNameKeyField',
-                        key: {
-                          type: 'Identifier',
-                          name: 'foo1',
-                        },
-                        value: {
-                          type: 'BooleanLiteral',
-                          value: true,
-                        },
-                      },
-                    ],
-                  },
-                },
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'bar0',
-                  },
-                  value: {
-                    type: 'TableConstructor',
-                    elements: [
-                      {
-                        type: 'TableNameKeyField',
-                        key: {
-                          type: 'Identifier',
-                          name: 'bar1',
-                        },
-                        value: {
-                          type: 'NumericLiteral',
-                          value: 1,
-                          extra: {
-                            raw: '1',
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'baz0',
-                  },
-                  value: {
-                    type: 'TableConstructor',
-                    elements: [
-                      {
-                        type: 'TableNameKeyField',
-                        key: {
-                          type: 'Identifier',
-                          name: 'baz1',
-                        },
-                        value: {
-                          type: 'StringLiteral',
-                          value: 'abc',
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          tableConstructor([
+            tableNameKeyField(
+              identifier('foo0'),
+              tableConstructor([
+                tableNameKeyField(identifier('foo1'), booleanLiteral(true)),
+              ])
+            ),
+            tableNameKeyField(
+              identifier('bar0'),
+              tableConstructor([
+                tableNameKeyField(identifier('bar1'), numericLiteral(1, '1')),
+              ])
+            ),
+            tableNameKeyField(
+              identifier('baz0'),
+              tableConstructor([
+                tableNameKeyField(identifier('baz1'), stringLiteral('abc')),
+              ])
+            ),
+          ])
+        ),
+      ]);
 
       expect(handleProgram.handler(given)).toEqual(expected);
     });
@@ -317,54 +146,139 @@ describe('Program handler', () => {
           }
         })
       `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'TableConstructor',
-              elements: [
-                {
-                  type: 'TableNameKeyField',
-                  key: {
-                    type: 'Identifier',
-                    name: 'foo',
-                  },
-                  value: {
-                    type: 'TableConstructor',
-                    elements: [
-                      {
-                        type: 'TableNameKeyField',
-                        key: {
-                          type: 'Identifier',
-                          name: 'bar',
-                        },
-                        value: {
-                          type: 'TableConstructor',
-                          elements: [
-                            {
-                              type: 'TableNameKeyField',
-                              key: {
-                                type: 'Identifier',
-                                name: 'baz',
-                              },
-                              value: {
-                                type: 'TableConstructor',
-                                elements: [],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
+      const expected: LuaProgram = program([
+        expressionStatement(
+          tableConstructor([
+            tableNameKeyField(
+              identifier('foo'),
+              tableConstructor([
+                tableNameKeyField(
+                  identifier('bar'),
+                  tableConstructor([
+                    tableNameKeyField(identifier('baz'), tableConstructor()),
+                  ])
+                ),
+              ])
+            ),
+          ])
+        ),
+      ]);
+
+      expect(handleProgram.handler(given)).toEqual(expected);
+    });
+
+    it(`should return Lua Table Constructor Node with spread elements`, () => {
+      const given = getProgramNode(`
+        ({
+          foo: true,
+          bar: 1,
+          ...{baz: 'abc'},
+        })
+      `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          callExpression(objectAssign(), [
+            tableConstructor(),
+            tableConstructor([
+              tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+              tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+            ]),
+            tableConstructor([
+              tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+            ]),
+          ])
+        ),
+      ]);
+
+      expect(handleProgram.handler(given)).toEqual(expected);
+    });
+
+    it(`should return Lua Table Constructor Node with multiple spread elements`, () => {
+      const given = getProgramNode(`
+        ({
+          ...{
+            foo: true,
+            bar: 1,
           },
-        ],
-      };
+          ...{baz: 'abc'},
+        })
+      `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          callExpression(objectAssign(), [
+            tableConstructor(),
+            tableConstructor([
+              tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+              tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+            ]),
+            tableConstructor([
+              tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+            ]),
+          ])
+        ),
+      ]);
+
+      expect(handleProgram.handler(given)).toEqual(expected);
+    });
+
+    it(`should return Lua Table Constructor Node with nested spread elements`, () => {
+      const given = getProgramNode(`
+        ({
+          ...{
+            foo: true,
+            bar: 1,
+            ...{baz: 'abc'},
+          },
+        })
+      `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          callExpression(objectAssign(), [
+            tableConstructor(),
+            callExpression(objectAssign(), [
+              tableConstructor(),
+              tableConstructor([
+                tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+                tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+              ]),
+              tableConstructor([
+                tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+              ]),
+            ]),
+          ])
+        ),
+      ]);
+
+      expect(handleProgram.handler(given)).toEqual(expected);
+    });
+
+    it(`should return Lua Table Constructor Node with spread identifiers`, () => {
+      const given = getProgramNode(`
+        ({
+          ...{
+            foo: true,
+            bar: 1,
+            ...fizz
+          },
+          ...baz
+        })
+      `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          callExpression(objectAssign(), [
+            tableConstructor(),
+            callExpression(objectAssign(), [
+              tableConstructor(),
+              tableConstructor([
+                tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+                tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+              ]),
+              identifier('fizz'),
+            ]),
+            identifier('baz'),
+          ])
+        ),
+      ]);
 
       expect(handleProgram.handler(given)).toEqual(expected);
     });
