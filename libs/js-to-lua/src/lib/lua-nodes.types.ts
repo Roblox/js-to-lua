@@ -15,7 +15,6 @@ export type LuaNode =
   | LuaVariableDeclaratorIdentifier
   | LuaVariableDeclaratorValue
   | LuaFunctionDeclaration
-  | LuaBlockStatement
   | LuaTypeAnnotation
   | LuaType
   | LuaTypeAliasDeclaration
@@ -169,6 +168,7 @@ export interface LuaFunctionDeclaration {
   params: Array<LuaFunctionDeclarationParam>;
   defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
   body: Array<LuaNode>;
+  returnType?: LuaTypeAnnotation;
 }
 
 export type LuaFunctionDeclarationParam = LuaIdentifier; /*| Pattern | RestElement | TSParameterProperty*/
@@ -189,6 +189,10 @@ export interface LuaTypeBoolean {
   type: 'LuaTypeBoolean';
 }
 
+export interface LuaTypeVoid {
+  type: 'LuaTypeVoid';
+}
+
 export interface LuaTypeLiteral {
   type: 'LuaTypeLiteral';
   members: Array<LuaTypeElement>;
@@ -199,7 +203,8 @@ export type LuaType =
   | LuaTypeString
   | LuaTypeNumber
   | LuaTypeBoolean
-  | LuaTypeLiteral;
+  | LuaTypeLiteral
+  | LuaTypeVoid;
 
 export interface LuaTypeAnnotation {
   type: 'LuaTypeAnnotation';

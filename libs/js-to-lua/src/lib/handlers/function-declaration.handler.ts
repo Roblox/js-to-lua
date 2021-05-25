@@ -4,6 +4,7 @@ import { BaseNodeHandler } from '../types';
 import { functionDeclarationParamsHandler } from './function-declaration-params.handler';
 import { handleIdentifier } from './expression-statement.handler';
 import { handleStatement } from './statement.handler';
+import { typesHandler } from './type-annotation.handler';
 
 export const handleFunctionDeclaration: BaseNodeHandler<
   FunctionDeclaration,
@@ -19,6 +20,7 @@ export const handleFunctionDeclaration: BaseNodeHandler<
         (param) => param.type === 'AssignmentPattern'
       ), // TODO: should be handled LuaAssignmentPattern
       body: node.body.body.map(handleStatement.handler),
+      ...(node.returnType ? { returnType: typesHandler(node.returnType) } : {}),
     };
   },
 };

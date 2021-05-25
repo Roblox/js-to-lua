@@ -1,17 +1,17 @@
 import { BaseNodeHandler } from '../types';
 import {
   ArrayExpression,
+  BinaryExpression,
+  CallExpression,
   Expression,
   ExpressionStatement,
-  CallExpression,
+  Identifier,
   ObjectExpression,
   ObjectMethod,
   ObjectProperty,
   PatternLike,
   SpreadElement,
   V8IntrinsicIdentifier,
-  Identifier,
-  BinaryExpression,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
@@ -19,18 +19,18 @@ import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
 import { handleNullLiteral } from './primitives/null.handler';
 import {
+  LuaBinaryExpression,
+  LuaBinaryExpressionOperator,
+  LuaCallExpression,
   LuaExpression,
   LuaExpressionStatement,
   LuaIdentifier,
+  LuaNilLiteral,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
   LuaTableField,
   LuaTableKeyField,
   LuaTableNoKeyField,
-  LuaCallExpression,
-  LuaNilLiteral,
-  LuaBinaryExpression,
-  LuaBinaryExpressionOperator,
   UnhandledNode,
 } from '../lua-nodes.types';
 import { defaultHandler } from '../utils/default.handler';
@@ -220,6 +220,21 @@ const handleObjectPropertyValue: BaseNodeHandler<
   LuaExpression
 > = combineHandlers([handleExpression]);
 
+const handleObjectKeyExpression: BaseNodeHandler<
+  Expression,
+  LuaExpression
+>['handler'] = (key) =>
+  key.type === 'StringLiteral'
+    ? handleExpression.handler(key)
+    : {
+        type: 'CallExpression',
+        callee: {
+          type: 'Identifier',
+          name: 'tostring',
+        },
+        arguments: [handleExpression.handler(key)],
+      };
+
 export const handleObjectProperty: BaseNodeHandler<
   ObjectProperty,
   LuaTableKeyField
@@ -236,7 +251,7 @@ export const handleObjectProperty: BaseNodeHandler<
       default:
         return {
           type: 'TableExpressionKeyField',
-          key: handleExpression.handler(key),
+          key: handleObjectKeyExpression(key),
           value: handleObjectPropertyValue.handler(value),
         };
     }
@@ -259,7 +274,7 @@ export const handleObjectMethod: BaseNodeHandler<
       default:
         return {
           type: 'TableExpressionKeyField',
-          key: handleExpression.handler(key),
+          key: handleObjectKeyExpression(key),
           value: defaultHandler(body) as any, // TODO handle block to function expression
         };
     }

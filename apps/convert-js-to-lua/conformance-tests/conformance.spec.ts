@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { readdirSync, statSync } from 'fs';
+import { readdirSync, statSync, rmSync } from 'fs';
 import { readFile } from 'fs/promises';
 import { format, join, normalize, parse, ParsedPath } from 'path';
 import config from './conformance.config';
@@ -34,6 +34,7 @@ function changeExtension(filePath: string, extension: string): string {
 }
 
 describe('conformance tests', () => {
+  rmSync(normalizedConfig.outputPath, { recursive: true, force: true });
   const files = getFiles(normalizedConfig.inputPath);
   const translateFiles = files.filter((filePath) => {
     return filePath.ext === '.js' || filePath.ext === '.ts';

@@ -10,6 +10,7 @@ import {
   TSTypeAnnotation,
   TSTypeLiteral,
   TypeAnnotation,
+  TSVoidKeyword,
 } from '@babel/types';
 import {
   LuaType,
@@ -20,6 +21,7 @@ import {
   LuaTypeBoolean,
   LuaPropertySignature,
   LuaTypeLiteral,
+  LuaTypeVoid,
 } from '../lua-nodes.types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { BaseNodeHandler } from '../types';
@@ -105,6 +107,15 @@ const handleTsBooleanKeyword: BaseNodeHandler<
   },
 };
 
+const handleTsVoidKeyword: BaseNodeHandler<TSVoidKeyword, LuaTypeVoid> = {
+  type: 'TSVoidKeyword',
+  handler: () => {
+    return {
+      type: 'LuaTypeVoid',
+    };
+  },
+};
+
 const handleTsTypeLiteral: BaseNodeHandler<TSTypeLiteral, LuaTypeLiteral> = {
   type: 'TSTypeLiteral',
   handler: (node) => {
@@ -136,6 +147,7 @@ export const handleTsTypes = combineHandlers<BaseNodeHandler<TSType, LuaType>>(
     handleTsStringKeyword,
     handleTsNumberKeyword,
     handleTsBooleanKeyword,
+    handleTsVoidKeyword,
     handleTsAnyKeyword,
     handleTsTypeLiteral,
   ],

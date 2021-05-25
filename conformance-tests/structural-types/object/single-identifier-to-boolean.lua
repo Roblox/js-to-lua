@@ -1,3 +1,1 @@
-local value = {
-    key = true,
-}
+local value = {key = true}

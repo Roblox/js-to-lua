@@ -5,7 +5,6 @@ import { join, parse } from 'path';
 export const convertFiles = (outputDir: string) => (files: string[]) => {
   const output = (filePath) =>
     join(outputDir, changeExtension(filePath, '.lua'));
-  //`${outputDir}${filePath.replace(__dirname, '')}.lua`;
 
   return Promise.all(
     files.map((file) =>

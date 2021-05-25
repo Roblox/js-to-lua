@@ -11,6 +11,7 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
+  LuaFunctionDeclaration,
 } from '../lua-nodes.types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -68,6 +69,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       return 'number';
     case 'LuaTypeBoolean':
       return 'boolean';
+    case 'LuaTypeVoid':
+      return '()';
     case 'LuaTypeAliasDeclaration':
       return printTypeAliasDeclaration(node, source);
     case 'LuaTypeLiteral':
@@ -183,7 +186,7 @@ function printCalleeExpression(callee: LuaExpression, source: string): string {
   }
 }
 
-function printFunctionDeclaration(node, source) {
+function printFunctionDeclaration(node: LuaFunctionDeclaration, source) {
   const name = printNode(node.id, source);
   const parameters = node.params
     .map((parameter) => printNode(parameter, source))
@@ -192,12 +195,16 @@ function printFunctionDeclaration(node, source) {
   const body = node.body
     .map((statement) => printNode(statement, source))
     .join('\n');
+  const defaultValues = printFunctionDefaultValues(node.defaultValues, source);
+  const bodyWithDefaultValues = [defaultValues, body]
+    .filter(Boolean)
+    .join('\n');
 
-  return `function ${name}(${parameters})\n${printFunctionDefaultValues(
-    node.defaultValues,
-    source
-  )}
-    ${body}\nend`;
+  const returnType = node.returnType ? printNode(node.returnType, source) : '';
+  const functionSignature = `local function ${name}(${parameters})${returnType}`;
+  return bodyWithDefaultValues
+    ? `${functionSignature}\n${bodyWithDefaultValues}\nend`
+    : `${functionSignature} end`;
 }
 
 function printFunctionDefaultValues(defaultValues, source) {
