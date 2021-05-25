@@ -3,6 +3,7 @@ export type LuaNode =
   | LuaExpressionStatement
   | LuaNumericLiteral
   | LuaStringLiteral
+  | LuaMultilineStringLiteral
   | LuaBooleanLiteral
   | LuaTableConstructor
   | LuaTableField
@@ -30,6 +31,7 @@ export interface BaseLuaNode {
 export type LuaLiteral =
   | LuaNumericLiteral
   | LuaStringLiteral
+  | LuaMultilineStringLiteral
   | LuaBooleanLiteral
   | LuaNilLiteral;
 
@@ -67,6 +69,11 @@ export interface LuaNumericLiteral extends BaseLuaNode {
 
 export interface LuaStringLiteral extends BaseLuaNode {
   type: 'StringLiteral';
+  value: string;
+}
+
+export interface LuaMultilineStringLiteral extends BaseLuaNode {
+  type: 'MultilineStringLiteral';
   value: string;
 }
 
@@ -187,7 +194,12 @@ export interface LuaTypeLiteral {
   members: Array<LuaTypeElement>;
 }
 
-export type LuaType = LuaTypeAny | LuaTypeString | LuaTypeNumber | LuaTypeBoolean | LuaTypeLiteral;
+export type LuaType =
+  | LuaTypeAny
+  | LuaTypeString
+  | LuaTypeNumber
+  | LuaTypeBoolean
+  | LuaTypeLiteral;
 
 export interface LuaTypeAnnotation {
   type: 'LuaTypeAnnotation';

@@ -34,6 +34,7 @@ import {
   UnhandledNode,
 } from '../lua-nodes.types';
 import { defaultHandler } from '../utils/default.handler';
+import { handleMultilineStringLiteral } from './multiline-string.handler';
 import { typesHandler } from './type-annotation.handler';
 
 export const handleExpressionStatement: BaseNodeHandler<
@@ -204,6 +205,7 @@ export const handleExpression = combineHandlers<
 >([
   handleNumericLiteral,
   handleStringLiteral,
+  handleMultilineStringLiteral,
   handleBooleanLiteral,
   handleArrayExpression,
   handleCallExpression,
