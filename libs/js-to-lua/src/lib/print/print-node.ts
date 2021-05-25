@@ -44,7 +44,9 @@ export const printNode = (node: LuaNode, source: string): string => {
     case 'VariableDeclaratorValue':
       return printVariableDeclaratorValue(node, source);
     case 'FunctionDeclaration':
-      return printFunctionDeclaration(node, source);
+      return `local ${printFunction(node, source)}`;
+    case 'FunctionExpression':
+      return printFunction(node, source);
     case 'TableConstructor':
       return printTableConstructor(node, source);
     case 'CallExpression':
@@ -186,29 +188,13 @@ function printCalleeExpression(callee: LuaExpression, source: string): string {
   }
 }
 
-function printFunctionDeclaration(node: LuaFunctionDeclaration, source) {
-  const name = printNode(node.id, source);
+function printFunction(node, source) {
+  const name = node.id ? ` ${printNode(node.id, source)}` : '';
   const parameters = node.params
     .map((parameter) => printNode(parameter, source))
     .join(', ');
-
-  const body = node.body
-    .map((statement) => printNode(statement, source))
-    .join('\n');
-  const defaultValues = printFunctionDefaultValues(node.defaultValues, source);
-  const bodyWithDefaultValues = [defaultValues, body]
-    .filter(Boolean)
-    .join('\n');
-
-  const returnType = node.returnType ? printNode(node.returnType, source) : '';
-  const functionSignature = `local function ${name}(${parameters})${returnType}`;
-  return bodyWithDefaultValues
-    ? `${functionSignature}\n${bodyWithDefaultValues}\nend`
-    : `${functionSignature} end`;
-}
-
-function printFunctionDefaultValues(defaultValues, source) {
-  return defaultValues
+    
+  const defaults = node.defaultValues
     .map(
       (assignmentPattern) =>
         `${assignmentPattern.left.name} = ${
@@ -218,6 +204,18 @@ function printFunctionDefaultValues(defaultValues, source) {
         }`
     )
     .join('\n');
+
+  const body = node.body
+    .map((statement) => printNode(statement, source))
+    .join('\n');
+
+  const returnType = node.returnType ? printNode(node.returnType, source) : '';
+
+  return `function${name}(${parameters})${returnType}${
+    node.defaultValues.length || node.body.length ? '\n' : ' '
+  }${defaults}${
+    node.defaultValues.length && node.body.length ? '\n' : ''
+  }${body}${node.defaultValues.length || node.body.length ? '\n' : ''}end`;
 }
 
 function printTypeAliasDeclaration(node, source) {

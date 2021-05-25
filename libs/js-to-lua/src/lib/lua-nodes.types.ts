@@ -21,6 +21,7 @@ export type LuaNode =
   | LuaBlockStatement
   | LuaPropertySignature
   | LuaBinaryExpression
+  | LuaFunctionExpression
   | UnhandledNode;
 
 export interface BaseLuaNode {
@@ -40,6 +41,7 @@ export type LuaExpression =
   | LuaIdentifier
   | LuaCallExpression
   | LuaBinaryExpression
+  | LuaFunctionExpression
   | UnhandledNode;
 
 export type LuaDeclaration =
@@ -162,16 +164,23 @@ export interface LuaVariableDeclaratorValue {
   value: LuaExpression | null;
 }
 
+// TODO: Pattern | RestElement | TSParameterProperty should be added in the future when handled
+export type LuaFunctionParam = LuaIdentifier;
 export interface LuaFunctionDeclaration {
   type: 'FunctionDeclaration';
   id: LuaIdentifier;
-  params: Array<LuaFunctionDeclarationParam>;
+  params: Array<LuaFunctionParam>;
   defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
   body: Array<LuaNode>;
   returnType?: LuaTypeAnnotation;
 }
 
-export type LuaFunctionDeclarationParam = LuaIdentifier; /*| Pattern | RestElement | TSParameterProperty*/
+export interface LuaFunctionExpression {
+  type: 'FunctionExpression';
+  params: Array<LuaFunctionParam>;
+  defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
+  body: Array<LuaNode>;
+}
 
 export interface LuaTypeAny {
   type: 'LuaTypeAny';

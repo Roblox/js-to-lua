@@ -1,6 +1,6 @@
 import { VariableDeclaration } from '@babel/types';
 import { LuaVariableDeclaration } from '../lua-nodes.types';
-import { handleVariableDeclaration } from './variable-declaration.handler';
+import { handleVariableDeclaration } from './expression-statement.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,

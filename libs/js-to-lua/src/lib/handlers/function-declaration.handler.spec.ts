@@ -1,6 +1,6 @@
 import { FunctionDeclaration } from '@babel/types';
 import { LuaFunctionDeclaration } from '../lua-nodes.types';
-import { handleStatement } from './statement.handler';
+import { handleStatement } from './expression-statement.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,

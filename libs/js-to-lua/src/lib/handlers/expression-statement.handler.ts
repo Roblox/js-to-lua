@@ -12,6 +12,12 @@ import {
   PatternLike,
   SpreadElement,
   V8IntrinsicIdentifier,
+  FunctionExpression,
+  Statement,
+  Declaration,
+  VariableDeclarator,
+  FunctionDeclaration,
+  VariableDeclaration,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
@@ -32,10 +38,19 @@ import {
   LuaTableKeyField,
   LuaTableNoKeyField,
   UnhandledNode,
+  LuaFunctionExpression,
+  LuaDeclaration,
+  LuaVariableDeclarator,
+  LuaFunctionDeclaration,
+  LuaVariableDeclaration,
 } from '../lua-nodes.types';
 import { defaultHandler } from '../utils/default.handler';
 import { handleMultilineStringLiteral } from './multiline-string.handler';
 import { typesHandler } from './type-annotation.handler';
+import { functionParamsHandler } from './function-params.handler';
+import { lValHandler } from './l-val.handler';
+import { handleTypeAliasDeclaration } from './type-alias-declaration.handler';
+import { handleBlockStatement } from './block-statement.handler';
 
 export const handleExpressionStatement: BaseNodeHandler<
   ExpressionStatement,
@@ -200,6 +215,24 @@ export const handleBinaryExpression: BaseNodeHandler<
   },
 };
 
+export const handleFunctionExpression: BaseNodeHandler<
+  FunctionExpression,
+  LuaFunctionExpression
+> = {
+  type: 'FunctionExpression',
+  handler: (node) => {
+    return {
+      type: 'FunctionExpression',
+      params: node.params.map(functionParamsHandler),
+      // TODO: Should map to a handler like the functionParamsHandler above, but to do that we need to support AssignmentPattern, which isn't scheduled until a later milestone.
+      defaultValues: node.params.filter(
+        (param) => param.type === 'AssignmentPattern'
+      ),
+      body: node.body.body.map(handleStatement.handler),
+    };
+  },
+};
+
 export const handleExpression = combineHandlers<
   BaseNodeHandler<Expression, LuaExpression>
 >([
@@ -213,6 +246,7 @@ export const handleExpression = combineHandlers<
   handleIdentifier,
   handleNullLiteral,
   handleBinaryExpression,
+  handleFunctionExpression,
 ]);
 
 const handleObjectPropertyValue: BaseNodeHandler<
@@ -298,3 +332,81 @@ export const handleObjectField = combineHandlers<
 const handleCalleeExpression = combineHandlers<
   BaseNodeHandler<Expression | V8IntrinsicIdentifier, LuaExpression>
 >([handleExpression]);
+
+const handleVariableDeclarator: BaseNodeHandler<
+  VariableDeclarator,
+  LuaVariableDeclarator
+> = {
+  type: 'VariableDeclarator',
+  handler: (node: VariableDeclarator) => {
+    return {
+      type: 'VariableDeclarator',
+      id: lValHandler(node.id),
+      init: node.init ? handleExpression.handler(node.init) : null,
+    };
+  },
+};
+
+export const handleVariableDeclaration: BaseNodeHandler<
+  VariableDeclaration,
+  LuaVariableDeclaration
+> = {
+  type: 'VariableDeclaration',
+  handler: (declaration) => {
+    return {
+      type: 'VariableDeclaration',
+      ...declaration.declarations
+        .map(handleVariableDeclarator.handler)
+        .reduceRight(
+          (obj, declarator) => {
+            obj.identifiers.unshift({
+              type: 'VariableDeclaratorIdentifier',
+              value: declarator.id,
+            });
+            if (declarator.init !== null || obj.values.length > 0) {
+              obj.values.unshift({
+                type: 'VariableDeclaratorValue',
+                value: declarator.init,
+              });
+            }
+            return obj;
+          },
+          { identifiers: [], values: [] }
+        ),
+    };
+  },
+};
+
+export const handleFunctionDeclaration: BaseNodeHandler<
+  FunctionDeclaration,
+  LuaFunctionDeclaration
+> = {
+  type: 'FunctionDeclaration',
+  handler: (node) => {
+    return {
+      type: 'FunctionDeclaration',
+      id: handleIdentifier.handler(node.id) as LuaIdentifier,
+      params: node.params.map(functionParamsHandler),
+      // TODO: Should map to a handler like the functionParamsHandler above, but to do that we need to support AssignmentPattern, which isn't scheduled until a later milestone.
+      defaultValues: node.params.filter(
+        (param) => param.type === 'AssignmentPattern'
+      ),
+      body: node.body.body.map(handleStatement.handler),
+      ...(node.returnType ? { returnType: typesHandler(node.returnType) } : {}),
+    };
+  },
+};
+
+export const handleDeclaration = combineHandlers<
+  BaseNodeHandler<Declaration, LuaDeclaration>
+>([
+  handleVariableDeclaration,
+  handleFunctionDeclaration,
+  handleTypeAliasDeclaration,
+]);
+
+export const handleStatement = combineHandlers<BaseNodeHandler<Statement>>([
+  handleExpressionStatement,
+  handleDeclaration,
+  handleBlockStatement,
+]);

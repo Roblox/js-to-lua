@@ -3,7 +3,7 @@ import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
 describe('Program handler', () => {
-  describe('Variable Declarations', () => {
+  describe('Function Declarations', () => {
     it('should handle function with no params', () => {
       const given = getProgramNode(`
      function foo() {}

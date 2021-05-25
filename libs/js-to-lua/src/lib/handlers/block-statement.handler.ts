@@ -1,7 +1,7 @@
 import { BlockStatement } from '@babel/types';
 import { LuaBlockStatement } from '../lua-nodes.types';
 import { BaseNodeHandler } from '../types';
-import { handleStatement } from './statement.handler';
+import { handleStatement } from './expression-statement.handler';
 
 export const handleBlockStatement: BaseNodeHandler<
   BlockStatement,
