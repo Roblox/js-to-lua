@@ -12,3 +12,22 @@ const number_sample_const = 35;
 const string_sample_const = 'roblox is amazing';
 const array_sample_const = [1, 2, 'roblox'];
 const boolean_sample_const = false;
+
+let arrowExpression = (a, b = 12) => {
+  let aNumber = 13;
+};
+let arrowExpression2 = (a, b = 12) => 'WOLE';
+
+const foo2 = () => {};
+let variables3 = 2,
+  arrowExpression3 = () => 'roblox',
+  name3 = 'flamez';
+const flux = () => () => 31337;
+const reduce = (value) => {
+  return value;
+};
+
+const myComponent2 = function (value) {
+  return value;
+};
+let render = (component) => component(31337);

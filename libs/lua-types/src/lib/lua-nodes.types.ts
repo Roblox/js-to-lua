@@ -22,6 +22,7 @@ export type LuaNode =
   | LuaBinaryExpression
   | LuaBlockStatement
   | LuaFunctionExpression
+  | LuaReturnStatement
   | LuaUnaryExpression
   | LuaUnaryVoidExpression
   | LuaUnaryNegationExpression
@@ -45,6 +46,7 @@ export type LuaExpression =
   | LuaCallExpression
   | LuaBinaryExpression
   | LuaFunctionExpression
+  | LuaReturnStatement
   | LuaUnaryExpression
   | LuaUnaryVoidExpression
   | LuaUnaryNegationExpression
@@ -150,6 +152,11 @@ export interface LuaVariableDeclaration extends BaseLuaNode {
 export interface LuaBlockStatement extends BaseLuaNode {
   type: 'BlockStatement';
   body: LuaNode[];
+}
+
+export interface LuaReturnStatement extends BaseLuaNode {
+  type: 'ReturnStatement';
+  argument: LuaNode;
 }
 
 export interface LuaVariableDeclarator {

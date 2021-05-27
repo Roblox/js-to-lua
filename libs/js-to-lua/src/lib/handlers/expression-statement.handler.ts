@@ -19,6 +19,7 @@ import {
   VariableDeclarator,
   FunctionDeclaration,
   VariableDeclaration,
+  ArrowFunctionExpression,
   UnaryExpression,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
@@ -45,6 +46,7 @@ import {
   LuaVariableDeclarator,
   LuaFunctionDeclaration,
   LuaVariableDeclaration,
+  LuaNode,
   LuaUnaryVoidExpression,
   LuaUnaryNegationExpression,
   callExpression,
@@ -53,7 +55,10 @@ import {
   unaryVoidExpression,
   unaryNegationExpression,
   unhandledNode,
+  returnStatement,
+  functionExpression,
 } from '@js-to-lua/lua-types';
+
 import { defaultHandler } from '../utils/default.handler';
 import { handleMultilineStringLiteral } from './multiline-string.handler';
 import { typesHandler } from './type-annotation.handler';
@@ -63,6 +68,7 @@ import { handleTypeAliasDeclaration } from './type-alias-declaration.handler';
 import { handleBlockStatement } from './block-statement.handler';
 import { splitBy } from '../utils/split-by';
 import { Unpacked } from '../utils/types';
+import { handleReturnStatement } from './return-statement.handler';
 
 type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,
@@ -373,15 +379,30 @@ export const handleFunctionExpression: BaseNodeHandler<
 > = {
   type: 'FunctionExpression',
   handler: (node) => {
-    return {
-      type: 'FunctionExpression',
-      params: node.params.map(functionParamsHandler),
-      // TODO: Should map to a handler like the functionParamsHandler above, but to do that we need to support AssignmentPattern, which isn't scheduled until a later milestone.
-      defaultValues: node.params.filter(
-        (param) => param.type === 'AssignmentPattern'
-      ),
-      body: node.body.body.map(handleStatement.handler),
-    };
+    return functionExpression(
+      node.params.map(functionParamsHandler),
+      node.params.filter((param) => param.type === 'AssignmentPattern'),
+      node.body.body.map(handleStatement.handler)
+    );
+  },
+};
+
+export const handleArrowFunctionExpression: BaseNodeHandler<
+  ArrowFunctionExpression,
+  LuaFunctionExpression
+> = {
+  type: 'ArrowFunctionExpression',
+  handler: (node) => {
+    const body: LuaNode[] =
+      node.body.type === 'BlockStatement'
+        ? node.body.body.map(handleStatement.handler)
+        : [returnStatement(handleExpression.handler(node.body))];
+
+    return functionExpression(
+      node.params.map(functionParamsHandler),
+      node.params.filter((param) => param.type === 'AssignmentPattern'),
+      body
+    );
   },
 };
 
@@ -400,6 +421,7 @@ export const handleExpression = combineHandlers<
   handleNullLiteral,
   handleBinaryExpression,
   handleFunctionExpression,
+  handleArrowFunctionExpression,
 ]);
 
 const handleObjectPropertyValue: BaseNodeHandler<
@@ -552,4 +574,5 @@ export const handleStatement = combineHandlers<BaseNodeHandler<Statement>>([
   handleExpressionStatement,
   handleDeclaration,
   handleBlockStatement,
+  handleReturnStatement,
 ]);

@@ -11,6 +11,8 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
+  LuaFunctionDeclaration,
+  LuaReturnStatement,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -24,6 +26,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       return printNode(node.expression, source);
     case 'BlockStatement':
       return printBlockStatement(node, source);
+    case 'ReturnStatement':
+      return printReturnStatement(node, source);
     case 'NumericLiteral':
       return printNumeric(node);
     case 'StringLiteral':
@@ -178,6 +182,10 @@ end`;
 end`;
 }
 
+export function printReturnStatement(node: LuaReturnStatement, source: string) {
+  return `return ${printNode(node.argument, source)}`;
+}
+
 function printCallExpression(node: LuaCallExpression, source: string): string {
   return `${printCalleeExpression(
     node.callee,
@@ -205,11 +213,12 @@ function printFunction(node, source) {
   const defaults = node.defaultValues
     .map(
       (assignmentPattern) =>
-        `${assignmentPattern.left.name} = ${
-          assignmentPattern.left.name
-        } == nil and ${printNode(assignmentPattern.right, source)} or ${
-          assignmentPattern.left.name
-        }`
+        `  if ${assignmentPattern.left.name} == nil then
+    ${assignmentPattern.left.name} = ${printNode(
+          assignmentPattern.right,
+          source
+        )}
+  end`
     )
     .join('\n');
 

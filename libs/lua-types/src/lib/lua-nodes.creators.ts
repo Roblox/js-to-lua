@@ -3,10 +3,14 @@ import {
   LuaCallExpression,
   LuaExpression,
   LuaExpressionStatement,
+  LuaFunctionExpression,
+  LuaFunctionParam,
   LuaIdentifier,
+  LuaLVal,
   LuaNode,
   LuaNumericLiteral,
   LuaProgram,
+  LuaReturnStatement,
   LuaStringLiteral,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
@@ -17,6 +21,9 @@ import {
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
   UnhandledNode,
+  LuaVariableDeclaration,
+  LuaVariableDeclaratorIdentifier,
+  LuaVariableDeclaratorValue,
 } from './lua-nodes.types';
 
 export const program = (body: LuaNode[] = []): LuaProgram => ({
@@ -29,6 +36,45 @@ export const expressionStatement = (
 ): LuaExpressionStatement => ({
   type: 'ExpressionStatement',
   expression,
+});
+
+export const returnStatement = (argument: LuaNode): LuaReturnStatement => ({
+  type: 'ReturnStatement',
+  argument,
+});
+
+export const variableDeclaration = (
+  identifiers: LuaVariableDeclaratorIdentifier[],
+  values: LuaVariableDeclaratorValue[]
+): LuaVariableDeclaration => ({
+  type: 'VariableDeclaration',
+  identifiers,
+  values,
+});
+
+export const variableDeclaratorIdentifier = (
+  value: LuaLVal
+): LuaVariableDeclaratorIdentifier => ({
+  type: 'VariableDeclaratorIdentifier',
+  value,
+});
+
+export const variableDeclaratorValue = (
+  value: LuaExpression | null
+): LuaVariableDeclaratorValue => ({
+  type: 'VariableDeclaratorValue',
+  value,
+});
+
+export const functionExpression = (
+  params: Array<LuaFunctionParam>,
+  defaultValues: Array<any>,
+  body: Array<LuaNode>
+): LuaFunctionExpression => ({
+  type: 'FunctionExpression',
+  params,
+  defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
+  body,
 });
 
 export const tableConstructor = (
