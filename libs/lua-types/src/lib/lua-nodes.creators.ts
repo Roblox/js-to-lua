@@ -13,6 +13,10 @@ import {
   LuaTableNameKeyField,
   LuaTableNoKeyField,
   LuaTypeAnnotation,
+  LuaUnaryExpression,
+  LuaUnaryNegationExpression,
+  LuaUnaryVoidExpression,
+  UnhandledNode,
 } from './lua-nodes.types';
 
 export const program = (body: LuaNode[] = []): LuaProgram => ({
@@ -100,6 +104,38 @@ export const identifier = (
   type: 'Identifier',
   name,
   ...(typeAnnotation ? { typeAnnotation } : {}),
+});
+
+export const unaryExpression = (
+  operator: LuaUnaryExpression['operator'],
+  argument: LuaUnaryExpression['argument']
+): LuaUnaryExpression => ({
+  type: 'LuaUnaryExpression',
+  operator,
+  argument,
+});
+
+export const unaryVoidExpression = (
+  argument: LuaUnaryVoidExpression['argument']
+): LuaUnaryVoidExpression => ({
+  type: 'LuaUnaryVoidExpression',
+  argument,
+});
+
+export const unaryNegationExpression = (
+  argument: LuaUnaryNegationExpression['argument']
+): LuaUnaryNegationExpression => ({
+  type: 'LuaUnaryNegationExpression',
+  argument,
+});
+
+export const unhandledNode = (
+  start: UnhandledNode['start'],
+  end: UnhandledNode['end']
+): UnhandledNode => ({
+  type: 'UnhandledNode',
+  start,
+  end,
 });
 
 export const arrayConcat = (): LuaIdentifier => identifier('Array.concat');

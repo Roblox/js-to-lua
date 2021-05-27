@@ -1,0 +1,1 @@
+local v = tonumber(foo)

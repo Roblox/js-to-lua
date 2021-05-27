@@ -19,6 +19,7 @@ import {
   VariableDeclarator,
   FunctionDeclaration,
   VariableDeclaration,
+  UnaryExpression,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
@@ -37,12 +38,21 @@ import {
   LuaTableField,
   LuaTableKeyField,
   LuaTableNoKeyField,
+  LuaUnaryExpression,
   UnhandledNode,
   LuaFunctionExpression,
   LuaDeclaration,
   LuaVariableDeclarator,
   LuaFunctionDeclaration,
   LuaVariableDeclaration,
+  LuaUnaryVoidExpression,
+  LuaUnaryNegationExpression,
+  callExpression,
+  identifier,
+  unaryExpression,
+  unaryVoidExpression,
+  unaryNegationExpression,
+  unhandledNode,
 } from '@js-to-lua/lua-types';
 import { defaultHandler } from '../utils/default.handler';
 import { handleMultilineStringLiteral } from './multiline-string.handler';
@@ -313,13 +323,46 @@ export const handleBinaryExpression: BaseNodeHandler<
           left: handleExpression.handler(node.left as Expression),
           right: handleExpression.handler(node.right),
         };
-
       default:
         return {
           type: 'UnhandledNode',
           start: node.start,
           end: node.end,
         };
+    }
+  },
+};
+
+const handleUnaryExpression: BaseNodeHandler<
+  UnaryExpression,
+  | LuaUnaryExpression
+  | LuaUnaryVoidExpression
+  | LuaUnaryNegationExpression
+  | LuaCallExpression
+  | UnhandledNode
+> = {
+  type: 'UnaryExpression',
+  handler: (node: UnaryExpression) => {
+    switch (node.operator) {
+      case 'typeof':
+        return callExpression(identifier('typeof'), [
+          handleExpression.handler(node.argument),
+        ]);
+      case '+':
+        return callExpression(identifier('tonumber'), [
+          handleExpression.handler(node.argument),
+        ]);
+      case '-':
+        return unaryExpression(
+          node.operator,
+          handleExpression.handler(node.argument)
+        );
+      case 'void':
+        return unaryVoidExpression(handleExpression.handler(node.argument));
+      case '!':
+        return unaryNegationExpression(handleExpression.handler(node.argument));
+      default:
+        return unhandledNode(node.start, node.end);
     }
   },
 };
@@ -353,6 +396,7 @@ export const handleExpression = combineHandlers<
   handleCallExpression,
   handleObjectExpression,
   handleIdentifier,
+  handleUnaryExpression,
   handleNullLiteral,
   handleBinaryExpression,
   handleFunctionExpression,

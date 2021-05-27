@@ -1,0 +1,1 @@
+let v = typeof foo

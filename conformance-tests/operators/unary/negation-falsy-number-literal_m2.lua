@@ -1,0 +1,1 @@
+local v = not false

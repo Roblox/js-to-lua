@@ -22,6 +22,9 @@ export type LuaNode =
   | LuaBinaryExpression
   | LuaBlockStatement
   | LuaFunctionExpression
+  | LuaUnaryExpression
+  | LuaUnaryVoidExpression
+  | LuaUnaryNegationExpression
   | UnhandledNode;
 
 export interface BaseLuaNode {
@@ -42,6 +45,9 @@ export type LuaExpression =
   | LuaCallExpression
   | LuaBinaryExpression
   | LuaFunctionExpression
+  | LuaUnaryExpression
+  | LuaUnaryVoidExpression
+  | LuaUnaryNegationExpression
   | UnhandledNode;
 
 export type LuaDeclaration =
@@ -248,4 +254,19 @@ export interface LuaBinaryExpression {
   operator: LuaBinaryExpressionOperator;
   left: LuaExpression;
   right: LuaExpression;
+}
+export interface LuaUnaryExpression {
+  type: 'LuaUnaryExpression';
+  operator: 'throw' | 'delete' | '!' | '-' | '~';
+  argument: LuaExpression;
+}
+
+export interface LuaUnaryVoidExpression {
+  type: 'LuaUnaryVoidExpression';
+  argument: LuaExpression;
+}
+
+export interface LuaUnaryNegationExpression {
+  type: 'LuaUnaryNegationExpression';
+  argument: LuaExpression;
 }

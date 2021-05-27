@@ -11,7 +11,6 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
-  LuaFunctionDeclaration,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -84,6 +83,15 @@ export const printNode = (node: LuaNode, source: string): string => {
         node.right,
         source
       )}`;
+    case 'LuaUnaryExpression':
+      return `${node.operator}${printUnaryOperatorArgument(
+        node.argument,
+        source
+      )}`;
+    case 'LuaUnaryVoidExpression':
+      return `${printNode(node.argument, source)} and nil or nil`;
+    case 'LuaUnaryNegationExpression':
+      return `not ${printUnaryNegationArgument(node.argument, source)}`;
     case 'UnhandledNode':
       return `
 --[[
@@ -236,4 +244,38 @@ function printPropertySignature(node, source) {
     node.typeAnnotation,
     source
   )}`;
+}
+
+const LITERALS = [
+  'StringLiteral',
+  'NumericLiteral',
+  'BooleanLiteral',
+  'MultilineStringLiteral',
+  'NilLiteral',
+];
+
+function printUnaryOperatorArgument(node, source): string {
+  if ([...LITERALS, 'Identifier'].includes(node.type)) {
+    return printNode(node, source);
+  } else {
+    return `(${printNode(node, source)})`;
+  }
+}
+
+function printUnaryNegationArgument(node, source): string {
+  if (LITERALS.includes(node.type)) {
+    return printNode(
+      {
+        type: 'BooleanLiteral',
+        value: !!node.value,
+      },
+      source
+    );
+  } else {
+    return `(function (exp)
+    if(exp == false or exp == nil or exp == 0 or exp == "") then return false end
+    return true
+    end
+)(${printNode(node, source)})`;
+  }
 }
