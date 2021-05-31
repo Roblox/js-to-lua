@@ -1,6 +1,25 @@
-import { ArrayExpression } from '@babel/types';
-import { LuaTableConstructor } from '@js-to-lua/lua-types';
-import { handleArrayExpression } from './expression-statement.handler';
+import { ArrayExpression, Expression } from '@babel/types';
+import {
+  LuaExpression,
+  LuaTableConstructor,
+  tableConstructor,
+  tableNoKeyField,
+} from '@js-to-lua/lua-types';
+import { createArrayExpressionHandler } from './array-expression.handler';
+import { combineHandlers } from '../utils/combine-handlers';
+import { BaseNodeHandler } from '../types';
+
+const mockNode = (): LuaExpression =>
+  ({
+    type: 'MockNode',
+  } as any);
+
+const handleArrayExpression = createArrayExpressionHandler((...args) =>
+  combineHandlers<BaseNodeHandler<Expression, LuaExpression>>(
+    [handleArrayExpression],
+    mockNode
+  ).handler(...args)
+);
 
 const DEFAULT_NODE = {
   leadingComments: null,
@@ -48,32 +67,11 @@ describe('Array Expression Handler', () => {
         },
       ],
     };
-    const expected: LuaTableConstructor = {
-      type: 'TableConstructor',
-      elements: [
-        {
-          type: 'TableNoKeyField',
-          value: {
-            type: 'BooleanLiteral',
-            value: true,
-          },
-        },
-        {
-          type: 'TableNoKeyField',
-          value: {
-            type: 'NumericLiteral',
-            value: 1,
-          },
-        },
-        {
-          type: 'TableNoKeyField',
-          value: {
-            type: 'StringLiteral',
-            value: 'abc',
-          },
-        },
-      ],
-    };
+    const expected: LuaTableConstructor = tableConstructor([
+      tableNoKeyField(mockNode()),
+      tableNoKeyField(mockNode()),
+      tableNoKeyField(mockNode()),
+    ]);
 
     expect(handleArrayExpression.handler(given)).toEqual(expected);
   });
@@ -95,25 +93,10 @@ describe('Array Expression Handler', () => {
         },
       ],
     };
-    const expected: LuaTableConstructor = {
-      type: 'TableConstructor',
-      elements: [
-        {
-          type: 'TableNoKeyField',
-          value: {
-            type: 'TableConstructor',
-            elements: [],
-          },
-        },
-        {
-          type: 'TableNoKeyField',
-          value: {
-            type: 'TableConstructor',
-            elements: [],
-          },
-        },
-      ],
-    };
+    const expected: LuaTableConstructor = tableConstructor([
+      tableNoKeyField(tableConstructor()),
+      tableNoKeyField(tableConstructor()),
+    ]);
 
     expect(handleArrayExpression.handler(given)).toEqual(expected);
   });
@@ -142,34 +125,15 @@ describe('Array Expression Handler', () => {
         },
       ],
     };
-    const expected: LuaTableConstructor = {
-      type: 'TableConstructor',
-      elements: [
-        {
-          type: 'TableNoKeyField',
-          value: {
-            type: 'TableConstructor',
-            elements: [
-              {
-                type: 'TableNoKeyField',
-                value: {
-                  type: 'TableConstructor',
-                  elements: [
-                    {
-                      type: 'TableNoKeyField',
-                      value: {
-                        type: 'TableConstructor',
-                        elements: [],
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        },
-      ],
-    };
+    const expected: LuaTableConstructor = tableConstructor([
+      tableNoKeyField(
+        tableConstructor([
+          tableNoKeyField(
+            tableConstructor([tableNoKeyField(tableConstructor())])
+          ),
+        ])
+      ),
+    ]);
 
     expect(handleArrayExpression.handler(given)).toEqual(expected);
   });

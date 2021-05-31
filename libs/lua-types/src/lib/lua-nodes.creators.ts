@@ -176,8 +176,8 @@ export const unaryNegationExpression = (
 });
 
 export const unhandledNode = (
-  start: UnhandledNode['start'],
-  end: UnhandledNode['end']
+  start: UnhandledNode['start'] = 0,
+  end: UnhandledNode['end'] = 0
 ): UnhandledNode => ({
   type: 'UnhandledNode',
   start,
