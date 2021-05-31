@@ -1,0 +1,2 @@
+local obj = {}
+tostring(obj)

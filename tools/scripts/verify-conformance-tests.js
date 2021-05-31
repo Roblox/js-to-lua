@@ -1,18 +1,20 @@
 const { execSync } = require('child_process');
-const fs = require('fs');
+const { readdir, mkdir, stat, rm } = require('fs/promises');
 const path = require('path');
 const process = require('process');
 
+const ROBLOX_CLI = process.argv[2] || 'robloxdev-cli';
 const CONFORMANCE_TESTS = path.join(__dirname, '../../conformance-tests');
+const OUTPUT_DIR = path.join(__dirname, '../../dist/verify-tests');
 
 // returns a list of all the files recursively
 async function getFiles(directory) {
-  const dirContent = await fs.promises.readdir(directory);
+  const dirContent = await readdir(directory);
 
   const allContent = dirContent.map((file) => {
     const filePath = path.join(directory, file);
 
-    return fs.promises.stat(filePath).then((stat) => {
+    return stat(filePath).then((stat) => {
       if (stat.isDirectory()) {
         return getFiles(filePath);
       } else {
@@ -48,17 +50,41 @@ async function verifyFiles(translateFiles, luaFiles) {
 
 // run each file with robloxdev-cli to make sure they parse correctly
 async function checkIfLuaFileParses(luaFiles) {
+  await rm(OUTPUT_DIR, { recursive: true, force: true });
+  await mkdir(OUTPUT_DIR, { recursive: true });
   const runChecks = luaFiles.map(async (luaPath) => {
     const formattedPath = path.format(luaPath);
+    const relativePath = path.relative('./', formattedPath);
     try {
-      execSync(`robloxdev-cli run --run ${formattedPath}`, {
+      const testFile = path.join(OUTPUT_DIR, `${relativePath}`);
+      const testFileDir = path.parse(testFile).dir;
+      await mkdir(testFileDir, { recursive: true });
+      execSync(
+        `cat ${path.join(
+          __dirname,
+          'verification-polyfills.lua'
+        )} > ${testFile}`,
+        {
+          stdio: [],
+        }
+      );
+      execSync(`cat ${formattedPath} >> ${testFile}`, {
+        stdio: [],
+      });
+      execSync(`${ROBLOX_CLI} run --run ${testFile}`, {
         stdio: [],
       });
     } catch {
-      throw `robloxdev-cli is unable to run the file at ${formattedPath}`;
+      throw `${ROBLOX_CLI} is unable to run the file at ${relativePath}`;
     }
   });
-  await Promise.all(runChecks);
+  const checks = await Promise.allSettled(runChecks);
+  const errors = checks
+    .filter(({ status }) => status !== 'fulfilled')
+    .map(({ reason }) => reason);
+  if (errors.length) {
+    throw errors;
+  }
 }
 
 async function main() {
@@ -73,7 +99,7 @@ async function main() {
 
   await verifyFiles(translateFiles, luaFiles);
 
-  console.log('running Lua files with robloxdev-cli...');
+  console.log(`running Lua files with ${ROBLOX_CLI}...`);
   await checkIfLuaFileParses(luaFiles);
 
   console.log('completed successfully');

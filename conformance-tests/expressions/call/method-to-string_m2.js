@@ -1,0 +1,2 @@
+let obj = {}
+obj.toString()
