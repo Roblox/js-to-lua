@@ -27,13 +27,6 @@ export default {
     'conformance-tests/expressions/call/method-to-string-nested_m2.js',
     'conformance-tests/expressions/call/method_m2.js',
 
-    'conformance-tests/operators/unary/decrement/prefix-identifier_m2.js',
-    'conformance-tests/operators/unary/decrement/suffix-identifier-result_m2.js',
-    'conformance-tests/operators/unary/decrement/suffix-identifier_m2.js',
-    'conformance-tests/operators/unary/increment/prefix-identifier_m2.js',
-    'conformance-tests/operators/unary/increment/suffix-identifier-result_m2.js',
-    'conformance-tests/operators/unary/increment/suffix-identifier_m2.js',
-
     'conformance-tests/operators/unary/delete/basic_m2.js',
     'conformance-tests/operators/unary/delete/computed-basic_m2.js',
     'conformance-tests/operators/unary/delete/computed-boolean_m2.js',
@@ -55,7 +48,6 @@ export default {
     'conformance-tests/structural-types/object/method-simple-with-args_m2.js',
     'conformance-tests/structural-types/object/method-simple_m2.js',
 
-    'conformance-tests/complex/increment-decrement-within-function-call_m2.js',
     'conformance-tests/complex/simple-react-component_m2.js',
   ],
 };

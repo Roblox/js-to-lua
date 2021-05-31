@@ -20,6 +20,7 @@ import {
   VariableDeclaration,
   ArrowFunctionExpression,
   UnaryExpression,
+  UpdateExpression,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
@@ -55,6 +56,9 @@ import {
   unhandledNode,
   returnStatement,
   functionExpression,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 
 import { defaultHandler } from '../utils/default.handler';
@@ -320,6 +324,46 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
   },
 };
 
+export const handleUpdateExpression: BaseNodeHandler<
+  UpdateExpression,
+  LuaCallExpression
+> = {
+  type: 'UpdateExpression',
+  handler: (node) => {
+    const resultName = generateUniqueIdentifier([node.argument], 'result');
+    return callExpression(
+      node.prefix
+        ? functionExpression(
+            [],
+            [],
+            [
+              // TODO: must ve replaced by assignementstatement or similar when available
+              handleExpression.handler(handlePrefixOperator(node)),
+              returnStatement(handleExpression.handler(node.argument)),
+            ]
+          )
+        : functionExpression(
+            [],
+            [],
+            [
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier(resultName))],
+                [
+                  variableDeclaratorValue(
+                    handleExpression.handler(node.argument)
+                  ),
+                ]
+              ),
+              // TODO: must ve replaced by assignementstatement or similar when available
+              handleExpression.handler(handleSuffixOperator(node)),
+              returnStatement(identifier(resultName)),
+            ]
+          ),
+      []
+    );
+  },
+};
+
 export const handleExpression = combineHandlers<
   BaseNodeHandler<Expression, LuaExpression>
 >([
@@ -336,6 +380,7 @@ export const handleExpression = combineHandlers<
   handleBinaryExpression,
   handleFunctionExpression,
   handleArrowFunctionExpression,
+  handleUpdateExpression,
 ]);
 
 const handleObjectPropertyValue: BaseNodeHandler<
@@ -490,3 +535,29 @@ export const handleStatement = combineHandlers<BaseNodeHandler<Statement>>([
   handleBlockStatement,
   handleReturnStatement,
 ]);
+
+// TODO: temporary method, remove later
+function handlePrefixOperator(node: UpdateExpression): Expression {
+  const temp = { ...node.argument };
+  ((temp as unknown) as LuaIdentifier).name +=
+    node.operator === '++' ? ' += 1' : ' -= 1';
+  return temp;
+}
+
+// TODO: temporary method, remove later
+function handleSuffixOperator(node: UpdateExpression): Expression {
+  ((node.argument as unknown) as LuaIdentifier).name +=
+    node.operator === '++' ? ' += 1' : ' -= 1';
+  return node.argument;
+}
+
+function generateUniqueIdentifier(
+  nodes: Expression[],
+  defaultValue: string
+): string {
+  return nodes
+    .filter((node) => node.type === 'Identifier')
+    .some((node) => (node as Identifier).name === defaultValue)
+    ? generateUniqueIdentifier(nodes, `${defaultValue}_`)
+    : defaultValue;
+}
