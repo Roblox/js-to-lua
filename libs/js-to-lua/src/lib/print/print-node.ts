@@ -17,6 +17,7 @@ import {
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
 import { printMultilineString } from './primitives/print-multiline-string';
+import { printIndexExpression } from './print-index-expression';
 
 export const printNode = (node: LuaNode, source: string): string => {
   switch (node.type) {
@@ -96,6 +97,13 @@ export const printNode = (node: LuaNode, source: string): string => {
       return `${printNode(node.argument, source)} and nil or nil`;
     case 'LuaUnaryNegationExpression':
       return `not ${printUnaryNegationArgument(node.argument, source)}`;
+    case 'IndexExpression':
+      return printIndexExpression(node, source);
+    case 'LuaMemberExpression':
+      return `${printNode(node.base, source)}${node.indexer}${printNode(
+        node.identifier,
+        source
+      )}`;
     case 'UnhandledNode':
       return `
 --[[

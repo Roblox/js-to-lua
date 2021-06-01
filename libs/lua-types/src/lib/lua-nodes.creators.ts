@@ -24,6 +24,8 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
+  LuaMemberExpression,
+  LuaIndexExpression,
 } from './lua-nodes.types';
 
 export const program = (body: LuaNode[] = []): LuaProgram => ({
@@ -173,6 +175,29 @@ export const unaryNegationExpression = (
 ): LuaUnaryNegationExpression => ({
   type: 'LuaUnaryNegationExpression',
   argument,
+});
+
+export const memberExpression = (
+  base: LuaMemberExpression['base'],
+  indexer: LuaMemberExpression['indexer'],
+  identifier: LuaMemberExpression['identifier']
+): LuaMemberExpression => ({
+  type: 'LuaMemberExpression',
+  base,
+  indexer,
+  identifier,
+});
+
+export const indexExpression = (
+  base: LuaIndexExpression['base'],
+  index: LuaIndexExpression['index']
+): LuaIndexExpression => ({
+  type: 'IndexExpression',
+  base,
+  index,
+  ...(index.type === 'NumericLiteral'
+    ? { conversionComment: 'ROBLOX adaptation: added 1 to array index' }
+    : {}),
 });
 
 export const unhandledNode = (

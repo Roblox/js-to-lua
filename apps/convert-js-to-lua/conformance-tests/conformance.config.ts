@@ -11,13 +11,6 @@ export default {
     'conformance-tests/structural-types/object/single-false-key-to-boolean.js',
 
     // ---- Milestone 2 ----
-    'conformance-tests/expressions/member/basic_m2.js',
-    'conformance-tests/expressions/member/computed-basic_m2.js',
-    'conformance-tests/expressions/member/computed-boolean_m2.js',
-    'conformance-tests/expressions/member/computed-expression_m2.js',
-    'conformance-tests/expressions/member/computed-identifier_m2.js',
-    'conformance-tests/expressions/member/computed-numeric_m2.js',
-    'conformance-tests/expressions/member/computed-octal_m2.js',
 
     'conformance-tests/expressions/call/method-expression-string_m2.js',
     'conformance-tests/expressions/call/method-expression_m2.js',

@@ -1,3 +1,5 @@
+import { Identifier, NumericLiteral, StringLiteral } from '@babel/types';
+
 export type LuaNode =
   | LuaProgram
   | LuaExpressionStatement
@@ -26,10 +28,13 @@ export type LuaNode =
   | LuaUnaryExpression
   | LuaUnaryVoidExpression
   | LuaUnaryNegationExpression
+  | LuaIndexExpression
+  | LuaMemberExpression
   | UnhandledNode;
 
 export interface BaseLuaNode {
   type: string;
+  conversionComment?: string;
 }
 
 export type LuaLiteral =
@@ -50,6 +55,8 @@ export type LuaExpression =
   | LuaUnaryExpression
   | LuaUnaryVoidExpression
   | LuaUnaryNegationExpression
+  | LuaIndexExpression
+  | LuaMemberExpression
   | UnhandledNode;
 
 export type LuaDeclaration =
@@ -159,7 +166,7 @@ export interface LuaReturnStatement extends BaseLuaNode {
   argument: LuaNode;
 }
 
-export interface LuaVariableDeclarator {
+export interface LuaVariableDeclarator extends BaseLuaNode {
   type: 'VariableDeclarator';
   id: LuaLVal;
   init: LuaExpression | null;
@@ -167,19 +174,19 @@ export interface LuaVariableDeclarator {
 
 export type LuaLVal = LuaIdentifier /*| MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty*/;
 
-export interface LuaVariableDeclaratorIdentifier {
+export interface LuaVariableDeclaratorIdentifier extends BaseLuaNode {
   type: 'VariableDeclaratorIdentifier';
   value: LuaLVal;
 }
 
-export interface LuaVariableDeclaratorValue {
+export interface LuaVariableDeclaratorValue extends BaseLuaNode {
   type: 'VariableDeclaratorValue';
   value: LuaExpression | null;
 }
 
 // TODO: Pattern | RestElement | TSParameterProperty should be added in the future when handled
 export type LuaFunctionParam = LuaIdentifier;
-export interface LuaFunctionDeclaration {
+export interface LuaFunctionDeclaration extends BaseLuaNode {
   type: 'FunctionDeclaration';
   id: LuaIdentifier;
   params: Array<LuaFunctionParam>;
@@ -188,34 +195,34 @@ export interface LuaFunctionDeclaration {
   returnType?: LuaTypeAnnotation;
 }
 
-export interface LuaFunctionExpression {
+export interface LuaFunctionExpression extends BaseLuaNode {
   type: 'FunctionExpression';
   params: Array<LuaFunctionParam>;
   defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
   body: Array<LuaNode>;
 }
 
-export interface LuaTypeAny {
+export interface LuaTypeAny extends BaseLuaNode {
   type: 'LuaTypeAny';
 }
 
-export interface LuaTypeString {
+export interface LuaTypeString extends BaseLuaNode {
   type: 'LuaTypeString';
 }
 
-export interface LuaTypeNumber {
+export interface LuaTypeNumber extends BaseLuaNode {
   type: 'LuaTypeNumber';
 }
 
-export interface LuaTypeBoolean {
+export interface LuaTypeBoolean extends BaseLuaNode {
   type: 'LuaTypeBoolean';
 }
 
-export interface LuaTypeVoid {
+export interface LuaTypeVoid extends BaseLuaNode {
   type: 'LuaTypeVoid';
 }
 
-export interface LuaTypeLiteral {
+export interface LuaTypeLiteral extends BaseLuaNode {
   type: 'LuaTypeLiteral';
   members: Array<LuaTypeElement>;
 }
@@ -228,17 +235,17 @@ export type LuaType =
   | LuaTypeLiteral
   | LuaTypeVoid;
 
-export interface LuaTypeAnnotation {
+export interface LuaTypeAnnotation extends BaseLuaNode {
   type: 'LuaTypeAnnotation';
   typeAnnotation: LuaType | null;
 }
 
-export interface LuaTypeAliasDeclaration {
+export interface LuaTypeAliasDeclaration extends BaseLuaNode {
   type: 'LuaTypeAliasDeclaration';
   id: LuaIdentifier;
   typeAnnotation: LuaType;
 }
-export interface LuaPropertySignature {
+export interface LuaPropertySignature extends BaseLuaNode {
   type: 'LuaPropertySignature';
   key: LuaExpression;
   typeAnnotation?: LuaTypeAnnotation;
@@ -256,24 +263,37 @@ export type LuaBinaryExpressionOperator =
   | '*'
   | '..';
 
-export interface LuaBinaryExpression {
+export interface LuaBinaryExpression extends BaseLuaNode {
   type: 'LuaBinaryExpression';
   operator: LuaBinaryExpressionOperator;
   left: LuaExpression;
   right: LuaExpression;
 }
-export interface LuaUnaryExpression {
+export interface LuaUnaryExpression extends BaseLuaNode {
   type: 'LuaUnaryExpression';
   operator: 'throw' | 'delete' | '!' | '-' | '~';
   argument: LuaExpression;
 }
 
-export interface LuaUnaryVoidExpression {
+export interface LuaUnaryVoidExpression extends BaseLuaNode {
   type: 'LuaUnaryVoidExpression';
   argument: LuaExpression;
 }
 
-export interface LuaUnaryNegationExpression {
+export interface LuaUnaryNegationExpression extends BaseLuaNode {
   type: 'LuaUnaryNegationExpression';
   argument: LuaExpression;
+}
+
+export interface LuaIndexExpression extends BaseLuaNode {
+  type: 'IndexExpression';
+  base: LuaExpression;
+  index: LuaExpression;
+}
+
+export interface LuaMemberExpression extends BaseLuaNode {
+  type: 'LuaMemberExpression';
+  indexer: '.' | ':';
+  base: LuaExpression;
+  identifier: LuaIdentifier;
 }

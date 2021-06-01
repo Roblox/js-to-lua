@@ -73,6 +73,7 @@ import { Unpacked } from '../utils/types';
 import { handleReturnStatement } from './return-statement.handler';
 import { createArrayExpressionHandler } from './array-expression.handler';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
+import { createMemberExpressionHandler } from './member-expression.handler';
 
 type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,
@@ -381,6 +382,7 @@ export const handleExpression = combineHandlers<
   handleFunctionExpression,
   handleArrowFunctionExpression,
   handleUpdateExpression,
+  createMemberExpressionHandler(forwardHandlerRef(() => handleExpression)),
 ]);
 
 const handleObjectPropertyValue: BaseNodeHandler<
