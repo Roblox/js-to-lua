@@ -26,6 +26,7 @@ import {
   LuaVariableDeclaratorValue,
   LuaMemberExpression,
   LuaIndexExpression,
+  LuaBinaryExpression,
 } from './lua-nodes.types';
 
 export const program = (body: LuaNode[] = []): LuaProgram => ({
@@ -198,6 +199,17 @@ export const indexExpression = (
   ...(index.type === 'NumericLiteral'
     ? { conversionComment: 'ROBLOX adaptation: added 1 to array index' }
     : {}),
+});
+
+export const binaryExpression = (
+  left: LuaBinaryExpression['left'],
+  operator: LuaBinaryExpression['operator'],
+  right: LuaBinaryExpression['right']
+): LuaBinaryExpression => ({
+  type: 'LuaBinaryExpression',
+  left,
+  operator,
+  right,
 });
 
 export const unhandledNode = (

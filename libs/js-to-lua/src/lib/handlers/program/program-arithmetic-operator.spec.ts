@@ -1,5 +1,15 @@
 import { handleProgram } from './program.handler';
-import { LuaProgram } from '@js-to-lua/lua-types';
+import {
+  LuaProgram,
+  binaryExpression,
+  stringLiteral,
+  expressionStatement,
+  program,
+  identifier,
+  callExpression,
+  numericLiteral,
+  booleanLiteral,
+} from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
 describe('Program handler', () => {
@@ -8,26 +18,11 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      foo ** bar;
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'LuaBinaryExpression',
-              left: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-              operator: '^',
-              right: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(identifier('foo'), '^', identifier('bar'))
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(given);
 
@@ -38,26 +33,11 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      foo - bar;
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'LuaBinaryExpression',
-              left: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-              operator: '-',
-              right: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(identifier('foo'), '-', identifier('bar'))
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(given);
 
@@ -68,26 +48,11 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      foo * bar;
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'LuaBinaryExpression',
-              left: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-              operator: '*',
-              right: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(identifier('foo'), '*', identifier('bar'))
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(given);
 
@@ -98,26 +63,11 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      foo / bar;
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'LuaBinaryExpression',
-              left: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-              operator: '/',
-              right: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(identifier('foo'), '/', identifier('bar'))
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(given);
 
@@ -128,26 +78,11 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      foo % bar;
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'LuaBinaryExpression',
-              left: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-              operator: '%',
-              right: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(identifier('foo'), '%', identifier('bar'))
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(given);
 
@@ -158,26 +93,11 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      foo + bar;
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'LuaBinaryExpression',
-              left: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-              operator: '+',
-              right: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(identifier('foo'), '+', identifier('bar'))
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(given);
 
@@ -188,26 +108,55 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      'foo' + 'bar';
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'LuaBinaryExpression',
-              left: {
-                type: 'StringLiteral',
-                value: 'foo',
-              },
-              operator: '..',
-              right: {
-                type: 'StringLiteral',
-                value: 'bar',
-              },
-            },
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(stringLiteral('foo'), '..', stringLiteral('bar'))
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle arithmetic add operator with one string literal', () => {
+      const given = getProgramNode(`
+      "foo" + bar
+      foo + "bar"
+      "foo" + 5
+      "foo"+ true
+     
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(
+            stringLiteral('foo'),
+            '..',
+            callExpression(identifier('tostring'), [identifier('bar')])
+          )
+        ),
+        expressionStatement(
+          binaryExpression(
+            callExpression(identifier('tostring'), [identifier('foo')]),
+            '..',
+            stringLiteral('bar')
+          )
+        ),
+        expressionStatement(
+          binaryExpression(
+            stringLiteral('foo'),
+            '..',
+            callExpression(identifier('tostring'), [numericLiteral(5, '5')])
+          )
+        ),
+        expressionStatement(
+          binaryExpression(
+            stringLiteral('foo'),
+            '..',
+            callExpression(identifier('tostring'), [booleanLiteral(true)])
+          )
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(given);
 

@@ -59,6 +59,8 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
+  binaryExpression,
+  LuaStringLiteral,
 } from '@js-to-lua/lua-types';
 
 import { defaultHandler } from '../utils/default.handler';
@@ -211,22 +213,23 @@ export const handleIdentifier: BaseNodeHandler<
   },
 };
 
-const handleBinaryExpressionOperator = (
-  node: BinaryExpression
-): LuaBinaryExpressionOperator => {
-  if (node.operator === '**') {
-    return '^';
-  }
-
+const handleBinaryAddOperator = (node) => {
   if (
-    node.operator === '+' &&
-    node.left.type === 'StringLiteral' &&
+    node.left.type === 'StringLiteral' ||
     node.right.type === 'StringLiteral'
   ) {
-    return '..';
+    return binaryExpression(
+      handleExpression.handler(handleOperandAsString(node.left as Expression)),
+      '..',
+      handleExpression.handler(handleOperandAsString(node.right))
+    );
+  } else {
+    return binaryExpression(
+      handleExpression.handler(node.left as Expression),
+      node.operator,
+      handleExpression.handler(node.right)
+    );
   }
-
-  return node.operator as LuaBinaryExpressionOperator;
 };
 
 export const handleBinaryExpression: BaseNodeHandler<
@@ -236,24 +239,25 @@ export const handleBinaryExpression: BaseNodeHandler<
   type: 'BinaryExpression',
   handler: (node) => {
     switch (node.operator) {
-      case '**':
-      case '+':
       case '-':
       case '/':
       case '*':
       case '%':
-        return {
-          type: 'LuaBinaryExpression',
-          operator: handleBinaryExpressionOperator(node),
-          left: handleExpression.handler(node.left as Expression),
-          right: handleExpression.handler(node.right),
-        };
+        return binaryExpression(
+          handleExpression.handler(node.left as Expression),
+          node.operator,
+          handleExpression.handler(node.right)
+        );
+      case '**':
+        return binaryExpression(
+          handleExpression.handler(node.left as Expression),
+          '^',
+          handleExpression.handler(node.right)
+        );
+      case '+':
+        return handleBinaryAddOperator(node);
       default:
-        return {
-          type: 'UnhandledNode',
-          start: node.start,
-          end: node.end,
-        };
+        return unhandledNode(node.start, node.end);
     }
   },
 };
@@ -562,4 +566,15 @@ function generateUniqueIdentifier(
     .some((node) => (node as Identifier).name === defaultValue)
     ? generateUniqueIdentifier(nodes, `${defaultValue}_`)
     : defaultValue;
+}
+
+function handleOperandAsString(
+  node: Expression
+): LuaCallExpression | LuaStringLiteral {
+  if (node.type === 'StringLiteral') {
+    return node;
+  }
+  return callExpression(identifier('tostring'), [
+    handleExpression.handler(node),
+  ]);
 }
