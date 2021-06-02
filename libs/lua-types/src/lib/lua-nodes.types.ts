@@ -200,6 +200,7 @@ export interface LuaFunctionExpression extends BaseLuaNode {
   params: Array<LuaFunctionParam>;
   defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
   body: Array<LuaNode>;
+  returnType?: LuaTypeAnnotation;
 }
 
 export interface LuaTypeAny extends BaseLuaNode {

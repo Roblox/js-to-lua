@@ -139,6 +139,69 @@ describe('Print Table Constructor', () => {
     expect(printTableConstructor(given, '')).toEqual(expected);
   });
 
+  it(`should print Lua Table Constructor Node with Function expression`, () => {
+    const given: LuaTableConstructor = {
+      type: 'TableConstructor',
+      elements: [
+        {
+          type: 'TableNameKeyField',
+          key: {
+            type: 'Identifier',
+            name: 'sound',
+          },
+          value: {
+            type: 'StringLiteral',
+            value: 'bla',
+          },
+        },
+        {
+          type: 'TableNameKeyField',
+          key: {
+            type: 'Identifier',
+            name: 'method1',
+          },
+          value: {
+            type: 'FunctionExpression',
+            params: [
+              {
+                type: 'Identifier',
+                name: 'self',
+              },
+            ],
+            defaultValues: [],
+            body: [],
+          },
+        },
+        {
+          type: 'TableNameKeyField',
+          key: {
+            type: 'Identifier',
+            name: 'method2',
+          },
+          value: {
+            type: 'FunctionExpression',
+            params: [
+              {
+                type: 'Identifier',
+                name: 'self',
+              },
+              {
+                type: 'Identifier',
+                name: 'name',
+              },
+            ],
+            defaultValues: [],
+            body: [],
+          },
+        },
+      ],
+    };
+    const expected =
+      '{sound = "bla", method1 = function(self) end, method2 = function(self, name) end}';
+
+    expect(printTableConstructor(given, '')).toEqual(expected);
+  });
+
   it(`should print Lua Table Constructor of Lua Table Constructors`, () => {
     const given: LuaTableConstructor = {
       type: 'TableConstructor',

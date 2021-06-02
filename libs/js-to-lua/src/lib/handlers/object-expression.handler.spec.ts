@@ -1,5 +1,15 @@
 import { ObjectExpression } from '@babel/types';
-import { LuaTableConstructor } from '@js-to-lua/lua-types';
+import {
+  LuaTableConstructor,
+  tableConstructor,
+  tableNameKeyField,
+  identifier,
+  booleanLiteral,
+  numericLiteral,
+  stringLiteral,
+  functionExpression,
+  tableExpressionKeyField,
+} from '@js-to-lua/lua-types';
 import { handleObjectExpression } from './expression-statement.handler';
 
 const DEFAULT_NODE = {
@@ -18,10 +28,8 @@ describe('Object Expression Handler', () => {
       type: 'ObjectExpression',
       properties: [],
     };
-    const expected: LuaTableConstructor = {
-      type: 'TableConstructor',
-      elements: [],
-    };
+
+    const expected: LuaTableConstructor = tableConstructor([]);
 
     expect(handleObjectExpression.handler(given)).toEqual(expected);
   });
@@ -81,44 +89,12 @@ describe('Object Expression Handler', () => {
         },
       ],
     };
-    const expected: LuaTableConstructor = {
-      type: 'TableConstructor',
-      elements: [
-        {
-          type: 'TableNameKeyField',
-          key: {
-            type: 'Identifier',
-            name: 'foo',
-          },
-          value: {
-            type: 'BooleanLiteral',
-            value: true,
-          },
-        },
-        {
-          type: 'TableNameKeyField',
-          key: {
-            type: 'Identifier',
-            name: 'bar',
-          },
-          value: {
-            type: 'NumericLiteral',
-            value: 1,
-          },
-        },
-        {
-          type: 'TableNameKeyField',
-          key: {
-            type: 'Identifier',
-            name: 'baz',
-          },
-          value: {
-            type: 'StringLiteral',
-            value: 'abc',
-          },
-        },
-      ],
-    };
+
+    const expected: LuaTableConstructor = tableConstructor([
+      tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+      tableNameKeyField(identifier('bar'), numericLiteral(1)),
+      tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+    ]);
 
     expect(handleObjectExpression.handler(given)).toEqual(expected);
   });
@@ -178,44 +154,12 @@ describe('Object Expression Handler', () => {
         },
       ],
     };
-    const expected: LuaTableConstructor = {
-      type: 'TableConstructor',
-      elements: [
-        {
-          type: 'TableExpressionKeyField',
-          key: {
-            type: 'StringLiteral',
-            value: 'foo',
-          },
-          value: {
-            type: 'BooleanLiteral',
-            value: true,
-          },
-        },
-        {
-          type: 'TableExpressionKeyField',
-          key: {
-            type: 'StringLiteral',
-            value: 'bar',
-          },
-          value: {
-            type: 'NumericLiteral',
-            value: 1,
-          },
-        },
-        {
-          type: 'TableExpressionKeyField',
-          key: {
-            type: 'StringLiteral',
-            value: 'baz',
-          },
-          value: {
-            type: 'StringLiteral',
-            value: 'abc',
-          },
-        },
-      ],
-    };
+
+    const expected: LuaTableConstructor = tableConstructor([
+      tableExpressionKeyField(stringLiteral('foo'), booleanLiteral(true)),
+      tableExpressionKeyField(stringLiteral('bar'), numericLiteral(1)),
+      tableExpressionKeyField(stringLiteral('baz'), stringLiteral('abc')),
+    ]);
 
     expect(handleObjectExpression.handler(given)).toEqual(expected);
   });
@@ -327,80 +271,115 @@ describe('Object Expression Handler', () => {
       ],
     };
 
-    const expected: LuaTableConstructor = {
-      type: 'TableConstructor',
-      elements: [
+    const expected: LuaTableConstructor = tableConstructor([
+      tableNameKeyField(
+        identifier('foo0'),
+        tableConstructor([
+          tableNameKeyField(identifier('foo1'), booleanLiteral(true)),
+        ])
+      ),
+      tableNameKeyField(
+        identifier('bar0'),
+        tableConstructor([
+          tableNameKeyField(identifier('bar1'), numericLiteral(1)),
+        ])
+      ),
+      tableNameKeyField(
+        identifier('baz0'),
+        tableConstructor([
+          tableNameKeyField(identifier('baz1'), stringLiteral('abc')),
+        ])
+      ),
+    ]);
+
+    expect(handleObjectExpression.handler(given)).toEqual(expected);
+  });
+
+  it(`should handle object with methods`, () => {
+    const given: ObjectExpression = {
+      ...DEFAULT_NODE,
+      type: 'ObjectExpression',
+      properties: [
         {
-          type: 'TableNameKeyField',
+          ...DEFAULT_NODE,
+          type: 'ObjectProperty',
           key: {
+            ...DEFAULT_NODE,
             type: 'Identifier',
-            name: 'foo0',
+            name: 'sound',
           },
           value: {
-            type: 'TableConstructor',
-            elements: [
-              {
-                type: 'TableNameKeyField',
-                key: {
-                  type: 'Identifier',
-                  name: 'foo1',
-                },
-                value: {
-                  type: 'BooleanLiteral',
-                  value: true,
-                },
-              },
-            ],
+            ...DEFAULT_NODE,
+            type: 'StringLiteral',
+            value: 'bla',
           },
+          computed: false,
+          shorthand: false,
         },
         {
-          type: 'TableNameKeyField',
+          ...DEFAULT_NODE,
+          type: 'ObjectProperty',
           key: {
+            ...DEFAULT_NODE,
             type: 'Identifier',
-            name: 'bar0',
+            name: 'method1',
           },
           value: {
-            type: 'TableConstructor',
-            elements: [
-              {
-                type: 'TableNameKeyField',
-                key: {
-                  type: 'Identifier',
-                  name: 'bar1',
-                },
-                value: {
-                  type: 'NumericLiteral',
-                  value: 1,
-                },
-              },
-            ],
+            ...DEFAULT_NODE,
+            type: 'FunctionExpression',
+            params: [],
+            body: {
+              ...DEFAULT_NODE,
+              type: 'BlockStatement',
+              body: [],
+              directives: [],
+            },
           },
+          computed: false,
+          shorthand: false,
         },
         {
-          type: 'TableNameKeyField',
+          ...DEFAULT_NODE,
+          type: 'ObjectProperty',
           key: {
+            ...DEFAULT_NODE,
             type: 'Identifier',
-            name: 'baz0',
+            name: 'method2',
           },
           value: {
-            type: 'TableConstructor',
-            elements: [
+            ...DEFAULT_NODE,
+            type: 'FunctionExpression',
+            params: [
               {
-                type: 'TableNameKeyField',
-                key: {
-                  type: 'Identifier',
-                  name: 'baz1',
-                },
-                value: {
-                  type: 'StringLiteral',
-                  value: 'abc',
-                },
+                ...DEFAULT_NODE,
+                type: 'Identifier',
+                name: 'name',
               },
             ],
+            body: {
+              ...DEFAULT_NODE,
+              type: 'BlockStatement',
+              body: [],
+              directives: [],
+            },
           },
+          computed: false,
+          shorthand: false,
         },
       ],
     };
+
+    const expected: LuaTableConstructor = tableConstructor([
+      tableNameKeyField(identifier('sound'), stringLiteral('bla')),
+      tableNameKeyField(
+        identifier('method1'),
+        functionExpression([identifier('self')])
+      ),
+      tableNameKeyField(
+        identifier('method2'),
+        functionExpression([identifier('self'), identifier('name')])
+      ),
+    ]);
 
     expect(handleObjectExpression.handler(given)).toEqual(expected);
   });
@@ -463,46 +442,19 @@ describe('Object Expression Handler', () => {
       ],
     };
 
-    const expected: LuaTableConstructor = {
-      type: 'TableConstructor',
-      elements: [
-        {
-          type: 'TableNameKeyField',
-          key: {
-            type: 'Identifier',
-            name: 'foo',
-          },
-          value: {
-            type: 'TableConstructor',
-            elements: [
-              {
-                type: 'TableNameKeyField',
-                key: {
-                  type: 'Identifier',
-                  name: 'bar',
-                },
-                value: {
-                  type: 'TableConstructor',
-                  elements: [
-                    {
-                      type: 'TableNameKeyField',
-                      key: {
-                        type: 'Identifier',
-                        name: 'baz',
-                      },
-                      value: {
-                        type: 'TableConstructor',
-                        elements: [],
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        },
-      ],
-    };
+    const expected: LuaTableConstructor = tableConstructor([
+      tableNameKeyField(
+        identifier('foo'),
+        tableConstructor([
+          tableNameKeyField(
+            identifier('bar'),
+            tableConstructor([
+              tableNameKeyField(identifier('baz'), tableConstructor([])),
+            ])
+          ),
+        ])
+      ),
+    ]);
 
     expect(handleObjectExpression.handler(given)).toEqual(expected);
   });

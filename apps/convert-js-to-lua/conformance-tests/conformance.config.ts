@@ -11,7 +11,6 @@ export default {
     'conformance-tests/structural-types/object/single-false-key-to-boolean.js',
 
     // ---- Milestone 2 ----
-
     'conformance-tests/expressions/call/method-expression-string_m2.js',
     'conformance-tests/expressions/call/method-expression_m2.js',
     'conformance-tests/expressions/call/method-react-create-div-element_m2.js',
@@ -27,19 +26,6 @@ export default {
     'conformance-tests/operators/unary/delete/computed-identifier_m2.js',
     'conformance-tests/operators/unary/delete/computed-numeric_m2.js',
     'conformance-tests/operators/unary/delete/computed-octal_m2.js',
-
-    'conformance-tests/structural-types/object/method-expression-property-function-expression-with-args_m2.js',
-    'conformance-tests/structural-types/object/method-expression-property-function-expression_m2.js',
-    'conformance-tests/structural-types/object/method-expression-property-with-args_m2.js',
-    'conformance-tests/structural-types/object/method-expression-property_m2.js',
-    'conformance-tests/structural-types/object/method-function-expression-typed_m2.ts',
-    'conformance-tests/structural-types/object/method-function-expression-with-args-typed_m2.ts',
-    'conformance-tests/structural-types/object/method-function-expression-with-args_m2.js',
-    'conformance-tests/structural-types/object/method-function-expression_m2.js',
-    'conformance-tests/structural-types/object/method-simple-typed_m2.ts',
-    'conformance-tests/structural-types/object/method-simple-with-args-typed_m2.ts',
-    'conformance-tests/structural-types/object/method-simple-with-args_m2.js',
-    'conformance-tests/structural-types/object/method-simple_m2.js',
 
     'conformance-tests/complex/simple-react-component_m2.js',
   ],

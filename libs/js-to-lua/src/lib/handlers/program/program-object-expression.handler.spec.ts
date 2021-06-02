@@ -13,6 +13,7 @@ import {
   tableConstructor,
   tableExpressionKeyField,
   tableNameKeyField,
+  functionExpression,
 } from '@js-to-lua/lua-types';
 
 describe('Program handler', () => {
@@ -136,6 +137,35 @@ describe('Program handler', () => {
       expect(handleProgram.handler(given)).toEqual(expected);
     });
 
+    it(`should handle methods in objects`, () => {
+      const given = getProgramNode(`
+        ({
+          method1: function(){
+
+          },
+          method2: function(name){
+
+          }
+        })
+      `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          tableConstructor([
+            tableNameKeyField(
+              identifier('method1'),
+              functionExpression([identifier('self')])
+            ),
+            tableNameKeyField(
+              identifier('method2'),
+              functionExpression([identifier('self'), identifier('name')])
+            ),
+          ])
+        ),
+      ]);
+
+      expect(handleProgram.handler(given)).toEqual(expected);
+    });
+
     it(`should handle deeply nested objects`, () => {
       const given = getProgramNode(`
         ({
@@ -172,6 +202,34 @@ describe('Program handler', () => {
         ({
           foo: true,
           bar: 1,
+          ...{baz: 'abc'},
+        })
+      `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          callExpression(objectAssign(), [
+            tableConstructor(),
+            tableConstructor([
+              tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+              tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+            ]),
+            tableConstructor([
+              tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+            ]),
+          ])
+        ),
+      ]);
+
+      expect(handleProgram.handler(given)).toEqual(expected);
+    });
+
+    it(`should return Lua Table Constructor Node with multiple spread elements`, () => {
+      const given = getProgramNode(`
+        ({
+          ...{
+            foo: true,
+            bar: 1,
+          },
           ...{baz: 'abc'},
         })
       `);

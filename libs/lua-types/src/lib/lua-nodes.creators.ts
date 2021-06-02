@@ -24,6 +24,7 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
+  LuaType,
   LuaMemberExpression,
   LuaIndexExpression,
   LuaBinaryExpression,
@@ -70,15 +71,27 @@ export const variableDeclaratorValue = (
 });
 
 export const functionExpression = (
-  params: Array<LuaFunctionParam>,
-  defaultValues: Array<any>,
-  body: Array<LuaNode>
-): LuaFunctionExpression => ({
-  type: 'FunctionExpression',
-  params,
-  defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
-  body,
-});
+  params: Array<LuaFunctionParam> = [],
+  defaultValues: Array<any> = [],
+  body: Array<LuaNode> = [],
+  returnType: LuaTypeAnnotation = null
+): LuaFunctionExpression => {
+  if (returnType) {
+    return {
+      type: 'FunctionExpression',
+      params,
+      defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
+      body,
+      returnType,
+    };
+  }
+  return {
+    type: 'FunctionExpression',
+    params,
+    defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
+    body,
+  };
+};
 
 export const tableConstructor = (
   elements: LuaTableConstructor['elements'] = []

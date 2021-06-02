@@ -67,7 +67,6 @@ describe('Program handler', () => {
       ]);
 
       const luaProgram = handleProgram.handler(given);
-
       expect(luaProgram.body[0]['values'][0].value.defaultValues.length).toBe(
         1
       ); //TODO: remove when AssignmentPattern is available

@@ -63,7 +63,7 @@ import {
   LuaStringLiteral,
 } from '@js-to-lua/lua-types';
 
-import { defaultHandler } from '../utils/default.handler';
+import { handleTsTypes } from './type-annotation.handler';
 import { handleMultilineStringLiteral } from './multiline-string.handler';
 import { typesHandler } from './type-annotation.handler';
 import { functionParamsHandler } from './function-params.handler';
@@ -305,7 +305,8 @@ export const handleFunctionExpression: BaseNodeHandler<
     return functionExpression(
       node.params.map(functionParamsHandler),
       node.params.filter((param) => param.type === 'AssignmentPattern'),
-      node.body.body.map(handleStatement.handler)
+      node.body.body.map(handleStatement.handler),
+      node.returnType ? typesHandler(node.returnType) : null
     );
   },
 };
@@ -324,7 +325,8 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
     return functionExpression(
       node.params.map(functionParamsHandler),
       node.params.filter((param) => param.type === 'AssignmentPattern'),
-      body
+      body,
+      node.returnType ? typesHandler(node.returnType) : null
     );
   },
 };
@@ -389,10 +391,30 @@ export const handleExpression = combineHandlers<
   createMemberExpressionHandler(forwardHandlerRef(() => handleExpression)),
 ]);
 
+export const handleObjectValueFunctionExpression: BaseNodeHandler<
+  FunctionExpression,
+  LuaFunctionExpression
+> = {
+  type: 'FunctionExpression',
+  handler: (node) => {
+    const params = [
+      identifier('self'),
+      ...node.params.map(functionParamsHandler),
+    ];
+
+    return functionExpression(
+      params,
+      node.params.filter((param) => param.type === 'AssignmentPattern'),
+      node.body.body.map(handleStatement.handler),
+      node.returnType ? typesHandler(node.returnType) : null
+    );
+  },
+};
+
 const handleObjectPropertyValue: BaseNodeHandler<
   Expression | PatternLike,
   LuaExpression
-> = combineHandlers([handleExpression]);
+> = combineHandlers([handleObjectValueFunctionExpression, handleExpression]);
 
 const handleObjectKeyExpression: BaseNodeHandler<
   Expression,
@@ -437,19 +459,33 @@ export const handleObjectMethod: BaseNodeHandler<
   LuaTableKeyField
 > = {
   type: 'ObjectMethod',
-  handler: ({ key, body }): LuaTableKeyField => {
-    switch (key.type) {
+  handler: (node): LuaTableKeyField => {
+    const params = [
+      identifier('self'),
+      ...node.params.map(functionParamsHandler),
+    ];
+    switch (node.key.type) {
       case 'Identifier':
         return {
           type: 'TableNameKeyField',
-          key: handleIdentifier.handler(key) as LuaIdentifier,
-          value: defaultHandler(body) as any, // TODO handle block to function expression
+          key: handleIdentifier.handler(node.key) as LuaIdentifier,
+          value: functionExpression(
+            params,
+            node.params.filter((param) => param.type === 'AssignmentPattern'),
+            node.body.body.map(handleStatement.handler),
+            node.returnType ? typesHandler(node.returnType) : null
+          ),
         };
       default:
         return {
           type: 'TableExpressionKeyField',
-          key: handleObjectKeyExpression(key),
-          value: defaultHandler(body) as any, // TODO handle block to function expression
+          key: handleObjectKeyExpression(node.key),
+          value: functionExpression(
+            params,
+            node.params.filter((param) => param.type === 'AssignmentPattern'),
+            node.body.body.map(handleStatement.handler),
+            node.returnType ? typesHandler(node.returnType) : null
+          ),
         };
     }
   },
