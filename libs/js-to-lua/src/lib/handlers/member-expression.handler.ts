@@ -16,7 +16,6 @@ import {
 } from '@js-to-lua/lua-types';
 import {
   handleBinaryExpression,
-  handleExpression,
   handleIdentifier,
 } from './expression-statement.handler';
 import { handleNumericLiteral } from './primitives/numeric.handler';

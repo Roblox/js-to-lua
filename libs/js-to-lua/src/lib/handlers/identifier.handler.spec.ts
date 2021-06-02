@@ -1,5 +1,11 @@
 import { Identifier } from '@babel/types';
-import { LuaIdentifier, LuaNilLiteral } from '@js-to-lua/lua-types';
+import {
+  identifier,
+  LuaIdentifier,
+  LuaMemberExpression,
+  LuaNilLiteral,
+  memberExpression,
+} from '@js-to-lua/lua-types';
 import { handleIdentifier } from './expression-statement.handler';
 
 const DEFAULT_NODE = {
@@ -48,16 +54,17 @@ describe('Identifier Handler', () => {
 
     expect(handleIdentifier.handler(given)).toEqual(expected);
   });
-  it(`should return math.huge name if identifier name is 'Infinity'`, () => {
+  it(`should return math.huge member expression if identifier name is 'Infinity'`, () => {
     const given: Identifier = {
       ...DEFAULT_NODE,
       type: 'Identifier',
       name: 'Infinity',
     };
-    const expected: LuaIdentifier = {
-      type: 'Identifier',
-      name: 'math.huge',
-    };
+    const expected: LuaMemberExpression = memberExpression(
+      identifier('math'),
+      '.',
+      identifier('huge')
+    );
 
     expect(handleIdentifier.handler(given)).toEqual(expected);
   });

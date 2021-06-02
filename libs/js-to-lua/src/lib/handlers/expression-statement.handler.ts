@@ -29,7 +29,6 @@ import { handleBooleanLiteral } from './primitives/boolean.handler';
 import { handleNullLiteral } from './primitives/null.handler';
 import {
   LuaBinaryExpression,
-  LuaBinaryExpressionOperator,
   LuaCallExpression,
   LuaExpression,
   LuaExpressionStatement,
@@ -61,9 +60,10 @@ import {
   variableDeclaratorValue,
   binaryExpression,
   LuaStringLiteral,
+  memberExpression,
+  LuaMemberExpression,
 } from '@js-to-lua/lua-types';
 
-import { handleTsTypes } from './type-annotation.handler';
 import { handleMultilineStringLiteral } from './multiline-string.handler';
 import { typesHandler } from './type-annotation.handler';
 import { functionParamsHandler } from './function-params.handler';
@@ -162,7 +162,7 @@ export const handleObjectExpression: BaseNodeHandler<
 
 export const handleIdentifier: BaseNodeHandler<
   Identifier,
-  LuaNilLiteral | LuaIdentifier
+  LuaNilLiteral | LuaIdentifier | LuaMemberExpression
 > = {
   type: 'Identifier',
   handler: (node) => {
@@ -172,10 +172,7 @@ export const handleIdentifier: BaseNodeHandler<
           type: 'NilLiteral',
         };
       case 'Infinity':
-        return {
-          type: 'Identifier',
-          name: 'math.huge',
-        };
+        return memberExpression(identifier('math'), '.', identifier('huge'));
       case 'and':
       case 'break':
       case 'do':
