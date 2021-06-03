@@ -206,8 +206,9 @@ function printCallExpression(node: LuaCallExpression, source: string): string {
 function printCalleeExpression(callee: LuaExpression, source: string): string {
   switch (callee.type) {
     case 'CallExpression':
-      return `${printNode(callee, source)}`;
     case 'Identifier':
+    case 'LuaMemberExpression':
+    case 'IndexExpression':
       return `${printNode(callee, source)}`;
     default:
       return `(${printNode(callee, source)})`;

@@ -55,6 +55,8 @@ import {
   LuaStringLiteral,
   memberExpression,
   LuaMemberExpression,
+  objectAssign,
+  tableConstructor,
 } from '@js-to-lua/lua-types';
 
 import { handleMultilineStringLiteral } from './multiline-string.handler';
@@ -119,22 +121,9 @@ const handleObjectExpressionWithSpread: HandlerFunction<
       : handleExpression.handler(group.argument);
   });
 
-  // TODO: Replace identifier with member expression.
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'Identifier',
-      name: 'Object.assign',
-    },
-    arguments: [
-      {
-        type: 'TableConstructor',
-        elements: [],
-      },
-      ...args,
-    ],
-  };
+  return callExpression(objectAssign(), [tableConstructor([]), ...args]);
 };
+
 const handleObjectExpressionWithoutSpread: HandlerFunction<
   ObjectExpression,
   LuaTableConstructor

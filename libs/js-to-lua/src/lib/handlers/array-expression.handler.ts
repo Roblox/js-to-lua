@@ -6,10 +6,14 @@ import {
   SpreadElement,
 } from '@babel/types';
 import {
+  arrayConcat,
+  arraySpread,
+  callExpression,
   LuaCallExpression,
   LuaExpression,
   LuaTableConstructor,
   LuaTableNoKeyField,
+  tableConstructor,
 } from '@js-to-lua/lua-types';
 import { splitBy } from '../utils/split-by';
 import { Unpacked } from '../utils/types';
@@ -36,15 +40,9 @@ export const createArrayExpressionHandler = (
   > = (spreadElement) =>
     spreadElement.argument.type === 'ArrayExpression'
       ? handleExpression(spreadElement.argument)
-      : {
-          type: 'CallExpression',
-          callee: {
-            // TODO: Replace identifier with member expression.
-            type: 'Identifier',
-            name: 'Array.spread',
-          },
-          arguments: [handleExpression(spreadElement.argument)],
-        };
+      : callExpression(arraySpread(), [
+          handleExpression(spreadElement.argument),
+        ]);
 
   const handleArrayExpressionWithSpread: HandlerFunction<
     ArrayExpression,
@@ -65,21 +63,7 @@ export const createArrayExpressionHandler = (
         : handleSpreadExpression(group);
     });
 
-    // TODO: Replace identifier with member expression.
-    return {
-      type: 'CallExpression',
-      callee: {
-        type: 'Identifier',
-        name: 'Array.concat',
-      },
-      arguments: [
-        {
-          type: 'TableConstructor',
-          elements: [],
-        },
-        ...args,
-      ],
-    };
+    return callExpression(arrayConcat(), [tableConstructor([]), ...args]);
   };
 
   type ArrayExpressionWithoutSpread = ArrayExpression;

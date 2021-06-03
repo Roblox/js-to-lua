@@ -242,6 +242,9 @@ export const unhandledNode = (
   end,
 });
 
-export const arrayConcat = (): LuaIdentifier => identifier('Array.concat');
-export const arraySpread = (): LuaIdentifier => identifier('Array.spread');
-export const objectAssign = (): LuaIdentifier => identifier('Object.assign');
+export const arrayConcat = (): LuaMemberExpression =>
+  memberExpression(identifier('Array'), '.', identifier('concat'));
+export const arraySpread = (): LuaMemberExpression =>
+  memberExpression(identifier('Array'), '.', identifier('spread'));
+export const objectAssign = (): LuaMemberExpression =>
+  memberExpression(identifier('Object'), '.', identifier('assign'));
