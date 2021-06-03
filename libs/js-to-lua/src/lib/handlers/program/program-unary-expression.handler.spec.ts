@@ -2,12 +2,7 @@ import {
   callExpression,
   expressionStatement,
   identifier,
-  LuaCallExpression,
   LuaProgram,
-  LuaUnaryDeleteExpression,
-  LuaUnaryExpression,
-  LuaUnaryNegationExpression,
-  LuaUnaryVoidExpression,
   memberExpression,
   program,
   unaryDeleteExpression,
@@ -72,12 +67,15 @@ describe('Unary Expression Handler', () => {
   });
 
   it(`should handle negation operator`, () => {
-    const given = getProgramNode(`
-    !foo
-  `);
+    const given = getProgramNode(`!foo`);
 
     const expected: LuaProgram = program([
-      expressionStatement(unaryNegationExpression(identifier('foo'))),
+      expressionStatement(
+        unaryNegationExpression(identifier('foo'), {
+          argumentStart: 1,
+          argumentEnd: 4,
+        })
+      ),
     ]);
 
     expect(handleProgram.handler(given)).toEqual(expected);

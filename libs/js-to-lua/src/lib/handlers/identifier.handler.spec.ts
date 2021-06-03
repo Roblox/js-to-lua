@@ -1,10 +1,12 @@
 import { Identifier } from '@babel/types';
 import {
+  binaryExpression,
   identifier,
   LuaIdentifier,
   LuaMemberExpression,
   LuaNilLiteral,
   memberExpression,
+  numericLiteral,
 } from '@js-to-lua/lua-types';
 import { handleIdentifier } from './expression-statement.handler';
 
@@ -54,6 +56,7 @@ describe('Identifier Handler', () => {
 
     expect(handleIdentifier.handler(given)).toEqual(expected);
   });
+
   it(`should return math.huge member expression if identifier name is 'Infinity'`, () => {
     const given: Identifier = {
       ...DEFAULT_NODE,
@@ -68,6 +71,22 @@ describe('Identifier Handler', () => {
 
     expect(handleIdentifier.handler(given)).toEqual(expected);
   });
+
+  it(`should return 0/0 if identifier name is 'NaN'`, () => {
+    const given: Identifier = {
+      ...DEFAULT_NODE,
+      type: 'Identifier',
+      name: 'NaN',
+    };
+    const expected = binaryExpression(
+      numericLiteral(0),
+      '/',
+      numericLiteral(0)
+    );
+
+    expect(handleIdentifier.handler(given)).toEqual(expected);
+  });
+
   it(`should return Lua Identifier Node if Symbol is present`, () => {
     const given: Identifier = {
       ...DEFAULT_NODE,

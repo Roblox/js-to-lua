@@ -100,7 +100,10 @@ async function main() {
   await verifyFiles(translateFiles, luaFiles);
 
   console.log(`running Lua files with ${ROBLOX_CLI}...`);
-  await checkIfLuaFileParses(luaFiles);
+  const luaFilesThatShouldParse = luaFiles.filter(
+    (filePath) => !/_m\d?x$/.test(filePath.name)
+  );
+  await checkIfLuaFileParses(luaFilesThatShouldParse);
 
   console.log('completed successfully');
 }

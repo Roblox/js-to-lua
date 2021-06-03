@@ -1,1 +1,1 @@
-local v = not true
+local v = not true --[[ ROBLOX DEVIATION: coerced from `'foo'` to preserve JS behavior ]]

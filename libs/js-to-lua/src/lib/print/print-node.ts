@@ -1,18 +1,21 @@
 import {
+  LuaBlockStatement,
   LuaCallExpression,
   LuaExpression,
-  LuaBlockStatement,
+  LuaMultilineStringLiteral,
   LuaNode,
+  LuaNumericLiteral,
   LuaProgram,
+  LuaReturnStatement,
+  LuaStringLiteral,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
   LuaTableNoKeyField,
+  LuaUnaryNegationExpression,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
-  LuaFunctionDeclaration,
-  LuaReturnStatement,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -36,7 +39,9 @@ export const printNode = (node: LuaNode, source: string): string => {
     case 'MultilineStringLiteral':
       return printMultilineString(node);
     case 'BooleanLiteral':
-      return node.value.toString();
+      return `${node.value.toString()}${
+        node.conversionComment ? ` --[[ ${node.conversionComment} ]]` : ''
+      }`;
     case 'Identifier':
       return `${node.name}${
         node.typeAnnotation ? printNode(node.typeAnnotation, source) : ''
@@ -96,7 +101,11 @@ export const printNode = (node: LuaNode, source: string): string => {
     case 'LuaUnaryVoidExpression':
       return `${printNode(node.argument, source)} and nil or nil`;
     case 'LuaUnaryNegationExpression':
-      return `not ${printUnaryNegationArgument(node.argument, source)}`;
+      return `not ${printUnaryNegationArgument(
+        node.argument,
+        source,
+        node.extra
+      )}${node.conversionComment ? ` --[[ ${node.conversionComment} ]]` : ''}`;
     case 'LuaUnaryDeleteExpression':
       return `${printNode(node.argument, source)} = nil`;
     case 'IndexExpression':
@@ -266,15 +275,16 @@ function printPropertySignature(node, source) {
   )}`;
 }
 
-const LITERALS = [
-  'StringLiteral',
-  'NumericLiteral',
-  'BooleanLiteral',
-  'MultilineStringLiteral',
-  'NilLiteral',
-];
+const LITERALS = ['StringLiteral', 'NumericLiteral', 'MultilineStringLiteral'];
+const isLiteral = (
+  node: LuaNode
+): node is LuaStringLiteral | LuaNumericLiteral | LuaMultilineStringLiteral =>
+  LITERALS.includes(node.type);
 
-function printUnaryOperatorArgument(node, source): string {
+function printUnaryOperatorArgument(
+  node: LuaExpression,
+  source: string
+): string {
   if ([...LITERALS, 'Identifier'].includes(node.type)) {
     return printNode(node, source);
   } else {
@@ -282,20 +292,43 @@ function printUnaryOperatorArgument(node, source): string {
   }
 }
 
-function printUnaryNegationArgument(node, source): string {
-  if (LITERALS.includes(node.type)) {
+function printUnaryNegationArgument(
+  node: LuaExpression,
+  source: string,
+  extra: LuaUnaryNegationExpression['extra']
+): string {
+  if (isLiteral(node)) {
     return printNode(
       {
         type: 'BooleanLiteral',
         value: !!node.value,
+        conversionComment: `ROBLOX DEVIATION: coerced from \`${source.slice(
+          extra.argumentStart,
+          extra.argumentEnd
+        )}\` to preserve JS behavior`,
       },
       source
     );
-  } else {
-    return `(function (exp)
+  }
+  if (node.type === 'NilLiteral') {
+    return printNode(
+      {
+        type: 'BooleanLiteral',
+        value: false,
+        conversionComment: `ROBLOX DEVIATION: coerced from \`${source.slice(
+          extra.argumentStart,
+          extra.argumentEnd
+        )}\` to preserve JS behavior`,
+      },
+      source
+    );
+  }
+  if (node.type === 'BooleanLiteral') {
+    return printNode(node, source);
+  }
+  return `(function (exp)
     if(exp == false or exp == nil or exp == 0 or exp == "") then return false end
     return true
     end
 )(${printNode(node, source)})`;
-  }
 }

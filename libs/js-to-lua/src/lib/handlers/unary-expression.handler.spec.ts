@@ -1,15 +1,12 @@
-import { MemberExpression, UnaryExpression } from '@babel/types';
+import { UnaryExpression } from '@babel/types';
 import {
   callExpression,
   identifier,
-  indexExpression,
   LuaCallExpression,
-  LuaIndexExpression,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
-  stringLiteral,
   unaryDeleteExpression,
   unaryExpression,
   unaryNegationExpression,
@@ -17,7 +14,6 @@ import {
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
-import { createMemberExpressionHandler } from './member-expression.handler';
 import { createUnaryExpressionHandler } from './unary-expression.handler';
 
 const DEFAULT_NODE = {
@@ -137,6 +133,8 @@ describe('Unary Expression Handler', () => {
         ...DEFAULT_NODE,
         type: 'Identifier',
         name: 'foo',
+        start: 0,
+        end: 1,
       },
     };
 
@@ -145,7 +143,11 @@ describe('Unary Expression Handler', () => {
     );
 
     const expected: LuaUnaryNegationExpression = unaryNegationExpression(
-      identifier('foo')
+      identifier('foo'),
+      {
+        argumentStart: 0,
+        argumentEnd: 1,
+      }
     );
 
     expect(handleUnaryExpression.handler(given)).toEqual(expected);

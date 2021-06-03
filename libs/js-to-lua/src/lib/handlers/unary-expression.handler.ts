@@ -44,7 +44,10 @@ export const createUnaryExpressionHandler = (
       case 'void':
         return unaryVoidExpression(handleExpression(node.argument));
       case '!':
-        return unaryNegationExpression(handleExpression(node.argument));
+        return unaryNegationExpression(
+          handleExpression(node.argument),
+          { argumentStart: node.argument.start, argumentEnd: node.argument.end }
+        );
       case 'delete':
         return unaryDeleteExpression(handleExpression(node.argument));
       default:

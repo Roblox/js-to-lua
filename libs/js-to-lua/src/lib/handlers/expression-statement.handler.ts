@@ -57,6 +57,7 @@ import {
   LuaMemberExpression,
   objectAssign,
   tableConstructor,
+  numericLiteral,
 } from '@js-to-lua/lua-types';
 
 import { handleMultilineStringLiteral } from './multiline-string.handler';
@@ -145,7 +146,7 @@ export const handleObjectExpression: BaseNodeHandler<
 
 export const handleIdentifier: BaseNodeHandler<
   Identifier,
-  LuaNilLiteral | LuaIdentifier | LuaMemberExpression
+  LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression
 > = {
   type: 'Identifier',
   handler: (node) => {
@@ -156,6 +157,8 @@ export const handleIdentifier: BaseNodeHandler<
         };
       case 'Infinity':
         return memberExpression(identifier('math'), '.', identifier('huge'));
+      case 'NaN':
+        return binaryExpression(numericLiteral(0), '/', numericLiteral(0));
       case 'and':
       case 'break':
       case 'do':

@@ -1,4 +1,5 @@
 import {
+  LuaBinaryExpression,
   LuaBooleanLiteral,
   LuaCallExpression,
   LuaExpression,
@@ -6,7 +7,9 @@ import {
   LuaFunctionExpression,
   LuaFunctionParam,
   LuaIdentifier,
+  LuaIndexExpression,
   LuaLVal,
+  LuaMemberExpression,
   LuaNode,
   LuaNumericLiteral,
   LuaProgram,
@@ -21,14 +24,10 @@ import {
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
   LuaUnaryDeleteExpression,
-  UnhandledNode,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
-  LuaType,
-  LuaMemberExpression,
-  LuaIndexExpression,
-  LuaBinaryExpression,
+  UnhandledNode,
 } from './lua-nodes.types';
 
 export const program = (body: LuaNode[] = []): LuaProgram => ({
@@ -186,10 +185,12 @@ export const unaryVoidExpression = (
 });
 
 export const unaryNegationExpression = (
-  argument: LuaUnaryNegationExpression['argument']
+  argument: LuaUnaryNegationExpression['argument'],
+  extra: LuaUnaryNegationExpression['extra']
 ): LuaUnaryNegationExpression => ({
   type: 'LuaUnaryNegationExpression',
   argument,
+  extra,
 });
 
 export const unaryDeleteExpression = (

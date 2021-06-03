@@ -1,5 +1,3 @@
-import { Identifier, NumericLiteral, StringLiteral } from '@babel/types';
-
 export type LuaNode =
   | LuaProgram
   | LuaExpressionStatement
@@ -286,6 +284,10 @@ export interface LuaUnaryVoidExpression extends BaseLuaNode {
 export interface LuaUnaryNegationExpression extends BaseLuaNode {
   type: 'LuaUnaryNegationExpression';
   argument: LuaExpression;
+  extra: {
+    argumentStart: number;
+    argumentEnd: number;
+  };
 }
 
 export interface LuaIndexExpression extends BaseLuaNode {
