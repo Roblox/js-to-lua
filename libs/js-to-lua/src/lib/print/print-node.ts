@@ -97,6 +97,8 @@ export const printNode = (node: LuaNode, source: string): string => {
       return `${printNode(node.argument, source)} and nil or nil`;
     case 'LuaUnaryNegationExpression':
       return `not ${printUnaryNegationArgument(node.argument, source)}`;
+    case 'LuaUnaryDeleteExpression':
+      return `${printNode(node.argument, source)} = nil`;
     case 'IndexExpression':
       return printIndexExpression(node, source);
     case 'LuaMemberExpression':

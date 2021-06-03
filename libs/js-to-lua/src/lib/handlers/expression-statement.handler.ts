@@ -19,7 +19,6 @@ import {
   FunctionDeclaration,
   VariableDeclaration,
   ArrowFunctionExpression,
-  UnaryExpression,
   UpdateExpression,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
@@ -37,7 +36,6 @@ import {
   LuaTableConstructor,
   LuaTableField,
   LuaTableKeyField,
-  LuaUnaryExpression,
   UnhandledNode,
   LuaFunctionExpression,
   LuaDeclaration,
@@ -45,13 +43,8 @@ import {
   LuaFunctionDeclaration,
   LuaVariableDeclaration,
   LuaNode,
-  LuaUnaryVoidExpression,
-  LuaUnaryNegationExpression,
   callExpression,
   identifier,
-  unaryExpression,
-  unaryVoidExpression,
-  unaryNegationExpression,
   unhandledNode,
   returnStatement,
   functionExpression,
@@ -76,6 +69,7 @@ import { handleReturnStatement } from './return-statement.handler';
 import { createArrayExpressionHandler } from './array-expression.handler';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { createMemberExpressionHandler } from './member-expression.handler';
+import { createUnaryExpressionHandler } from './unary-expression.handler';
 
 type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,
@@ -259,40 +253,6 @@ export const handleBinaryExpression: BaseNodeHandler<
   },
 };
 
-const handleUnaryExpression: BaseNodeHandler<
-  UnaryExpression,
-  | LuaUnaryExpression
-  | LuaUnaryVoidExpression
-  | LuaUnaryNegationExpression
-  | LuaCallExpression
-  | UnhandledNode
-> = {
-  type: 'UnaryExpression',
-  handler: (node: UnaryExpression) => {
-    switch (node.operator) {
-      case 'typeof':
-        return callExpression(identifier('typeof'), [
-          handleExpression.handler(node.argument),
-        ]);
-      case '+':
-        return callExpression(identifier('tonumber'), [
-          handleExpression.handler(node.argument),
-        ]);
-      case '-':
-        return unaryExpression(
-          node.operator,
-          handleExpression.handler(node.argument)
-        );
-      case 'void':
-        return unaryVoidExpression(handleExpression.handler(node.argument));
-      case '!':
-        return unaryNegationExpression(handleExpression.handler(node.argument));
-      default:
-        return unhandledNode(node.start, node.end);
-    }
-  },
-};
-
 export const handleFunctionExpression: BaseNodeHandler<
   FunctionExpression,
   LuaFunctionExpression
@@ -379,7 +339,7 @@ export const handleExpression = combineHandlers<
   handleCallExpression,
   handleObjectExpression,
   handleIdentifier,
-  handleUnaryExpression,
+  createUnaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
   handleNullLiteral,
   handleBinaryExpression,
   handleFunctionExpression,

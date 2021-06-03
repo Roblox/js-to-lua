@@ -1,2 +1,2 @@
 local foo = {}
-foo[1] = nil -- ROBLOX adaptation: added 1 to array index
+foo[1] --[[ ROBLOX adaptation: added 1 to array index ]] = nil

@@ -19,14 +19,6 @@ export default {
     'conformance-tests/expressions/call/method-to-string-nested_m2.js',
     'conformance-tests/expressions/call/method_m2.js',
 
-    'conformance-tests/operators/unary/delete/basic_m2.js',
-    'conformance-tests/operators/unary/delete/computed-basic_m2.js',
-    'conformance-tests/operators/unary/delete/computed-boolean_m2.js',
-    'conformance-tests/operators/unary/delete/computed-expression_m2.js',
-    'conformance-tests/operators/unary/delete/computed-identifier_m2.js',
-    'conformance-tests/operators/unary/delete/computed-numeric_m2.js',
-    'conformance-tests/operators/unary/delete/computed-octal_m2.js',
-
     'conformance-tests/complex/simple-react-component_m2.js',
   ],
 };

@@ -28,6 +28,7 @@ export type LuaNode =
   | LuaUnaryExpression
   | LuaUnaryVoidExpression
   | LuaUnaryNegationExpression
+  | LuaUnaryDeleteExpression
   | LuaIndexExpression
   | LuaMemberExpression
   | UnhandledNode;
@@ -57,6 +58,7 @@ export type LuaExpression =
   | LuaUnaryNegationExpression
   | LuaIndexExpression
   | LuaMemberExpression
+  | LuaUnaryDeleteExpression
   | UnhandledNode;
 
 export type LuaDeclaration =
@@ -297,4 +299,8 @@ export interface LuaMemberExpression extends BaseLuaNode {
   indexer: '.' | ':';
   base: LuaExpression;
   identifier: LuaIdentifier;
+}
+export interface LuaUnaryDeleteExpression {
+  type: 'LuaUnaryDeleteExpression';
+  argument: LuaExpression;
 }

@@ -20,6 +20,7 @@ import {
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
+  LuaUnaryDeleteExpression,
   UnhandledNode,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
@@ -188,6 +189,13 @@ export const unaryNegationExpression = (
   argument: LuaUnaryNegationExpression['argument']
 ): LuaUnaryNegationExpression => ({
   type: 'LuaUnaryNegationExpression',
+  argument,
+});
+
+export const unaryDeleteExpression = (
+  argument: LuaUnaryDeleteExpression['argument']
+): LuaUnaryDeleteExpression => ({
+  type: 'LuaUnaryDeleteExpression',
   argument,
 });
 
