@@ -297,6 +297,7 @@ function printUnaryNegationArgument(
   source: string,
   extra: LuaUnaryNegationExpression['extra']
 ): string {
+  // TODO: move that logic into handler rather than during printing
   if (isLiteral(node)) {
     return printNode(
       {
@@ -326,9 +327,5 @@ function printUnaryNegationArgument(
   if (node.type === 'BooleanLiteral') {
     return printNode(node, source);
   }
-  return `(function (exp)
-    if(exp == false or exp == nil or exp == 0 or exp == "") then return false end
-    return true
-    end
-)(${printNode(node, source)})`;
+  return `Boolean.toJSBoolean(${printNode(node, source)})`;
 }
