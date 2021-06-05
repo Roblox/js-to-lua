@@ -20,6 +20,7 @@ import {
   VariableDeclaration,
   ArrowFunctionExpression,
   UpdateExpression,
+  MemberExpression,
 } from '@babel/types';
 import { combineHandlers } from '../utils/combine-handlers';
 import { handleNumericLiteral } from './primitives/numeric.handler';
@@ -74,6 +75,8 @@ import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { createMemberExpressionHandler } from './member-expression.handler';
 import { createUnaryExpressionHandler } from './unary-expression.handler';
 
+export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
+
 type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,
   SpreadElement
@@ -97,11 +100,47 @@ export const handleCallExpression: BaseNodeHandler<
 > = {
   type: 'CallExpression',
   handler: (expression) => {
-    return {
-      type: 'CallExpression',
-      callee: handleCalleeExpression.handler(expression.callee),
-      arguments: expression.arguments.map(handleExpression.handler),
-    };
+    if (
+      expression.callee.type !== 'MemberExpression' ||
+      USE_DOT_NOTATION_IN_CALL_EXPRESSION.some((identifierName) =>
+        matchesMemberExpressionObject(
+          identifierName,
+          expression.callee as MemberExpression
+        )
+      )
+    ) {
+      return callExpression(
+        handleCalleeExpression.handler(expression.callee),
+        expression.arguments.map(handleExpression.handler)
+      );
+    }
+
+    if (
+      matchesMemberExpressionProperty('toString', expression.callee) &&
+      !expression.arguments.length
+    ) {
+      return callExpression(identifier('tostring'), [
+        handleCalleeExpression.handler(expression.callee.object),
+      ]);
+    }
+
+    if (expression.callee.computed) {
+      return callExpression(handleCalleeExpression.handler(expression.callee), [
+        handleCalleeExpression.handler(expression.callee.object),
+        ...(expression.arguments.map(
+          handleExpression.handler
+        ) as LuaExpression[]),
+      ]);
+    }
+
+    return callExpression(
+      memberExpression(
+        handleExpression.handler(expression.callee.object),
+        ':',
+        handleExpression.handler(expression.callee.property)
+      ),
+      expression.arguments.map(handleExpression.handler)
+    );
   },
 };
 
@@ -562,4 +601,38 @@ function handleOperandAsString(
   return callExpression(identifier('tostring'), [
     handleExpression.handler(node),
   ]);
+}
+
+function matchesMemberExpressionProperty(
+  identifierName: string,
+  node: MemberExpression
+): boolean {
+  return (
+    (!node.computed &&
+      node.property.type === 'Identifier' &&
+      node.property.name === identifierName) ||
+    (node.computed &&
+      node.property.type === 'StringLiteral' &&
+      node.property.value === identifierName)
+  );
+}
+
+function matchesMemberExpressionObject(
+  identifierName: string,
+  node: MemberExpression
+): boolean {
+  return (
+    node.object.type === 'Identifier' && node.object.name === identifierName
+  );
+}
+
+function matchesMemberExpression(
+  objectIdentifierName: string,
+  propertyIdentifierName: string,
+  node: MemberExpression
+) {
+  return (
+    matchesMemberExpressionObject(objectIdentifierName, node) &&
+    matchesMemberExpressionProperty(propertyIdentifierName, node)
+  );
 }

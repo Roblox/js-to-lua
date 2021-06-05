@@ -6,7 +6,6 @@ import {
   LuaNode,
   LuaNumericLiteral,
   LuaProgram,
-  LuaReturnStatement,
   LuaStringLiteral,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
@@ -16,6 +15,7 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
+  LuaReturnStatement,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';

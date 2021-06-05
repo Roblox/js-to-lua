@@ -9,6 +9,7 @@ import {
   booleanLiteral,
   memberExpression,
   LuaMemberExpression,
+  binaryExpression,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
@@ -138,6 +139,78 @@ describe('Member Expression Handler', () => {
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
       callExpression(identifier('tostring'), [booleanLiteral(true)])
+    );
+
+    expect(handleMemberExpression.handler(given)).toEqual(expected);
+  });
+
+  it(`should convert handle computed index expression: expression`, () => {
+    const given: MemberExpression = {
+      ...DEFAULT_NODE,
+      type: 'MemberExpression',
+      computed: true,
+      object: {
+        ...DEFAULT_NODE,
+        type: 'Identifier',
+        name: 'foo',
+      },
+      property: {
+        ...DEFAULT_NODE,
+        type: 'Identifier',
+        name: 'bar',
+      },
+    };
+
+    const handleMemberExpression = createMemberExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaIndexExpression = indexExpression(
+      identifier('foo'),
+      callExpression(identifier('tostring'), [identifier('bar')])
+    );
+
+    expect(handleMemberExpression.handler(given)).toEqual(expected);
+  });
+
+  it(`should convert handle computed index expression: binary expression, adding string literal`, () => {
+    const given: MemberExpression = {
+      ...DEFAULT_NODE,
+      type: 'MemberExpression',
+      computed: true,
+      object: {
+        ...DEFAULT_NODE,
+        type: 'Identifier',
+        name: 'foo',
+      },
+      property: {
+        ...DEFAULT_NODE,
+        type: 'BinaryExpression',
+        operator: '+',
+        left: {
+          ...DEFAULT_NODE,
+          type: 'StringLiteral',
+          value: 'bar',
+        },
+        right: {
+          ...DEFAULT_NODE,
+          type: 'Identifier',
+          name: 'baz',
+        },
+      },
+    };
+
+    const handleMemberExpression = createMemberExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaIndexExpression = indexExpression(
+      identifier('foo'),
+      binaryExpression(
+        stringLiteral('bar'),
+        '..',
+        callExpression(identifier('tostring'), [identifier('baz')])
+      )
     );
 
     expect(handleMemberExpression.handler(given)).toEqual(expected);

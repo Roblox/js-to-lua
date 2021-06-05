@@ -45,6 +45,13 @@ export const createMemberExpressionHandler = (
           handleIdentifier.handler(node),
         ]);
       case 'BinaryExpression':
+        if (
+          node.operator === '+' &&
+          (node.left.type === 'StringLiteral' ||
+            node.right.type === 'StringLiteral')
+        ) {
+          return handleBinaryExpression.handler(node);
+        }
         return callExpression(identifier('tostring'), [
           handleBinaryExpression.handler(node),
         ]);

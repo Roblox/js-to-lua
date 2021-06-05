@@ -1,2 +1,2 @@
-local foo = {bar = {baz = function() end}}
+local foo = {bar = {baz = function(self) end}}
 foo.bar:baz()

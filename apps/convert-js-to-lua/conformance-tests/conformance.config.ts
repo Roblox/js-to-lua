@@ -11,15 +11,6 @@ export default {
     'conformance-tests/structural-types/object/single-false-key-to-boolean.js',
 
     // ---- Milestone 2 ----
-    'conformance-tests/expressions/call/method-expression-string_m2.js',
-    'conformance-tests/expressions/call/method-expression_m2.js',
-    'conformance-tests/expressions/call/method-react-create-div-element_m2.js',
-    'conformance-tests/expressions/call/method-nested_m2.js',
-    'conformance-tests/expressions/call/method-to-string_m2.js',
-    'conformance-tests/expressions/call/method-to-string-nested_m2.js',
-    'conformance-tests/expressions/call/method_m2.js',
-
-    'conformance-tests/complex/simple-react-component_m2.js',
 
     // ---- Milestone 3 ----
     'conformance-tests/operators/relational/greater-equal-than/0_m3.js',
