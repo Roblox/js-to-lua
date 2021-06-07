@@ -236,11 +236,13 @@ export const binaryExpression = (
 
 export const unhandledNode = (
   start: UnhandledNode['start'] = 0,
-  end: UnhandledNode['end'] = 0
+  end: UnhandledNode['end'] = 0,
+  conversionComment?: string
 ): UnhandledNode => ({
   type: 'UnhandledNode',
   start,
   end,
+  ...(conversionComment ? { conversionComment } : {}),
 });
 
 export const arrayConcat = (): LuaMemberExpression =>

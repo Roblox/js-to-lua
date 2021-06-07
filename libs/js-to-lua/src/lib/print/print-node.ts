@@ -16,6 +16,7 @@ import {
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
   LuaReturnStatement,
+  BaseLuaNode,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -23,6 +24,12 @@ import { printMultilineString } from './primitives/print-multiline-string';
 import { printIndexExpression } from './print-index-expression';
 
 export const printNode = (node: LuaNode, source: string): string => {
+  const nodeStr = _printNode(node, source);
+  const comment = _printConversionComment(node);
+  return `${nodeStr}${comment}`;
+};
+
+const _printNode = (node: LuaNode, source: string): string => {
   switch (node.type) {
     case 'Program':
       return printProgram(node, source);
@@ -39,9 +46,7 @@ export const printNode = (node: LuaNode, source: string): string => {
     case 'MultilineStringLiteral':
       return printMultilineString(node);
     case 'BooleanLiteral':
-      return `${node.value.toString()}${
-        node.conversionComment ? ` --[[ ${node.conversionComment} ]]` : ''
-      }`;
+      return node.value.toString();
     case 'Identifier':
       return `${node.name}${
         node.typeAnnotation ? printNode(node.typeAnnotation, source) : ''
@@ -105,7 +110,7 @@ export const printNode = (node: LuaNode, source: string): string => {
         node.argument,
         source,
         node.extra
-      )}${node.conversionComment ? ` --[[ ${node.conversionComment} ]]` : ''}`;
+      )}`;
     case 'LuaUnaryDeleteExpression':
       return `${printNode(node.argument, source)} = nil`;
     case 'IndexExpression':
@@ -116,14 +121,16 @@ export const printNode = (node: LuaNode, source: string): string => {
         source
       )}`;
     case 'UnhandledNode':
-      return `
---[[
+      return `--[[
 ${source.slice(node.start, node.end)}
-]]
-      `;
+]]`;
     default:
       return '--[[ default ]]';
   }
+};
+
+const _printConversionComment = (node: BaseLuaNode): string => {
+  return node.conversionComment ? ` --[[ ${node.conversionComment} ]]` : '';
 };
 
 function printProgram(node: LuaProgram, source: string) {

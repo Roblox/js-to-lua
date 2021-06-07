@@ -302,7 +302,7 @@ export interface LuaMemberExpression extends BaseLuaNode {
   base: LuaExpression;
   identifier: LuaIdentifier;
 }
-export interface LuaUnaryDeleteExpression {
+export interface LuaUnaryDeleteExpression extends BaseLuaNode {
   type: 'LuaUnaryDeleteExpression';
   argument: LuaExpression;
 }

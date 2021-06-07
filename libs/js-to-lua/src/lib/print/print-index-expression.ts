@@ -24,7 +24,5 @@ export const printIndexExpression = (
   node: LuaIndexExpression,
   source: string
 ) => {
-  return `${printNode(node.base, source)}[${getIndex(node.index, source)}]${
-    node.conversionComment ? ` --[[ ${node.conversionComment} ]]` : ''
-  }`;
+  return `${printNode(node.base, source)}[${getIndex(node.index, source)}]`;
 };
