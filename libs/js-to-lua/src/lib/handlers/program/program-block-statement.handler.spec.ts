@@ -7,7 +7,6 @@ describe('Program handler', () => {
     it('should handle empty block statement', () => {
       const given = getProgramNode(`
       {
-
       }
     `);
       const expected: LuaProgram = {

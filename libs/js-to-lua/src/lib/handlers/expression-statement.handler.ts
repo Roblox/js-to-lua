@@ -59,6 +59,8 @@ import {
   objectAssign,
   tableConstructor,
   numericLiteral,
+  functionDeclaration,
+  LuaNodeGroup,
 } from '@js-to-lua/lua-types';
 
 import { handleMultilineStringLiteral } from './multiline-string.handler';
@@ -530,13 +532,23 @@ const handleVariableDeclarator: BaseNodeHandler<
 
 export const handleVariableDeclaration: BaseNodeHandler<
   VariableDeclaration,
-  LuaVariableDeclaration
+  LuaNodeGroup | LuaVariableDeclaration
 > = {
   type: 'VariableDeclaration',
   handler: (declaration) => {
-    return {
+    const isFunctionDeclaration = (declaration: VariableDeclarator) =>
+      declaration.init &&
+      ['FunctionExpression', 'ArrowFunctionExpression'].includes(
+        declaration.init.type
+      );
+
+    const isNotFunctionDeclaration = (declaration: VariableDeclarator) =>
+      !isFunctionDeclaration(declaration);
+
+    const varDeclaration: LuaVariableDeclaration = {
       type: 'VariableDeclaration',
       ...declaration.declarations
+        .filter(isNotFunctionDeclaration)
         .map(handleVariableDeclarator.handler)
         .reduceRight(
           (obj, declarator) => {
@@ -555,7 +567,61 @@ export const handleVariableDeclaration: BaseNodeHandler<
           { identifiers: [], values: [] }
         ),
     };
+
+    const functionDeclarations = declaration.declarations
+      .filter(isFunctionDeclaration)
+      .map(convertVariableFunctionToFunctionDeclaration);
+
+    if (functionDeclarations.length === 0) {
+      return varDeclaration;
+    }
+
+    if (varDeclaration.identifiers.length) {
+      return {
+        type: 'NodeGroup',
+        body: [varDeclaration, ...functionDeclarations],
+      };
+    }
+
+    return {
+      type: 'NodeGroup',
+      body: functionDeclarations,
+    };
   },
+};
+
+const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
+  VariableDeclarator,
+  LuaFunctionDeclaration | UnhandledNode
+> = (node) => {
+  switch (node.init.type) {
+    case 'ArrowFunctionExpression':
+    case 'FunctionExpression':
+      return convertToFunctionDeclaration(
+        node.init,
+        lValHandler(node.id) as LuaIdentifier
+      );
+    default:
+      return unhandledNode(node.start, node.end);
+  }
+};
+
+const convertToFunctionDeclaration = (
+  node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
+  identifier: LuaIdentifier
+): LuaFunctionDeclaration => {
+  const body: LuaNode[] =
+    node.body.type === 'BlockStatement'
+      ? node.body.body.map(handleStatement.handler)
+      : [returnStatement(handleExpression.handler(node.body))];
+
+  return functionDeclaration(
+    identifier,
+    node.params.map(functionParamsHandler),
+    node.params.filter((param) => param.type === 'AssignmentPattern'),
+    body,
+    node.returnType ? typesHandler(node.returnType) : null
+  );
 };
 
 export const handleFunctionDeclaration: BaseNodeHandler<
@@ -564,22 +630,15 @@ export const handleFunctionDeclaration: BaseNodeHandler<
 > = {
   type: 'FunctionDeclaration',
   handler: (node) => {
-    return {
-      type: 'FunctionDeclaration',
-      id: handleIdentifier.handler(node.id) as LuaIdentifier,
-      params: node.params.map(functionParamsHandler),
-      // TODO: Should map to a handler like the functionParamsHandler above, but to do that we need to support AssignmentPattern, which isn't scheduled until a later milestone.
-      defaultValues: node.params.filter(
-        (param) => param.type === 'AssignmentPattern'
-      ),
-      body: node.body.body.map(handleStatement.handler),
-      ...(node.returnType ? { returnType: typesHandler(node.returnType) } : {}),
-    };
+    return convertToFunctionDeclaration(
+      node,
+      handleIdentifier.handler(node.id) as LuaIdentifier
+    );
   },
 };
 
 export const handleDeclaration = combineHandlers<
-  BaseNodeHandler<Declaration, LuaDeclaration>
+  BaseNodeHandler<Declaration, LuaDeclaration | LuaNodeGroup>
 >([
   handleVariableDeclaration,
   handleFunctionDeclaration,

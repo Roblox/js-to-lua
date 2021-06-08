@@ -9,6 +9,8 @@ import {
   functionExpression,
   returnStatement,
   numericLiteral,
+  nodeGroup,
+  functionDeclaration,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { stringLiteral } from '@babel/types';
@@ -19,13 +21,10 @@ describe('Program handler', () => {
       const given = getProgramNode(`
        const foo = () => {}
       `);
-      const expected: LuaProgram = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [variableDeclaratorValue(functionExpression([], [], []))]
-        ),
-      ]);
 
+      const expected: LuaProgram = program([
+        nodeGroup([functionDeclaration(identifier('foo'), [], [], [])]),
+      ]);
       const luaProgram = handleProgram.handler(given);
       expect(luaProgram).toEqual(expected);
     });
@@ -36,14 +35,14 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              functionExpression([identifier('bar'), identifier('baz')], [], [])
-            ),
-          ]
-        ),
+        nodeGroup([
+          functionDeclaration(
+            identifier('foo'),
+            [identifier('bar'), identifier('baz')],
+            [],
+            []
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(given);
@@ -56,21 +55,23 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              functionExpression([identifier('bar'), identifier('baz')], [], [])
-            ),
-          ]
-        ),
+        nodeGroup([
+          functionDeclaration(
+            identifier('foo'),
+            [identifier('bar'), identifier('baz')],
+            [],
+            []
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(given);
-      expect(luaProgram.body[0]['values'][0].value.defaultValues.length).toBe(
-        1
-      ); //TODO: remove when AssignmentPattern is available
-      luaProgram.body[0]['values'][0].value.defaultValues = []; //TODO: remove when AssigmentBlock is available
+
+      expect(luaProgram.body[0].type).toEqual('NodeGroup');
+      if (luaProgram.body[0].type === 'NodeGroup') {
+        expect(luaProgram.body[0].body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
+        luaProgram.body[0].body[0]['defaultValues'] = []; //TODO: remove when AssigmentBlock is available
+      }
       expect(luaProgram).toEqual(expected);
     });
 
@@ -82,30 +83,27 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              functionExpression(
-                [identifier('bar'), identifier('baz')],
-                [],
-                [
-                  variableDeclaration(
-                    [variableDeclaratorIdentifier(identifier('fizz'))],
-                    [variableDeclaratorValue(stringLiteral('fuzz'))]
-                  ),
-                ]
-              )
-            ),
-          ]
-        ),
+        nodeGroup([
+          functionDeclaration(
+            identifier('foo'),
+            [identifier('bar'), identifier('baz')],
+            [],
+            [
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('fizz'))],
+                [variableDeclaratorValue(stringLiteral('fuzz'))]
+              ),
+            ]
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(given);
-      expect(luaProgram.body[0]['values'][0].value.defaultValues.length).toBe(
-        1
-      ); //TODO: remove when AssignmentPattern is available
-      luaProgram.body[0]['values'][0].value.defaultValues = []; //TODO: remove when AssigmentBlock is available
+      expect(luaProgram.body[0].type).toEqual('NodeGroup');
+      if (luaProgram.body[0].type === 'NodeGroup') {
+        expect(luaProgram.body[0].body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
+        luaProgram.body[0].body[0]['defaultValues'] = []; //TODO: remove when AssigmentBlock is available
+      }
       expect(luaProgram).toEqual(expected);
     });
 
@@ -115,18 +113,14 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              functionExpression(
-                [],
-                [],
-                [returnStatement(stringLiteral('wole'))]
-              )
-            ),
-          ]
-        ),
+        nodeGroup([
+          functionDeclaration(
+            identifier('foo'),
+            [],
+            [],
+            [returnStatement(stringLiteral('wole'))]
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(given);
@@ -139,26 +133,22 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              functionExpression(
-                [],
-                [],
-                [
-                  returnStatement(
-                    functionExpression(
-                      [],
-                      [],
-                      [returnStatement(numericLiteral(31337, '31337'))]
-                    )
-                  ),
-                ]
-              )
-            ),
-          ]
-        ),
+        nodeGroup([
+          functionDeclaration(
+            identifier('foo'),
+            [],
+            [],
+            [
+              returnStatement(
+                functionExpression(
+                  [],
+                  [],
+                  [returnStatement(numericLiteral(31337, '31337'))]
+                )
+              ),
+            ]
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(given);

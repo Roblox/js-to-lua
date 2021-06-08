@@ -1,4 +1,4 @@
-local reduce = function(value, name)
+local function reduce(value, name)
   if name == nil then
     name = "roblox"
   end

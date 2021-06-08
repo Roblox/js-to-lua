@@ -1,4 +1,4 @@
-local flux = function()
+local function flux()
 return function()
 return 31337
 end

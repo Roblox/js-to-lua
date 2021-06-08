@@ -28,6 +28,8 @@ import {
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
   UnhandledNode,
+  LuaFunctionDeclaration,
+  LuaNodeGroup,
 } from './lua-nodes.types';
 
 export const program = (body: LuaNode[] = []): LuaProgram => ({
@@ -89,6 +91,39 @@ export const functionExpression = (
     type: 'FunctionExpression',
     params,
     defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
+    body,
+  };
+};
+
+export const functionDeclaration = (
+  id: LuaIdentifier,
+  params: Array<LuaFunctionParam> = [],
+  defaultValues: Array<any> = [],
+  body: Array<LuaNode> = [],
+  returnType: LuaTypeAnnotation = null
+): LuaFunctionDeclaration => {
+  if (returnType) {
+    return {
+      type: 'FunctionDeclaration',
+      id,
+      params,
+      defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
+      body,
+      returnType,
+    };
+  }
+  return {
+    type: 'FunctionDeclaration',
+    id,
+    params,
+    defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
+    body,
+  };
+};
+
+export const nodeGroup = (body: LuaNode[]): LuaNodeGroup => {
+  return {
+    type: 'NodeGroup',
     body,
   };
 };

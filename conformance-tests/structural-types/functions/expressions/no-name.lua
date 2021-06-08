@@ -1,1 +1,1 @@
-local foo = function() end
+local function foo() end

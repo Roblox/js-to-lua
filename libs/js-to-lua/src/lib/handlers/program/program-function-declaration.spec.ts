@@ -1,4 +1,13 @@
-import { LuaProgram } from '@js-to-lua/lua-types';
+import {
+  functionDeclaration,
+  identifier,
+  LuaProgram,
+  program,
+  stringLiteral,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+} from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
@@ -103,52 +112,20 @@ describe('Program handler', () => {
        let fizz = 'fuzz';
    }
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'FunctionDeclaration',
-          id: {
-            type: 'Identifier',
-            name: 'foo',
-          },
-          body: [
-            {
-              type: 'VariableDeclaration',
-              identifiers: [
-                {
-                  type: 'VariableDeclaratorIdentifier',
-                  value: {
-                    type: 'Identifier',
-                    name: 'fizz',
-                  },
-                },
-              ],
-              values: [
-                {
-                  type: 'VariableDeclaratorValue',
-                  value: {
-                    type: 'StringLiteral',
-                    value: 'fuzz',
-                  },
-                },
-              ],
-            },
-          ],
-          params: [
-            {
-              type: 'Identifier',
-              name: 'bar',
-            },
-            {
-              type: 'Identifier',
-              name: 'baz',
-            },
-          ],
-          defaultValues: [],
-        },
-      ],
-    };
+
+    const expected: LuaProgram = program([
+      functionDeclaration(
+        identifier('foo'),
+        [identifier('bar'), identifier('baz')],
+        [],
+        [
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [variableDeclaratorValue(stringLiteral('fuzz'))]
+          ),
+        ]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(given);
     expect(luaProgram.body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available

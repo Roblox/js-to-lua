@@ -12,6 +12,7 @@ import {
   LuaTableNameKeyField,
   LuaTableNoKeyField,
   LuaUnaryNegationExpression,
+  LuaNodeGroup,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
@@ -53,6 +54,8 @@ const _printNode = (node: LuaNode, source: string): string => {
       }`;
     case 'VariableDeclaration':
       return printVariableDeclaration(node, source);
+    case 'NodeGroup':
+      return printNodeGroup(node, source);
     case 'VariableDeclaratorIdentifier':
       return printVariableDeclaratorIdentifier(node, source);
     case 'VariableDeclaratorValue':
@@ -136,6 +139,10 @@ const _printConversionComment = (node: BaseLuaNode): string => {
 function printProgram(node: LuaProgram, source: string) {
   const program = node.body.map((node) => printNode(node, source)).join('\n');
   return `${program}\n`;
+}
+
+export function printNodeGroup(node: LuaNodeGroup, source: string): string {
+  return node.body.map((node) => printNode(node, source)).join('\n');
 }
 
 export function printVariableDeclaration(

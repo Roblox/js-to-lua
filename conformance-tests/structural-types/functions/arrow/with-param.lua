@@ -1,3 +1,3 @@
-local reduce = function(value)
+local function reduce(value)
 return value
 end
