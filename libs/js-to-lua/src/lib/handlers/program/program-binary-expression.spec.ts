@@ -162,5 +162,75 @@ describe('Program handler', () => {
 
       expect(luaProgram).toEqual(expected);
     });
+
+    it('should handle equality operator', () => {
+      const given = getProgramNode(`
+     foo == bar;
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(
+            identifier('foo'),
+            '==',
+            identifier('bar'),
+            `ROBLOX CHECK: loose equality used upstream`
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle inequality operator', () => {
+      const given = getProgramNode(`
+     foo != bar;
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(
+            identifier('foo'),
+            '~=',
+            identifier('bar'),
+            `ROBLOX CHECK: loose inequality used upstream`
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle strict equality operator', () => {
+      const given = getProgramNode(`
+     foo === bar;
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(identifier('foo'), '==', identifier('bar'))
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle strict inequality operator', () => {
+      const given = getProgramNode(`
+     foo !== bar;
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(identifier('foo'), '~=', identifier('bar'))
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(given);
+
+      expect(luaProgram).toEqual(expected);
+    });
   });
 });

@@ -262,7 +262,9 @@ export type LuaBinaryExpressionOperator =
   | '%'
   | '^'
   | '*'
-  | '..';
+  | '..'
+  | '=='
+  | '~=';
 
 export interface LuaBinaryExpression extends BaseLuaNode {
   type: 'LuaBinaryExpression';

@@ -226,12 +226,14 @@ export const indexExpression = (
 export const binaryExpression = (
   left: LuaBinaryExpression['left'],
   operator: LuaBinaryExpression['operator'],
-  right: LuaBinaryExpression['right']
+  right: LuaBinaryExpression['right'],
+  conversionComment?: string
 ): LuaBinaryExpression => ({
   type: 'LuaBinaryExpression',
   left,
   operator,
   right,
+  ...(conversionComment ? { conversionComment } : {}),
 });
 
 export const unhandledNode = (

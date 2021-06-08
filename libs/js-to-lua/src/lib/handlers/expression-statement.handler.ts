@@ -276,8 +276,35 @@ export const handleBinaryExpression: BaseNodeHandler<
           '^',
           handleExpression.handler(node.right)
         );
+      case '==':
+        return binaryExpression(
+          handleExpression.handler(node.left as Expression),
+          node.operator,
+          handleExpression.handler(node.right),
+          `ROBLOX CHECK: loose equality used upstream`
+        );
+      case '!=':
+        return binaryExpression(
+          handleExpression.handler(node.left as Expression),
+          '~=',
+          handleExpression.handler(node.right),
+          `ROBLOX CHECK: loose inequality used upstream`
+        );
+      case '===':
+        return binaryExpression(
+          handleExpression.handler(node.left as Expression),
+          '==',
+          handleExpression.handler(node.right)
+        );
+      case '!==':
+        return binaryExpression(
+          handleExpression.handler(node.left as Expression),
+          '~=',
+          handleExpression.handler(node.right)
+        );
       case '+':
         return handleBinaryAddOperator(node);
+
       default:
         return unhandledNode(node.start, node.end);
     }
