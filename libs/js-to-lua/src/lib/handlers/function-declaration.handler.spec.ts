@@ -11,6 +11,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('Function Declaration', () => {
   it(`should return LuaFunctionDeclaration Node`, () => {
     const given: FunctionDeclaration = {
@@ -63,6 +65,6 @@ describe('Function Declaration', () => {
       defaultValues: [],
     };
 
-    expect(handleStatement.handler(given)).toEqual(expected);
+    expect(handleStatement.handler(source, given)).toEqual(expected);
   });
 });

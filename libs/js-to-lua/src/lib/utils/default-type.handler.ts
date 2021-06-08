@@ -1,7 +1,11 @@
-import { BaseNodeHandler } from '../types';
+import {
+  BaseNodeHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '../types';
 
-export const defaultTypeHandler: BaseNodeHandler['handler'] = () => {
+export const defaultTypeHandler: HandlerFunction = createHandlerFunction(() => {
   return {
     type: 'LuaTypeAny',
   };
-};
+});

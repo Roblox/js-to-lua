@@ -26,7 +26,7 @@ console.log(`
 code start
 ----------
 
-${printNode(handleProgram.handler(file.program), code)}
+${printNode(handleProgram.handler(code, file.program))}
 
 ----------
 code end

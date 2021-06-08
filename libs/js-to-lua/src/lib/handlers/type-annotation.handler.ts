@@ -22,125 +22,89 @@ import {
   LuaPropertySignature,
   LuaTypeLiteral,
   LuaTypeVoid,
+  typeAnnotation,
 } from '@js-to-lua/lua-types';
 import { combineHandlers } from '../utils/combine-handlers';
-import { BaseNodeHandler } from '../types';
+import { BaseNodeHandler, createHandler } from '../types';
 import { defaultTypeHandler } from '../utils/default-type.handler';
 import { handleExpression } from './expression-statement.handler';
 
-export const handleNoop: BaseNodeHandler<Noop, LuaTypeAnnotation> = {
-  type: 'Noop',
-  handler: () => {
-    return {
-      type: 'LuaTypeAnnotation',
-      typeAnnotation: null,
-    };
-  },
-};
+export const handleNoop: BaseNodeHandler<
+  Noop,
+  LuaTypeAnnotation
+> = createHandler('Noop', () => typeAnnotation(null));
 
 export const handleTsTypeAnnotation: BaseNodeHandler<
   TSTypeAnnotation,
   LuaTypeAnnotation
-> = {
-  type: 'TSTypeAnnotation',
-  handler: (node) => {
-    return {
-      type: 'LuaTypeAnnotation',
-      typeAnnotation: handleTsTypes.handler(node.typeAnnotation),
-    };
-  },
-};
+> = createHandler('TSTypeAnnotation', (source, node) =>
+  typeAnnotation(handleTsTypes.handler(source, node.typeAnnotation))
+);
 
 export const handleFlowTypeAnnotation: BaseNodeHandler<
   TypeAnnotation,
   LuaTypeAnnotation
-> = {
-  type: 'TypeAnnotation',
-  handler: (node) => {
-    return {
-      type: 'LuaTypeAnnotation',
-      typeAnnotation: handleFlowTypes.handler(node.typeAnnotation),
-    };
-  },
-};
+> = createHandler('TypeAnnotation', (source, node) =>
+  typeAnnotation(handleFlowTypes.handler(source, node.typeAnnotation))
+);
 
 export const typesHandler = combineHandlers<
   BaseNodeHandler<TypeAnnotation | TSTypeAnnotation | Noop, LuaTypeAnnotation>
 >([handleTsTypeAnnotation, handleFlowTypeAnnotation, handleNoop]).handler;
 
-const handleTsAnyKeyword: BaseNodeHandler<TSAnyKeyword, LuaTypeAny> = {
-  type: 'TSAnyKeyword',
-  handler: () => {
-    return {
-      type: 'LuaTypeAny',
-    };
-  },
-};
+const handleTsAnyKeyword: BaseNodeHandler<
+  TSAnyKeyword,
+  LuaTypeAny
+> = createHandler('TSAnyKeyword', () => ({
+  type: 'LuaTypeAny',
+}));
 
-const handleTsStringKeyword: BaseNodeHandler<TSStringKeyword, LuaTypeString> = {
-  type: 'TSStringKeyword',
-  handler: () => {
-    return {
-      type: 'LuaTypeString',
-    };
-  },
-};
+const handleTsStringKeyword: BaseNodeHandler<
+  TSStringKeyword,
+  LuaTypeString
+> = createHandler('TSStringKeyword', () => ({
+  type: 'LuaTypeString',
+}));
 
-const handleTsNumberKeyword: BaseNodeHandler<TSNumberKeyword, LuaTypeNumber> = {
-  type: 'TSNumberKeyword',
-  handler: () => {
-    return {
-      type: 'LuaTypeNumber',
-    };
-  },
-};
+const handleTsNumberKeyword: BaseNodeHandler<
+  TSNumberKeyword,
+  LuaTypeNumber
+> = createHandler('TSNumberKeyword', () => ({
+  type: 'LuaTypeNumber',
+}));
 
 const handleTsBooleanKeyword: BaseNodeHandler<
   TSBooleanKeyword,
   LuaTypeBoolean
-> = {
-  type: 'TSBooleanKeyword',
-  handler: () => {
-    return {
-      type: 'LuaTypeBoolean',
-    };
-  },
-};
+> = createHandler('TSBooleanKeyword', () => ({
+  type: 'LuaTypeBoolean',
+}));
 
-const handleTsVoidKeyword: BaseNodeHandler<TSVoidKeyword, LuaTypeVoid> = {
-  type: 'TSVoidKeyword',
-  handler: () => {
-    return {
-      type: 'LuaTypeVoid',
-    };
-  },
-};
+const handleTsVoidKeyword: BaseNodeHandler<
+  TSVoidKeyword,
+  LuaTypeVoid
+> = createHandler('TSVoidKeyword', () => ({
+  type: 'LuaTypeVoid',
+}));
 
-const handleTsTypeLiteral: BaseNodeHandler<TSTypeLiteral, LuaTypeLiteral> = {
-  type: 'TSTypeLiteral',
-  handler: (node) => {
-    return {
-      type: 'LuaTypeLiteral',
-      members: node.members.map(handleTsPropertySignature.handler),
-    };
-  },
-};
+const handleTsTypeLiteral: BaseNodeHandler<
+  TSTypeLiteral,
+  LuaTypeLiteral
+> = createHandler('TSTypeLiteral', (source, node) => ({
+  type: 'LuaTypeLiteral',
+  members: node.members.map(handleTsPropertySignature.handler(source)),
+}));
 
 const handleTsPropertySignature: BaseNodeHandler<
   TSPropertySignature,
   LuaPropertySignature
-> = {
-  type: 'TSPropertySignature',
-  handler: (node) => {
-    return {
-      type: 'LuaPropertySignature',
-      key: handleExpression.handler(node.key),
-      ...(node.typeAnnotation
-        ? { typeAnnotation: typesHandler(node.typeAnnotation) }
-        : {}),
-    };
-  },
-};
+> = createHandler('TSPropertySignature', (source, node) => ({
+  type: 'LuaPropertySignature',
+  key: handleExpression.handler(source, node.key),
+  ...(node.typeAnnotation
+    ? { typeAnnotation: typesHandler(source, node.typeAnnotation) }
+    : {}),
+}));
 
 export const handleTsTypes = combineHandlers<BaseNodeHandler<TSType, LuaType>>(
   [

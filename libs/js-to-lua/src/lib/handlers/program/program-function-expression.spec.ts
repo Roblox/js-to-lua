@@ -12,6 +12,8 @@ import {
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Function Expressions', () => {
     it('should ignore function name', () => {
@@ -22,7 +24,7 @@ describe('Program handler', () => {
       const expected: LuaProgram = program([
         nodeGroup([functionDeclaration(identifier('foo'), [], [], [])]),
       ]);
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
     });
 
@@ -34,7 +36,7 @@ describe('Program handler', () => {
       const expected: LuaProgram = program([
         nodeGroup([functionDeclaration(identifier('foo'), [], [], [])]),
       ]);
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
     });
 
@@ -54,7 +56,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
     });
 
@@ -74,7 +76,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram.body[0].type).toEqual('NodeGroup');
       if (luaProgram.body[0].type === 'NodeGroup') {
@@ -107,7 +109,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram.body[0].type).toEqual('NodeGroup');
 
       if (luaProgram.body[0].type === 'NodeGroup') {

@@ -1,5 +1,7 @@
 import { UnaryExpression } from '@babel/types';
 import {
+  booleanLiteral,
+  booleanMethod,
   callExpression,
   identifier,
   LuaCallExpression,
@@ -25,6 +27,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('Unary Expression Handler', () => {
   it(`should handle typeof operator`, () => {
     const given: UnaryExpression = {
@@ -47,7 +51,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo'),
     ]);
 
-    expect(handleUnaryExpression.handler(given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle plus operator`, () => {
@@ -71,7 +75,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo'),
     ]);
 
-    expect(handleUnaryExpression.handler(given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle minus operator`, () => {
@@ -96,7 +100,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo')
     );
 
-    expect(handleUnaryExpression.handler(given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle void operator`, () => {
@@ -120,7 +124,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo')
     );
 
-    expect(handleUnaryExpression.handler(given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle negation operator`, () => {
@@ -143,14 +147,34 @@ describe('Unary Expression Handler', () => {
     );
 
     const expected: LuaUnaryNegationExpression = unaryNegationExpression(
-      identifier('foo'),
-      {
-        argumentStart: 0,
-        argumentEnd: 1,
-      }
+      callExpression(booleanMethod('toJSBoolean'), [identifier('foo')])
     );
 
-    expect(handleUnaryExpression.handler(given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+  });
+
+  it(`should handle negation operator of BooleanLiteral`, () => {
+    const given: UnaryExpression = {
+      ...DEFAULT_NODE,
+      type: 'UnaryExpression',
+      operator: '!',
+      prefix: true,
+      argument: {
+        ...DEFAULT_NODE,
+        type: 'BooleanLiteral',
+        value: true,
+      },
+    };
+
+    const handleUnaryExpression = createUnaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaUnaryNegationExpression = unaryNegationExpression(
+      booleanLiteral(true)
+    );
+
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle delete operator`, () => {
@@ -174,6 +198,6 @@ describe('Unary Expression Handler', () => {
       identifier('foo')
     );
 
-    expect(handleUnaryExpression.handler(given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
   });
 });

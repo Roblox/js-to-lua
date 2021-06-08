@@ -1,9 +1,11 @@
 import { combineHandlers } from './combine-handlers';
 import { defaultHandler } from './default.handler';
-import { BabelNode, BaseNodeHandler } from '../types';
+import { BabelNode, BaseNodeHandler, createHandlerFunction } from '../types';
 import { LuaNode } from '@js-to-lua/lua-types';
 
 jest.mock('./default.handler');
+
+const source = '';
 
 describe('Combine Handlers', () => {
   afterEach(() => {
@@ -11,7 +13,7 @@ describe('Combine Handlers', () => {
   });
 
   it('should use default handler if no handler provided', () => {
-    combineHandlers<BaseNodeHandler>([]).handler({
+    combineHandlers<BaseNodeHandler>([]).handler(source, {
       type: 'StringLiteral',
       start: 0,
       end: 1,
@@ -21,7 +23,7 @@ describe('Combine Handlers', () => {
   });
 
   it('should use provided handler', () => {
-    const handler = jest.fn<LuaNode, [BabelNode]>().mockReturnValue({
+    const handler = jest.fn<LuaNode, [string, BabelNode]>().mockReturnValue({
       type: 'StringLiteral',
       value: '123',
     });
@@ -29,11 +31,11 @@ describe('Combine Handlers', () => {
     const handlers: BaseNodeHandler[] = [
       {
         type: 'StringLiteral',
-        handler,
+        handler: createHandlerFunction(handler),
       },
     ];
 
-    combineHandlers(handlers).handler({
+    combineHandlers(handlers).handler(source, {
       type: 'StringLiteral',
       start: 0,
       end: 1,
@@ -56,38 +58,42 @@ describe('Combine Handlers', () => {
       end: 1,
     };
 
-    const handlerString = jest.fn<LuaNode, [BabelNode]>().mockReturnValue({
-      type: 'StringLiteral',
-      value: '123',
-    });
-    const handlerNumeric = jest.fn<LuaNode, [BabelNode]>().mockReturnValue({
-      type: 'NumericLiteral',
-      value: 1,
-    });
+    const handlerString = jest
+      .fn<LuaNode, [string, BabelNode]>()
+      .mockReturnValue({
+        type: 'StringLiteral',
+        value: '123',
+      });
+    const handlerNumeric = jest
+      .fn<LuaNode, [string, BabelNode]>()
+      .mockReturnValue({
+        type: 'NumericLiteral',
+        value: 1,
+      });
 
     const handlers: BaseNodeHandler[] = [
       {
         type: 'StringLiteral',
-        handler: handlerString,
+        handler: createHandlerFunction(handlerString),
       },
       {
         type: 'NumericLiteral',
-        handler: handlerNumeric,
+        handler: createHandlerFunction(handlerNumeric),
       },
     ];
 
     const { handler } = combineHandlers(handlers);
 
-    handler(givenStringLiteral);
-    handler(givenNumericLiteral);
+    handler(source, givenStringLiteral);
+    handler(source, givenNumericLiteral);
 
     expect(defaultHandler).not.toHaveBeenCalled();
 
-    expect(handlerString).toHaveBeenCalledWith(givenStringLiteral);
-    expect(handlerString).not.toHaveBeenCalledWith(givenNumericLiteral);
+    expect(handlerString).toHaveBeenCalledWith('', givenStringLiteral);
+    expect(handlerString).not.toHaveBeenCalledWith('', givenNumericLiteral);
 
-    expect(handlerNumeric).toHaveBeenCalledWith(givenNumericLiteral);
-    expect(handlerNumeric).not.toHaveBeenCalledWith(givenStringLiteral);
+    expect(handlerNumeric).toHaveBeenCalledWith('', givenNumericLiteral);
+    expect(handlerNumeric).not.toHaveBeenCalledWith('', givenStringLiteral);
   });
 
   it('should use default handler if no matching handler', () => {
@@ -97,31 +103,35 @@ describe('Combine Handlers', () => {
       end: 1,
     };
 
-    const handlerString = jest.fn<LuaNode, [BabelNode]>().mockReturnValue({
-      type: 'StringLiteral',
-      value: '123',
-    });
-    const handlerNumeric = jest.fn<LuaNode, [BabelNode]>().mockReturnValue({
-      type: 'NumericLiteral',
-      value: 1,
-    });
+    const handlerString = jest
+      .fn<LuaNode, [string, BabelNode]>()
+      .mockReturnValue({
+        type: 'StringLiteral',
+        value: '123',
+      });
+    const handlerNumeric = jest
+      .fn<LuaNode, [string, BabelNode]>()
+      .mockReturnValue({
+        type: 'NumericLiteral',
+        value: 1,
+      });
 
     const handlers: BaseNodeHandler[] = [
       {
         type: 'StringLiteral',
-        handler: handlerString,
+        handler: createHandlerFunction(handlerString),
       },
       {
         type: 'NumericLiteral',
-        handler: handlerNumeric,
+        handler: createHandlerFunction(handlerNumeric),
       },
     ];
 
     const { handler } = combineHandlers(handlers);
 
-    handler(givenBooleanLiteral);
+    handler(source, givenBooleanLiteral);
 
-    expect(defaultHandler).toHaveBeenCalledWith(givenBooleanLiteral);
+    expect(defaultHandler).toHaveBeenCalledWith('', givenBooleanLiteral);
     expect(handlerString).not.toHaveBeenCalled();
     expect(handlerNumeric).not.toHaveBeenCalled();
   });

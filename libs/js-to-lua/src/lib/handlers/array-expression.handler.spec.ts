@@ -7,17 +7,19 @@ import {
 } from '@js-to-lua/lua-types';
 import { createArrayExpressionHandler } from './array-expression.handler';
 import { combineHandlers } from '../utils/combine-handlers';
-import { BaseNodeHandler } from '../types';
+import { BaseNodeHandler, createHandlerFunction } from '../types';
 
 const mockNode = (): LuaExpression =>
   ({
     type: 'MockNode',
   } as any);
 
+const source = '';
+
 const handleArrayExpression = createArrayExpressionHandler((...args) =>
   combineHandlers<BaseNodeHandler<Expression, LuaExpression>>(
     [handleArrayExpression],
-    mockNode
+    createHandlerFunction(mockNode)
   ).handler(...args)
 );
 
@@ -42,7 +44,7 @@ describe('Array Expression Handler', () => {
       elements: [],
     };
 
-    expect(handleArrayExpression.handler(given)).toEqual(expected);
+    expect(handleArrayExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should return Lua Table Constructor Node with no literal elements`, () => {
@@ -73,7 +75,7 @@ describe('Array Expression Handler', () => {
       tableNoKeyField(mockNode()),
     ]);
 
-    expect(handleArrayExpression.handler(given)).toEqual(expected);
+    expect(handleArrayExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle array of arrays`, () => {
@@ -98,7 +100,7 @@ describe('Array Expression Handler', () => {
       tableNoKeyField(tableConstructor()),
     ]);
 
-    expect(handleArrayExpression.handler(given)).toEqual(expected);
+    expect(handleArrayExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle deeply nested arrays`, () => {
@@ -135,6 +137,6 @@ describe('Array Expression Handler', () => {
       ),
     ]);
 
-    expect(handleArrayExpression.handler(given)).toEqual(expected);
+    expect(handleArrayExpression.handler(source, given)).toEqual(expected);
   });
 });

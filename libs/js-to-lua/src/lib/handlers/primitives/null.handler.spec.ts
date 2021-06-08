@@ -11,6 +11,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('Null Literal Handler', () => {
   it(`should return Lua NilLiteral Node`, () => {
     const given: NullLiteral = {
@@ -21,6 +23,6 @@ describe('Null Literal Handler', () => {
       type: 'NilLiteral',
     };
 
-    expect(handleNullLiteral.handler(given)).toEqual(expected);
+    expect(handleNullLiteral.handler(source, given)).toEqual(expected);
   });
 });

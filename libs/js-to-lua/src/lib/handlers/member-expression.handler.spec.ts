@@ -24,6 +24,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('Member Expression Handler', () => {
   it(`should convert handle computed index expression: string literal`, () => {
     const given: MemberExpression = {
@@ -51,7 +53,7 @@ describe('Member Expression Handler', () => {
       stringLiteral('bar')
     );
 
-    expect(handleMemberExpression.handler(given)).toEqual(expected);
+    expect(handleMemberExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should convert handle computed index expression: number literal`, () => {
@@ -80,7 +82,7 @@ describe('Member Expression Handler', () => {
       numericLiteral(6)
     );
 
-    expect(handleMemberExpression.handler(given)).toEqual(expected);
+    expect(handleMemberExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should convert handle computed index expression: octal number literal`, () => {
@@ -112,7 +114,7 @@ describe('Member Expression Handler', () => {
       numericLiteral(13)
     );
 
-    expect(handleMemberExpression.handler(given)).toEqual(expected);
+    expect(handleMemberExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should convert handle computed index expression: boolean literal`, () => {
@@ -141,7 +143,7 @@ describe('Member Expression Handler', () => {
       callExpression(identifier('tostring'), [booleanLiteral(true)])
     );
 
-    expect(handleMemberExpression.handler(given)).toEqual(expected);
+    expect(handleMemberExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should convert handle computed index expression: expression`, () => {
@@ -170,7 +172,7 @@ describe('Member Expression Handler', () => {
       callExpression(identifier('tostring'), [identifier('bar')])
     );
 
-    expect(handleMemberExpression.handler(given)).toEqual(expected);
+    expect(handleMemberExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should convert handle computed index expression: binary expression, adding string literal`, () => {
@@ -213,7 +215,7 @@ describe('Member Expression Handler', () => {
       )
     );
 
-    expect(handleMemberExpression.handler(given)).toEqual(expected);
+    expect(handleMemberExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should convert handle not computed member expression`, () => {
@@ -243,6 +245,6 @@ describe('Member Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleMemberExpression.handler(given)).toEqual(expected);
+    expect(handleMemberExpression.handler(source, given)).toEqual(expected);
   });
 });

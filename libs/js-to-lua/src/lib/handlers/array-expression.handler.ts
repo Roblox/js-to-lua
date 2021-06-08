@@ -1,4 +1,9 @@
-import { BaseNodeHandler, HandlerFunction } from '../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '../types';
 import {
   ArrayExpression,
   Expression,
@@ -14,6 +19,7 @@ import {
   LuaTableConstructor,
   LuaTableNoKeyField,
   tableConstructor,
+  tableNoKeyField,
 } from '@js-to-lua/lua-types';
 import { splitBy } from '../utils/split-by';
 import { Unpacked } from '../utils/types';
@@ -29,25 +35,25 @@ export const createArrayExpressionHandler = (
   const handleExpressionTableNoKeyFieldHandler: HandlerFunction<
     Expression,
     LuaTableNoKeyField
-  > = (expression) => ({
-    type: 'TableNoKeyField',
-    value: handleExpression(expression),
-  });
+  > = createHandlerFunction((source, expression: Expression) =>
+    tableNoKeyField(handleExpression(source, expression))
+  );
 
   const handleSpreadExpression: HandlerFunction<
     SpreadElement,
     LuaExpression
-  > = (spreadElement) =>
+  > = createHandlerFunction((source, spreadElement: SpreadElement) =>
     spreadElement.argument.type === 'ArrayExpression'
-      ? handleExpression(spreadElement.argument)
+      ? handleExpression(source, spreadElement.argument)
       : callExpression(arraySpread(), [
-          handleExpression(spreadElement.argument),
-        ]);
+          handleExpression(source, spreadElement.argument),
+        ])
+  );
 
   const handleArrayExpressionWithSpread: HandlerFunction<
     ArrayExpression,
     LuaCallExpression
-  > = (expression) => {
+  > = createHandlerFunction((source, expression: ArrayExpression) => {
     const propertiesGroups = expression.elements
       .filter(Boolean)
       .reduce(
@@ -56,36 +62,30 @@ export const createArrayExpressionHandler = (
       );
     const args: LuaExpression[] = propertiesGroups.map((group) => {
       return Array.isArray(group)
-        ? {
-            type: 'TableConstructor',
-            elements: group.map(handleExpressionTableNoKeyFieldHandler),
-          }
-        : handleSpreadExpression(group);
+        ? tableConstructor(
+            group.map(handleExpressionTableNoKeyFieldHandler(source))
+          )
+        : handleSpreadExpression(source, group);
     });
 
     return callExpression(arrayConcat(), [tableConstructor([]), ...args]);
-  };
+  });
 
   type ArrayExpressionWithoutSpread = ArrayExpression;
 
   const handleArrayExpressionWithoutSpread: HandlerFunction<
     ArrayExpressionWithoutSpread,
     LuaTableConstructor
-  > = ({ elements }) => {
-    return {
-      type: 'TableConstructor',
-      elements: elements.map(handleExpressionTableNoKeyFieldHandler),
-    };
-  };
-
-  return {
-    type: 'ArrayExpression',
-    handler: (expression) => {
-      return expression.elements.every(
-        (element) => element.type !== 'SpreadElement'
+  > = createHandlerFunction(
+    (source, { elements }: ArrayExpressionWithoutSpread) =>
+      tableConstructor(
+        elements.map(handleExpressionTableNoKeyFieldHandler(source))
       )
-        ? handleArrayExpressionWithoutSpread(expression)
-        : handleArrayExpressionWithSpread(expression);
-    },
-  };
+  );
+
+  return createHandler('ArrayExpression', (source, expression) =>
+    expression.elements.every((element) => element.type !== 'SpreadElement')
+      ? handleArrayExpressionWithoutSpread(source, expression)
+      : handleArrayExpressionWithSpread(source, expression)
+  );
 };

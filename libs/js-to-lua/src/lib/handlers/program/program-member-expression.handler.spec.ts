@@ -13,6 +13,8 @@ import {
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Member Expressions', () => {
     it(`should convert handle computed index expression: string literal`, () => {
@@ -26,7 +28,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should convert handle computed index expression: number literal`, () => {
@@ -40,7 +42,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should convert handle computed index expression: octal number literal`, () => {
@@ -54,7 +56,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should convert handle computed index expression: boolean literal`, () => {
@@ -71,7 +73,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should convert handle not computed member expression`, () => {
@@ -85,12 +87,12 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should convert handle mixed computed and not computed member expressions`, () => {
       const given = getProgramNode(`
-      foo.bar.baz      
+      foo.bar.baz
       foo.bar['baz']
       foo['bar']['baz']
       foo['bar'].baz
@@ -125,7 +127,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
   });
 });

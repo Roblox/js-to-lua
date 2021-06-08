@@ -1,6 +1,8 @@
-import { LuaProgram } from '@js-to-lua/lua-types';
+import { LuaProgram, unhandledNode } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
+
+const source = '';
 
 describe('Program handler', () => {
   describe('String', () => {
@@ -19,11 +21,7 @@ describe('Program handler', () => {
         type: 'Program',
         body: [
           // we do not handle EmptyStatements yet
-          {
-            type: 'UnhandledNode',
-            start: 0,
-            end: 1,
-          },
+          unhandledNode(),
           {
             type: 'ExpressionStatement',
             expression: {
@@ -69,7 +67,7 @@ describe('Program handler', () => {
         ],
       };
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });

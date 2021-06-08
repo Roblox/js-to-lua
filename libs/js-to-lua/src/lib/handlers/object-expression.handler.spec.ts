@@ -21,6 +21,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('Object Expression Handler', () => {
   it(`should return Lua Table Constructor Node with empty elements`, () => {
     const given: ObjectExpression = {
@@ -31,7 +33,7 @@ describe('Object Expression Handler', () => {
 
     const expected: LuaTableConstructor = tableConstructor([]);
 
-    expect(handleObjectExpression.handler(given)).toEqual(expected);
+    expect(handleObjectExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should return Lua Table Constructor Node with TableNameKeyField elements`, () => {
@@ -96,7 +98,7 @@ describe('Object Expression Handler', () => {
       tableNameKeyField(identifier('baz'), stringLiteral('abc')),
     ]);
 
-    expect(handleObjectExpression.handler(given)).toEqual(expected);
+    expect(handleObjectExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should return Lua Table Constructor Node with TableExpressionKeyField elements`, () => {
@@ -161,7 +163,7 @@ describe('Object Expression Handler', () => {
       tableExpressionKeyField(stringLiteral('baz'), stringLiteral('abc')),
     ]);
 
-    expect(handleObjectExpression.handler(given)).toEqual(expected);
+    expect(handleObjectExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle object of objects`, () => {
@@ -292,7 +294,7 @@ describe('Object Expression Handler', () => {
       ),
     ]);
 
-    expect(handleObjectExpression.handler(given)).toEqual(expected);
+    expect(handleObjectExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle object with methods`, () => {
@@ -381,7 +383,7 @@ describe('Object Expression Handler', () => {
       ),
     ]);
 
-    expect(handleObjectExpression.handler(given)).toEqual(expected);
+    expect(handleObjectExpression.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle deeply nested objects`, () => {
@@ -456,6 +458,6 @@ describe('Object Expression Handler', () => {
       ),
     ]);
 
-    expect(handleObjectExpression.handler(given)).toEqual(expected);
+    expect(handleObjectExpression.handler(source, given)).toEqual(expected);
   });
 });

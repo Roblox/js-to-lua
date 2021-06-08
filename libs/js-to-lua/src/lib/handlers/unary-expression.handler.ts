@@ -1,9 +1,15 @@
 import { Expression, UnaryExpression } from '@babel/types';
 import {
+  booleanLiteral,
+  booleanMethod,
   callExpression,
   identifier,
   LuaCallExpression,
   LuaExpression,
+  LuaMultilineStringLiteral,
+  LuaNode,
+  LuaNumericLiteral,
+  LuaStringLiteral,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
@@ -15,7 +21,7 @@ import {
   UnhandledNode,
   unhandledNode,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, HandlerFunction } from '../types';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
 
 export const createUnaryExpressionHandler = (
   handleExpression: HandlerFunction<Expression, LuaExpression>
@@ -27,31 +33,81 @@ export const createUnaryExpressionHandler = (
   | LuaUnaryDeleteExpression
   | LuaCallExpression
   | UnhandledNode
-> => ({
-  type: 'UnaryExpression',
-  handler: (node: UnaryExpression) => {
+> =>
+  createHandler('UnaryExpression', (source, node: UnaryExpression) => {
     switch (node.operator) {
       case 'typeof':
         return callExpression(identifier('typeof'), [
-          handleExpression(node.argument),
+          handleExpression(source, node.argument),
         ]);
       case '+':
         return callExpression(identifier('tonumber'), [
-          handleExpression(node.argument),
+          handleExpression(source, node.argument),
         ]);
       case '-':
-        return unaryExpression(node.operator, handleExpression(node.argument));
-      case 'void':
-        return unaryVoidExpression(handleExpression(node.argument));
-      case '!':
-        return unaryNegationExpression(
-          handleExpression(node.argument),
-          { argumentStart: node.argument.start, argumentEnd: node.argument.end }
+        return unaryExpression(
+          node.operator,
+          handleExpression(source, node.argument)
         );
+      case 'void':
+        return unaryVoidExpression(handleExpression(source, node.argument));
+      case '!':
+        return handleUnaryNegationExpression(source, node);
       case 'delete':
-        return unaryDeleteExpression(handleExpression(node.argument));
+        return unaryDeleteExpression(handleExpression(source, node.argument));
       default:
-        return unhandledNode(node.start, node.end);
+        return unhandledNode(source.slice(node.start, node.end));
     }
-  },
-});
+
+    function handleUnaryNegationExpression(
+      source: string,
+      node: UnaryExpression
+    ) {
+      return unaryNegationExpression(
+        handleUnaryNegationExpressionArgument(source, node.argument)
+      );
+    }
+
+    function handleUnaryNegationExpressionArgument(
+      source: string,
+      node: Expression
+    ) {
+      const LITERALS = [
+        'StringLiteral',
+        'NumericLiteral',
+        'MultilineStringLiteral',
+      ];
+      const isLiteral = (
+        node: LuaNode
+      ): node is
+        | LuaStringLiteral
+        | LuaNumericLiteral
+        | LuaMultilineStringLiteral => LITERALS.includes(node.type);
+      const arg = handleExpression(source, node);
+
+      if (arg.type === 'BooleanLiteral') {
+        return arg;
+      }
+
+      if (isLiteral(arg)) {
+        return booleanLiteral(
+          !!arg.value,
+          `ROBLOX DEVIATION: coerced from \`${source.slice(
+            node.start,
+            node.end
+          )}\` to preserve JS behavior`
+        );
+      }
+      if (arg.type === 'NilLiteral') {
+        return booleanLiteral(
+          false,
+          `ROBLOX DEVIATION: coerced from \`${source.slice(
+            node.start,
+            node.end
+          )}\` to preserve JS behavior`
+        );
+      }
+
+      return callExpression(booleanMethod('toJSBoolean'), [arg]);
+    }
+  });

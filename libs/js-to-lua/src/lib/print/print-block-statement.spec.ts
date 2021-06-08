@@ -10,7 +10,7 @@ describe('Print Block Statement', () => {
     const expected = `do
 end`;
 
-    expect(printBlockStatement(given, '')).toEqual(expected);
+    expect(printBlockStatement(given)).toEqual(expected);
   });
 
   it(`should print Block Statement Node with expressions`, () => {
@@ -42,7 +42,7 @@ end`;
   1
 end`;
 
-    expect(printBlockStatement(given, '')).toEqual(expected);
+    expect(printBlockStatement(given)).toEqual(expected);
   });
 
   it(`should print nested block statements`, () => {
@@ -103,7 +103,7 @@ end`;
 end
 end`;
 
-    expect(printBlockStatement(given, '')).toEqual(expected);
+    expect(printBlockStatement(given)).toEqual(expected);
   });
 
   it(`should print deeply nested block statements`, () => {
@@ -181,6 +181,6 @@ end
 end
 end`;
 
-    expect(printBlockStatement(given, '')).toEqual(expected);
+    expect(printBlockStatement(given)).toEqual(expected);
   });
 });

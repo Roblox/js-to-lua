@@ -7,8 +7,7 @@ import {
 import { printNode } from './print-node';
 
 const getIndex = (
-  index: LuaNumericLiteral | LuaStringLiteral | LuaExpression,
-  source: string
+  index: LuaNumericLiteral | LuaStringLiteral | LuaExpression
 ): string => {
   switch (index.type) {
     case 'NumericLiteral':
@@ -16,13 +15,10 @@ const getIndex = (
     case 'StringLiteral':
       return `"${index.value}"`;
     default:
-      return printNode(index, source);
+      return printNode(index);
   }
 };
 
-export const printIndexExpression = (
-  node: LuaIndexExpression,
-  source: string
-) => {
-  return `${printNode(node.base, source)}[${getIndex(node.index, source)}]`;
+export const printIndexExpression = (node: LuaIndexExpression) => {
+  return `${printNode(node.base)}[${getIndex(node.index)}]`;
 };

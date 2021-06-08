@@ -15,6 +15,8 @@ import {
 import { getProgramNode } from './program.spec.utils';
 import { stringLiteral } from '@babel/types';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Arrow Function', () => {
     it('should handle arrow function with no params', () => {
@@ -25,7 +27,8 @@ describe('Program handler', () => {
       const expected: LuaProgram = program([
         nodeGroup([functionDeclaration(identifier('foo'), [], [], [])]),
       ]);
-      const luaProgram = handleProgram.handler(given);
+
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
     });
 
@@ -45,7 +48,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
     });
 
@@ -65,7 +68,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram.body[0].type).toEqual('NodeGroup');
       if (luaProgram.body[0].type === 'NodeGroup') {
@@ -98,7 +101,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram.body[0].type).toEqual('NodeGroup');
       if (luaProgram.body[0].type === 'NodeGroup') {
         expect(luaProgram.body[0].body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
@@ -123,7 +126,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
     });
 
@@ -151,7 +154,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
     });
   });

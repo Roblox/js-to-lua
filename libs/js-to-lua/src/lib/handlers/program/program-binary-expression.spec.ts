@@ -12,6 +12,8 @@ import {
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Binary expression', () => {
     it('should handle arithmetic exponential operator', () => {
@@ -24,7 +26,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -39,7 +41,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -54,7 +56,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -69,7 +71,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -84,7 +86,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -99,7 +101,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -114,7 +116,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -125,7 +127,7 @@ describe('Program handler', () => {
       foo + "bar"
       "foo" + 5
       "foo"+ true
-     
+
     `);
       const expected: LuaProgram = program([
         expressionStatement(
@@ -158,7 +160,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -178,7 +180,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -198,7 +200,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -213,7 +215,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -228,7 +230,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });

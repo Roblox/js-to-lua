@@ -1,45 +1,41 @@
 import {
+  BaseLuaNode,
   LuaBlockStatement,
   LuaCallExpression,
   LuaExpression,
-  LuaMultilineStringLiteral,
   LuaNode,
-  LuaNumericLiteral,
   LuaProgram,
-  LuaStringLiteral,
+  LuaReturnStatement,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
   LuaTableNoKeyField,
-  LuaUnaryNegationExpression,
   LuaNodeGroup,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
-  LuaReturnStatement,
-  BaseLuaNode,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
 import { printMultilineString } from './primitives/print-multiline-string';
 import { printIndexExpression } from './print-index-expression';
 
-export const printNode = (node: LuaNode, source: string): string => {
-  const nodeStr = _printNode(node, source);
+export const printNode = (node: LuaNode): string => {
+  const nodeStr = _printNode(node);
   const comment = _printConversionComment(node);
   return `${nodeStr}${comment}`;
 };
 
-const _printNode = (node: LuaNode, source: string): string => {
+const _printNode = (node: LuaNode): string => {
   switch (node.type) {
     case 'Program':
-      return printProgram(node, source);
+      return printProgram(node);
     case 'ExpressionStatement':
-      return printNode(node.expression, source);
+      return printNode(node.expression);
     case 'BlockStatement':
-      return printBlockStatement(node, source);
+      return printBlockStatement(node);
     case 'ReturnStatement':
-      return printReturnStatement(node, source);
+      return printReturnStatement(node);
     case 'NumericLiteral':
       return printNumeric(node);
     case 'StringLiteral':
@@ -50,35 +46,35 @@ const _printNode = (node: LuaNode, source: string): string => {
       return node.value.toString();
     case 'Identifier':
       return `${node.name}${
-        node.typeAnnotation ? printNode(node.typeAnnotation, source) : ''
+        node.typeAnnotation ? printNode(node.typeAnnotation) : ''
       }`;
     case 'VariableDeclaration':
-      return printVariableDeclaration(node, source);
+      return printVariableDeclaration(node);
     case 'NodeGroup':
-      return printNodeGroup(node, source);
+      return printNodeGroup(node);
     case 'VariableDeclaratorIdentifier':
-      return printVariableDeclaratorIdentifier(node, source);
+      return printVariableDeclaratorIdentifier(node);
     case 'VariableDeclaratorValue':
-      return printVariableDeclaratorValue(node, source);
+      return printVariableDeclaratorValue(node);
     case 'FunctionDeclaration':
-      return `local ${printFunction(node, source)}`;
+      return `local ${printFunction(node)}`;
     case 'FunctionExpression':
-      return printFunction(node, source);
+      return printFunction(node);
     case 'TableConstructor':
-      return printTableConstructor(node, source);
+      return printTableConstructor(node);
     case 'CallExpression':
-      return printCallExpression(node, source);
+      return printCallExpression(node);
     case 'TableNoKeyField':
-      return printTableNoKeyField(node, source);
+      return printTableNoKeyField(node);
     case 'TableNameKeyField':
-      return printTableKeyField(node, source);
+      return printTableKeyField(node);
     case 'TableExpressionKeyField':
-      return printTableExpressionKeyField(node, source);
+      return printTableExpressionKeyField(node);
     case 'NilLiteral':
       return 'nil';
     case 'LuaTypeAnnotation':
       return `${
-        node.typeAnnotation ? `: ${printNode(node.typeAnnotation, source)}` : ''
+        node.typeAnnotation ? `: ${printNode(node.typeAnnotation)}` : ''
       }`;
     case 'LuaTypeAny':
       return 'any';
@@ -91,42 +87,31 @@ const _printNode = (node: LuaNode, source: string): string => {
     case 'LuaTypeVoid':
       return '()';
     case 'LuaTypeAliasDeclaration':
-      return printTypeAliasDeclaration(node, source);
+      return printTypeAliasDeclaration(node);
     case 'LuaTypeLiteral':
-      return printTypeLiteral(node, source);
+      return printTypeLiteral(node);
     case 'LuaPropertySignature':
-      return printPropertySignature(node, source);
+      return printPropertySignature(node);
     case 'LuaBinaryExpression':
-      return `${printNode(node.left, source)} ${node.operator} ${printNode(
-        node.right,
-        source
+      return `${printNode(node.left)} ${node.operator} ${printNode(
+        node.right
       )}`;
     case 'LuaUnaryExpression':
-      return `${node.operator}${printUnaryOperatorArgument(
-        node.argument,
-        source
-      )}`;
+      return `${node.operator}${printUnaryOperatorArgument(node.argument)}`;
     case 'LuaUnaryVoidExpression':
-      return `${printNode(node.argument, source)} and nil or nil`;
+      return `${printNode(node.argument)} and nil or nil`;
     case 'LuaUnaryNegationExpression':
-      return `not ${printUnaryNegationArgument(
-        node.argument,
-        source,
-        node.extra
-      )}`;
+      return `not ${printNode(node.argument)}`;
     case 'LuaUnaryDeleteExpression':
-      return `${printNode(node.argument, source)} = nil`;
+      return `${printNode(node.argument)} = nil`;
     case 'IndexExpression':
-      return printIndexExpression(node, source);
+      return printIndexExpression(node);
     case 'LuaMemberExpression':
-      return `${printNode(node.base, source)}${node.indexer}${printNode(
-        node.identifier,
-        source
+      return `${printNode(node.base)}${node.indexer}${printNode(
+        node.identifier
       )}`;
     case 'UnhandledNode':
-      return `--[[
-${source.slice(node.start, node.end)}
-]]`;
+      return '';
     default:
       return '--[[ default ]]';
   }
@@ -136,74 +121,55 @@ const _printConversionComment = (node: BaseLuaNode): string => {
   return node.conversionComment ? ` --[[ ${node.conversionComment} ]]` : '';
 };
 
-function printProgram(node: LuaProgram, source: string) {
-  const program = node.body.map((node) => printNode(node, source)).join('\n');
+function printProgram(node: LuaProgram) {
+  const program = node.body.map((node) => printNode(node)).join('\n');
   return `${program}\n`;
 }
 
-export function printNodeGroup(node: LuaNodeGroup, source: string): string {
-  return node.body.map((node) => printNode(node, source)).join('\n');
+export function printNodeGroup(node: LuaNodeGroup): string {
+  return node.body.map((node) => printNode(node)).join('\n');
 }
 
-export function printVariableDeclaration(
-  node: LuaVariableDeclaration,
-  source: string
-): string {
-  const identifiers = node.identifiers
-    .map((id) => printNode(id, source))
-    .join(', ');
+export function printVariableDeclaration(node: LuaVariableDeclaration): string {
+  const identifiers = node.identifiers.map((id) => printNode(id)).join(', ');
   const initializers = node.values.length
-    ? ` = ${node.values.map((value) => printNode(value, source)).join(', ')}`
+    ? ` = ${node.values.map((value) => printNode(value)).join(', ')}`
     : '';
   return `local ${identifiers}${initializers}`;
 }
 
 export function printVariableDeclaratorIdentifier(
-  node: LuaVariableDeclaratorIdentifier,
-  source: string
+  node: LuaVariableDeclaratorIdentifier
 ): string {
-  return printNode(node.value, source);
+  return printNode(node.value);
 }
 
 export function printVariableDeclaratorValue(
-  node: LuaVariableDeclaratorValue,
-  source: string
+  node: LuaVariableDeclaratorValue
 ): string {
-  return `${node.value ? `${printNode(node.value, source)}` : 'nil'}`;
+  return `${node.value ? `${printNode(node.value)}` : 'nil'}`;
 }
 
-export function printTableConstructor(
-  node: LuaTableConstructor,
-  source: string
-): string {
-  return `{${node.elements.map((e) => printNode(e, source)).join(', ')}}`;
+export function printTableConstructor(node: LuaTableConstructor): string {
+  return `{${node.elements.map((e) => printNode(e)).join(', ')}}`;
 }
 
-function printTableNoKeyField(
-  node: LuaTableNoKeyField,
-  source: string
-): string {
-  return printNode(node.value, source);
+function printTableNoKeyField(node: LuaTableNoKeyField): string {
+  return printNode(node.value);
 }
 
-function printTableKeyField(
-  node: LuaTableNameKeyField,
-  source: string
-): string {
-  return `${printNode(node.key, source)} = ${printNode(node.value, source)}`;
+function printTableKeyField(node: LuaTableNameKeyField): string {
+  return `${printNode(node.key)} = ${printNode(node.value)}`;
 }
 
 function printTableExpressionKeyField(
-  node: LuaTableExpressionKeyField,
-  source: string
+  node: LuaTableExpressionKeyField
 ): string {
-  return `[${printNode(node.key, source)}] = ${printNode(node.value, source)}`;
+  return `[${printNode(node.key)}] = ${printNode(node.value)}`;
 }
 
-export function printBlockStatement(node: LuaBlockStatement, source: string) {
-  const blockBody = node.body
-    .map((value) => printNode(value, source))
-    .join('\n  ');
+export function printBlockStatement(node: LuaBlockStatement) {
+  const blockBody = node.body.map((value) => printNode(value)).join('\n  ');
 
   if (blockBody.length > 0) {
     return `do
@@ -215,52 +181,46 @@ end`;
 end`;
 }
 
-export function printReturnStatement(node: LuaReturnStatement, source: string) {
-  return `return ${printNode(node.argument, source)}`;
+export function printReturnStatement(node: LuaReturnStatement) {
+  return `return ${printNode(node.argument)}`;
 }
 
-function printCallExpression(node: LuaCallExpression, source: string): string {
-  return `${printCalleeExpression(
-    node.callee,
-    source
-  )}(${node.arguments.map((e) => printNode(e, source)).join(', ')})`;
+function printCallExpression(node: LuaCallExpression): string {
+  return `${printCalleeExpression(node.callee)}(${node.arguments
+    .map((e) => printNode(e))
+    .join(', ')})`;
 }
 
-function printCalleeExpression(callee: LuaExpression, source: string): string {
+function printCalleeExpression(callee: LuaExpression): string {
   switch (callee.type) {
     case 'CallExpression':
     case 'Identifier':
     case 'LuaMemberExpression':
     case 'IndexExpression':
-      return `${printNode(callee, source)}`;
+      return `${printNode(callee)}`;
     default:
-      return `(${printNode(callee, source)})`;
+      return `(${printNode(callee)})`;
   }
 }
 
-function printFunction(node, source) {
-  const name = node.id ? ` ${printNode(node.id, source)}` : '';
+function printFunction(node) {
+  const name = node.id ? ` ${printNode(node.id)}` : '';
   const parameters = node.params
-    .map((parameter) => printNode(parameter, source))
+    .map((parameter) => printNode(parameter))
     .join(', ');
 
   const defaults = node.defaultValues
     .map(
       (assignmentPattern) =>
         `  if ${assignmentPattern.left.name} == nil then
-    ${assignmentPattern.left.name} = ${printNode(
-          assignmentPattern.right,
-          source
-        )}
+    ${assignmentPattern.left.name} = ${printNode(assignmentPattern.right)}
   end`
     )
     .join('\n');
 
-  const body = node.body
-    .map((statement) => printNode(statement, source))
-    .join('\n');
+  const body = node.body.map((statement) => printNode(statement)).join('\n');
 
-  const returnType = node.returnType ? printNode(node.returnType, source) : '';
+  const returnType = node.returnType ? printNode(node.returnType) : '';
 
   return `function${name}(${parameters})${returnType}${
     node.defaultValues.length || node.body.length ? '\n' : ' '
@@ -269,77 +229,26 @@ function printFunction(node, source) {
   }${body}${node.defaultValues.length || node.body.length ? '\n' : ''}end`;
 }
 
-function printTypeAliasDeclaration(node, source) {
-  return `type ${printNode(node.id, source)} = ${printNode(
-    node.typeAnnotation,
-    source
-  )}`;
+function printTypeAliasDeclaration(node) {
+  return `type ${printNode(node.id)} = ${printNode(node.typeAnnotation)}`;
 }
 
-function printTypeLiteral(node, source) {
-  return `{ ${node.members
-    .map((member) => printNode(member, source))
-    .join(', ')}${node.members.length ? ' ' : ''}}`;
+function printTypeLiteral(node) {
+  return `{ ${node.members.map((member) => printNode(member)).join(', ')}${
+    node.members.length ? ' ' : ''
+  }}`;
 }
 
-function printPropertySignature(node, source) {
-  return `${printNode(node.key, source)}${printNode(
-    node.typeAnnotation,
-    source
-  )}`;
+function printPropertySignature(node) {
+  return `${printNode(node.key)}${printNode(node.typeAnnotation)}`;
 }
 
 const LITERALS = ['StringLiteral', 'NumericLiteral', 'MultilineStringLiteral'];
-const isLiteral = (
-  node: LuaNode
-): node is LuaStringLiteral | LuaNumericLiteral | LuaMultilineStringLiteral =>
-  LITERALS.includes(node.type);
 
-function printUnaryOperatorArgument(
-  node: LuaExpression,
-  source: string
-): string {
+function printUnaryOperatorArgument(node: LuaExpression): string {
   if ([...LITERALS, 'Identifier'].includes(node.type)) {
-    return printNode(node, source);
+    return printNode(node);
   } else {
-    return `(${printNode(node, source)})`;
+    return `(${printNode(node)})`;
   }
-}
-
-function printUnaryNegationArgument(
-  node: LuaExpression,
-  source: string,
-  extra: LuaUnaryNegationExpression['extra']
-): string {
-  // TODO: move that logic into handler rather than during printing
-  if (isLiteral(node)) {
-    return printNode(
-      {
-        type: 'BooleanLiteral',
-        value: !!node.value,
-        conversionComment: `ROBLOX DEVIATION: coerced from \`${source.slice(
-          extra.argumentStart,
-          extra.argumentEnd
-        )}\` to preserve JS behavior`,
-      },
-      source
-    );
-  }
-  if (node.type === 'NilLiteral') {
-    return printNode(
-      {
-        type: 'BooleanLiteral',
-        value: false,
-        conversionComment: `ROBLOX DEVIATION: coerced from \`${source.slice(
-          extra.argumentStart,
-          extra.argumentEnd
-        )}\` to preserve JS behavior`,
-      },
-      source
-    );
-  }
-  if (node.type === 'BooleanLiteral') {
-    return printNode(node, source);
-  }
-  return `Boolean.toJSBoolean(${printNode(node, source)})`;
 }

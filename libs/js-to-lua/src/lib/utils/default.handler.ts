@@ -1,9 +1,8 @@
-import { BaseNodeHandler } from '../types';
+import { createHandlerFunction, HandlerFunction } from '../types';
+import { unhandledNode } from '@js-to-lua/lua-types';
 
-export const defaultHandler: BaseNodeHandler['handler'] = (node) => {
-  return {
-    type: 'UnhandledNode',
-    start: node.start,
-    end: node.end,
-  };
-};
+export const defaultHandler: HandlerFunction = createHandlerFunction(
+  (source, node) => {
+    return unhandledNode(source.slice(node.start, node.end));
+  }
+);

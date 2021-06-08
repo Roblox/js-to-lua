@@ -33,7 +33,9 @@
   "dependencies": {
     "@babel/parser": "7.13.16",
     "@babel/types": "7.13.17",
+    "@types/ramda": "^0.27.40",
     "glob": "^7.1.6",
+    "ramda": "^0.27.1",
     "tslib": "^2.0.0",
     "yargs": "^17.0.1"
   },

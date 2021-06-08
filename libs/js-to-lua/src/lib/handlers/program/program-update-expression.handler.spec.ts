@@ -13,6 +13,8 @@ import {
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Update expression', () => {
     it('should handle prefix increment operator', () => {
@@ -36,7 +38,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -66,7 +68,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -92,7 +94,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -122,7 +124,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });

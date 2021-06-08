@@ -136,8 +136,6 @@ export interface LuaTableConstructor extends BaseLuaNode {
 
 export interface UnhandledNode extends BaseLuaNode {
   type: 'UnhandledNode';
-  start: number | null;
-  end: number | null;
 }
 
 export interface LuaProgram extends BaseLuaNode {
@@ -291,10 +289,6 @@ export interface LuaUnaryVoidExpression extends BaseLuaNode {
 export interface LuaUnaryNegationExpression extends BaseLuaNode {
   type: 'LuaUnaryNegationExpression';
   argument: LuaExpression;
-  extra: {
-    argumentStart: number;
-    argumentEnd: number;
-  };
 }
 
 export interface LuaIndexExpression extends BaseLuaNode {

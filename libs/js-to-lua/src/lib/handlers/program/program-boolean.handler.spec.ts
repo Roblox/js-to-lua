@@ -2,6 +2,8 @@ import { LuaProgram } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Boolean', () => {
     it('should handle boolean expressions', () => {
@@ -46,7 +48,7 @@ describe('Program handler', () => {
         ],
       };
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });

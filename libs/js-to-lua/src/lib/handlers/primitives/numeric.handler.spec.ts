@@ -11,6 +11,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('Numeric Handler', () => {
   [1, 2, 5, 10, NaN].forEach((value) => {
     it(`should return Lua Numeric Node with value ${value}`, () => {
@@ -24,7 +26,7 @@ describe('Numeric Handler', () => {
         value,
       };
 
-      expect(handleNumericLiteral.handler(given)).toEqual(expected);
+      expect(handleNumericLiteral.handler(source, given)).toEqual(expected);
     });
   });
 
@@ -129,7 +131,7 @@ describe('Numeric Handler', () => {
             },
           };
 
-          expect(handleNumericLiteral.handler(given)).toEqual(expected);
+          expect(handleNumericLiteral.handler(source, given)).toEqual(expected);
         });
       });
     });
@@ -155,7 +157,7 @@ describe('Numeric Handler', () => {
             value,
           };
 
-          expect(handleNumericLiteral.handler(given)).toEqual(expected);
+          expect(handleNumericLiteral.handler(source, given)).toEqual(expected);
         });
       });
     });

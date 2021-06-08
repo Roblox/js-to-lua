@@ -1,4 +1,4 @@
-import { BaseNodeHandler } from '../types';
+import { BaseNodeHandler, createHandlerFunction } from '../types';
 import { defaultHandler } from './default.handler';
 
 export const combineHandlers = <H extends BaseNodeHandler = BaseNodeHandler>(
@@ -7,13 +7,13 @@ export const combineHandlers = <H extends BaseNodeHandler = BaseNodeHandler>(
 ): H => {
   return {
     type: ons.map(({ type }) => type).flat(),
-    handler: (node) => {
+    handler: createHandlerFunction((source, node) => {
       const { handler } = ons.find((on) => {
         const types = Array.isArray(on.type) ? on.type : [on.type];
         return types.includes(node.type);
       }) || { handler: fallback };
 
-      return handler(node);
-    },
+      return handler(source, node);
+    }),
   } as H;
 };

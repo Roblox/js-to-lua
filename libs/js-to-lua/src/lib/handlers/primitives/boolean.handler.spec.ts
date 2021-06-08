@@ -11,6 +11,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('Boolean Handler', () => {
   [true, false].forEach((value) => {
     it(`should return Lua Boolean Node with ${value} value`, () => {
@@ -24,7 +26,7 @@ describe('Boolean Handler', () => {
         value,
       };
 
-      expect(handleBooleanLiteral.handler(given)).toEqual(expected);
+      expect(handleBooleanLiteral.handler(source, given)).toEqual(expected);
     });
   });
 });

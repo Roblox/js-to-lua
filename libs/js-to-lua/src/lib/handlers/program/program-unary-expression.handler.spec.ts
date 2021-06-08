@@ -1,4 +1,6 @@
 import {
+  booleanLiteral,
+  booleanMethod,
   callExpression,
   expressionStatement,
   identifier,
@@ -13,6 +15,8 @@ import {
 import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
 
+const source = '';
+
 describe('Unary Expression Handler', () => {
   it(`should handle typeof operator`, () => {
     const given = getProgramNode(`
@@ -25,7 +29,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle plus operator`, () => {
@@ -39,7 +43,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle minus operator`, () => {
@@ -51,7 +55,7 @@ describe('Unary Expression Handler', () => {
       expressionStatement(unaryExpression('-', identifier('foo'))),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle void operator`, () => {
@@ -63,7 +67,7 @@ describe('Unary Expression Handler', () => {
       expressionStatement(unaryVoidExpression(identifier('foo'))),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle negation operator`, () => {
@@ -71,14 +75,23 @@ describe('Unary Expression Handler', () => {
 
     const expected: LuaProgram = program([
       expressionStatement(
-        unaryNegationExpression(identifier('foo'), {
-          argumentStart: 1,
-          argumentEnd: 4,
-        })
+        unaryNegationExpression(
+          callExpression(booleanMethod('toJSBoolean'), [identifier('foo')])
+        )
       ),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
+  });
+
+  it(`should handle negation operator of BooleanLiteral`, () => {
+    const given = getProgramNode(`!true`);
+
+    const expected: LuaProgram = program([
+      expressionStatement(unaryNegationExpression(booleanLiteral(true))),
+    ]);
+
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle delete operator`, () => {
@@ -94,6 +107,6 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 });

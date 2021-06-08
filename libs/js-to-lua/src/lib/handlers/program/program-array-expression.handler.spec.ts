@@ -15,6 +15,8 @@ import {
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Array expression', () => {
     it('should return empty Lua Table Constructor', () => {
@@ -25,7 +27,7 @@ describe('Program handler', () => {
         expressionStatement(tableConstructor([])),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it('should return Lua Table Constructor Node with TableNoKeyField elements', () => {
@@ -42,7 +44,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should handle array of arrays`, () => {
@@ -59,7 +61,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should handle deeply nested arrays`, () => {
@@ -81,7 +83,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should handle spread arrays`, () => {
@@ -105,7 +107,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
   });
 
@@ -136,7 +138,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 
   it(`should return Lua Table Constructor Node with spread strings`, () => {
@@ -166,6 +168,6 @@ describe('Program handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 });

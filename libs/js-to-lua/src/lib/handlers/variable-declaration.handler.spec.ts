@@ -11,6 +11,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('Variable Declaration', () => {
   ['foo', 'bar', 'baz'].forEach((name) => {
     it(`should return LuaVariableDeclaration Node with declarations`, () => {
@@ -40,7 +42,9 @@ describe('Variable Declaration', () => {
         values: [],
       };
 
-      expect(handleVariableDeclaration.handler(given)).toEqual(expected);
+      expect(handleVariableDeclaration.handler(source, given)).toEqual(
+        expected
+      );
     });
   });
 
@@ -85,7 +89,9 @@ describe('Variable Declaration', () => {
         ],
       };
 
-      expect(handleVariableDeclaration.handler(given)).toEqual(expected);
+      expect(handleVariableDeclaration.handler(source, given)).toEqual(
+        expected
+      );
     });
   });
 
@@ -169,7 +175,7 @@ describe('Variable Declaration', () => {
       ],
     };
 
-    expect(handleVariableDeclaration.handler(given)).toEqual(expected);
+    expect(handleVariableDeclaration.handler(source, given)).toEqual(expected);
   });
 
   it(`should return LuaVariableDeclaration Node with declarations and partial initialization - null at the end`, () => {
@@ -248,6 +254,6 @@ describe('Variable Declaration', () => {
       ],
     };
 
-    expect(handleVariableDeclaration.handler(given)).toEqual(expected);
+    expect(handleVariableDeclaration.handler(source, given)).toEqual(expected);
   });
 });

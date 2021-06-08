@@ -11,6 +11,8 @@ import {
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Function Declarations', () => {
     it('should handle function with no params', () => {
@@ -33,7 +35,7 @@ describe('Program handler', () => {
         ],
       };
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
     });
   });
@@ -67,7 +69,7 @@ describe('Program handler', () => {
       ],
     };
 
-    const luaProgram = handleProgram.handler(given);
+    const luaProgram = handleProgram.handler(source, given);
     expect(luaProgram).toEqual(expected);
   });
 
@@ -100,7 +102,7 @@ describe('Program handler', () => {
       ],
     };
 
-    const luaProgram = handleProgram.handler(given);
+    const luaProgram = handleProgram.handler(source, given);
     expect(luaProgram.body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
     luaProgram.body[0]['defaultValues'] = []; //TODO: remove when AssigmentBlock is available
     expect(luaProgram).toEqual(expected);
@@ -127,7 +129,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    const luaProgram = handleProgram.handler(given);
+    const luaProgram = handleProgram.handler(source, given);
     expect(luaProgram.body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
     luaProgram.body[0]['defaultValues'] = []; //TODO: remove when AssigmentBlock is available
     expect(luaProgram).toEqual(expected);

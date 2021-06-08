@@ -11,6 +11,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 describe('String Handler', () => {
   ['', 'abc', '1abc_@#$%'].forEach((value) => {
     it(`should return Lua String Node with value "${value}"`, () => {
@@ -24,7 +26,7 @@ describe('String Handler', () => {
         value,
       };
 
-      expect(handleStringLiteral.handler(given)).toEqual(expected);
+      expect(handleStringLiteral.handler(source, given)).toEqual(expected);
     });
   });
 });

@@ -1,37 +1,34 @@
-import { BaseNodeHandler } from '../../types';
+import { BaseNodeHandler, createHandler } from '../../types';
 import { NumericLiteral } from '@babel/types';
 import { LuaNumericLiteral } from '@js-to-lua/lua-types';
 
 export const handleNumericLiteral: BaseNodeHandler<
   NumericLiteral,
   LuaNumericLiteral
-> = {
-  type: 'NumericLiteral',
-  handler: (literal) => {
-    const _raw = literal.extra?.raw;
-    let raw: string = undefined;
-    if (
-      typeof _raw === 'string' &&
-      validNumberStrings.some((regexp) => regexp.test(_raw))
-    ) {
-      raw = _raw;
-    }
+> = createHandler('NumericLiteral', (source, literal) => {
+  const _raw = literal.extra?.raw;
+  let raw: string = undefined;
+  if (
+    typeof _raw === 'string' &&
+    validNumberStrings.some((regexp) => regexp.test(_raw))
+  ) {
+    raw = _raw;
+  }
 
-    const extra = raw
-      ? {
-          extra: {
-            raw,
-          },
-        }
-      : {};
+  const extra = raw
+    ? {
+        extra: {
+          raw,
+        },
+      }
+    : {};
 
-    return {
-      type: 'NumericLiteral',
-      value: literal.value,
-      ...extra,
-    };
-  },
-};
+  return {
+    type: 'NumericLiteral',
+    value: literal.value,
+    ...extra,
+  };
+});
 
 const validNumberStrings = [
   /^[1-9]_?((\d+_?)*?([E|e][+-]?(\d+_?)*)?)?\d*(?<!_)$/, // decimal without leading 0 and support for `_` separator - optional scientific notation

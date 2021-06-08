@@ -172,10 +172,12 @@ export const numericLiteral = (
 });
 
 export const booleanLiteral = (
-  value: LuaBooleanLiteral['value']
+  value: LuaBooleanLiteral['value'],
+  conversionComment?: string
 ): LuaBooleanLiteral => ({
   type: 'BooleanLiteral',
   value,
+  ...(conversionComment ? { conversionComment } : {}),
 });
 
 export const stringLiteral = (
@@ -221,11 +223,11 @@ export const unaryVoidExpression = (
 
 export const unaryNegationExpression = (
   argument: LuaUnaryNegationExpression['argument'],
-  extra: LuaUnaryNegationExpression['extra']
+  conversionComment?: string
 ): LuaUnaryNegationExpression => ({
   type: 'LuaUnaryNegationExpression',
   argument,
-  extra,
+  ...(conversionComment ? { conversionComment } : {}),
 });
 
 export const unaryDeleteExpression = (
@@ -271,16 +273,23 @@ export const binaryExpression = (
   ...(conversionComment ? { conversionComment } : {}),
 });
 
-export const unhandledNode = (
-  start: UnhandledNode['start'] = 0,
-  end: UnhandledNode['end'] = 0,
+export const typeAnnotation = (
+  typeAnnotation: LuaTypeAnnotation['typeAnnotation'],
   conversionComment?: string
-): UnhandledNode => ({
-  type: 'UnhandledNode',
-  start,
-  end,
+): LuaTypeAnnotation => ({
+  type: 'LuaTypeAnnotation',
+  typeAnnotation,
   ...(conversionComment ? { conversionComment } : {}),
 });
+
+export const unhandledNode = (conversionComment?: string): UnhandledNode => ({
+  type: 'UnhandledNode',
+  ...(conversionComment ? { conversionComment } : {}),
+});
+
+export const booleanIdentifier = (): LuaIdentifier => identifier('Boolean');
+export const booleanMethod = (methodName: string): LuaMemberExpression =>
+  memberExpression(booleanIdentifier(), '.', identifier(methodName));
 
 export const arrayConcat = (): LuaMemberExpression =>
   memberExpression(identifier('Array'), '.', identifier('concat'));

@@ -2,6 +2,8 @@ import { LuaProgram } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
+const source = '';
+
 describe('Program handler', () => {
   describe('Block Statement', () => {
     it('should handle empty block statement', () => {
@@ -19,7 +21,7 @@ describe('Program handler', () => {
         ],
       };
 
-      const luaProgram = handleProgram.handler(given);
+      const luaProgram = handleProgram.handler(source, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -114,7 +116,7 @@ describe('Program handler', () => {
       ],
     };
 
-    const luaProgram = handleProgram.handler(given);
+    const luaProgram = handleProgram.handler(source, given);
 
     expect(luaProgram).toEqual(expected);
   });
@@ -183,7 +185,7 @@ describe('Program handler', () => {
       ],
     };
 
-    const luaProgram = handleProgram.handler(given);
+    const luaProgram = handleProgram.handler(source, given);
 
     expect(luaProgram).toEqual(expected);
   });
@@ -268,7 +270,7 @@ describe('Program handler', () => {
       ],
     };
 
-    const luaProgram = handleProgram.handler(given);
+    const luaProgram = handleProgram.handler(source, given);
 
     expect(luaProgram).toEqual(expected);
   });

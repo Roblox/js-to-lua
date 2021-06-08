@@ -1,19 +1,16 @@
-import { BaseNodeHandler } from '../types';
+import { BaseNodeHandler, createHandler } from '../types';
 import { TemplateLiteral } from '@babel/types';
 import { LuaMultilineStringLiteral } from '@js-to-lua/lua-types';
 
 export const handleMultilineStringLiteral: BaseNodeHandler<
   TemplateLiteral,
   LuaMultilineStringLiteral
-> = {
-  type: 'TemplateLiteral',
-  handler: (literal) => {
-    return {
-      type: 'MultilineStringLiteral',
-      value: getMultilineString(literal),
-    };
-  },
-};
+> = createHandler('TemplateLiteral', (source, literal) => {
+  return {
+    type: 'MultilineStringLiteral',
+    value: getMultilineString(literal),
+  };
+});
 
 const getMultilineString = (literal: TemplateLiteral) => {
   const multilineString = literal.quasis.reduce((accu, curr) => {

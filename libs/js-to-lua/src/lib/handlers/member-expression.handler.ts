@@ -1,4 +1,9 @@
-import { BaseNodeHandler, HandlerFunction } from '../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '../types';
 import { Expression, MemberExpression, PrivateName } from '@babel/types';
 import {
   callExpression,
@@ -28,56 +33,57 @@ export const createMemberExpressionHandler = (
   MemberExpression,
   LuaIndexExpression | LuaMemberExpression
 > => {
-  const handleIndex = (
-    node: Expression | PrivateName
-  ): LuaStringLiteral | LuaNumericLiteral | LuaExpression | UnhandledNode => {
-    switch (node.type) {
-      case 'NumericLiteral':
-        return handleNumericLiteral.handler({ ...node, value: node.value + 1 });
-      case 'StringLiteral':
-        return handleStringLiteral.handler(node);
-      case 'BooleanLiteral':
-        return callExpression(identifier('tostring'), [
-          handleBooleanLiteral.handler(node),
-        ]);
-      case 'Identifier':
-        return callExpression(identifier('tostring'), [
-          handleIdentifier.handler(node),
-        ]);
-      case 'BinaryExpression':
-        if (
-          node.operator === '+' &&
-          (node.left.type === 'StringLiteral' ||
-            node.right.type === 'StringLiteral')
-        ) {
-          return handleBinaryExpression.handler(node);
-        }
-        return callExpression(identifier('tostring'), [
-          handleBinaryExpression.handler(node),
-        ]);
-      default:
-        return unhandledNode(node.start, node.end);
+  const handleIndex = createHandlerFunction(
+    (
+      source,
+      node: Expression | PrivateName
+    ): LuaStringLiteral | LuaNumericLiteral | LuaExpression | UnhandledNode => {
+      switch (node.type) {
+        case 'NumericLiteral':
+          return handleNumericLiteral.handler(source, {
+            ...node,
+            value: node.value + 1,
+          });
+        case 'StringLiteral':
+          return handleStringLiteral.handler(source, node);
+        case 'BooleanLiteral':
+          return callExpression(identifier('tostring'), [
+            handleBooleanLiteral.handler(source, node),
+          ]);
+        case 'Identifier':
+          return callExpression(identifier('tostring'), [
+            handleIdentifier.handler(source, node),
+          ]);
+        case 'BinaryExpression':
+          if (
+            node.operator === '+' &&
+            (node.left.type === 'StringLiteral' ||
+              node.right.type === 'StringLiteral')
+          ) {
+            return handleBinaryExpression.handler(source, node);
+          }
+          return callExpression(identifier('tostring'), [
+            handleBinaryExpression.handler(source, node),
+          ]);
+        default:
+          return unhandledNode(source.slice(node.start, node.end));
+      }
     }
-  };
+  );
 
-  const handler = (
-    node: MemberExpression
-  ): LuaIndexExpression | LuaMemberExpression => {
+  return createHandler('MemberExpression', (source, node: MemberExpression):
+    | LuaIndexExpression
+    | LuaMemberExpression => {
     if (!node.computed) {
       return memberExpression(
-        handleExpression(node.object),
+        handleExpression(source, node.object),
         '.',
-        handleExpression(node.property as Expression) as LuaIdentifier
+        handleExpression(source, node.property as Expression) as LuaIdentifier
       );
     }
     return indexExpression(
-      handleExpression(node.object),
-      handleIndex(node.property)
+      handleExpression(source, node.object),
+      handleIndex(source, node.property)
     );
-  };
-
-  return {
-    type: 'MemberExpression',
-    handler,
-  };
+  });
 };

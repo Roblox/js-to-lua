@@ -5,6 +5,6 @@ export const convert = (code) => {
   const babelASTFile = parse(code, {
     plugins: ['jsx', 'typescript'],
   });
-  const luaASTProgram = handleProgram.handler(babelASTFile.program);
-  return printNode(luaASTProgram, code);
+  const luaASTProgram = handleProgram.handler(code, babelASTFile.program);
+  return printNode(luaASTProgram);
 };

@@ -1,4 +1,9 @@
-import { BaseNodeHandler, HandlerFunction } from '../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '../types';
 import {
   BinaryExpression,
   CallExpression,
@@ -61,6 +66,9 @@ import {
   numericLiteral,
   functionDeclaration,
   LuaNodeGroup,
+  tableNameKeyField,
+  tableExpressionKeyField,
+  expressionStatement,
 } from '@js-to-lua/lua-types';
 
 import { handleMultilineStringLiteral } from './multiline-string.handler';
@@ -85,23 +93,15 @@ type NoSpreadObjectProperty = Exclude<
 >;
 type ObjectExpressionProperty = Unpacked<ObjectExpression['properties']>;
 
-export const handleExpressionStatement: BaseNodeHandler<
-  ExpressionStatement,
-  LuaExpressionStatement
-> = {
-  type: 'ExpressionStatement',
-  handler: (statement) => ({
-    type: 'ExpressionStatement',
-    expression: handleExpression.handler(statement.expression),
-  }),
-};
+export const handleExpressionStatement = createHandler(
+  'ExpressionStatement',
+  (source, statement: ExpressionStatement): LuaExpressionStatement =>
+    expressionStatement(handleExpression.handler(source, statement.expression))
+);
 
-export const handleCallExpression: BaseNodeHandler<
-  CallExpression,
-  LuaCallExpression
-> = {
-  type: 'CallExpression',
-  handler: (expression) => {
+export const handleCallExpression = createHandler(
+  'CallExpression',
+  (source, expression: CallExpression): LuaCallExpression => {
     if (
       expression.callee.type !== 'MemberExpression' ||
       USE_DOT_NOTATION_IN_CALL_EXPRESSION.some((identifierName) =>
@@ -112,8 +112,8 @@ export const handleCallExpression: BaseNodeHandler<
       )
     ) {
       return callExpression(
-        handleCalleeExpression.handler(expression.callee),
-        expression.arguments.map(handleExpression.handler)
+        handleCalleeExpression.handler(source, expression.callee),
+        expression.arguments.map(handleExpression.handler(source))
       );
     }
 
@@ -122,275 +122,264 @@ export const handleCallExpression: BaseNodeHandler<
       !expression.arguments.length
     ) {
       return callExpression(identifier('tostring'), [
-        handleCalleeExpression.handler(expression.callee.object),
+        handleCalleeExpression.handler(source, expression.callee.object),
       ]);
     }
 
     if (expression.callee.computed) {
-      return callExpression(handleCalleeExpression.handler(expression.callee), [
-        handleCalleeExpression.handler(expression.callee.object),
-        ...(expression.arguments.map(
-          handleExpression.handler
-        ) as LuaExpression[]),
-      ]);
+      return callExpression(
+        handleCalleeExpression.handler(source, expression.callee),
+        [
+          handleCalleeExpression.handler(source, expression.callee.object),
+          ...(expression.arguments.map(
+            handleExpression.handler(source)
+          ) as LuaExpression[]),
+        ]
+      );
     }
 
     return callExpression(
       memberExpression(
-        handleExpression.handler(expression.callee.object),
+        handleExpression.handler(source, expression.callee.object),
         ':',
-        handleExpression.handler(expression.callee.property)
+        handleExpression.handler(
+          source,
+          expression.callee.property as Expression
+        ) as LuaIdentifier
       ),
-      expression.arguments.map(handleExpression.handler)
+      expression.arguments.map(handleExpression.handler(source))
     );
-  },
-};
+  }
+);
 
-const handleObjectExpressionWithSpread: HandlerFunction<
-  ObjectExpression,
-  LuaCallExpression
-> = (expression) => {
-  const propertiesGroups = expression.properties.reduce(
-    splitBy<ObjectExpressionProperty, SpreadElement>(isSpreadElement),
-    []
-  );
-  const args: LuaExpression[] = propertiesGroups.map((group) => {
-    return Array.isArray(group)
-      ? {
-          type: 'TableConstructor',
-          elements: group.map(handleObjectField.handler),
-        }
-      : handleExpression.handler(group.argument);
-  });
+const handleObjectExpressionWithSpread = createHandlerFunction(
+  (source, expression: ObjectExpression): LuaCallExpression => {
+    const propertiesGroups = expression.properties.reduce(
+      splitBy<ObjectExpressionProperty, SpreadElement>(isSpreadElement),
+      []
+    );
+    const args: LuaExpression[] = propertiesGroups.map((group) => {
+      return Array.isArray(group)
+        ? {
+            type: 'TableConstructor',
+            elements: group.map(handleObjectField.handler(source)),
+          }
+        : handleExpression.handler(source, group.argument);
+    });
 
-  return callExpression(objectAssign(), [tableConstructor([]), ...args]);
-};
+    return callExpression(objectAssign(), [tableConstructor([]), ...args]);
+  }
+);
 
-const handleObjectExpressionWithoutSpread: HandlerFunction<
-  ObjectExpression,
-  LuaTableConstructor
-> = (expression) => ({
-  type: 'TableConstructor',
-  elements: expression.properties.map(handleObjectField.handler),
-});
+const handleObjectExpressionWithoutSpread = createHandlerFunction(
+  (source, expression: ObjectExpression): LuaTableConstructor => ({
+    type: 'TableConstructor',
+    elements: expression.properties.map(handleObjectField.handler(source)),
+  })
+);
 
-export const handleObjectExpression: BaseNodeHandler<
-  ObjectExpression,
-  LuaTableConstructor | LuaCallExpression
-> = {
-  type: 'ObjectExpression',
-  handler: (expression) =>
+export const handleObjectExpression = createHandler(
+  'ObjectExpression',
+  (source, expression: ObjectExpression) =>
     expression.properties.every((prop) => prop.type !== 'SpreadElement')
-      ? handleObjectExpressionWithoutSpread(expression)
-      : handleObjectExpressionWithSpread(expression),
-};
+      ? handleObjectExpressionWithoutSpread(source, expression)
+      : handleObjectExpressionWithSpread(source, expression)
+);
 
 export const handleIdentifier: BaseNodeHandler<
   Identifier,
   LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression
-> = {
-  type: 'Identifier',
-  handler: (node) => {
-    switch (node.name) {
-      case 'undefined':
-        return {
-          type: 'NilLiteral',
-        };
-      case 'Infinity':
-        return memberExpression(identifier('math'), '.', identifier('huge'));
-      case 'NaN':
-        return binaryExpression(numericLiteral(0), '/', numericLiteral(0));
-      case 'and':
-      case 'break':
-      case 'do':
-      case 'else':
-      case 'elseif':
-      case 'end':
-      case 'false':
-      case 'for':
-      case 'function':
-      case 'if':
-      case 'in':
-      case 'local':
-      case 'nil':
-      case 'not':
-      case 'or':
-      case 'repeat':
-      case 'return':
-      case 'then':
-      case 'true':
-      case 'until':
-      case 'while':
-        return {
-          type: 'Identifier',
-          name: `${node.name}_`,
-        };
-      default:
-        return {
-          type: 'Identifier',
-          name: node.name,
-          ...(node.typeAnnotation
-            ? { typeAnnotation: typesHandler(node.typeAnnotation) }
-            : {}),
-        };
-    }
-  },
-};
-
-const handleBinaryAddOperator = (node) => {
-  if (
-    node.left.type === 'StringLiteral' ||
-    node.right.type === 'StringLiteral'
-  ) {
-    return binaryExpression(
-      handleExpression.handler(handleOperandAsString(node.left as Expression)),
-      '..',
-      handleExpression.handler(handleOperandAsString(node.right))
-    );
-  } else {
-    return binaryExpression(
-      handleExpression.handler(node.left as Expression),
-      node.operator,
-      handleExpression.handler(node.right)
-    );
+> = createHandler('Identifier', (source, node) => {
+  switch (node.name) {
+    case 'undefined':
+      return {
+        type: 'NilLiteral',
+      };
+    case 'Infinity':
+      return memberExpression(identifier('math'), '.', identifier('huge'));
+    case 'NaN':
+      return binaryExpression(numericLiteral(0), '/', numericLiteral(0));
+    case 'and':
+    case 'break':
+    case 'do':
+    case 'else':
+    case 'elseif':
+    case 'end':
+    case 'false':
+    case 'for':
+    case 'function':
+    case 'if':
+    case 'in':
+    case 'local':
+    case 'nil':
+    case 'not':
+    case 'or':
+    case 'repeat':
+    case 'return':
+    case 'then':
+    case 'true':
+    case 'until':
+    case 'while':
+      return {
+        type: 'Identifier',
+        name: `${node.name}_`,
+      };
+    default:
+      return {
+        type: 'Identifier',
+        name: node.name,
+        ...(node.typeAnnotation
+          ? { typeAnnotation: typesHandler(source, node.typeAnnotation) }
+          : {}),
+      };
   }
-};
+});
+
+const handleBinaryAddOperator = createHandlerFunction(
+  (source: string, node: BinaryExpression & { operator: '+' }) => {
+    if (
+      node.left.type === 'StringLiteral' ||
+      node.right.type === 'StringLiteral'
+    ) {
+      return binaryExpression(
+        handleOperandAsString(source, node.left as Expression),
+        '..',
+        handleOperandAsString(source, node.right)
+      );
+    } else {
+      return binaryExpression(
+        handleExpression.handler(source, node.left as Expression),
+        node.operator,
+        handleExpression.handler(source, node.right)
+      );
+    }
+  }
+);
 
 export const handleBinaryExpression: BaseNodeHandler<
   BinaryExpression,
   LuaBinaryExpression | UnhandledNode
-> = {
-  type: 'BinaryExpression',
-  handler: (node) => {
-    switch (node.operator) {
-      case '-':
-      case '/':
-      case '*':
-      case '%':
-        return binaryExpression(
-          handleExpression.handler(node.left as Expression),
-          node.operator,
-          handleExpression.handler(node.right)
-        );
-      case '**':
-        return binaryExpression(
-          handleExpression.handler(node.left as Expression),
-          '^',
-          handleExpression.handler(node.right)
-        );
-      case '==':
-        return binaryExpression(
-          handleExpression.handler(node.left as Expression),
-          node.operator,
-          handleExpression.handler(node.right),
-          `ROBLOX CHECK: loose equality used upstream`
-        );
-      case '!=':
-        return binaryExpression(
-          handleExpression.handler(node.left as Expression),
-          '~=',
-          handleExpression.handler(node.right),
-          `ROBLOX CHECK: loose inequality used upstream`
-        );
-      case '===':
-        return binaryExpression(
-          handleExpression.handler(node.left as Expression),
-          '==',
-          handleExpression.handler(node.right)
-        );
-      case '!==':
-        return binaryExpression(
-          handleExpression.handler(node.left as Expression),
-          '~=',
-          handleExpression.handler(node.right)
-        );
-      case '+':
-        return handleBinaryAddOperator(node);
+> = createHandler('BinaryExpression', (source, node) => {
+  switch (node.operator) {
+    case '-':
+    case '/':
+    case '*':
+    case '%':
+      return binaryExpression(
+        handleExpression.handler(source, node.left as Expression),
+        node.operator,
+        handleExpression.handler(source, node.right)
+      );
+    case '**':
+      return binaryExpression(
+        handleExpression.handler(source, node.left as Expression),
+        '^',
+        handleExpression.handler(source, node.right)
+      );
+    case '==':
+      return binaryExpression(
+        handleExpression.handler(source, node.left as Expression),
+        node.operator,
+        handleExpression.handler(source, node.right),
+        `ROBLOX CHECK: loose equality used upstream`
+      );
+    case '!=':
+      return binaryExpression(
+        handleExpression.handler(source, node.left as Expression),
+        '~=',
+        handleExpression.handler(source, node.right),
+        `ROBLOX CHECK: loose inequality used upstream`
+      );
+    case '===':
+      return binaryExpression(
+        handleExpression.handler(source, node.left as Expression),
+        '==',
+        handleExpression.handler(source, node.right)
+      );
+    case '!==':
+      return binaryExpression(
+        handleExpression.handler(source, node.left as Expression),
+        '~=',
+        handleExpression.handler(source, node.right)
+      );
+    case '+':
+      return handleBinaryAddOperator(source, { ...node, operator: '+' });
 
-      default:
-        return unhandledNode(node.start, node.end);
-    }
-  },
-};
+    default:
+      return unhandledNode(source.slice(node.start, node.end));
+  }
+});
 
 export const handleFunctionExpression: BaseNodeHandler<
   FunctionExpression,
   LuaFunctionExpression
-> = {
-  type: 'FunctionExpression',
-  handler: (node) => {
-    return functionExpression(
-      node.params.map(functionParamsHandler),
-      node.params.filter((param) => param.type === 'AssignmentPattern'),
-      node.body.body.map(handleStatement.handler),
-      node.returnType ? typesHandler(node.returnType) : null
-    );
-  },
-};
+> = createHandler('FunctionExpression', (source, node) =>
+  functionExpression(
+    node.params.map(functionParamsHandler(source)),
+    node.params.filter((param) => param.type === 'AssignmentPattern'),
+    node.body.body.map(handleStatement.handler(source)),
+    node.returnType ? typesHandler(source, node.returnType) : null
+  )
+);
 
 export const handleArrowFunctionExpression: BaseNodeHandler<
   ArrowFunctionExpression,
   LuaFunctionExpression
-> = {
-  type: 'ArrowFunctionExpression',
-  handler: (node) => {
-    const body: LuaNode[] =
-      node.body.type === 'BlockStatement'
-        ? node.body.body.map(handleStatement.handler)
-        : [returnStatement(handleExpression.handler(node.body))];
+> = createHandler('ArrowFunctionExpression', (source, node) => {
+  const body: LuaNode[] =
+    node.body.type === 'BlockStatement'
+      ? node.body.body.map(handleStatement.handler(source))
+      : [returnStatement(handleExpression.handler(source, node.body))];
 
-    return functionExpression(
-      node.params.map(functionParamsHandler),
-      node.params.filter((param) => param.type === 'AssignmentPattern'),
-      body,
-      node.returnType ? typesHandler(node.returnType) : null
-    );
-  },
-};
+  return functionExpression(
+    node.params.map(functionParamsHandler(source)),
+    node.params.filter((param) => param.type === 'AssignmentPattern'),
+    body,
+    node.returnType ? typesHandler(source, node.returnType) : null
+  );
+});
 
 export const handleUpdateExpression: BaseNodeHandler<
   UpdateExpression,
   LuaCallExpression
-> = {
-  type: 'UpdateExpression',
-  handler: (node) => {
-    const resultName = generateUniqueIdentifier([node.argument], 'result');
-    return callExpression(
-      node.prefix
-        ? functionExpression(
-            [],
-            [],
-            [
-              // TODO: must ve replaced by assignementstatement or similar when available
-              handleExpression.handler(handlePrefixOperator(node)),
-              returnStatement(handleExpression.handler(node.argument)),
-            ]
-          )
-        : functionExpression(
-            [],
-            [],
-            [
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier(resultName))],
-                [
-                  variableDeclaratorValue(
-                    handleExpression.handler(node.argument)
-                  ),
-                ]
-              ),
-              // TODO: must ve replaced by assignementstatement or similar when available
-              handleExpression.handler(handleSuffixOperator(node)),
-              returnStatement(identifier(resultName)),
-            ]
-          ),
-      []
-    );
-  },
-};
+> = createHandler('UpdateExpression', (source, node) => {
+  const resultName = generateUniqueIdentifier([node.argument], 'result');
+  return callExpression(
+    node.prefix
+      ? functionExpression(
+          [],
+          [],
+          [
+            // TODO: must ve replaced by assignementstatement or similar when available
+            handleExpression.handler(source, handlePrefixOperator(node)),
+            returnStatement(handleExpression.handler(source, node.argument)),
+          ]
+        )
+      : functionExpression(
+          [],
+          [],
+          [
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier(resultName))],
+              [
+                variableDeclaratorValue(
+                  handleExpression.handler(source, node.argument)
+                ),
+              ]
+            ),
+            // TODO: must ve replaced by assignementstatement or similar when available
+            handleExpression.handler(source, handleSuffixOperator(node)),
+            returnStatement(identifier(resultName)),
+          ]
+        ),
+    []
+  );
+});
 
-export const handleExpression = combineHandlers<
-  BaseNodeHandler<Expression, LuaExpression>
->([
+export const handleExpression: BaseNodeHandler<
+  Expression,
+  LuaExpression
+> = combineHandlers<BaseNodeHandler<Expression, LuaExpression>>([
   handleNumericLiteral,
   handleStringLiteral,
   handleMultilineStringLiteral,
@@ -411,102 +400,88 @@ export const handleExpression = combineHandlers<
 export const handleObjectValueFunctionExpression: BaseNodeHandler<
   FunctionExpression,
   LuaFunctionExpression
-> = {
-  type: 'FunctionExpression',
-  handler: (node) => {
-    const params = [
-      identifier('self'),
-      ...node.params.map(functionParamsHandler),
-    ];
+> = createHandler('FunctionExpression', (source, node) => {
+  const handleParam = functionParamsHandler(source);
+  const params = [identifier('self'), ...node.params.map(handleParam)];
 
-    return functionExpression(
-      params,
-      node.params.filter((param) => param.type === 'AssignmentPattern'),
-      node.body.body.map(handleStatement.handler),
-      node.returnType ? typesHandler(node.returnType) : null
-    );
-  },
-};
+  return functionExpression(
+    params,
+    node.params.filter((param) => param.type === 'AssignmentPattern'),
+    node.body.body.map(handleStatement.handler(source)),
+    node.returnType ? typesHandler(source, node.returnType) : null
+  );
+});
 
 const handleObjectPropertyValue: BaseNodeHandler<
   Expression | PatternLike,
   LuaExpression
 > = combineHandlers([handleObjectValueFunctionExpression, handleExpression]);
 
-const handleObjectKeyExpression: BaseNodeHandler<
+const handleObjectKeyExpression: HandlerFunction<
   Expression,
   LuaExpression
->['handler'] = (key) =>
+> = createHandlerFunction((source, key: Expression) =>
   key.type === 'StringLiteral'
-    ? handleExpression.handler(key)
-    : {
-        type: 'CallExpression',
-        callee: {
+    ? handleExpression.handler(source, key)
+    : callExpression(
+        {
           type: 'Identifier',
           name: 'tostring',
         },
-        arguments: [handleExpression.handler(key)],
-      };
+        [handleExpression.handler(source, key)]
+      )
+);
 
 export const handleObjectProperty: BaseNodeHandler<
   ObjectProperty,
   LuaTableKeyField
-> = {
-  type: 'ObjectProperty',
-  handler: ({ key, value }) => {
-    switch (key.type) {
-      case 'Identifier':
-        return {
-          type: 'TableNameKeyField',
-          key: handleIdentifier.handler(key) as LuaIdentifier,
-          value: handleObjectPropertyValue.handler(value),
-        };
-      default:
-        return {
-          type: 'TableExpressionKeyField',
-          key: handleObjectKeyExpression(key),
-          value: handleObjectPropertyValue.handler(value),
-        };
-    }
-  },
-};
+> = createHandler('ObjectProperty', (source, { key, value }) => {
+  switch (key.type) {
+    case 'Identifier':
+      return tableNameKeyField(
+        handleIdentifier.handler(source, key) as LuaIdentifier,
+        handleObjectPropertyValue.handler(source, value)
+      );
+    default:
+      return tableExpressionKeyField(
+        handleObjectKeyExpression(source, key),
+        handleObjectPropertyValue.handler(source, value)
+      );
+  }
+});
 
 export const handleObjectMethod: BaseNodeHandler<
   ObjectMethod,
   LuaTableKeyField
-> = {
-  type: 'ObjectMethod',
-  handler: (node): LuaTableKeyField => {
-    const params = [
-      identifier('self'),
-      ...node.params.map(functionParamsHandler),
-    ];
+> = createHandler(
+  'ObjectMethod',
+  (source, node): LuaTableKeyField => {
+    const handleParam = functionParamsHandler(source);
+    const params = [identifier('self'), ...node.params.map(handleParam)];
     switch (node.key.type) {
       case 'Identifier':
-        return {
-          type: 'TableNameKeyField',
-          key: handleIdentifier.handler(node.key) as LuaIdentifier,
-          value: functionExpression(
+        return tableNameKeyField(
+          handleIdentifier.handler(source, node.key) as LuaIdentifier,
+          functionExpression(
             params,
             node.params.filter((param) => param.type === 'AssignmentPattern'),
-            node.body.body.map(handleStatement.handler),
-            node.returnType ? typesHandler(node.returnType) : null
-          ),
-        };
+            node.body.body.map(handleStatement.handler(source)),
+            node.returnType ? typesHandler(source, node.returnType) : null
+          )
+        );
       default:
-        return {
-          type: 'TableExpressionKeyField',
-          key: handleObjectKeyExpression(node.key),
-          value: functionExpression(
+        return tableExpressionKeyField(
+          handleObjectKeyExpression(source, node.key),
+          functionExpression(
             params,
             node.params.filter((param) => param.type === 'AssignmentPattern'),
-            node.body.body.map(handleStatement.handler),
-            node.returnType ? typesHandler(node.returnType) : null
-          ),
-        };
+            node.body.body.map(handleStatement.handler(source)),
+            node.returnType ? typesHandler(source, node.returnType) : null
+          )
+        );
     }
-  },
-};
+  }
+);
 
 export const handleObjectField = combineHandlers<
   BaseNodeHandler<NoSpreadObjectProperty, LuaTableField>
@@ -519,123 +494,115 @@ const handleCalleeExpression = combineHandlers<
 const handleVariableDeclarator: BaseNodeHandler<
   VariableDeclarator,
   LuaVariableDeclarator
-> = {
-  type: 'VariableDeclarator',
-  handler: (node: VariableDeclarator) => {
-    return {
-      type: 'VariableDeclarator',
-      id: lValHandler(node.id),
-      init: node.init ? handleExpression.handler(node.init) : null,
-    };
-  },
-};
+> = createHandler('VariableDeclarator', (source, node: VariableDeclarator) => {
+  return {
+    type: 'VariableDeclarator',
+    id: lValHandler(source, node.id),
+    init: node.init ? handleExpression.handler(source, node.init) : null,
+  };
+});
 
 export const handleVariableDeclaration: BaseNodeHandler<
   VariableDeclaration,
   LuaNodeGroup | LuaVariableDeclaration
-> = {
-  type: 'VariableDeclaration',
-  handler: (declaration) => {
-    const isFunctionDeclaration = (declaration: VariableDeclarator) =>
-      declaration.init &&
-      ['FunctionExpression', 'ArrowFunctionExpression'].includes(
-        declaration.init.type
-      );
+> = createHandler('VariableDeclaration', (source, declaration) => {
+  const handleDeclaration = handleVariableDeclarator.handler(source);
+  const isFunctionDeclaration = (declaration: VariableDeclarator) =>
+    declaration.init &&
+    ['FunctionExpression', 'ArrowFunctionExpression'].includes(
+      declaration.init.type
+    );
 
-    const isNotFunctionDeclaration = (declaration: VariableDeclarator) =>
-      !isFunctionDeclaration(declaration);
+  const isNotFunctionDeclaration = (declaration: VariableDeclarator) =>
+    !isFunctionDeclaration(declaration);
 
-    const varDeclaration: LuaVariableDeclaration = {
-      type: 'VariableDeclaration',
-      ...declaration.declarations
-        .filter(isNotFunctionDeclaration)
-        .map(handleVariableDeclarator.handler)
-        .reduceRight(
-          (obj, declarator) => {
-            obj.identifiers.unshift({
-              type: 'VariableDeclaratorIdentifier',
-              value: declarator.id,
-            });
-            if (declarator.init !== null || obj.values.length > 0) {
-              obj.values.unshift({
-                type: 'VariableDeclaratorValue',
-                value: declarator.init,
-              });
-            }
-            return obj;
-          },
-          { identifiers: [], values: [] }
-        ),
-    };
+  const varDeclaration: LuaVariableDeclaration = {
+    type: 'VariableDeclaration',
+    ...declaration.declarations
+      .filter(isNotFunctionDeclaration)
+      .map(handleDeclaration)
+      .reduceRight(
+        (obj, declarator) => {
+          obj.identifiers.unshift(variableDeclaratorIdentifier(declarator.id));
+          if (declarator.init !== null || obj.values.length > 0) {
+            obj.values.unshift(variableDeclaratorValue(declarator.init));
+          }
+          return obj;
+        },
+        { identifiers: [], values: [] }
+      ),
+  };
 
-    const functionDeclarations = declaration.declarations
-      .filter(isFunctionDeclaration)
-      .map(convertVariableFunctionToFunctionDeclaration);
+  const toFunctionDeclaration = convertVariableFunctionToFunctionDeclaration(
+    source
+  );
+  const functionDeclarations = declaration.declarations
+    .filter(isFunctionDeclaration)
+    .map(toFunctionDeclaration);
 
-    if (functionDeclarations.length === 0) {
-      return varDeclaration;
-    }
+  if (functionDeclarations.length === 0) {
+    return varDeclaration;
+  }
 
-    if (varDeclaration.identifiers.length) {
-      return {
-        type: 'NodeGroup',
-        body: [varDeclaration, ...functionDeclarations],
-      };
-    }
-
+  if (varDeclaration.identifiers.length) {
     return {
       type: 'NodeGroup',
-      body: functionDeclarations,
+      body: [varDeclaration, ...functionDeclarations],
     };
-  },
-};
+  }
+
+  return {
+    type: 'NodeGroup',
+    body: functionDeclarations,
+  };
+});
 
 const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
   VariableDeclarator,
   LuaFunctionDeclaration | UnhandledNode
-> = (node) => {
+> = createHandlerFunction((source, node: VariableDeclarator) => {
   switch (node.init.type) {
     case 'ArrowFunctionExpression':
     case 'FunctionExpression':
       return convertToFunctionDeclaration(
+        source,
         node.init,
-        lValHandler(node.id) as LuaIdentifier
+        lValHandler(source, node.id) as LuaIdentifier
       );
     default:
-      return unhandledNode(node.start, node.end);
+      return unhandledNode(source.slice(node.start, node.end));
   }
-};
+});
 
 const convertToFunctionDeclaration = (
+  source: string,
   node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
   identifier: LuaIdentifier
 ): LuaFunctionDeclaration => {
   const body: LuaNode[] =
     node.body.type === 'BlockStatement'
-      ? node.body.body.map(handleStatement.handler)
-      : [returnStatement(handleExpression.handler(node.body))];
+      ? node.body.body.map(handleStatement.handler(source))
+      : [returnStatement(handleExpression.handler(source, node.body))];
 
   return functionDeclaration(
     identifier,
-    node.params.map(functionParamsHandler),
+    node.params.map(functionParamsHandler(source)),
     node.params.filter((param) => param.type === 'AssignmentPattern'),
     body,
-    node.returnType ? typesHandler(node.returnType) : null
+    node.returnType ? typesHandler(source, node.returnType) : null
   );
 };
 
 export const handleFunctionDeclaration: BaseNodeHandler<
   FunctionDeclaration,
   LuaFunctionDeclaration
-> = {
-  type: 'FunctionDeclaration',
-  handler: (node) => {
-    return convertToFunctionDeclaration(
-      node,
-      handleIdentifier.handler(node.id) as LuaIdentifier
-    );
-  },
-};
+> = createHandler('FunctionDeclaration', (source, node) => {
+  return convertToFunctionDeclaration(
+    source,
+    node,
+    handleIdentifier.handler(source, node.id) as LuaIdentifier
+  );
+});
 
 export const handleDeclaration = combineHandlers<
   BaseNodeHandler<Declaration, LuaDeclaration | LuaNodeGroup>
@@ -678,16 +645,17 @@ function generateUniqueIdentifier(
     : defaultValue;
 }
 
-function handleOperandAsString(
-  node: Expression
-): LuaCallExpression | LuaStringLiteral {
+const handleOperandAsString: HandlerFunction<
+  Expression,
+  LuaCallExpression | LuaStringLiteral
+> = createHandlerFunction((source, node: Expression) => {
   if (node.type === 'StringLiteral') {
-    return node;
+    return handleExpression.handler(source, node);
   }
   return callExpression(identifier('tostring'), [
-    handleExpression.handler(node),
+    handleExpression.handler(source, node),
   ]);
-}
+});
 
 function matchesMemberExpressionProperty(
   identifierName: string,
@@ -709,16 +677,5 @@ function matchesMemberExpressionObject(
 ): boolean {
   return (
     node.object.type === 'Identifier' && node.object.name === identifierName
-  );
-}
-
-function matchesMemberExpression(
-  objectIdentifierName: string,
-  propertyIdentifierName: string,
-  node: MemberExpression
-) {
-  return (
-    matchesMemberExpressionObject(objectIdentifierName, node) &&
-    matchesMemberExpressionProperty(propertyIdentifierName, node)
   );
 }

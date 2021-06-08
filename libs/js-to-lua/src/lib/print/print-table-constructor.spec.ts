@@ -9,7 +9,7 @@ describe('Print Table Constructor', () => {
     };
     const expected = '{}';
 
-    expect(printTableConstructor(given, '')).toEqual(expected);
+    expect(printTableConstructor(given)).toEqual(expected);
   });
 
   it(`should print Lua Table Constructor Node with TableNoKeyField elements`, () => {
@@ -48,7 +48,7 @@ describe('Print Table Constructor', () => {
     };
     const expected = '{true, 1, "abc", foo}';
 
-    expect(printTableConstructor(given, '')).toEqual(expected);
+    expect(printTableConstructor(given)).toEqual(expected);
   });
 
   it(`should print Lua Table Constructor Node with TableNameKeyField elements`, () => {
@@ -92,7 +92,7 @@ describe('Print Table Constructor', () => {
     };
     const expected = '{foo = true, bar = 1, baz = "abc"}';
 
-    expect(printTableConstructor(given, '')).toEqual(expected);
+    expect(printTableConstructor(given)).toEqual(expected);
   });
 
   it(`should print Lua Table Constructor Node with TableExpressionKeyField elements`, () => {
@@ -136,7 +136,7 @@ describe('Print Table Constructor', () => {
     };
     const expected = '{["foo"] = true, ["bar"] = 1, ["baz"] = "abc"}';
 
-    expect(printTableConstructor(given, '')).toEqual(expected);
+    expect(printTableConstructor(given)).toEqual(expected);
   });
 
   it(`should print Lua Table Constructor Node with Function expression`, () => {
@@ -199,7 +199,7 @@ describe('Print Table Constructor', () => {
     const expected =
       '{sound = "bla", method1 = function(self) end, method2 = function(self, name) end}';
 
-    expect(printTableConstructor(given, '')).toEqual(expected);
+    expect(printTableConstructor(given)).toEqual(expected);
   });
 
   it(`should print Lua Table Constructor of Lua Table Constructors`, () => {
@@ -280,7 +280,7 @@ describe('Print Table Constructor', () => {
     const expected =
       '{foo0 = {foo1 = true}, bar0 = {bar1 = 1}, baz0 = {baz1 = "abc"}}';
 
-    expect(printTableConstructor(given, '')).toEqual(expected);
+    expect(printTableConstructor(given)).toEqual(expected);
   });
 
   it(`should print deeply nested Lua Table Constructor`, () => {
@@ -326,6 +326,6 @@ describe('Print Table Constructor', () => {
     };
     const expected = '{foo = {bar = {baz = {}}}}';
 
-    expect(printTableConstructor(given, '')).toEqual(expected);
+    expect(printTableConstructor(given)).toEqual(expected);
   });
 });

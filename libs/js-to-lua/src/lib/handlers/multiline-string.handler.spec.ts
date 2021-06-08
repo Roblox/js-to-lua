@@ -11,6 +11,8 @@ const DEFAULT_NODE = {
   loc: null,
 };
 
+const source = '';
+
 interface TestCase {
   itLabel: string;
   given: TemplateLiteral;
@@ -66,7 +68,9 @@ describe('Multiline String Handler', () => {
 
   testCases.forEach(({ itLabel, given, expected }) => {
     it(itLabel, () => {
-      expect(handleMultilineStringLiteral.handler(given)).toEqual(expected);
+      expect(handleMultilineStringLiteral.handler(source, given)).toEqual(
+        expected
+      );
     });
   });
 });

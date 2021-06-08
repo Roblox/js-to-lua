@@ -1,16 +1,10 @@
-import { BaseNodeHandler } from '../../types';
+import { BaseNodeHandler, createHandler } from '../../types';
 import { BooleanLiteral } from '@babel/types';
-import { LuaBooleanLiteral } from '@js-to-lua/lua-types';
+import { booleanLiteral, LuaBooleanLiteral } from '@js-to-lua/lua-types';
 
 export const handleBooleanLiteral: BaseNodeHandler<
   BooleanLiteral,
   LuaBooleanLiteral
-> = {
-  type: 'BooleanLiteral',
-  handler: (literal) => {
-    return {
-      type: 'BooleanLiteral',
-      value: literal.value,
-    };
-  },
-};
+> = createHandler('BooleanLiteral', (source, literal) =>
+  booleanLiteral(literal.value)
+);

@@ -12,6 +12,8 @@ import {
 import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
 
+const source = '';
+
 describe('Call Expression Handler', () => {
   it(`should handle computed member expressions`, () => {
     const given: Program = getProgramNode(`
@@ -44,7 +46,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 
   it(`should handle not computed member expressions`, () => {
@@ -79,7 +81,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(given)).toEqual(expected);
+    expect(handleProgram.handler(source, given)).toEqual(expected);
   });
 
   describe('Special cases', () => {
@@ -113,7 +115,7 @@ describe('Call Expression Handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
 
     it(`should handle React object`, () => {
@@ -158,7 +160,7 @@ describe('Call Expression Handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(given)).toEqual(expected);
+      expect(handleProgram.handler(source, given)).toEqual(expected);
     });
   });
 });
