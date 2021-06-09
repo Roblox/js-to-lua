@@ -1,4 +1,5 @@
 import {
+  bit32Identifier,
   booleanLiteral,
   booleanMethod,
   callExpression,
@@ -6,11 +7,13 @@ import {
   identifier,
   LuaProgram,
   memberExpression,
+  numericLiteral,
   program,
   unaryDeleteExpression,
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
+  withConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
@@ -103,6 +106,26 @@ describe('Unary Expression Handler', () => {
       expressionStatement(
         unaryDeleteExpression(
           memberExpression(identifier('foo'), '.', identifier('bar'))
+        )
+      ),
+    ]);
+
+    expect(handleProgram.handler(source, given)).toEqual(expected);
+  });
+
+  it(`should handle ~ operator`, () => {
+    const given = getProgramNode(`
+    ~5
+  `);
+
+    const expected: LuaProgram = program([
+      expressionStatement(
+        withConversionComment(
+          callExpression(
+            memberExpression(bit32Identifier(), '.', identifier('bnot')),
+            [numericLiteral(5, '5')]
+          ),
+          'ROBLOX CHECK: `bit32.bnot` clamps arguments and result to [0,2^32 - 1]'
         )
       ),
     ]);

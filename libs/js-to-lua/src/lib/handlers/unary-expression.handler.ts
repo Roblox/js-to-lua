@@ -4,6 +4,7 @@ import {
   booleanMethod,
   callExpression,
   identifier,
+  memberExpression,
   LuaCallExpression,
   LuaExpression,
   LuaMultilineStringLiteral,
@@ -20,6 +21,8 @@ import {
   unaryVoidExpression,
   UnhandledNode,
   unhandledNode,
+  bit32Identifier,
+  withConversionComment,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
 
@@ -55,6 +58,14 @@ export const createUnaryExpressionHandler = (
         return handleUnaryNegationExpression(source, node);
       case 'delete':
         return unaryDeleteExpression(handleExpression(source, node.argument));
+      case '~':
+        return withConversionComment(
+          callExpression(
+            memberExpression(bit32Identifier(), '.', identifier('bnot')),
+            [handleExpression(source, node.argument)]
+          ),
+          'ROBLOX CHECK: `bit32.bnot` clamps arguments and result to [0,2^32 - 1]'
+        );
       default:
         return unhandledNode(source.slice(node.start, node.end));
     }

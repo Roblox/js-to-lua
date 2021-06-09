@@ -1,5 +1,6 @@
 import { UnaryExpression } from '@babel/types';
 import {
+  bit32Identifier,
   booleanLiteral,
   booleanMethod,
   callExpression,
@@ -9,10 +10,13 @@ import {
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
+  memberExpression,
+  numericLiteral,
   unaryDeleteExpression,
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
+  withConversionComment,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
@@ -196,6 +200,38 @@ describe('Unary Expression Handler', () => {
 
     const expected: LuaUnaryDeleteExpression = unaryDeleteExpression(
       identifier('foo')
+    );
+
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+  });
+
+  it(`should handle ~ operator`, () => {
+    const given: UnaryExpression = {
+      ...DEFAULT_NODE,
+      type: 'UnaryExpression',
+      operator: '~',
+      prefix: true,
+      argument: {
+        ...DEFAULT_NODE,
+        type: 'NumericLiteral',
+        extra: {
+          rawValue: 5,
+          raw: '5',
+        },
+        value: 5,
+      },
+    };
+
+    const handleUnaryExpression = createUnaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaCallExpression = withConversionComment(
+      callExpression(
+        memberExpression(bit32Identifier(), '.', identifier('bnot')),
+        [numericLiteral(5, '5')]
+      ),
+      'ROBLOX CHECK: `bit32.bnot` clamps arguments and result to [0,2^32 - 1]'
     );
 
     expect(handleUnaryExpression.handler(source, given)).toEqual(expected);

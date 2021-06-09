@@ -30,6 +30,7 @@ import {
   UnhandledNode,
   LuaFunctionDeclaration,
   LuaNodeGroup,
+  BaseLuaNode,
 } from './lua-nodes.types';
 
 export const program = (body: LuaNode[] = []): LuaProgram => ({
@@ -287,9 +288,19 @@ export const unhandledNode = (conversionComment?: string): UnhandledNode => ({
   ...(conversionComment ? { conversionComment } : {}),
 });
 
+export const withConversionComment = <N extends BaseLuaNode>(
+  node: N,
+  conversionComment: string
+): N => ({
+  ...node,
+  conversionComment,
+});
+
 export const booleanIdentifier = (): LuaIdentifier => identifier('Boolean');
 export const booleanMethod = (methodName: string): LuaMemberExpression =>
   memberExpression(booleanIdentifier(), '.', identifier(methodName));
+
+export const bit32Identifier = (): LuaIdentifier => identifier('bit32');
 
 export const arrayConcat = (): LuaMemberExpression =>
   memberExpression(identifier('Array'), '.', identifier('concat'));

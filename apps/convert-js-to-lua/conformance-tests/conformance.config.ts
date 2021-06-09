@@ -112,7 +112,7 @@ export default {
 
     'conformance-tests/operators/relational/inequality/8_m3.js',
     'conformance-tests/operators/relational/inequality/9_m3.js',
-    
+
     'conformance-tests/operators/relational/in/object-prop_m3.js',
     'conformance-tests/operators/relational/in/object_m3.js',
 
