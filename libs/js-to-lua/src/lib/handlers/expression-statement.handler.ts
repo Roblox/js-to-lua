@@ -5,7 +5,6 @@ import {
   HandlerFunction,
 } from '../types';
 import {
-  BinaryExpression,
   CallExpression,
   Expression,
   ExpressionStatement,
@@ -58,7 +57,6 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
   binaryExpression,
-  LuaStringLiteral,
   memberExpression,
   LuaMemberExpression,
   objectAssign,
@@ -84,6 +82,7 @@ import { createArrayExpressionHandler } from './array-expression.handler';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { createMemberExpressionHandler } from './member-expression.handler';
 import { createUnaryExpressionHandler } from './unary-expression.handler';
+import { createBinaryExpressionHandler } from './binary-expression.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -235,81 +234,6 @@ export const handleIdentifier: BaseNodeHandler<
   }
 });
 
-const handleBinaryAddOperator = createHandlerFunction(
-  (source: string, node: BinaryExpression & { operator: '+' }) => {
-    if (
-      node.left.type === 'StringLiteral' ||
-      node.right.type === 'StringLiteral'
-    ) {
-      return binaryExpression(
-        handleOperandAsString(source, node.left as Expression),
-        '..',
-        handleOperandAsString(source, node.right)
-      );
-    } else {
-      return binaryExpression(
-        handleExpression.handler(source, node.left as Expression),
-        node.operator,
-        handleExpression.handler(source, node.right)
-      );
-    }
-  }
-);
-
-export const handleBinaryExpression: BaseNodeHandler<
-  BinaryExpression,
-  LuaBinaryExpression | UnhandledNode
-> = createHandler('BinaryExpression', (source, node) => {
-  switch (node.operator) {
-    case '-':
-    case '/':
-    case '*':
-    case '%':
-      return binaryExpression(
-        handleExpression.handler(source, node.left as Expression),
-        node.operator,
-        handleExpression.handler(source, node.right)
-      );
-    case '**':
-      return binaryExpression(
-        handleExpression.handler(source, node.left as Expression),
-        '^',
-        handleExpression.handler(source, node.right)
-      );
-    case '==':
-      return binaryExpression(
-        handleExpression.handler(source, node.left as Expression),
-        node.operator,
-        handleExpression.handler(source, node.right),
-        `ROBLOX CHECK: loose equality used upstream`
-      );
-    case '!=':
-      return binaryExpression(
-        handleExpression.handler(source, node.left as Expression),
-        '~=',
-        handleExpression.handler(source, node.right),
-        `ROBLOX CHECK: loose inequality used upstream`
-      );
-    case '===':
-      return binaryExpression(
-        handleExpression.handler(source, node.left as Expression),
-        '==',
-        handleExpression.handler(source, node.right)
-      );
-    case '!==':
-      return binaryExpression(
-        handleExpression.handler(source, node.left as Expression),
-        '~=',
-        handleExpression.handler(source, node.right)
-      );
-    case '+':
-      return handleBinaryAddOperator(source, { ...node, operator: '+' });
-
-    default:
-      return unhandledNode(source.slice(node.start, node.end));
-  }
-});
-
 export const handleFunctionExpression: BaseNodeHandler<
   FunctionExpression,
   LuaFunctionExpression
@@ -390,7 +314,7 @@ export const handleExpression: BaseNodeHandler<
   handleIdentifier,
   createUnaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
   handleNullLiteral,
-  handleBinaryExpression,
+  createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
   handleFunctionExpression,
   handleArrowFunctionExpression,
   handleUpdateExpression,
@@ -644,18 +568,6 @@ function generateUniqueIdentifier(
     ? generateUniqueIdentifier(nodes, `${defaultValue}_`)
     : defaultValue;
 }
-
-const handleOperandAsString: HandlerFunction<
-  Expression,
-  LuaCallExpression | LuaStringLiteral
-> = createHandlerFunction((source, node: Expression) => {
-  if (node.type === 'StringLiteral') {
-    return handleExpression.handler(source, node);
-  }
-  return callExpression(identifier('tostring'), [
-    handleExpression.handler(source, node),
-  ]);
-});
 
 function matchesMemberExpressionProperty(
   identifierName: string,

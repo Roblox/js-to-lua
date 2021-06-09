@@ -9,6 +9,8 @@ import {
   callExpression,
   numericLiteral,
   booleanLiteral,
+  arrayIndexOf,
+  objectKeys,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
@@ -227,6 +229,50 @@ describe('Program handler', () => {
       const expected: LuaProgram = program([
         expressionStatement(
           binaryExpression(identifier('foo'), '~=', identifier('bar'))
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle in operator (string literal in left side)', () => {
+      const given = getProgramNode(`
+     'foo' in bar
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(
+            callExpression(arrayIndexOf(), [
+              callExpression(objectKeys(), [identifier('bar')]),
+              stringLiteral('foo'),
+            ]),
+            '~=',
+            numericLiteral(-1)
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle in operator (non string literal in left side)', () => {
+      const given = getProgramNode(`
+     foo in bar
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(
+            callExpression(arrayIndexOf(), [
+              callExpression(objectKeys(), [identifier('bar')]),
+              callExpression(identifier('tostring'), [identifier('foo')]),
+            ]),
+            '~=',
+            numericLiteral(-1)
+          )
         ),
       ]);
 

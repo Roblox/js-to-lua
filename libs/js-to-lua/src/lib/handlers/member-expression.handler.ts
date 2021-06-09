@@ -19,13 +19,11 @@ import {
   unhandledNode,
   UnhandledNode,
 } from '@js-to-lua/lua-types';
-import {
-  handleBinaryExpression,
-  handleIdentifier,
-} from './expression-statement.handler';
+import { handleIdentifier } from './expression-statement.handler';
 import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
+import { createBinaryExpressionHandler } from './binary-expression.handler';
 
 export const createMemberExpressionHandler = (
   handleExpression: HandlerFunction<Expression, LuaExpression>
@@ -33,6 +31,9 @@ export const createMemberExpressionHandler = (
   MemberExpression,
   LuaIndexExpression | LuaMemberExpression
 > => {
+  const handleBinaryExpression = createBinaryExpressionHandler(
+    handleExpression
+  );
   const handleIndex = createHandlerFunction(
     (
       source,

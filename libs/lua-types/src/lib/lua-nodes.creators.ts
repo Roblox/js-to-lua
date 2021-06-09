@@ -306,5 +306,10 @@ export const arrayConcat = (): LuaMemberExpression =>
   memberExpression(identifier('Array'), '.', identifier('concat'));
 export const arraySpread = (): LuaMemberExpression =>
   memberExpression(identifier('Array'), '.', identifier('spread'));
+export const arrayIndexOf = (): LuaMemberExpression =>
+  memberExpression(identifier('Array'), '.', identifier('indexOf'));
+
 export const objectAssign = (): LuaMemberExpression =>
   memberExpression(identifier('Object'), '.', identifier('assign'));
+export const objectKeys = (): LuaMemberExpression =>
+  memberExpression(identifier('Object'), '.', identifier('keys'));
