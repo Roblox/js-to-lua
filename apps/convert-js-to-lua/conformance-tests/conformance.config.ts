@@ -213,5 +213,13 @@ export default {
     // ---- Milestone 4 ----
     'conformance-tests/operators/relational/in/string-key_m4.js',
     'conformance-tests/operators/relational/in/string_m4.js',
+
+    'conformance-tests/operators/ternary/0_m4.js',
+    'conformance-tests/operators/ternary/1_m4.js',
+    'conformance-tests/operators/ternary/2_m4.js',
+    'conformance-tests/operators/ternary/3_m4.js',
+    'conformance-tests/operators/ternary/4_m4.js',
+    'conformance-tests/operators/ternary/5_m4.js',
+    'conformance-tests/operators/ternary/6_m4.js',
   ],
 };
