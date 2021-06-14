@@ -16,7 +16,6 @@ import {
   LuaNumericLiteral,
   LuaStringLiteral,
   memberExpression,
-  unhandledNode,
   UnhandledNode,
 } from '@js-to-lua/lua-types';
 import { handleIdentifier } from './expression-statement.handler';
@@ -24,6 +23,7 @@ import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
+import { defaultHandler } from '../utils/default.handler';
 
 export const createMemberExpressionHandler = (
   handleExpression: HandlerFunction<Expression, LuaExpression>
@@ -67,7 +67,7 @@ export const createMemberExpressionHandler = (
             handleBinaryExpression.handler(source, node),
           ]);
         default:
-          return unhandledNode(source.slice(node.start, node.end));
+          return defaultHandler(source, node);
       }
     }
   );

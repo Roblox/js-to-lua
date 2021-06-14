@@ -11,6 +11,7 @@ import {
   booleanLiteral,
   arrayIndexOf,
   objectKeys,
+  withConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
@@ -173,10 +174,8 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          binaryExpression(
-            identifier('foo'),
-            '==',
-            identifier('bar'),
+          withConversionComment(
+            binaryExpression(identifier('foo'), '==', identifier('bar')),
             `ROBLOX CHECK: loose equality used upstream`
           )
         ),
@@ -193,10 +192,8 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          binaryExpression(
-            identifier('foo'),
-            '~=',
-            identifier('bar'),
+          withConversionComment(
+            binaryExpression(identifier('foo'), '~=', identifier('bar')),
             `ROBLOX CHECK: loose inequality used upstream`
           )
         ),
@@ -287,10 +284,12 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          binaryExpression(
-            numericLiteral(3, '3'),
-            '<',
-            numericLiteral(4, '4'),
+          withConversionComment(
+            binaryExpression(
+              numericLiteral(3, '3'),
+              '<',
+              numericLiteral(4, '4')
+            ),
             `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
           )
         ),
@@ -307,10 +306,12 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          binaryExpression(
-            numericLiteral(3, '3'),
-            '>',
-            numericLiteral(4, '4'),
+          withConversionComment(
+            binaryExpression(
+              numericLiteral(3, '3'),
+              '>',
+              numericLiteral(4, '4')
+            ),
             `ROBLOX CHECK: operator '>' works only if either both arguments are strings or both are a number`
           )
         ),
@@ -327,10 +328,12 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          binaryExpression(
-            numericLiteral(3, '3'),
-            '<=',
-            numericLiteral(4, '4'),
+          withConversionComment(
+            binaryExpression(
+              numericLiteral(3, '3'),
+              '<=',
+              numericLiteral(4, '4')
+            ),
             `ROBLOX CHECK: operator '<=' works only if either both arguments are strings or both are a number`
           )
         ),
@@ -347,10 +350,12 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          binaryExpression(
-            numericLiteral(3, '3'),
-            '>=',
-            numericLiteral(4, '4'),
+          withConversionComment(
+            binaryExpression(
+              numericLiteral(3, '3'),
+              '>=',
+              numericLiteral(4, '4')
+            ),
             `ROBLOX CHECK: operator '>=' works only if either both arguments are strings or both are a number`
           )
         ),

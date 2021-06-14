@@ -34,7 +34,7 @@ export type LuaNode =
 
 export interface BaseLuaNode {
   type: string;
-  conversionComment?: string;
+  conversionComments?: string[];
 }
 
 export type LuaLiteral =

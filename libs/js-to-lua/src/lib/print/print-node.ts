@@ -117,8 +117,14 @@ const _printNode = (node: LuaNode): string => {
   }
 };
 
-const _printConversionComment = (node: BaseLuaNode): string => {
-  return node.conversionComment ? ` --[[ ${node.conversionComment} ]]` : '';
+const _printConversionComment = ({
+  conversionComments,
+}: BaseLuaNode): string => {
+  return conversionComments
+    ? conversionComments
+        .map((conversionComment) => ` --[[ ${conversionComment} ]]`)
+        .join('\n')
+    : '';
 };
 
 function printProgram(node: LuaProgram) {

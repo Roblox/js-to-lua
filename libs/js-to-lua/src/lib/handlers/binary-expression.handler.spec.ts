@@ -9,6 +9,7 @@ import {
   numericLiteral,
   arrayIndexOf,
   objectKeys,
+  withConversionComment,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
@@ -287,10 +288,8 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = binaryExpression(
-      identifier('foo'),
-      '==',
-      identifier('bar'),
+    const expected: LuaBinaryExpression = withConversionComment(
+      binaryExpression(identifier('foo'), '==', identifier('bar')),
       `ROBLOX CHECK: loose equality used upstream`
     );
 
@@ -318,10 +317,8 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = binaryExpression(
-      identifier('foo'),
-      '~=',
-      identifier('bar'),
+    const expected: LuaBinaryExpression = withConversionComment(
+      binaryExpression(identifier('foo'), '~=', identifier('bar')),
       `ROBLOX CHECK: loose inequality used upstream`
     );
 
@@ -484,10 +481,8 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = binaryExpression(
-      stringLiteral('3'),
-      '>',
-      numericLiteral(4, '4'),
+    const expected: LuaBinaryExpression = withConversionComment(
+      binaryExpression(stringLiteral('3'), '>', numericLiteral(4, '4')),
       `ROBLOX CHECK: operator '>' works only if either both arguments are strings or both are a number`
     );
 
@@ -521,10 +516,8 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = binaryExpression(
-      numericLiteral(3, '3'),
-      '<',
-      numericLiteral(4, '4'),
+    const expected: LuaBinaryExpression = withConversionComment(
+      binaryExpression(numericLiteral(3, '3'), '<', numericLiteral(4, '4')),
       `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
     );
 
@@ -558,10 +551,8 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = binaryExpression(
-      numericLiteral(3, '3'),
-      '>=',
-      numericLiteral(4, '4'),
+    const expected: LuaBinaryExpression = withConversionComment(
+      binaryExpression(numericLiteral(3, '3'), '>=', numericLiteral(4, '4')),
       `ROBLOX CHECK: operator '>=' works only if either both arguments are strings or both are a number`
     );
 
@@ -595,10 +586,8 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = binaryExpression(
-      numericLiteral(3, '3'),
-      '<=',
-      numericLiteral(4, '4'),
+    const expected: LuaBinaryExpression = withConversionComment(
+      binaryExpression(numericLiteral(3, '3'), '<=', numericLiteral(4, '4')),
       `ROBLOX CHECK: operator '<=' works only if either both arguments are strings or both are a number`
     );
 

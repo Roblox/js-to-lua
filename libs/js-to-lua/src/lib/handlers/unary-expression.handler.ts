@@ -20,11 +20,11 @@ import {
   unaryNegationExpression,
   unaryVoidExpression,
   UnhandledNode,
-  unhandledNode,
   bit32Identifier,
   withConversionComment,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
+import { defaultHandler } from '../utils/default.handler';
 
 export const createUnaryExpressionHandler = (
   handleExpression: HandlerFunction<Expression, LuaExpression>
@@ -67,7 +67,7 @@ export const createUnaryExpressionHandler = (
           'ROBLOX CHECK: `bit32.bnot` clamps arguments and result to [0,2^32 - 1]'
         );
       default:
-        return unhandledNode(source.slice(node.start, node.end));
+        return defaultHandler(source, node);
     }
 
     function handleUnaryNegationExpression(
@@ -101,8 +101,8 @@ export const createUnaryExpressionHandler = (
       }
 
       if (isLiteral(arg)) {
-        return booleanLiteral(
-          !!arg.value,
+        return withConversionComment(
+          booleanLiteral(!!arg.value),
           `ROBLOX DEVIATION: coerced from \`${source.slice(
             node.start,
             node.end
@@ -110,8 +110,8 @@ export const createUnaryExpressionHandler = (
         );
       }
       if (arg.type === 'NilLiteral') {
-        return booleanLiteral(
-          false,
+        return withConversionComment(
+          booleanLiteral(false),
           `ROBLOX DEVIATION: coerced from \`${source.slice(
             node.start,
             node.end

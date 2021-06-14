@@ -1,8 +1,4 @@
-import {
-  BaseNodeHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../types';
+import { createHandlerFunction, HandlerFunction } from '../types';
 
 export const defaultTypeHandler: HandlerFunction = createHandlerFunction(() => {
   return {

@@ -173,12 +173,10 @@ export const numericLiteral = (
 });
 
 export const booleanLiteral = (
-  value: LuaBooleanLiteral['value'],
-  conversionComment?: string
+  value: LuaBooleanLiteral['value']
 ): LuaBooleanLiteral => ({
   type: 'BooleanLiteral',
   value,
-  ...(conversionComment ? { conversionComment } : {}),
 });
 
 export const stringLiteral = (
@@ -223,12 +221,10 @@ export const unaryVoidExpression = (
 });
 
 export const unaryNegationExpression = (
-  argument: LuaUnaryNegationExpression['argument'],
-  conversionComment?: string
+  argument: LuaUnaryNegationExpression['argument']
 ): LuaUnaryNegationExpression => ({
   type: 'LuaUnaryNegationExpression',
   argument,
-  ...(conversionComment ? { conversionComment } : {}),
 });
 
 export const unaryDeleteExpression = (
@@ -257,44 +253,48 @@ export const indexExpression = (
   base,
   index,
   ...(index.type === 'NumericLiteral'
-    ? { conversionComment: 'ROBLOX adaptation: added 1 to array index' }
+    ? { conversionComments: ['ROBLOX adaptation: added 1 to array index'] }
     : {}),
 });
 
 export const binaryExpression = (
   left: LuaBinaryExpression['left'],
   operator: LuaBinaryExpression['operator'],
-  right: LuaBinaryExpression['right'],
-  conversionComment?: string
+  right: LuaBinaryExpression['right']
 ): LuaBinaryExpression => ({
   type: 'LuaBinaryExpression',
   left,
   operator,
   right,
-  ...(conversionComment ? { conversionComment } : {}),
 });
 
 export const typeAnnotation = (
-  typeAnnotation: LuaTypeAnnotation['typeAnnotation'],
-  conversionComment?: string
+  typeAnnotation: LuaTypeAnnotation['typeAnnotation']
 ): LuaTypeAnnotation => ({
   type: 'LuaTypeAnnotation',
   typeAnnotation,
-  ...(conversionComment ? { conversionComment } : {}),
 });
 
-export const unhandledNode = (conversionComment?: string): UnhandledNode => ({
+export const unhandledNode = (): UnhandledNode => ({
   type: 'UnhandledNode',
-  ...(conversionComment ? { conversionComment } : {}),
 });
 
 export const withConversionComment = <N extends BaseLuaNode>(
   node: N,
-  conversionComment: string
-): N => ({
-  ...node,
-  conversionComment,
-});
+  ...conversionComments: string[]
+): N => {
+  const _conversionComments = [].concat(
+    ...[node.conversionComments, conversionComments.filter(Boolean)].filter(
+      Boolean
+    )
+  );
+  return {
+    ...node,
+    ...(_conversionComments.length
+      ? { conversionComments: _conversionComments }
+      : {}),
+  };
+};
 
 export const booleanIdentifier = (): LuaIdentifier => identifier('Boolean');
 export const booleanMethod = (methodName: string): LuaMemberExpression =>

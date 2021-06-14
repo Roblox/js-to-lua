@@ -50,7 +50,6 @@ import {
   LuaNode,
   callExpression,
   identifier,
-  unhandledNode,
   returnStatement,
   functionExpression,
   variableDeclaration,
@@ -67,6 +66,8 @@ import {
   tableNameKeyField,
   tableExpressionKeyField,
   expressionStatement,
+  withConversionComment,
+  unhandledNode,
 } from '@js-to-lua/lua-types';
 
 import { handleMultilineStringLiteral } from './multiline-string.handler';
@@ -496,7 +497,11 @@ const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
         lValHandler(source, node.id) as LuaIdentifier
       );
     default:
-      return unhandledNode(source.slice(node.start, node.end));
+      return withConversionComment(
+        unhandledNode(),
+        `ROBLOX TODO: Unhandled node for type: ${node.init.type}, when within 'init' expression for ${node.type} node`,
+        source.slice(node.start, node.end)
+      );
   }
 });
 

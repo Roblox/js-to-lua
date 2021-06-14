@@ -1,4 +1,8 @@
-import { LuaProgram, unhandledNode } from '@js-to-lua/lua-types';
+import {
+  LuaProgram,
+  unhandledNode,
+  withConversionComment,
+} from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
@@ -21,7 +25,10 @@ describe('Program handler', () => {
         type: 'Program',
         body: [
           // we do not handle EmptyStatements yet
-          unhandledNode(),
+          withConversionComment(
+            unhandledNode(),
+            'ROBLOX TODO: Unhandled node for type: EmptyStatement'
+          ),
           {
             type: 'ExpressionStatement',
             expression: {

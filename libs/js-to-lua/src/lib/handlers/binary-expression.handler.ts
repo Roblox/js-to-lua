@@ -8,10 +8,10 @@ import {
   LuaExpression,
   LuaStringLiteral,
   UnhandledNode,
-  unhandledNode,
   numericLiteral,
   arrayIndexOf,
   objectKeys,
+  withConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   BaseNodeHandler,
@@ -19,6 +19,7 @@ import {
   createHandlerFunction,
   HandlerFunction,
 } from '../types';
+import { defaultHandler } from '../utils/default.handler';
 
 export const createBinaryExpressionHandler = (
   handleExpression: HandlerFunction<Expression, LuaExpression>
@@ -74,27 +75,33 @@ export const createBinaryExpressionHandler = (
           handleExpression(source, node.right)
         );
       case '==':
-        return binaryExpression(
-          handleExpression(source, node.left as Expression),
-          node.operator,
-          handleExpression(source, node.right),
+        return withConversionComment(
+          binaryExpression(
+            handleExpression(source, node.left as Expression),
+            node.operator,
+            handleExpression(source, node.right)
+          ),
           `ROBLOX CHECK: loose equality used upstream`
         );
       case '>':
       case '<':
       case '>=':
       case '<=':
-        return binaryExpression(
-          handleExpression(source, node.left as Expression),
-          node.operator,
-          handleExpression(source, node.right),
+        return withConversionComment(
+          binaryExpression(
+            handleExpression(source, node.left as Expression),
+            node.operator,
+            handleExpression(source, node.right)
+          ),
           `ROBLOX CHECK: operator '${node.operator}' works only if either both arguments are strings or both are a number`
         );
       case '!=':
-        return binaryExpression(
-          handleExpression(source, node.left as Expression),
-          '~=',
-          handleExpression(source, node.right),
+        return withConversionComment(
+          binaryExpression(
+            handleExpression(source, node.left as Expression),
+            '~=',
+            handleExpression(source, node.right)
+          ),
           `ROBLOX CHECK: loose inequality used upstream`
         );
       case '===':
@@ -124,6 +131,6 @@ export const createBinaryExpressionHandler = (
           numericLiteral(-1)
         );
       default:
-        return unhandledNode(source.slice(node.start, node.end));
+        return defaultHandler(source, node);
     }
   });
