@@ -459,4 +459,149 @@ describe('Binary Expression Handler', () => {
 
     expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
   });
+
+  it(`should handle greater than operator`, () => {
+    const given: BinaryExpression = {
+      ...DEFAULT_NODE,
+      type: 'BinaryExpression',
+      operator: '>',
+      left: {
+        ...DEFAULT_NODE,
+        type: 'StringLiteral',
+        value: '3',
+      },
+      right: {
+        ...DEFAULT_NODE,
+        type: 'NumericLiteral',
+        value: 4,
+        extra: {
+          raw: '4',
+        },
+      },
+    };
+
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      stringLiteral('3'),
+      '>',
+      numericLiteral(4, '4'),
+      `ROBLOX CHECK: operator '>' works only if either both arguments are strings or both are a number`
+    );
+
+    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+  });
+
+  it(`should handle less than operator`, () => {
+    const given: BinaryExpression = {
+      ...DEFAULT_NODE,
+      type: 'BinaryExpression',
+      operator: '<',
+      left: {
+        ...DEFAULT_NODE,
+        type: 'NumericLiteral',
+        value: 3,
+        extra: {
+          raw: '3',
+        },
+      },
+      right: {
+        ...DEFAULT_NODE,
+        type: 'NumericLiteral',
+        value: 4,
+        extra: {
+          raw: '4',
+        },
+      },
+    };
+
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      numericLiteral(3, '3'),
+      '<',
+      numericLiteral(4, '4'),
+      `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
+    );
+
+    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+  });
+
+  it(`should handle greater than or equals operator`, () => {
+    const given: BinaryExpression = {
+      ...DEFAULT_NODE,
+      type: 'BinaryExpression',
+      operator: '>=',
+      left: {
+        ...DEFAULT_NODE,
+        type: 'NumericLiteral',
+        value: 3,
+        extra: {
+          raw: '3',
+        },
+      },
+      right: {
+        ...DEFAULT_NODE,
+        type: 'NumericLiteral',
+        value: 4,
+        extra: {
+          raw: '4',
+        },
+      },
+    };
+
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      numericLiteral(3, '3'),
+      '>=',
+      numericLiteral(4, '4'),
+      `ROBLOX CHECK: operator '>=' works only if either both arguments are strings or both are a number`
+    );
+
+    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+  });
+
+  it(`should handle less than or equals operator`, () => {
+    const given: BinaryExpression = {
+      ...DEFAULT_NODE,
+      type: 'BinaryExpression',
+      operator: '<=',
+      left: {
+        ...DEFAULT_NODE,
+        type: 'NumericLiteral',
+        value: 3,
+        extra: {
+          raw: '3',
+        },
+      },
+      right: {
+        ...DEFAULT_NODE,
+        type: 'NumericLiteral',
+        value: 4,
+        extra: {
+          raw: '4',
+        },
+      },
+    };
+
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      numericLiteral(3, '3'),
+      '<=',
+      numericLiteral(4, '4'),
+      `ROBLOX CHECK: operator '<=' works only if either both arguments are strings or both are a number`
+    );
+
+    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+  });
 });

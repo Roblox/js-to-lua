@@ -265,6 +265,10 @@ export type LuaBinaryExpressionOperator =
   | '%'
   | '^'
   | '*'
+  | '>'
+  | '<'
+  | '>='
+  | '<='
   | '..'
   | '=='
   | '~=';

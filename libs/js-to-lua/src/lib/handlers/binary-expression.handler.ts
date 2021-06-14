@@ -80,6 +80,16 @@ export const createBinaryExpressionHandler = (
           handleExpression(source, node.right),
           `ROBLOX CHECK: loose equality used upstream`
         );
+      case '>':
+      case '<':
+      case '>=':
+      case '<=':
+        return binaryExpression(
+          handleExpression(source, node.left as Expression),
+          node.operator,
+          handleExpression(source, node.right),
+          `ROBLOX CHECK: operator '${node.operator}' works only if either both arguments are strings or both are a number`
+        );
       case '!=':
         return binaryExpression(
           handleExpression(source, node.left as Expression),
