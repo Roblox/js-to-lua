@@ -1,4 +1,4 @@
 local function Component(props)
-return React.createElement("Text", {text = tostring(props.id)})
+	return React.createElement("Text", { text = tostring(props.id) })
 end
-Component({id = "123"})
+Component({ id = "123" })

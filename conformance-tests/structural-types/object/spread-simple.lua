@@ -1,1 +1,1 @@
-local obj = Object.assign({}, {foo = "foo"}, {bar = "bar"})
+local obj = Object.assign({}, { foo = "foo" }, { bar = "bar" })

@@ -30,6 +30,9 @@
     },
     "lua-types": {
       "tags": []
+    },
+    "stylua-wasm": {
+      "tags": []
     }
   }
 }

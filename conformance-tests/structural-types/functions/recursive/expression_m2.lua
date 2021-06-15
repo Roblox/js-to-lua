@@ -1,3 +1,3 @@
 local function foo()
-foo()
+	foo()
 end

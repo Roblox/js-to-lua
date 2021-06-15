@@ -1,1 +1,2 @@
-(function() end)()
+(function()
+end)()

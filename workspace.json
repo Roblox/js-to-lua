@@ -169,6 +169,12 @@
           }
         }
       }
+    },
+    "stylua-wasm": {
+      "root": "libs/stylua-wasm",
+      "sourceRoot": "libs/stylua-wasm/src",
+      "projectType": "library",
+      "targets": {}
     }
   }
 }

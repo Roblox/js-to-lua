@@ -1,2 +1,2 @@
-local obj = {someNestedProp = {}}
+local obj = { someNestedProp = {} }
 tostring(obj.someNestedProp)

@@ -27,6 +27,7 @@
     "workspace-generator": "nx workspace-generator",
     "dep-graph": "nx dep-graph",
     "help": "nx help",
+    "build:stylua-wasm": "wasm-pack build --target nodejs libs/stylua-wasm",
     "prepare": "husky install & git update-index --assume-unchanged apps/playground/src/main.ts"
   },
   "private": true,
@@ -37,7 +38,8 @@
     "glob": "^7.1.6",
     "ramda": "^0.27.1",
     "tslib": "^2.0.0",
-    "yargs": "^17.0.1"
+    "yargs": "^17.0.1",
+    "stylua-wasm": "file:libs/stylua-wasm/pkg"
   },
   "devDependencies": {
     "@nrwl/cli": "12.3.4",

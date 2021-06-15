@@ -1,2 +1,3 @@
-local function foo() end
+local function foo()
+end
 foo()

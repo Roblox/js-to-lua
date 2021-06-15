@@ -1,3 +1,3 @@
 local function reduce(value)
-return value
+	return value
 end

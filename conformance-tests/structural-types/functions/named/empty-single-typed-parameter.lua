@@ -1,1 +1,2 @@
-local function foo(bar: string) end
+local function foo(bar: string)
+end

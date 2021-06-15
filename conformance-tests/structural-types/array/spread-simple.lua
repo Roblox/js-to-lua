@@ -1,1 +1,1 @@
-local arr = Array.concat({}, {1, 2}, {3, 4})
+local arr = Array.concat({}, { 1, 2 }, { 3, 4 })

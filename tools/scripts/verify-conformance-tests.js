@@ -71,10 +71,14 @@ async function checkIfLuaFileParses(luaFiles) {
       execSync(`cat ${formattedPath} >> ${testFile}`, {
         stdio: [],
       });
+      console.info(`verifying... ${relativePath}`);
       execSync(`${ROBLOX_CLI} run --run ${testFile}`, {
         stdio: [],
       });
     } catch {
+      console.error(
+        `${ROBLOX_CLI} is unable to run the file at ${relativePath}`
+      );
       throw `${ROBLOX_CLI} is unable to run the file at ${relativePath}`;
     }
   });
@@ -88,7 +92,7 @@ async function checkIfLuaFileParses(luaFiles) {
 }
 
 async function main() {
-  console.log('run conformance test suite');
+  console.info('run conformance test suite');
 
   const files = await getFiles(CONFORMANCE_TESTS);
 
@@ -99,13 +103,13 @@ async function main() {
 
   await verifyFiles(translateFiles, luaFiles);
 
-  console.log(`running Lua files with ${ROBLOX_CLI}...`);
+  console.info(`running Lua files with ${ROBLOX_CLI}...`);
   const luaFilesThatShouldParse = luaFiles.filter(
     (filePath) => !/_m\d?x$/.test(filePath.name)
   );
   await checkIfLuaFileParses(luaFilesThatShouldParse);
 
-  console.log('completed successfully');
+  console.info('completed successfully');
 }
 
 main().catch((error) => {

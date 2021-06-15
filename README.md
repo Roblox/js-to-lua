@@ -1,12 +1,17 @@
-
-
 # JsToLua
 
 This project was generated using [Nx](https://nx.dev).
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+## stylua-wasm dependency
 
-🔎 **Powerful, Extensible Dev Tools**
+To build the project, you'll need rust and wasm-pack. Refer to the [README](libs/stylua-wasm/README.md).
+
+`stylua-wasm` needs to be built before running `npm install`
+Run the following command first:
+
+```bash
+npm run build:stylua-wasm
+```
 
 ## Adding capabilities to your workspace
 
@@ -78,8 +83,6 @@ Run `nx dep-graph` to see a diagram of the dependencies of your projects.
 ## Further help
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
-
-
 
 ## ☁ Nx Cloud
 

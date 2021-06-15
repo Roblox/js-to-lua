@@ -1,1 +1,4 @@
-local foo = {["bar-baz"] = function(self) end}
+local foo = {
+	["bar-baz"] = function(self)
+	end,
+}
