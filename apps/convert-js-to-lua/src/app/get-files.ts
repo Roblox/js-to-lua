@@ -1,7 +1,9 @@
 import { promisify } from 'util';
 import * as glob from 'glob';
 
-export const getFiles = (input) => {
+export const getFiles = (inputs: string[]): Promise<string[]> => {
   const promiseGlob = promisify(glob);
-  return promiseGlob(input);
+  return Promise.all(
+    inputs.map((input) => promiseGlob(input))
+  ).then((files: string[][]) => [].concat(...files));
 };

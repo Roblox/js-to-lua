@@ -4,8 +4,8 @@ export const getArgs = () => {
   const yargsConfig = yargs
     .option('input', {
       alias: 'i',
-      description: 'Input file(s) pattern',
-      type: 'string',
+      description: 'Input file(s) patterns',
+      type: 'array',
     })
     .option('output', {
       alias: 'o',
