@@ -11,6 +11,8 @@ const normalizedConfig = {
   }),
 };
 
+const normalizeLineEndings = (content) => content.replace(/\r\n/g, '\n');
+
 function getFiles(directory): ParsedPath[] {
   const dirContent = readdirSync(directory);
 
@@ -55,8 +57,10 @@ describe('conformance tests', () => {
         stdio: [],
       });
       return Promise.all([
-        readFile(expectedFile, { encoding: 'utf-8' }),
-        readFile(resultFile, { encoding: 'utf-8' }),
+        readFile(expectedFile, { encoding: 'utf-8' }).then(
+          normalizeLineEndings
+        ),
+        readFile(resultFile, { encoding: 'utf-8' }).then(normalizeLineEndings),
       ]).then(([expectedContent, resultContent]) => {
         expect(resultContent).toEqual(expectedContent);
       });
