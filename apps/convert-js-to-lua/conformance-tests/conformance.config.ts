@@ -10,28 +10,6 @@ export default {
     'conformance-tests/base-types/strings/octal-escape-sequences.js',
     'conformance-tests/structural-types/object/single-false-key-to-boolean.js',
 
-    // ---- Milestone 2 ----
-
-    // the following tests are failing because of a bug in stylua:
-    // https://github.com/JohnnyMorganz/StyLua/issues/187
-    'conformance-tests/expressions/call/method-expression-string_m2.js',
-    'conformance-tests/expressions/call/method-expression_m2.js',
-    'conformance-tests/expressions/call/method-nested_m2.js',
-    'conformance-tests/expressions/call/method_m2.js',
-    'conformance-tests/structural-types/object/object-method.js',
-    'conformance-tests/structural-types/object/method-simple_m2.js',
-    'conformance-tests/structural-types/object/method-simple-with-args_m2.js',
-    'conformance-tests/structural-types/object/method-simple-with-args-typed_m2.ts',
-    'conformance-tests/structural-types/object/method-simple-typed_m2.ts',
-    'conformance-tests/structural-types/object/method-function-expression_m2.js',
-    'conformance-tests/structural-types/object/method-function-expression-with-args_m2.js',
-    'conformance-tests/structural-types/object/method-function-expression-with-args-typed_m2.ts',
-    'conformance-tests/structural-types/object/method-function-expression-typed_m2.ts',
-    'conformance-tests/structural-types/object/method-expression-property_m2.js',
-    'conformance-tests/structural-types/object/method-expression-property-with-args_m2.js',
-    'conformance-tests/structural-types/object/method-expression-property-function-expression_m2.js',
-    'conformance-tests/structural-types/object/method-expression-property-function-expression-with-args_m2.js',
-
     // ---- Milestone 3 ----
 
     'conformance-tests/operators/relational/equality/8_m3.js',

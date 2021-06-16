@@ -1,5 +1,4 @@
-local function printValue(value)
-end
+local function printValue(value) end
 local a = 0
 printValue((function()
 	local result = a
