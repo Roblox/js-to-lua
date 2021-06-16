@@ -1,97 +1,115 @@
 # JsToLua
 
-This project was generated using [Nx](https://nx.dev).
+Conversion tool for migrating JS/TS code into Luau.
 
-## stylua-wasm dependency
+## Prerequisites
 
-To build the project, you'll need rust and wasm-pack. Refer to the [README](libs/stylua-wasm/README.md).
+**The project requires the following tools:**
 
-`stylua-wasm` needs to be built before running `npm install`
-Run the following command first:
+- [Node](https://nodejs.org) (version >= 14)
+- [Rust](https://www.rust-lang.org/tools/install)
+- [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
+
+## Setup
+
+### stylua-wasm dependency
+
+We're maintaining our local [Stylua](https://github.com/JohnnyMorganz/StyLua) WASM port. Since it is used as a dependency for our project you need to build it first.
+You can read more details on `stylua-wasm` specific [README](libs/stylua-wasm/README.md).
+
+To build `stylua-wasm` you need the following tools:
+
+- [install Rust](https://www.rust-lang.org/tools/install)
+- [`wasm-pack` installer](https://rustwasm.github.io/wasm-pack/installer/)
+
+After installing those tools you can build `stylua-wasm`. To do so just run the following command:
 
 ```bash
 npm run build:stylua-wasm
 ```
 
-## Adding capabilities to your workspace
+### Project installation
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+To install all the other dependencies run `npm install`
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+### Building CLI tool
 
-Below are our core plugins:
+To build the CLI tool just run the following command:
 
-- [React](https://reactjs.org)
-  - `npm install --save-dev @nrwl/react`
-- Web (no framework frontends)
-  - `npm install --save-dev @nrwl/web`
-- [Angular](https://angular.io)
-  - `npm install --save-dev @nrwl/angular`
-- [Nest](https://nestjs.com)
-  - `npm install --save-dev @nrwl/nest`
-- [Express](https://expressjs.com)
-  - `npm install --save-dev @nrwl/express`
-- [Node](https://nodejs.org)
-  - `npm install --save-dev @nrwl/node`
+```bash
+npm run build:prod
+```
 
-There are also many [community plugins](https://nx.dev/nx-community) you could add.
+The build JS file will be placed in `dist/apps/convert-js-to-lua/main.js`
 
-## Generate an application
+## Usage
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
+The CLI tool accepts the following input parameters:
 
-> You can use any of the plugins above to generate applications as well.
+- `--input` (`-i`) - a list of input file(s) or glob patterns (for more info on supported format please read the [glob package docs](https://github.com/isaacs/node-glob#readme))
+- `--output` (`-o`) - a directory in which the output files should be saved. The tool will keep the files structure of the input files.
 
-When using Nx, you can create multiple applications and libraries in the same workspace.
+To show help you can always use `--help` flag.
 
-## Generate a library
+```bash
+node dist/apps/convert-js-to-lua/main.js --help
+```
 
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
+To run the JS/TS files via the conversion tool let's assume the following file structure:
 
-> You can also use any of the plugins above to generate libraries as well.
+```
+js-to-lua
+  - dist/apps/convert-js-to-lua/main.js
 
-Libraries are shareable across libraries and applications. They can be imported from `@js-to-lua/mylib`.
+source-files
+  - file1.js
+  - file2.ts
+  - directory
+    - inner-file1.js
+    - inner-file2.ts
+```
 
-## Development server
+To convert all the files in `source-files` directory you can run the following command:
 
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+```bash
+node ./js-to-lua/dist/apps/convert-js-to-lua/main.js --input source-files/**/*.js source-files/**/*.ts --output lua-source-files
+```
 
-## Code scaffolding
+This will output the Lua files into the following file structure:
 
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
+```
+lua-source-files
+  - file1.lua
+  - file2.lua
+  - directory
+    - inner-file1.lua
+    - inner-file2.lua
+```
 
-## Build
+## Testing
 
-Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+To run unit tests you can use the following npm script:
 
-## Running unit tests
+```bash
+npm run affected:test
+```
 
-Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
+**Note:** This will only run the tests that are affected by your changes. If you want to run all tests use the following command:
 
-Run `nx affected:test` to execute the unit tests affected by a change.
+```bash
+npm run test:all
+```
 
-## Running end-to-end tests
+## Linting
 
-Run `ng e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
+We use ESLint for style checking the codebase. To run linting you can use the following npm script:
 
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
+```bash
+npm run affected:lint
+```
 
-## Understand your workspace
+**Note:** This will only run the linting on projects that are affected by your changes. If you want to lint all projects use the following command:
 
-Run `nx dep-graph` to see a diagram of the dependencies of your projects.
-
-## Further help
-
-Visit the [Nx Documentation](https://nx.dev) to learn more.
-
-## ☁ Nx Cloud
-
-### Computation Memoization in the Cloud
-
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
-
-Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
-
-Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
-
-Visit [Nx Cloud](https://nx.app/) to learn more.
+```bash
+npm run lint:all
+```
