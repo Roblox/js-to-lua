@@ -12,6 +12,8 @@ import {
   arrayIndexOf,
   objectKeys,
   withConversionComment,
+  memberExpression,
+  bit32Identifier,
 } from '@js-to-lua/lua-types';
 import {
   BaseNodeHandler,
@@ -20,6 +22,18 @@ import {
   HandlerFunction,
 } from '../types';
 import { defaultHandler } from '../utils/default.handler';
+
+type Bit32Method = 'band' | 'bor' | 'bxor' | 'rshift' | 'arshift' | 'lshift';
+
+const bit32MethodCall = (
+  methodName: Bit32Method,
+  left: LuaExpression,
+  right: LuaExpression
+) =>
+  callExpression(
+    memberExpression(bit32Identifier(), '.', identifier(methodName)),
+    [left, right]
+  );
 
 export const createBinaryExpressionHandler = (
   handleExpression: HandlerFunction<Expression, LuaExpression>
@@ -129,6 +143,61 @@ export const createBinaryExpressionHandler = (
           ]),
           '~=',
           numericLiteral(-1)
+        );
+      case '&':
+        return withConversionComment(
+          bit32MethodCall(
+            'band',
+            handleExpression(source, node.left as Expression),
+            handleExpression(source, node.right as Expression)
+          ),
+          'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
+        );
+
+      case '|':
+        return withConversionComment(
+          bit32MethodCall(
+            'bor',
+            handleExpression(source, node.left as Expression),
+            handleExpression(source, node.right as Expression)
+          ),
+          'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
+        );
+      case '^':
+        return withConversionComment(
+          bit32MethodCall(
+            'bxor',
+            handleExpression(source, node.left as Expression),
+            handleExpression(source, node.right as Expression)
+          ),
+          'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
+        );
+      case '>>>':
+        return withConversionComment(
+          bit32MethodCall(
+            'rshift',
+            handleExpression(source, node.left as Expression),
+            handleExpression(source, node.right as Expression)
+          ),
+          'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
+        );
+      case '>>':
+        return withConversionComment(
+          bit32MethodCall(
+            'arshift',
+            handleExpression(source, node.left as Expression),
+            handleExpression(source, node.right as Expression)
+          ),
+          'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
+        );
+      case '<<':
+        return withConversionComment(
+          bit32MethodCall(
+            'lshift',
+            handleExpression(source, node.left as Expression),
+            handleExpression(source, node.right as Expression)
+          ),
+          'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
         );
       default:
         return defaultHandler(source, node);

@@ -12,6 +12,8 @@ import {
   arrayIndexOf,
   objectKeys,
   withConversionComment,
+  memberExpression,
+  bit32Identifier,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
@@ -357,6 +359,132 @@ describe('Program handler', () => {
               numericLiteral(4, '4')
             ),
             `ROBLOX CHECK: operator '>=' works only if either both arguments are strings or both are a number`
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle bitwise and operator', () => {
+      const given = getProgramNode(`
+     foo & bar
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          withConversionComment(
+            callExpression(
+              memberExpression(bit32Identifier(), '.', identifier('band')),
+              [identifier('foo'), identifier('bar')]
+            ),
+            'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle bitwise or operator', () => {
+      const given = getProgramNode(`
+     foo | bar
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          withConversionComment(
+            callExpression(
+              memberExpression(bit32Identifier(), '.', identifier('bor')),
+              [identifier('foo'), identifier('bar')]
+            ),
+            'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle bitwise xor operator', () => {
+      const given = getProgramNode(`
+     foo ^ bar
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          withConversionComment(
+            callExpression(
+              memberExpression(bit32Identifier(), '.', identifier('bxor')),
+              [identifier('foo'), identifier('bar')]
+            ),
+            'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle bitwise unsigned shift right operator', () => {
+      const given = getProgramNode(`
+     foo >>> bar
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          withConversionComment(
+            callExpression(
+              memberExpression(bit32Identifier(), '.', identifier('rshift')),
+              [identifier('foo'), identifier('bar')]
+            ),
+            'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle bitwise shift right operator', () => {
+      const given = getProgramNode(`
+     foo >> bar
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          withConversionComment(
+            callExpression(
+              memberExpression(bit32Identifier(), '.', identifier('arshift')),
+              [identifier('foo'), identifier('bar')]
+            ),
+            'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle bitwise shift left operator', () => {
+      const given = getProgramNode(`
+     foo << bar
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          withConversionComment(
+            callExpression(
+              memberExpression(bit32Identifier(), '.', identifier('lshift')),
+              [identifier('foo'), identifier('bar')]
+            ),
+            'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
           )
         ),
       ]);
