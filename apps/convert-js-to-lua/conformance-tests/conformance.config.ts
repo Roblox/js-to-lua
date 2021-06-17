@@ -86,5 +86,24 @@ export default {
     'conformance-tests/operators/ternary/4_m4.js',
     'conformance-tests/operators/ternary/5_m4.js',
     'conformance-tests/operators/ternary/6_m4.js',
+
+    'conformance-tests/operators/assignment-bitwise-and/0_m4.js',
+    'conformance-tests/operators/assignment-bitwise-and/1_m4.js',
+
+    'conformance-tests/operators/assignment-bitwise-or/0_m4.js',
+    'conformance-tests/operators/assignment-bitwise-or/1_m4.js',
+
+    'conformance-tests/operators/assignment-bitwise-xor/0_m4.js',
+    'conformance-tests/operators/assignment-bitwise-xor/1_m4.js',
+
+    'conformance-tests/operators/assignment-shift-left/0_m4.js',
+    'conformance-tests/operators/assignment-shift-left/1_m4.js',
+
+    'conformance-tests/operators/assignment-shift-right/0_m4.js',
+    'conformance-tests/operators/assignment-shift-right/1_m4.js',
+
+    'conformance-tests/operators/assignment-shift-right-unsigned/0_m4.js',
+    'conformance-tests/operators/assignment-shift-right-unsigned/1_m4.js',
+    'conformance-tests/operators/assignment-shift-right-unsigned/2_m4.js',
   ],
 };
