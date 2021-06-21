@@ -1,0 +1,6 @@
+local a, b, c, d = 1, "this is ", 2, 3
+
+a += 1
+b ..= "roblox"
+c += 1 --[[ ROBLOX DEVIATION: coerced from `true` to preserve JS behavior ]]
+d += a
