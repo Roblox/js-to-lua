@@ -142,5 +142,9 @@ export default {
     'conformance-tests/expressions/sequence/2_m4.js',
     'conformance-tests/expressions/sequence/3_m4.js',
     'conformance-tests/expressions/sequence/4_m4.js',
+
+    'conformance-tests/statements/conditional/if-else/0_m4.js',
+    'conformance-tests/statements/conditional/if-else/1_m4.js',
+    'conformance-tests/statements/conditional/if-else/2_m4.js',
   ],
 };
