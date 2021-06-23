@@ -1,6 +1,6 @@
 import { NullLiteral } from '@babel/types';
 import { handleNullLiteral } from './null.handler';
-import { LuaNilLiteral } from '@js-to-lua/lua-types';
+import { LuaNilLiteral, nilLiteral } from '@js-to-lua/lua-types';
 
 const DEFAULT_NODE = {
   leadingComments: null,
@@ -19,9 +19,7 @@ describe('Null Literal Handler', () => {
       ...DEFAULT_NODE,
       type: 'NullLiteral',
     };
-    const expected: LuaNilLiteral = {
-      type: 'NilLiteral',
-    };
+    const expected: LuaNilLiteral = nilLiteral();
 
     expect(handleNullLiteral.handler(source, given)).toEqual(expected);
   });

@@ -14,6 +14,7 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
+  LuaIfStatement,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -111,6 +112,8 @@ const _printNode = (node: LuaNode): string => {
       return `${printNode(node.base)}${node.indexer}${printNode(
         node.identifier
       )}`;
+    case 'LuaIfStatement':
+      return printIfStatement(node);
     case 'UnhandledNode':
       return '';
     default:
@@ -258,4 +261,17 @@ function printUnaryOperatorArgument(node: LuaExpression): string {
   } else {
     return `(${printNode(node)})`;
   }
+}
+
+function printIfStatement(node: LuaIfStatement): string {
+  const consequentStatements = node.consequent.map(printNode);
+  const alternateStatement = node.alternate
+    ? `else
+  ${node.alternate.map(printNode)}`
+    : '';
+  return `if ${printNode(node.test)} then
+  ${consequentStatements}
+${alternateStatement}
+end
+  `;
 }

@@ -68,6 +68,7 @@ import {
   expressionStatement,
   withConversionComment,
   unhandledNode,
+  nilLiteral,
 } from '@js-to-lua/lua-types';
 
 import { handleMultilineStringLiteral } from './multiline-string.handler';
@@ -194,9 +195,7 @@ export const handleIdentifier: BaseNodeHandler<
 > = createHandler('Identifier', (source, node) => {
   switch (node.name) {
     case 'undefined':
-      return {
-        type: 'NilLiteral',
-      };
+      return nilLiteral();
     case 'Infinity':
       return memberExpression(identifier('math'), '.', identifier('huge'));
     case 'NaN':

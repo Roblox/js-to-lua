@@ -6,6 +6,7 @@ import {
   LuaMemberExpression,
   LuaNilLiteral,
   memberExpression,
+  nilLiteral,
   numericLiteral,
 } from '@js-to-lua/lua-types';
 import { handleIdentifier } from './expression-statement.handler';
@@ -52,9 +53,7 @@ describe('Identifier Handler', () => {
       type: 'Identifier',
       name: 'undefined',
     };
-    const expected: LuaNilLiteral = {
-      type: 'NilLiteral',
-    };
+    const expected: LuaNilLiteral = nilLiteral();
 
     expect(handleIdentifier.handler(source, given)).toEqual(expected);
   });

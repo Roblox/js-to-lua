@@ -8,10 +8,12 @@ import {
   LuaFunctionDeclaration,
   LuaFunctionExpression,
   LuaIdentifier,
+  LuaIfStatement,
   LuaIndexExpression,
   LuaLogicalExpression,
   LuaLVal,
   LuaMemberExpression,
+  LuaNilLiteral,
   LuaNode,
   LuaNodeGroup,
   LuaNumericLiteral,
@@ -186,6 +188,10 @@ export const stringLiteral = (
   value,
 });
 
+export const nilLiteral = (): LuaNilLiteral => ({
+  type: 'NilLiteral',
+});
+
 export const callExpression = (
   callee: LuaCallExpression['callee'],
   args: LuaCallExpression['arguments']
@@ -279,6 +285,17 @@ export const logicalExpression = (
   right,
 });
 
+export const ifStatement = (
+  test: LuaIfStatement['test'],
+  consequent: LuaIfStatement['consequent'],
+  alternate?: LuaIfStatement['alternate']
+): LuaIfStatement => ({
+  type: 'LuaIfStatement',
+  test,
+  consequent,
+  ...(alternate ? { alternate } : {}),
+});
+
 export const typeAnnotation = (
   typeAnnotation: LuaTypeAnnotation['typeAnnotation']
 ): LuaTypeAnnotation => ({
@@ -307,8 +324,9 @@ export const withConversionComment = <N extends BaseLuaNode>(
   };
 };
 
+type BooleanMethod = 'toJSBoolean';
 export const booleanIdentifier = (): LuaIdentifier => identifier('Boolean');
-export const booleanMethod = (methodName: string): LuaMemberExpression =>
+export const booleanMethod = (methodName: BooleanMethod): LuaMemberExpression =>
   memberExpression(booleanIdentifier(), '.', identifier(methodName));
 
 export const bit32Identifier = (): LuaIdentifier => identifier('bit32');

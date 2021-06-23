@@ -1,6 +1,6 @@
 export type LuaNode =
   | LuaProgram
-  | LuaExpressionStatement
+  | LuaStatement
   | LuaExpression
   | LuaDeclaration
   | LuaTableField
@@ -10,8 +10,13 @@ export type LuaNode =
   | LuaVariableDeclaratorValue
   | LuaTypeAnnotation
   | LuaType
-  | LuaPropertySignature
-  | LuaBlockStatement;
+  | LuaPropertySignature;
+
+export type LuaStatement =
+  | LuaExpressionStatement
+  | LuaBlockStatement
+  | LuaReturnStatement
+  | LuaIfStatement;
 
 export interface BaseLuaNode {
   type: string;
@@ -308,4 +313,11 @@ export interface LuaMemberExpression extends BaseLuaNode {
 export interface LuaUnaryDeleteExpression extends BaseLuaNode {
   type: 'LuaUnaryDeleteExpression';
   argument: LuaExpression;
+}
+
+export interface LuaIfStatement extends BaseLuaNode {
+  type: 'LuaIfStatement';
+  test: LuaExpression;
+  consequent: LuaNode[];
+  alternate?: LuaNode[];
 }

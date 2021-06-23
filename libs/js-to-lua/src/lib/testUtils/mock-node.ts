@@ -6,4 +6,13 @@ export const mockNode = (): LuaExpression =>
     type: 'MockNode',
   } as unknown) as LuaExpression);
 
+export const mockNodeWithValue = <T>(value: T): LuaExpression =>
+  (({
+    type: 'MockNode',
+    value,
+  } as unknown) as LuaExpression);
+
 export const mockNodeHandler = createHandlerFunction(mockNode);
+export const mockNodeWithValueHandler = createHandlerFunction(
+  <T>(source, node: T) => mockNodeWithValue(node)
+);
