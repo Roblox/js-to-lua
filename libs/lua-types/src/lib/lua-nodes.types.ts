@@ -1,36 +1,17 @@
 export type LuaNode =
   | LuaProgram
   | LuaExpressionStatement
-  | LuaNumericLiteral
-  | LuaStringLiteral
-  | LuaMultilineStringLiteral
-  | LuaBooleanLiteral
-  | LuaTableConstructor
+  | LuaExpression
+  | LuaDeclaration
   | LuaTableField
-  | LuaIdentifier
-  | LuaNilLiteral
-  | LuaCallExpression
-  | LuaVariableDeclaration
   | LuaNodeGroup
   | LuaVariableDeclarator
   | LuaVariableDeclaratorIdentifier
   | LuaVariableDeclaratorValue
-  | LuaFunctionDeclaration
   | LuaTypeAnnotation
   | LuaType
-  | LuaTypeAliasDeclaration
   | LuaPropertySignature
-  | LuaBinaryExpression
-  | LuaBlockStatement
-  | LuaFunctionExpression
-  | LuaReturnStatement
-  | LuaUnaryExpression
-  | LuaUnaryVoidExpression
-  | LuaUnaryNegationExpression
-  | LuaUnaryDeleteExpression
-  | LuaIndexExpression
-  | LuaMemberExpression
-  | UnhandledNode;
+  | LuaBlockStatement;
 
 export interface BaseLuaNode {
   type: string;
@@ -50,6 +31,7 @@ export type LuaExpression =
   | LuaIdentifier
   | LuaCallExpression
   | LuaBinaryExpression
+  | LuaLogicalExpression
   | LuaFunctionExpression
   | LuaReturnStatement
   | LuaUnaryExpression
@@ -271,17 +253,27 @@ export type LuaBinaryExpressionOperator =
   | '<='
   | '..'
   | '=='
-  | '~='
-  | '&'
-  | '|'
-  | '^'
-  | '<<'
-  | '>>'
-  | '>>>';
+  | '~=';
 
 export interface LuaBinaryExpression extends BaseLuaNode {
   type: 'LuaBinaryExpression';
   operator: LuaBinaryExpressionOperator;
+  left: LuaExpression;
+  right: LuaExpression;
+}
+
+export enum LuaLogicalExpressionOperatorEnum {
+  AND = 'and',
+  OR = 'or',
+}
+
+export type LuaLogicalExpressionOperator =
+  | LuaLogicalExpressionOperatorEnum.AND
+  | LuaLogicalExpressionOperatorEnum.OR;
+
+export interface LuaLogicalExpression extends BaseLuaNode {
+  type: 'LogicalExpression';
+  operator: LuaLogicalExpressionOperator;
   left: LuaExpression;
   right: LuaExpression;
 }

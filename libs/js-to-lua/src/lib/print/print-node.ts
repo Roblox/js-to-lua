@@ -93,6 +93,7 @@ const _printNode = (node: LuaNode): string => {
     case 'LuaPropertySignature':
       return printPropertySignature(node);
     case 'LuaBinaryExpression':
+    case 'LogicalExpression':
       return `${printNode(node.left)} ${node.operator} ${printNode(
         node.right
       )}`;

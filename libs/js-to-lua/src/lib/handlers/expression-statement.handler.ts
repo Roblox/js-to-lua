@@ -85,6 +85,7 @@ import { createMemberExpressionHandler } from './member-expression.handler';
 import { createUnaryExpressionHandler } from './unary-expression.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
 import { handleBigIntLiteral } from './primitives/big-int.handler';
+import { createLogicalExpressionHandler } from './logical-expression.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -318,6 +319,7 @@ export const handleExpression: BaseNodeHandler<
   createUnaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
   handleNullLiteral,
   createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
+  createLogicalExpressionHandler(forwardHandlerRef(() => handleExpression)),
   handleFunctionExpression,
   handleArrowFunctionExpression,
   handleUpdateExpression,

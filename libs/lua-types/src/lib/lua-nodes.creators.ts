@@ -1,16 +1,19 @@
 import {
+  BaseLuaNode,
   LuaBinaryExpression,
   LuaBooleanLiteral,
   LuaCallExpression,
   LuaExpression,
   LuaExpressionStatement,
+  LuaFunctionDeclaration,
   LuaFunctionExpression,
-  LuaFunctionParam,
   LuaIdentifier,
   LuaIndexExpression,
+  LuaLogicalExpression,
   LuaLVal,
   LuaMemberExpression,
   LuaNode,
+  LuaNodeGroup,
   LuaNumericLiteral,
   LuaProgram,
   LuaReturnStatement,
@@ -20,17 +23,14 @@ import {
   LuaTableNameKeyField,
   LuaTableNoKeyField,
   LuaTypeAnnotation,
+  LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
-  LuaUnaryDeleteExpression,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
   UnhandledNode,
-  LuaFunctionDeclaration,
-  LuaNodeGroup,
-  BaseLuaNode,
 } from './lua-nodes.types';
 
 export const program = (body: LuaNode[] = []): LuaProgram => ({
@@ -74,10 +74,10 @@ export const variableDeclaratorValue = (
 });
 
 export const functionExpression = (
-  params: Array<LuaFunctionParam> = [],
-  defaultValues: Array<any> = [],
-  body: Array<LuaNode> = [],
-  returnType: LuaTypeAnnotation = null
+  params: LuaFunctionExpression['params'] = [],
+  defaultValues: LuaFunctionExpression['defaultValues'] = [],
+  body: LuaFunctionExpression['body'] = [],
+  returnType: LuaFunctionExpression['returnType'] = null
 ): LuaFunctionExpression => {
   if (returnType) {
     return {
@@ -97,11 +97,11 @@ export const functionExpression = (
 };
 
 export const functionDeclaration = (
-  id: LuaIdentifier,
-  params: Array<LuaFunctionParam> = [],
-  defaultValues: Array<any> = [],
-  body: Array<LuaNode> = [],
-  returnType: LuaTypeAnnotation = null
+  id: LuaFunctionDeclaration['id'],
+  params: LuaFunctionDeclaration['params'] = [],
+  defaultValues: LuaFunctionDeclaration['defaultValues'] = [],
+  body: LuaFunctionDeclaration['body'] = [],
+  returnType: LuaFunctionDeclaration['returnType'] = null
 ): LuaFunctionDeclaration => {
   if (returnType) {
     return {
@@ -265,6 +265,17 @@ export const binaryExpression = (
   type: 'LuaBinaryExpression',
   left,
   operator,
+  right,
+});
+
+export const logicalExpression = (
+  operator: LuaLogicalExpression['operator'],
+  left: LuaLogicalExpression['left'],
+  right: LuaLogicalExpression['right']
+): LuaLogicalExpression => ({
+  type: 'LogicalExpression',
+  operator,
+  left,
   right,
 });
 

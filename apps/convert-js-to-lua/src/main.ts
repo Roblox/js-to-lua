@@ -4,6 +4,6 @@ import { getArgs } from './app/get-args';
 
 const { input, output } = getArgs();
 
-const isString = (v: any): v is string => typeof v === 'string';
+const isString = (v: unknown): v is string => typeof v === 'string';
 
 getFiles(input.filter(isString)).then(convertFiles(output));
