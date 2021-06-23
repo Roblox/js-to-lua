@@ -153,5 +153,7 @@ export default {
     'conformance-tests/operators/assignment-shift-right-unsigned/0_m4.js',
     'conformance-tests/operators/assignment-shift-right-unsigned/1_m4.js',
     'conformance-tests/operators/assignment-shift-right-unsigned/2_m4.js',
+
+    'conformance-tests/complex/graph-ql-lexer-test.ts',
   ],
 };
