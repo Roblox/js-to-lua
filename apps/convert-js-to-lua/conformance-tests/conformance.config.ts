@@ -136,5 +136,11 @@ export default {
     'conformance-tests/operators/assignment/destructure-obj-with-alias_m4.js',
     'conformance-tests/operators/assignment/destructure-obj_m4.js',
     // --- destructuring end
+    
+    'conformance-tests/expressions/sequence/0_m4.js',
+    'conformance-tests/expressions/sequence/1_m4.js',
+    'conformance-tests/expressions/sequence/2_m4.js',
+    'conformance-tests/expressions/sequence/3_m4.js',
+    'conformance-tests/expressions/sequence/4_m4.js',
   ],
 };
