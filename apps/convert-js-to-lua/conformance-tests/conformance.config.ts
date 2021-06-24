@@ -10,14 +10,6 @@ export default {
     'conformance-tests/base-types/strings/octal-escape-sequences.js',
     'conformance-tests/structural-types/object/single-false-key-to-boolean.js',
 
-    // ---- Milestone 3 ----
-
-    'conformance-tests/operators/relational/equality/8_m3.js',
-    'conformance-tests/operators/relational/equality/9_m3.js',
-
-    'conformance-tests/operators/relational/inequality/8_m3.js',
-    'conformance-tests/operators/relational/inequality/9_m3.js',
-
     // ---- Milestone 4 ----
     'conformance-tests/complex/query-data-ref_spec_m4.js',
     'conformance-tests/complex/graph-ql-lexer-test.ts',
@@ -136,7 +128,7 @@ export default {
     'conformance-tests/operators/assignment/destructure-obj-with-alias_m4.js',
     'conformance-tests/operators/assignment/destructure-obj_m4.js',
     // --- destructuring end
-    
+
     'conformance-tests/expressions/sequence/0_m4.js',
     'conformance-tests/expressions/sequence/1_m4.js',
     'conformance-tests/expressions/sequence/2_m4.js',

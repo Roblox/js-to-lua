@@ -1,5 +1,5 @@
 import { exec } from 'child_process';
-import { readdirSync, statSync, rmSync } from 'fs';
+import { readdirSync, statSync } from 'fs';
 import { promisify } from 'util';
 import { join, normalize, parse, ParsedPath } from 'path';
 import config from './conformance.config';

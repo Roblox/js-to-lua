@@ -1,4 +1,10 @@
-import { UnaryExpression } from '@babel/types';
+import {
+  booleanLiteral as babelBooleanLiteral,
+  identifier as babelIdentifier,
+  numericLiteral as babelNumericLiteral,
+  unaryExpression as babelUnaryExpression,
+  UnaryExpression,
+} from '@babel/types';
 import {
   bit32Identifier,
   booleanLiteral,
@@ -22,30 +28,15 @@ import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
 import { createUnaryExpressionHandler } from './unary-expression.handler';
 
-const DEFAULT_NODE = {
-  leadingComments: null,
-  innerComments: null,
-  trailingComments: null,
-  start: null,
-  end: null,
-  loc: null,
-};
-
 const source = '';
 
 describe('Unary Expression Handler', () => {
   it(`should handle typeof operator`, () => {
-    const given: UnaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'UnaryExpression',
-      operator: 'typeof',
-      prefix: true,
-      argument: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-    };
+    const given: UnaryExpression = babelUnaryExpression(
+      'typeof',
+      babelIdentifier('foo'),
+      true
+    );
 
     const handleUnaryExpression = createUnaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -59,17 +50,11 @@ describe('Unary Expression Handler', () => {
   });
 
   it(`should handle plus operator`, () => {
-    const given: UnaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'UnaryExpression',
-      operator: '+',
-      prefix: true,
-      argument: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-    };
+    const given: UnaryExpression = babelUnaryExpression(
+      '+',
+      babelIdentifier('foo'),
+      true
+    );
 
     const handleUnaryExpression = createUnaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -83,17 +68,11 @@ describe('Unary Expression Handler', () => {
   });
 
   it(`should handle minus operator`, () => {
-    const given: UnaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'UnaryExpression',
-      operator: '-',
-      prefix: true,
-      argument: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-    };
+    const given: UnaryExpression = babelUnaryExpression(
+      '-',
+      babelIdentifier('foo'),
+      true
+    );
 
     const handleUnaryExpression = createUnaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -108,17 +87,11 @@ describe('Unary Expression Handler', () => {
   });
 
   it(`should handle void operator`, () => {
-    const given: UnaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'UnaryExpression',
-      operator: 'void',
-      prefix: true,
-      argument: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-    };
+    const given: UnaryExpression = babelUnaryExpression(
+      'void',
+      babelIdentifier('foo'),
+      true
+    );
 
     const handleUnaryExpression = createUnaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -132,19 +105,11 @@ describe('Unary Expression Handler', () => {
   });
 
   it(`should handle negation operator`, () => {
-    const given: UnaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'UnaryExpression',
-      operator: '!',
-      prefix: true,
-      argument: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-        start: 0,
-        end: 1,
-      },
-    };
+    const given: UnaryExpression = babelUnaryExpression(
+      '!',
+      babelIdentifier('foo'),
+      true
+    );
 
     const handleUnaryExpression = createUnaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -158,17 +123,11 @@ describe('Unary Expression Handler', () => {
   });
 
   it(`should handle negation operator of BooleanLiteral`, () => {
-    const given: UnaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'UnaryExpression',
-      operator: '!',
-      prefix: true,
-      argument: {
-        ...DEFAULT_NODE,
-        type: 'BooleanLiteral',
-        value: true,
-      },
-    };
+    const given: UnaryExpression = babelUnaryExpression(
+      '!',
+      babelBooleanLiteral(true),
+      true
+    );
 
     const handleUnaryExpression = createUnaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -181,18 +140,32 @@ describe('Unary Expression Handler', () => {
     expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
   });
 
+  it(`should handle double negation operator`, () => {
+    const given: UnaryExpression = babelUnaryExpression(
+      '!',
+      babelUnaryExpression('!', babelIdentifier('foo'), true),
+      true
+    );
+
+    const handleUnaryExpression = createUnaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaUnaryNegationExpression = unaryNegationExpression(
+      unaryNegationExpression(
+        callExpression(booleanMethod('toJSBoolean'), [identifier('foo')])
+      )
+    );
+
+    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+  });
+
   it(`should handle delete operator`, () => {
-    const given: UnaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'UnaryExpression',
-      operator: 'delete',
-      prefix: true,
-      argument: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-    };
+    const given: UnaryExpression = babelUnaryExpression(
+      'delete',
+      babelIdentifier('foo'),
+      true
+    );
 
     const handleUnaryExpression = createUnaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -206,21 +179,11 @@ describe('Unary Expression Handler', () => {
   });
 
   it(`should handle ~ operator`, () => {
-    const given: UnaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'UnaryExpression',
-      operator: '~',
-      prefix: true,
-      argument: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        extra: {
-          rawValue: 5,
-          raw: '5',
-        },
-        value: 5,
-      },
-    };
+    const given: UnaryExpression = babelUnaryExpression(
+      '~',
+      babelNumericLiteral(5),
+      true
+    );
 
     const handleUnaryExpression = createUnaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -229,7 +192,7 @@ describe('Unary Expression Handler', () => {
     const expected: LuaCallExpression = withConversionComment(
       callExpression(
         memberExpression(bit32Identifier(), '.', identifier('bnot')),
-        [numericLiteral(5, '5')]
+        [numericLiteral(5)]
       ),
       'ROBLOX CHECK: `bit32.bnot` clamps arguments and result to [0,2^32 - 1]'
     );

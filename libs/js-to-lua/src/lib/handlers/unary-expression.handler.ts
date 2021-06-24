@@ -1,10 +1,16 @@
 import { Expression, UnaryExpression } from '@babel/types';
 import {
+  bit32Identifier,
   booleanLiteral,
   booleanMethod,
   callExpression,
   identifier,
-  memberExpression,
+  isBooleanLiteral,
+  isMultilineStringLiteral,
+  isNilLiteral,
+  isNumericLiteral,
+  isStringLiteral,
+  isUnaryNegation,
   LuaCallExpression,
   LuaExpression,
   LuaMultilineStringLiteral,
@@ -15,12 +21,12 @@ import {
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
+  memberExpression,
   unaryDeleteExpression,
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
   UnhandledStatement,
-  bit32Identifier,
   withConversionComment,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
@@ -83,24 +89,24 @@ export const createUnaryExpressionHandler = (
       source: string,
       node: Expression
     ) {
-      const LITERALS = [
-        'StringLiteral',
-        'NumericLiteral',
-        'MultilineStringLiteral',
-      ];
-      const isLiteral = (
+      const isCoercableLiteral = (
         node: LuaNode
       ): node is
         | LuaStringLiteral
         | LuaNumericLiteral
-        | LuaMultilineStringLiteral => LITERALS.includes(node.type);
+        | LuaMultilineStringLiteral =>
+        [
+          isStringLiteral,
+          isNumericLiteral,
+          isMultilineStringLiteral,
+        ].some((predicate) => predicate(node));
       const arg = handleExpression(source, node);
 
-      if (arg.type === 'BooleanLiteral') {
+      if (isBooleanLiteral(arg)) {
         return arg;
       }
 
-      if (isLiteral(arg)) {
+      if (isCoercableLiteral(arg)) {
         return withConversionComment(
           booleanLiteral(!!arg.value),
           `ROBLOX DEVIATION: coerced from \`${source.slice(
@@ -109,7 +115,7 @@ export const createUnaryExpressionHandler = (
           )}\` to preserve JS behavior`
         );
       }
-      if (arg.type === 'NilLiteral') {
+      if (isNilLiteral(arg)) {
         return withConversionComment(
           booleanLiteral(false),
           `ROBLOX DEVIATION: coerced from \`${source.slice(
@@ -117,6 +123,10 @@ export const createUnaryExpressionHandler = (
             node.end
           )}\` to preserve JS behavior`
         );
+      }
+
+      if (isUnaryNegation(arg)) {
+        return arg;
       }
 
       return callExpression(booleanMethod('toJSBoolean'), [arg]);
