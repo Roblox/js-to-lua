@@ -5,8 +5,8 @@ import { handleIdentifier } from './expression-statement.handler';
 import { handleTsTypes } from './type-annotation.handler';
 
 export const handleTypeAliasDeclaration: BaseNodeHandler<
-  TSTypeAliasDeclaration,
-  LuaTypeAliasDeclaration
+  LuaTypeAliasDeclaration,
+  TSTypeAliasDeclaration
 > = createHandler('TSTypeAliasDeclaration', (source, node) => ({
   type: 'LuaTypeAliasDeclaration',
   id: handleIdentifier.handler(source, node.id) as LuaIdentifier,

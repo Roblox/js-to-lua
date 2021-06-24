@@ -1,9 +1,26 @@
-import { BaseNodeHandler, createHandlerFunction } from '../types';
-import { defaultHandler } from './default.handler';
+import {
+  BaseNodeHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '../types';
+import {
+  defaultExpressionHandler,
+  defaultStatementHandler,
+  defaultTypeAnnotationHandler,
+} from './default-handlers';
+import {
+  LuaExpression,
+  LuaNode,
+  LuaStatement,
+  LuaTypeAnnotation,
+} from '@js-to-lua/lua-types';
 
-export const combineHandlers = <H extends BaseNodeHandler = BaseNodeHandler>(
+export const combineHandlers = <
+  R extends LuaNode,
+  H extends BaseNodeHandler<R>
+>(
   ons: H[],
-  fallback = defaultHandler
+  fallback: HandlerFunction<R>
 ): H => {
   return {
     type: ons.map(({ type }) => type).flat(),
@@ -17,3 +34,24 @@ export const combineHandlers = <H extends BaseNodeHandler = BaseNodeHandler>(
     }),
   } as H;
 };
+
+export const combineStatementHandlers = <
+  R extends LuaStatement = LuaStatement,
+  H extends BaseNodeHandler<R> = BaseNodeHandler<R>
+>(
+  ons: H[]
+): H => combineHandlers(ons, defaultStatementHandler);
+
+export const combineExpressionsHandlers = <
+  R extends LuaExpression = LuaExpression,
+  H extends BaseNodeHandler<R> = BaseNodeHandler<R>
+>(
+  ons: H[]
+): H => combineHandlers(ons, defaultExpressionHandler);
+
+export const combineTypeAnnotationHandlers = <
+  R extends LuaTypeAnnotation = LuaTypeAnnotation,
+  H extends BaseNodeHandler<R> = BaseNodeHandler<R>
+>(
+  ons: H[]
+): H => combineHandlers(ons, defaultTypeAnnotationHandler);

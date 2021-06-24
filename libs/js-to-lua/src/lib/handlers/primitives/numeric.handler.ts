@@ -3,8 +3,8 @@ import { NumericLiteral } from '@babel/types';
 import { LuaNumericLiteral } from '@js-to-lua/lua-types';
 
 export const handleNumericLiteral: BaseNodeHandler<
-  NumericLiteral,
-  LuaNumericLiteral
+  LuaNumericLiteral,
+  NumericLiteral
 > = createHandler('NumericLiteral', (source, literal) => {
   const _raw = literal.extra?.raw;
   let raw: string = undefined;

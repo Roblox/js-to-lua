@@ -3,6 +3,6 @@ import { NullLiteral } from '@babel/types';
 import { LuaNilLiteral, nilLiteral } from '@js-to-lua/lua-types';
 
 export const handleNullLiteral: BaseNodeHandler<
-  NullLiteral,
-  LuaNilLiteral
+  LuaNilLiteral,
+  NullLiteral
 > = createHandler('NullLiteral', () => nilLiteral());

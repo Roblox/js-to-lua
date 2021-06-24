@@ -114,8 +114,12 @@ const _printNode = (node: LuaNode): string => {
       )}`;
     case 'LuaIfStatement':
       return printIfStatement(node);
-    case 'UnhandledNode':
-      return '';
+    case 'UnhandledStatement':
+      return `error("not implemented");`;
+    case 'UnhandledExpression':
+      return `error("not implemented")`;
+    case 'UnhandledTypeAnnotation':
+      return ': any';
     default:
       return '--[[ default ]]';
   }

@@ -10,40 +10,40 @@ export interface BabelNode {
 }
 
 export type HandlerFunction<
-  T extends BabelNode = BabelNode,
-  R extends LuaNode = LuaNode
+  R extends LuaNode,
+  T extends BabelNode = BabelNode
 > = F.Curry<(source: string, node: T) => R>;
 
 export interface BaseNodeHandler<
-  T extends BabelNode = BabelNode,
-  R extends LuaNode = LuaNode
+  R extends LuaNode,
+  T extends BabelNode = BabelNode
 > {
   type: T['type'] | T['type'][];
-  handler: HandlerFunction<T, R>;
+  handler: HandlerFunction<R, T>;
 }
 
 type NonCurriedHandlerFunction<
-  T extends BabelNode = BabelNode,
-  R extends LuaNode = LuaNode
+  R extends LuaNode,
+  T extends BabelNode = BabelNode
 > = (source: string, node: T) => R;
 
 export const createHandlerFunction = <
-  T extends BabelNode = BabelNode,
-  R extends LuaNode = LuaNode
+  R extends LuaNode,
+  T extends BabelNode = BabelNode
 >(
-  func: NonCurriedHandlerFunction<T, R>
-): HandlerFunction<T, R> =>
+  func: NonCurriedHandlerFunction<R, T>
+): HandlerFunction<R, T> =>
   curry(function (source: string, node: T): R {
     return func(source, node);
   });
 
 export const createHandler = <
-  T extends BabelNode = BabelNode,
-  R extends LuaNode = LuaNode
+  R extends LuaNode,
+  T extends BabelNode = BabelNode
 >(
   type: T['type'],
-  handler: NonCurriedHandlerFunction<T, R>
-): BaseNodeHandler<T, R> => ({
+  handler: NonCurriedHandlerFunction<R, T>
+): BaseNodeHandler<R, T> => ({
   type,
   handler: createHandlerFunction(function (source, node: T): R {
     return handler(source, node);

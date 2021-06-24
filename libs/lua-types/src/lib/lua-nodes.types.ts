@@ -2,13 +2,11 @@ export type LuaNode =
   | LuaProgram
   | LuaStatement
   | LuaExpression
-  | LuaDeclaration
   | LuaTableField
-  | LuaNodeGroup
   | LuaVariableDeclarator
   | LuaVariableDeclaratorIdentifier
   | LuaVariableDeclaratorValue
-  | LuaTypeAnnotation
+  | TypeAnnotation
   | LuaType
   | LuaPropertySignature;
 
@@ -16,7 +14,11 @@ export type LuaStatement =
   | LuaExpressionStatement
   | LuaBlockStatement
   | LuaReturnStatement
-  | LuaIfStatement;
+  | LuaVariableDeclaration
+  | LuaIfStatement
+  | LuaNodeGroup
+  | LuaDeclaration
+  | UnhandledStatement;
 
 export interface BaseLuaNode {
   type: string;
@@ -45,7 +47,7 @@ export type LuaExpression =
   | LuaIndexExpression
   | LuaMemberExpression
   | LuaUnaryDeleteExpression
-  | UnhandledNode;
+  | UnhandledExpression;
 
 export type LuaDeclaration =
   | LuaFunctionDeclaration
@@ -121,13 +123,21 @@ export interface LuaTableConstructor extends BaseLuaNode {
   elements: LuaTableField[];
 }
 
-export interface UnhandledNode extends BaseLuaNode {
-  type: 'UnhandledNode';
+export interface UnhandledStatement extends BaseLuaNode {
+  type: 'UnhandledStatement';
+}
+
+export interface UnhandledExpression extends BaseLuaNode {
+  type: 'UnhandledExpression';
+}
+
+export interface UnhandledTypeAnnotation extends BaseLuaNode {
+  type: 'UnhandledTypeAnnotation';
 }
 
 export interface LuaProgram extends BaseLuaNode {
   type: 'Program';
-  body: LuaNode[];
+  body: LuaStatement[];
 }
 
 export interface LuaIdentifier extends BaseLuaNode {
@@ -148,12 +158,12 @@ export interface LuaNodeGroup extends BaseLuaNode {
 
 export interface LuaBlockStatement extends BaseLuaNode {
   type: 'BlockStatement';
-  body: LuaNode[];
+  body: LuaStatement[];
 }
 
 export interface LuaReturnStatement extends BaseLuaNode {
   type: 'ReturnStatement';
-  argument: LuaNode;
+  argument: LuaExpression;
 }
 
 export interface LuaVariableDeclarator extends BaseLuaNode {
@@ -181,7 +191,7 @@ export interface LuaFunctionDeclaration extends BaseLuaNode {
   id: LuaIdentifier;
   params: Array<LuaFunctionParam>;
   defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
-  body: Array<LuaNode>;
+  body: Array<LuaStatement>;
   returnType?: LuaTypeAnnotation;
 }
 
@@ -189,7 +199,7 @@ export interface LuaFunctionExpression extends BaseLuaNode {
   type: 'FunctionExpression';
   params: Array<LuaFunctionParam>;
   defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
-  body: Array<LuaNode>;
+  body: Array<LuaStatement>;
   returnType?: LuaTypeAnnotation;
 }
 
@@ -225,6 +235,8 @@ export type LuaType =
   | LuaTypeBoolean
   | LuaTypeLiteral
   | LuaTypeVoid;
+
+export type TypeAnnotation = LuaTypeAnnotation | UnhandledTypeAnnotation;
 
 export interface LuaTypeAnnotation extends BaseLuaNode {
   type: 'LuaTypeAnnotation';
@@ -318,6 +330,6 @@ export interface LuaUnaryDeleteExpression extends BaseLuaNode {
 export interface LuaIfStatement extends BaseLuaNode {
   type: 'LuaIfStatement';
   test: LuaExpression;
-  consequent: LuaNode[];
-  alternate?: LuaNode[];
+  consequent: LuaStatement[];
+  alternate?: LuaStatement[];
 }

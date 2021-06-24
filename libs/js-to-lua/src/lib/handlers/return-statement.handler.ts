@@ -4,8 +4,8 @@ import { BaseNodeHandler, createHandler } from '../types';
 import { handleExpression } from './expression-statement.handler';
 
 export const handleReturnStatement: BaseNodeHandler<
-  ReturnStatement,
-  LuaReturnStatement
+  LuaReturnStatement,
+  ReturnStatement
 > = createHandler('ReturnStatement', (source, node) =>
   returnStatement(handleExpression.handler(source, node.argument))
 );

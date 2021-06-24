@@ -2,102 +2,106 @@ import {
   FlowType,
   Noop,
   TSAnyKeyword,
-  TSStringKeyword,
-  TSNumberKeyword,
   TSBooleanKeyword,
+  TSNumberKeyword,
   TSPropertySignature,
+  TSStringKeyword,
   TSType,
   TSTypeAnnotation,
   TSTypeLiteral,
-  TypeAnnotation,
   TSVoidKeyword,
+  TypeAnnotation,
 } from '@babel/types';
 import {
+  LuaPropertySignature,
   LuaType,
   LuaTypeAnnotation,
   LuaTypeAny,
-  LuaTypeString,
-  LuaTypeNumber,
   LuaTypeBoolean,
-  LuaPropertySignature,
   LuaTypeLiteral,
+  LuaTypeNumber,
+  LuaTypeString,
   LuaTypeVoid,
   typeAnnotation,
 } from '@js-to-lua/lua-types';
-import { combineHandlers } from '../utils/combine-handlers';
+import {
+  combineHandlers,
+  combineTypeAnnotationHandlers,
+} from '../utils/combine-handlers';
 import { BaseNodeHandler, createHandler } from '../types';
 import { defaultTypeHandler } from '../utils/default-type.handler';
 import { handleExpression } from './expression-statement.handler';
 
 export const handleNoop: BaseNodeHandler<
-  Noop,
-  LuaTypeAnnotation
+  LuaTypeAnnotation,
+  Noop
 > = createHandler('Noop', () => typeAnnotation(null));
 
 export const handleTsTypeAnnotation: BaseNodeHandler<
-  TSTypeAnnotation,
-  LuaTypeAnnotation
+  LuaTypeAnnotation,
+  TSTypeAnnotation
 > = createHandler('TSTypeAnnotation', (source, node) =>
   typeAnnotation(handleTsTypes.handler(source, node.typeAnnotation))
 );
 
 export const handleFlowTypeAnnotation: BaseNodeHandler<
-  TypeAnnotation,
-  LuaTypeAnnotation
+  LuaTypeAnnotation,
+  TypeAnnotation
 > = createHandler('TypeAnnotation', (source, node) =>
   typeAnnotation(handleFlowTypes.handler(source, node.typeAnnotation))
 );
 
-export const typesHandler = combineHandlers<
-  BaseNodeHandler<TypeAnnotation | TSTypeAnnotation | Noop, LuaTypeAnnotation>
+export const typesHandler = combineTypeAnnotationHandlers<
+  LuaTypeAnnotation,
+  BaseNodeHandler<LuaTypeAnnotation, TypeAnnotation | TSTypeAnnotation | Noop>
 >([handleTsTypeAnnotation, handleFlowTypeAnnotation, handleNoop]).handler;
 
 const handleTsAnyKeyword: BaseNodeHandler<
-  TSAnyKeyword,
-  LuaTypeAny
+  LuaTypeAny,
+  TSAnyKeyword
 > = createHandler('TSAnyKeyword', () => ({
   type: 'LuaTypeAny',
 }));
 
 const handleTsStringKeyword: BaseNodeHandler<
-  TSStringKeyword,
-  LuaTypeString
+  LuaTypeString,
+  TSStringKeyword
 > = createHandler('TSStringKeyword', () => ({
   type: 'LuaTypeString',
 }));
 
 const handleTsNumberKeyword: BaseNodeHandler<
-  TSNumberKeyword,
-  LuaTypeNumber
+  LuaTypeNumber,
+  TSNumberKeyword
 > = createHandler('TSNumberKeyword', () => ({
   type: 'LuaTypeNumber',
 }));
 
 const handleTsBooleanKeyword: BaseNodeHandler<
-  TSBooleanKeyword,
-  LuaTypeBoolean
+  LuaTypeBoolean,
+  TSBooleanKeyword
 > = createHandler('TSBooleanKeyword', () => ({
   type: 'LuaTypeBoolean',
 }));
 
 const handleTsVoidKeyword: BaseNodeHandler<
-  TSVoidKeyword,
-  LuaTypeVoid
+  LuaTypeVoid,
+  TSVoidKeyword
 > = createHandler('TSVoidKeyword', () => ({
   type: 'LuaTypeVoid',
 }));
 
 const handleTsTypeLiteral: BaseNodeHandler<
-  TSTypeLiteral,
-  LuaTypeLiteral
+  LuaTypeLiteral,
+  TSTypeLiteral
 > = createHandler('TSTypeLiteral', (source, node) => ({
   type: 'LuaTypeLiteral',
   members: node.members.map(handleTsPropertySignature.handler(source)),
 }));
 
 const handleTsPropertySignature: BaseNodeHandler<
-  TSPropertySignature,
-  LuaPropertySignature
+  LuaPropertySignature,
+  TSPropertySignature
 > = createHandler('TSPropertySignature', (source, node) => ({
   type: 'LuaPropertySignature',
   key: handleExpression.handler(source, node.key),
@@ -106,7 +110,10 @@ const handleTsPropertySignature: BaseNodeHandler<
     : {}),
 }));
 
-export const handleTsTypes = combineHandlers<BaseNodeHandler<TSType, LuaType>>(
+export const handleTsTypes = combineHandlers<
+  LuaType,
+  BaseNodeHandler<LuaType, TSType>
+>(
   [
     handleTsStringKeyword,
     handleTsNumberKeyword,
@@ -119,5 +126,6 @@ export const handleTsTypes = combineHandlers<BaseNodeHandler<TSType, LuaType>>(
 );
 
 export const handleFlowTypes = combineHandlers<
-  BaseNodeHandler<FlowType, LuaType>
+  LuaType,
+  BaseNodeHandler<LuaType, FlowType>
 >([], defaultTypeHandler);

@@ -7,7 +7,7 @@ import {
   LuaCallExpression,
   LuaExpression,
   LuaStringLiteral,
-  UnhandledNode,
+  UnhandledStatement,
   numericLiteral,
   arrayIndexOf,
   objectKeys,
@@ -21,7 +21,7 @@ import {
   createHandlerFunction,
   HandlerFunction,
 } from '../types';
-import { defaultHandler } from '../utils/default.handler';
+import { defaultStatementHandler } from '../utils/default-handlers';
 
 type Bit32Method = 'band' | 'bor' | 'bxor' | 'rshift' | 'arshift' | 'lshift';
 
@@ -36,12 +36,15 @@ const bit32MethodCall = (
   );
 
 export const createBinaryExpressionHandler = (
-  handleExpression: HandlerFunction<Expression, LuaExpression>
-): BaseNodeHandler<BinaryExpression, LuaBinaryExpression | UnhandledNode> =>
+  handleExpression: HandlerFunction<LuaExpression, Expression>
+): BaseNodeHandler<
+  LuaBinaryExpression | UnhandledStatement,
+  BinaryExpression
+> =>
   createHandler('BinaryExpression', (source, node) => {
     const handleOperandAsString: HandlerFunction<
-      Expression,
-      LuaCallExpression | LuaStringLiteral
+      LuaCallExpression | LuaStringLiteral,
+      Expression
     > = createHandlerFunction((source, node: Expression) => {
       if (node.type === 'StringLiteral') {
         return handleExpression(source, node);
@@ -200,6 +203,6 @@ export const createBinaryExpressionHandler = (
           'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
         );
       default:
-        return defaultHandler(source, node);
+        return defaultStatementHandler(source, node);
     }
   });

@@ -32,10 +32,12 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
-  UnhandledNode,
+  UnhandledExpression,
+  UnhandledStatement,
+  UnhandledTypeAnnotation,
 } from './lua-nodes.types';
 
-export const program = (body: LuaNode[] = []): LuaProgram => ({
+export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',
   body,
 });
@@ -47,7 +49,9 @@ export const expressionStatement = (
   expression,
 });
 
-export const returnStatement = (argument: LuaNode): LuaReturnStatement => ({
+export const returnStatement = (
+  argument: LuaReturnStatement['argument']
+): LuaReturnStatement => ({
   type: 'ReturnStatement',
   argument,
 });
@@ -303,8 +307,16 @@ export const typeAnnotation = (
   typeAnnotation,
 });
 
-export const unhandledNode = (): UnhandledNode => ({
-  type: 'UnhandledNode',
+export const unhandledStatement = (): UnhandledStatement => ({
+  type: 'UnhandledStatement',
+});
+
+export const unhandledExpression = (): UnhandledExpression => ({
+  type: 'UnhandledExpression',
+});
+
+export const unhandledTypeAnnotation = (): UnhandledTypeAnnotation => ({
+  type: 'UnhandledTypeAnnotation',
 });
 
 export const withConversionComment = <N extends BaseLuaNode>(

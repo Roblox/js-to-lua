@@ -27,21 +27,21 @@ import { Unpacked } from '../utils/types';
 type ArrayExpressionElement = Unpacked<ArrayExpression['elements']>;
 
 export const createArrayExpressionHandler = (
-  handleExpression: HandlerFunction<Expression, LuaExpression>
+  handleExpression: HandlerFunction<LuaExpression, Expression>
 ): BaseNodeHandler<
-  ArrayExpression,
-  LuaTableConstructor | LuaCallExpression
+  LuaTableConstructor | LuaCallExpression,
+  ArrayExpression
 > => {
   const handleExpressionTableNoKeyFieldHandler: HandlerFunction<
-    Expression,
-    LuaTableNoKeyField
+    LuaTableNoKeyField,
+    Expression
   > = createHandlerFunction((source, expression: Expression) =>
     tableNoKeyField(handleExpression(source, expression))
   );
 
   const handleSpreadExpression: HandlerFunction<
-    SpreadElement,
-    LuaExpression
+    LuaExpression,
+    SpreadElement
   > = createHandlerFunction((source, spreadElement: SpreadElement) =>
     spreadElement.argument.type === 'ArrayExpression'
       ? handleExpression(source, spreadElement.argument)
@@ -51,8 +51,8 @@ export const createArrayExpressionHandler = (
   );
 
   const handleArrayExpressionWithSpread: HandlerFunction<
-    ArrayExpression,
-    LuaCallExpression
+    LuaCallExpression,
+    ArrayExpression
   > = createHandlerFunction((source, expression: ArrayExpression) => {
     const propertiesGroups = expression.elements
       .filter(Boolean)
@@ -74,8 +74,8 @@ export const createArrayExpressionHandler = (
   type ArrayExpressionWithoutSpread = ArrayExpression;
 
   const handleArrayExpressionWithoutSpread: HandlerFunction<
-    ArrayExpressionWithoutSpread,
-    LuaTableConstructor
+    LuaTableConstructor,
+    ArrayExpressionWithoutSpread
   > = createHandlerFunction(
     (source, { elements }: ArrayExpressionWithoutSpread) =>
       tableConstructor(

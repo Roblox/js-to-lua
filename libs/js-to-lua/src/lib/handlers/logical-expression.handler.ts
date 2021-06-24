@@ -11,15 +11,15 @@ import {
   LuaLogicalExpression,
   LuaLogicalExpressionOperatorEnum,
   returnStatement,
-  UnhandledNode,
+  UnhandledStatement,
 } from '@js-to-lua/lua-types';
-import { defaultHandler } from '../utils/default.handler';
+import { defaultStatementHandler } from '../utils/default-handlers';
 
 export const createLogicalExpressionHandler = (
-  handleExpression: HandlerFunction<Expression, LuaExpression>
+  handleExpression: HandlerFunction<LuaExpression, Expression>
 ): BaseNodeHandler<
-  LogicalExpression,
-  LuaLogicalExpression | LuaCallExpression | UnhandledNode
+  LuaLogicalExpression | LuaCallExpression | UnhandledStatement,
+  LogicalExpression
 > =>
   createHandler('LogicalExpression', (source, node) => {
     switch (node.operator) {
@@ -83,6 +83,6 @@ export const createLogicalExpressionHandler = (
             );
       }
       default:
-        return defaultHandler(source, node);
+        return defaultStatementHandler(source, node);
     }
   });

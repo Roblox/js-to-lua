@@ -20,7 +20,7 @@ import { mockNode, mockNodeHandler } from '../testUtils/mock-node';
 const source = '';
 
 const handleArrayExpression = createArrayExpressionHandler((...args) =>
-  combineHandlers<BaseNodeHandler<Expression, LuaExpression>>(
+  combineHandlers<LuaExpression, BaseNodeHandler<LuaExpression, Expression>>(
     [handleArrayExpression],
     mockNodeHandler
   ).handler(...args)

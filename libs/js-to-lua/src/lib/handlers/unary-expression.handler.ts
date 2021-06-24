@@ -19,23 +19,23 @@ import {
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
-  UnhandledNode,
+  UnhandledStatement,
   bit32Identifier,
   withConversionComment,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
-import { defaultHandler } from '../utils/default.handler';
+import { defaultStatementHandler } from '../utils/default-handlers';
 
 export const createUnaryExpressionHandler = (
-  handleExpression: HandlerFunction<Expression, LuaExpression>
+  handleExpression: HandlerFunction<LuaExpression, Expression>
 ): BaseNodeHandler<
-  UnaryExpression,
   | LuaUnaryExpression
   | LuaUnaryVoidExpression
   | LuaUnaryNegationExpression
   | LuaUnaryDeleteExpression
   | LuaCallExpression
-  | UnhandledNode
+  | UnhandledStatement,
+  UnaryExpression
 > =>
   createHandler('UnaryExpression', (source, node: UnaryExpression) => {
     switch (node.operator) {
@@ -67,7 +67,7 @@ export const createUnaryExpressionHandler = (
           'ROBLOX CHECK: `bit32.bnot` clamps arguments and result to [0,2^32 - 1]'
         );
       default:
-        return defaultHandler(source, node);
+        return defaultStatementHandler(source, node);
     }
 
     function handleUnaryNegationExpression(

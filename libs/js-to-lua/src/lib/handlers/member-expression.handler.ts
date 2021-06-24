@@ -16,20 +16,20 @@ import {
   LuaNumericLiteral,
   LuaStringLiteral,
   memberExpression,
-  UnhandledNode,
+  UnhandledStatement,
 } from '@js-to-lua/lua-types';
 import { handleIdentifier } from './expression-statement.handler';
 import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
-import { defaultHandler } from '../utils/default.handler';
+import { defaultStatementHandler } from '../utils/default-handlers';
 
 export const createMemberExpressionHandler = (
-  handleExpression: HandlerFunction<Expression, LuaExpression>
+  handleExpression: HandlerFunction<LuaExpression, Expression>
 ): BaseNodeHandler<
-  MemberExpression,
-  LuaIndexExpression | LuaMemberExpression
+  LuaIndexExpression | LuaMemberExpression,
+  MemberExpression
 > => {
   const handleBinaryExpression = createBinaryExpressionHandler(
     handleExpression
@@ -38,7 +38,11 @@ export const createMemberExpressionHandler = (
     (
       source,
       node: Expression | PrivateName
-    ): LuaStringLiteral | LuaNumericLiteral | LuaExpression | UnhandledNode => {
+    ):
+      | LuaStringLiteral
+      | LuaNumericLiteral
+      | LuaExpression
+      | UnhandledStatement => {
       switch (node.type) {
         case 'NumericLiteral':
           return handleNumericLiteral.handler(source, {
@@ -67,7 +71,7 @@ export const createMemberExpressionHandler = (
             handleBinaryExpression.handler(source, node),
           ]);
         default:
-          return defaultHandler(source, node);
+          return defaultStatementHandler(source, node);
       }
     }
   );

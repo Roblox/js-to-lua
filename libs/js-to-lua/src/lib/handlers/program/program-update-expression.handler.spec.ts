@@ -5,6 +5,7 @@ import {
   functionExpression,
   identifier,
   LuaProgram,
+  LuaStatement,
   program,
   returnStatement,
   variableDeclaration,
@@ -29,7 +30,7 @@ describe('Program handler', () => {
               [],
               [
                 //TODO: must be updated when handled properly
-                identifier('foo += 1'),
+                (identifier('foo += 1') as unknown) as LuaStatement,
                 returnStatement(identifier('foo')),
               ]
             ),
@@ -59,7 +60,7 @@ describe('Program handler', () => {
                   [variableDeclaratorValue(identifier('foo'))]
                 ),
                 //TODO: must be updated when handled properly
-                identifier('foo += 1'),
+                (identifier('foo += 1') as unknown) as LuaStatement,
                 returnStatement(identifier('result')),
               ]
             ),
@@ -85,7 +86,7 @@ describe('Program handler', () => {
               [],
               [
                 //TODO: must be updated when handled properly
-                identifier('foo -= 1'),
+                (identifier('foo -= 1') as unknown) as LuaStatement,
                 returnStatement(identifier('foo')),
               ]
             ),
@@ -115,7 +116,7 @@ describe('Program handler', () => {
                   [variableDeclaratorValue(identifier('foo'))]
                 ),
                 //TODO: must be updated when handled properly
-                identifier('foo -= 1'),
+                (identifier('foo -= 1') as unknown) as LuaStatement,
                 returnStatement(identifier('result')),
               ]
             ),
