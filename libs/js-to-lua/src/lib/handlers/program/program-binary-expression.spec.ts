@@ -126,6 +126,33 @@ describe('Program handler', () => {
       expect(luaProgram).toEqual(expected);
     });
 
+    it('should handle arithmetic add operator with multiple string literals', () => {
+      const given = getProgramNode(`
+     'foo' + 'bar' + 'fizz' + 'buzz';
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          binaryExpression(
+            binaryExpression(
+              binaryExpression(
+                stringLiteral('foo'),
+                '..',
+                stringLiteral('bar')
+              ),
+              '..',
+              stringLiteral('fizz')
+            ),
+            '..',
+            stringLiteral('buzz')
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
     it('should handle arithmetic add operator with one string literal', () => {
       const given = getProgramNode(`
       "foo" + bar

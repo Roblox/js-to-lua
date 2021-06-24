@@ -1,6 +1,8 @@
 import {
+  LuaBinaryExpression,
   LuaBooleanLiteral,
   LuaCallExpression,
+  LuaExpression,
   LuaIdentifier,
   LuaMemberExpression,
   LuaMultilineStringLiteral,
@@ -30,3 +32,11 @@ export const isIdentifier = isNodeType<LuaIdentifier>('Identifier');
 export const isUnaryNegation = isNodeType<LuaUnaryNegationExpression>(
   'LuaUnaryNegationExpression'
 );
+export const isBinaryExpression = isNodeType<LuaBinaryExpression>(
+  'LuaBinaryExpression'
+);
+
+export const isStringInferable = (node: LuaExpression) =>
+  isStringLiteral(node) ||
+  isMultilineStringLiteral(node) ||
+  (isBinaryExpression(node) && node.operator === '..');

@@ -1,6 +1,5 @@
 local a, b = 0, 1
-local function baz()
-end
+local function baz() end
 local foo = {
 	bar = (function()
 		(function()

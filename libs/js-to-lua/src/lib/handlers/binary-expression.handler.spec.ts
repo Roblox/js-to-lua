@@ -1,50 +1,36 @@
-import { BinaryExpression } from '@babel/types';
 import {
+  binaryExpression as babelBinaryExpression,
+  identifier as babelIdentifier,
+  numericLiteral as babelNumericLiteral,
+  stringLiteral as babelStringLiteral,
+} from '@babel/types';
+import {
+  arrayIndexOf,
+  binaryExpression,
+  bit32Identifier,
   callExpression,
   identifier,
   LuaBinaryExpression,
-  binaryExpression,
-  stringLiteral,
+  LuaCallExpression,
   memberExpression,
   numericLiteral,
-  arrayIndexOf,
   objectKeys,
+  stringLiteral,
   withConversionComment,
-  bit32Identifier,
-  LuaCallExpression,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
 
-const DEFAULT_NODE = {
-  leadingComments: null,
-  innerComments: null,
-  trailingComments: null,
-  start: null,
-  end: null,
-  loc: null,
-};
-
 const source = '';
 
 describe('Binary Expression Handler', () => {
   it(`should handle subtract operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '-',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '-',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -60,21 +46,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle division operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '/',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '/',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -90,21 +66,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle multiplication operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '*',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '*',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -120,21 +86,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle remainder operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '%',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '%',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -150,21 +106,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle exponential operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '**',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '**',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -180,21 +126,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle add operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '+',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '+',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -210,21 +146,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle add operator with string literal (left)`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '+',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'StringLiteral',
-        value: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '+',
+      babelStringLiteral('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -240,21 +166,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle add operator with string literal (right)`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '+',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'StringLiteral',
-        value: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '+',
+      babelIdentifier('foo'),
+      babelStringLiteral('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -269,22 +185,55 @@ describe('Binary Expression Handler', () => {
     expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
   });
 
+  it(`should handle add operator with both string literals`, () => {
+    const given = babelBinaryExpression(
+      '+',
+      babelStringLiteral('foo'),
+      babelStringLiteral('bar')
+    );
+
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      stringLiteral('foo'),
+      '..',
+      stringLiteral('bar')
+    );
+
+    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+  });
+
+  it(`should handle add operator with multiple string literals`, () => {
+    const given = babelBinaryExpression(
+      '+',
+      babelBinaryExpression(
+        '+',
+        babelStringLiteral('foo'),
+        babelStringLiteral('bar')
+      ),
+      babelStringLiteral('fizz')
+    );
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      binaryExpression(stringLiteral('foo'), '..', stringLiteral('bar')),
+      '..',
+      stringLiteral('fizz')
+    );
+
+    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+  });
+
   it(`should handle loose equality`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '==',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '==',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -299,21 +248,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle loose inequality`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '!=',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '!=',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -328,21 +267,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle strict equality`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '===',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '===',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -358,21 +287,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle strict inequality`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '!==',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '!==',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -388,21 +307,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle in operator with variable`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: 'in',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      'in',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -427,21 +336,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle in operator with string literal`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: 'in',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'StringLiteral',
-        value: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      'in',
+      babelStringLiteral('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -460,31 +359,18 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle greater than operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '>',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'StringLiteral',
-        value: '3',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 4,
-        extra: {
-          raw: '4',
-        },
-      },
-    };
+    const given = babelBinaryExpression(
+      '>',
+      babelStringLiteral('3'),
+      babelNumericLiteral(4)
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
     );
 
     const expected: LuaBinaryExpression = withConversionComment(
-      binaryExpression(stringLiteral('3'), '>', numericLiteral(4, '4')),
+      binaryExpression(stringLiteral('3'), '>', numericLiteral(4)),
       `ROBLOX CHECK: operator '>' works only if either both arguments are strings or both are a number`
     );
 
@@ -492,34 +378,18 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle less than operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '<',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 3,
-        extra: {
-          raw: '3',
-        },
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 4,
-        extra: {
-          raw: '4',
-        },
-      },
-    };
+    const given = babelBinaryExpression(
+      '<',
+      babelNumericLiteral(3),
+      babelNumericLiteral(4)
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
     );
 
     const expected: LuaBinaryExpression = withConversionComment(
-      binaryExpression(numericLiteral(3, '3'), '<', numericLiteral(4, '4')),
+      binaryExpression(numericLiteral(3), '<', numericLiteral(4)),
       `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
     );
 
@@ -527,34 +397,18 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle greater than or equals operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '>=',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 3,
-        extra: {
-          raw: '3',
-        },
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 4,
-        extra: {
-          raw: '4',
-        },
-      },
-    };
+    const given = babelBinaryExpression(
+      '>=',
+      babelNumericLiteral(3),
+      babelNumericLiteral(4)
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
     );
 
     const expected: LuaBinaryExpression = withConversionComment(
-      binaryExpression(numericLiteral(3, '3'), '>=', numericLiteral(4, '4')),
+      binaryExpression(numericLiteral(3), '>=', numericLiteral(4)),
       `ROBLOX CHECK: operator '>=' works only if either both arguments are strings or both are a number`
     );
 
@@ -562,34 +416,18 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle less than or equals operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '<=',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 3,
-        extra: {
-          raw: '3',
-        },
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 4,
-        extra: {
-          raw: '4',
-        },
-      },
-    };
+    const given = babelBinaryExpression(
+      '<=',
+      babelNumericLiteral(3),
+      babelNumericLiteral(4)
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
     );
 
     const expected: LuaBinaryExpression = withConversionComment(
-      binaryExpression(numericLiteral(3, '3'), '<=', numericLiteral(4, '4')),
+      binaryExpression(numericLiteral(3), '<=', numericLiteral(4)),
       `ROBLOX CHECK: operator '<=' works only if either both arguments are strings or both are a number`
     );
 
@@ -597,21 +435,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle bitwise and operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '&',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '&',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -629,21 +457,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle bitwise or operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '|',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '|',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -661,21 +479,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle bitwise xor operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '^',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '^',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -693,21 +501,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle bitwise unsigned shift right operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '>>>',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '>>>',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -725,21 +523,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle bitwise shift right operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '>>',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '>>',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)
@@ -757,21 +545,11 @@ describe('Binary Expression Handler', () => {
   });
 
   it(`should handle bitwise shift left operator`, () => {
-    const given: BinaryExpression = {
-      ...DEFAULT_NODE,
-      type: 'BinaryExpression',
-      operator: '<<',
-      left: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      right: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelBinaryExpression(
+      '<<',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
       forwardHandlerRef(() => handleExpression)

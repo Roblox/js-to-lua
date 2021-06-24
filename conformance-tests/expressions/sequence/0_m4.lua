@@ -1,6 +1,5 @@
 local a, b = 0, 1
-local function foo(arg)
-end
+local function foo(arg) end
 foo((function()
 	(function()
 		local result = a

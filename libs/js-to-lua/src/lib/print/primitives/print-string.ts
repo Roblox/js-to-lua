@@ -1,7 +1,8 @@
 import { LuaStringLiteral } from '@js-to-lua/lua-types';
 
 export const printString = (node: LuaStringLiteral): string => {
-  return Array.from(`"${node.value.replace(/"/g, '\\"')}"`)
+  const escapedString = node.value.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+  return Array.from(`"${escapedString}"`)
     .map((value) => {
       const codePoint = value.codePointAt(0);
       if (codePoint > 127) {

@@ -1,19 +1,24 @@
-import { BinaryExpression, Expression } from '@babel/types';
 import {
+  BinaryExpression,
+  Expression,
+  isStringLiteral as isBabelStringLiteral,
+} from '@babel/types';
+import {
+  arrayIndexOf,
   binaryExpression,
+  bit32Identifier,
   callExpression,
   identifier,
+  isStringInferable,
   LuaBinaryExpression,
   LuaCallExpression,
   LuaExpression,
   LuaStringLiteral,
-  UnhandledStatement,
-  numericLiteral,
-  arrayIndexOf,
-  objectKeys,
-  withConversionComment,
   memberExpression,
-  bit32Identifier,
+  numericLiteral,
+  objectKeys,
+  UnhandledStatement,
+  withConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   BaseNodeHandler,
@@ -46,19 +51,19 @@ export const createBinaryExpressionHandler = (
       LuaCallExpression | LuaStringLiteral,
       Expression
     > = createHandlerFunction((source, node: Expression) => {
-      if (node.type === 'StringLiteral') {
-        return handleExpression(source, node);
+      const operandNode = handleExpression(source, node);
+
+      if (isStringInferable(operandNode)) {
+        return operandNode;
       }
-      return callExpression(identifier('tostring'), [
-        handleExpression(source, node),
-      ]);
+      return callExpression(identifier('tostring'), [operandNode]);
     });
 
     const handleBinaryAddOperator = createHandlerFunction(
       (source: string, node: BinaryExpression & { operator: '+' }) => {
         if (
-          node.left.type === 'StringLiteral' ||
-          node.right.type === 'StringLiteral'
+          isBabelStringLiteral(node.left) ||
+          isBabelStringLiteral(node.right)
         ) {
           return binaryExpression(
             handleOperandAsString(source, node.left as Expression),
