@@ -1,13 +1,13 @@
 import { rmSync } from 'fs';
 import { readFile } from 'fs/promises';
 import { format, join, normalize, ParsedPath } from 'path';
+import { execSync } from 'child_process';
 
 import {
   changeExtension,
-  execAsync,
   getFiles,
-  normalizeLineEndings,
   normalizedConfig,
+  normalizeLineEndings,
 } from './test-utils';
 
 export enum Milestone {
@@ -40,7 +40,13 @@ export const conformanceTests = (
   { describe, it, xit, expect }
 ) =>
   describe(`conformance tests - ${descriptions[milestone]}`, () => {
-    rmSync(normalizedConfig.outputPath, { recursive: true, force: true });
+    const outputPath = join(normalizedConfig.outputPath, Milestone[milestone]);
+
+    rmSync(outputPath, { recursive: true, force: true });
+
+    const command = `node dist/apps/convert-js-to-lua/main.js -i "${normalizedConfig.inputPath}/**/*.js" -i "${normalizedConfig.inputPath}/**/*.ts" -o ${outputPath}`;
+    execSync(command, { stdio: [] });
+
     const files = getFiles(normalizedConfig.inputPath);
     const translateFiles = files.filter((filePath) => {
       return (
@@ -59,10 +65,8 @@ export const conformanceTests = (
 
       testCase(`should convert: ${filePath}`, async () => {
         const expectedFile = changeExtension(filePath, '.lua');
-        const resultFile = join(normalizedConfig.outputPath, expectedFile);
+        const resultFile = join(outputPath, expectedFile);
 
-        const command = `node dist/apps/convert-js-to-lua/main.js --i ${filePath} -o ${normalizedConfig.outputPath}`;
-        await execAsync(command);
         return Promise.all([
           readFile(expectedFile, { encoding: 'utf-8' }).then(
             normalizeLineEndings

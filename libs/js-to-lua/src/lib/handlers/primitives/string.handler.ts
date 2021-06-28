@@ -9,7 +9,7 @@ export const handleStringLiteral: BaseNodeHandler<
   const _raw = literal.extra?.raw;
   let raw: string = undefined;
   if (typeof _raw === 'string' && _raw.slice(1, -1) !== literal.value) {
-    raw = _raw.replace(/\\\n/g, ''); // remove line continuation
+    raw = _raw.replace(/\\\r\n/g, '').replace(/\\\n/g, ''); // remove line continuation
   }
 
   const extra = raw
