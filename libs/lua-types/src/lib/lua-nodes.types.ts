@@ -76,6 +76,9 @@ export interface LuaNumericLiteral extends BaseLuaNode {
 export interface LuaStringLiteral extends BaseLuaNode {
   type: 'StringLiteral';
   value: string;
+  extra?: {
+    raw?: string;
+  };
 }
 
 export interface LuaMultilineStringLiteral extends BaseLuaNode {

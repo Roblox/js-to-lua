@@ -22,7 +22,7 @@ return function()
 	describe("Lexer", function()
 		it("disallows uncommon control characters", function()
 			expectSyntaxError("\007").to.deep.equal({
-				message = "Syntax Error: Cannot contain the invalid character \"\\u0007\".",
+				message = 'Syntax Error: Cannot contain the invalid character "\\u0007".',
 				locations = { { column = 1, line = 1 } },
 			})
 		end)

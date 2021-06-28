@@ -6,6 +6,7 @@ import {
 } from '../types';
 import {
   ArrowFunctionExpression,
+  AssignmentPattern,
   CallExpression,
   Declaration,
   Expression,
@@ -246,7 +247,13 @@ export const handleFunctionExpression: BaseNodeHandler<
 > = createHandler('FunctionExpression', (source, node) =>
   functionExpression(
     node.params.map(functionParamsHandler(source)),
-    node.params.filter((param) => param.type === 'AssignmentPattern'),
+    node.params
+      .filter((param) => param.type === 'AssignmentPattern')
+      .map((param: AssignmentPattern) => ({
+        ...param,
+        left: handleExpression.handler(source, param.left as any),
+        right: handleExpression.handler(source, param.right),
+      })),
     node.body.body.map(handleStatement.handler(source)),
     node.returnType ? typesHandler(source, node.returnType) : null
   )
@@ -263,7 +270,13 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
 
   return functionExpression(
     node.params.map(functionParamsHandler(source)),
-    node.params.filter((param) => param.type === 'AssignmentPattern'),
+    node.params
+      .filter((param) => param.type === 'AssignmentPattern')
+      .map((param: AssignmentPattern) => ({
+        ...param,
+        left: handleExpression.handler(source, param.left as any),
+        right: handleExpression.handler(source, param.right),
+      })),
     body,
     node.returnType ? typesHandler(source, node.returnType) : null
   );
@@ -341,7 +354,13 @@ export const handleObjectValueFunctionExpression: BaseNodeHandler<
 
   return functionExpression(
     params,
-    node.params.filter((param) => param.type === 'AssignmentPattern'),
+    node.params
+      .filter((param) => param.type === 'AssignmentPattern')
+      .map((param: AssignmentPattern) => ({
+        ...param,
+        left: handleExpression.handler(source, param.left as any),
+        right: handleExpression.handler(source, param.right),
+      })),
     node.body.body.map(handleStatement.handler(source)),
     node.returnType ? typesHandler(source, node.returnType) : null
   );
@@ -402,7 +421,13 @@ export const handleObjectMethod: BaseNodeHandler<
           handleIdentifier.handler(source, node.key) as LuaIdentifier,
           functionExpression(
             params,
-            node.params.filter((param) => param.type === 'AssignmentPattern'),
+            node.params
+              .filter((param) => param.type === 'AssignmentPattern')
+              .map((param: AssignmentPattern) => ({
+                ...param,
+                left: handleExpression.handler(source, param.left as any),
+                right: handleExpression.handler(source, param.right),
+              })),
             node.body.body.map(handleStatement.handler(source)),
             node.returnType ? typesHandler(source, node.returnType) : null
           )
@@ -412,7 +437,13 @@ export const handleObjectMethod: BaseNodeHandler<
           handleObjectKeyExpression(source, node.key),
           functionExpression(
             params,
-            node.params.filter((param) => param.type === 'AssignmentPattern'),
+            node.params
+              .filter((param) => param.type === 'AssignmentPattern')
+              .map((param: AssignmentPattern) => ({
+                ...param,
+                left: handleExpression.handler(source, param.left as any),
+                right: handleExpression.handler(source, param.right),
+              })),
             node.body.body.map(handleStatement.handler(source)),
             node.returnType ? typesHandler(source, node.returnType) : null
           )
@@ -531,7 +562,13 @@ const convertToFunctionDeclaration = (
   return functionDeclaration(
     identifier,
     node.params.map(functionParamsHandler(source)),
-    node.params.filter((param) => param.type === 'AssignmentPattern'),
+    node.params
+      .filter((param) => param.type === 'AssignmentPattern')
+      .map((param: AssignmentPattern) => ({
+        ...param,
+        left: handleExpression.handler(source, param.left as any),
+        right: handleExpression.handler(source, param.right),
+      })),
     body,
     node.returnType ? typesHandler(source, node.returnType) : null
   );

@@ -1,6 +1,10 @@
 import { LuaStringLiteral } from '@js-to-lua/lua-types';
 
 export const printString = (node: LuaStringLiteral): string => {
+  if (node.extra?.raw) {
+    return `${node.extra.raw}`;
+  }
+
   const escapedString = node.value.replace(/"/g, '\\"').replace(/\n/g, '\\n');
   return Array.from(`"${escapedString}"`)
     .map((value) => {
