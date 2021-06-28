@@ -15,11 +15,13 @@ import {
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
   LuaIfStatement,
+  LuaMemberExpression,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
 import { printMultilineString } from './primitives/print-multiline-string';
 import { printIndexExpression } from './print-index-expression';
+import { calculateEqualsForDelimiter } from './utils';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -109,9 +111,7 @@ const _printNode = (node: LuaNode): string => {
     case 'IndexExpression':
       return printIndexExpression(node);
     case 'LuaMemberExpression':
-      return `${printNode(node.base)}${node.indexer}${printNode(
-        node.identifier
-      )}`;
+      return printMemberExpression(node);
     case 'LuaIfStatement':
       return printIfStatement(node);
     case 'UnhandledStatement':
@@ -130,7 +130,17 @@ const _printConversionComment = ({
 }: BaseLuaNode): string => {
   return conversionComments
     ? conversionComments
-        .map((conversionComment) => ` --[[ ${conversionComment} ]]`)
+        .map((conversionComment) => ` ${conversionComment} `)
+        .map<[string, number]>((conversionComment) => [
+          conversionComment,
+          calculateEqualsForDelimiter(conversionComment),
+        ])
+        .map(
+          ([conversionComment, numberOfEquals]) =>
+            ` --[${'='.repeat(
+              numberOfEquals
+            )}[${conversionComment}]${'='.repeat(numberOfEquals)}]`
+        )
         .join('\n')
     : '';
 };
@@ -264,6 +274,22 @@ function printUnaryOperatorArgument(node: LuaExpression): string {
     return printNode(node);
   } else {
     return `(${printNode(node)})`;
+  }
+}
+
+function printMemberExpression(node: LuaMemberExpression): string {
+  return `${printMemberBaseExpression(node.base)}${node.indexer}${printNode(
+    node.identifier
+  )}`;
+}
+
+function printMemberBaseExpression(base: LuaExpression): string {
+  switch (base.type) {
+    case 'TableConstructor':
+    case 'UnhandledExpression':
+      return `(${printNode(base)})`;
+    default:
+      return `${printNode(base)}`;
   }
 }
 

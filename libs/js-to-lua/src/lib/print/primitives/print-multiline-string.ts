@@ -1,4 +1,5 @@
 import { LuaMultilineStringLiteral } from '@js-to-lua/lua-types';
+import { calculateEqualsForDelimiter } from '../utils';
 
 export function printMultilineString(node: LuaMultilineStringLiteral) {
   const numberOfEquals = calculateEqualsForDelimiter(node.value);
@@ -6,24 +7,3 @@ export function printMultilineString(node: LuaMultilineStringLiteral) {
     numberOfEquals
   )}]`;
 }
-
-const calculateEqualsForDelimiter = (luaMultilineString: string) => {
-  let numberOfEquals = 0;
-  while (!validNumberOfEquals(luaMultilineString, numberOfEquals)) {
-    numberOfEquals++;
-  }
-  return numberOfEquals;
-};
-
-const validNumberOfEquals = (
-  luaMultilineString: string,
-  numberOfEquals: number
-) => {
-  if (!numberOfEquals && luaMultilineString.endsWith(']')) {
-    return false;
-  }
-  return !(
-    luaMultilineString.includes(`[${'='.repeat(numberOfEquals)}[`) ||
-    luaMultilineString.includes(`]${'='.repeat(numberOfEquals)}]`)
-  );
-};
