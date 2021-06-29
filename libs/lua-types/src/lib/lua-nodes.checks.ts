@@ -1,42 +1,85 @@
 import {
   LuaBinaryExpression,
-  LuaBooleanLiteral,
   LuaCallExpression,
   LuaExpression,
+  LuaFunctionExpression,
   LuaIdentifier,
+  LuaIndexExpression,
+  LuaLogicalExpression,
   LuaMemberExpression,
-  LuaMultilineStringLiteral,
-  LuaNilLiteral,
-  LuaNode,
-  LuaNumericLiteral,
-  LuaStringLiteral,
+  LuaReturnStatement,
+  LuaTableConstructor,
+  LuaUnaryDeleteExpression,
+  LuaUnaryExpression,
   LuaUnaryNegationExpression,
+  LuaUnaryVoidExpression,
+  UnhandledExpression,
 } from './lua-nodes.types';
+import { isAnyNodeType, isNodeType } from './node.types';
+import {
+  isLiteral,
+  isMultilineStringLiteral,
+  isStringLiteral,
+} from './literals';
 
-const isNodeType = <T extends LuaNode>(type: T['type']) => (
-  node: LuaNode
-): node is T => node.type === type;
-
-export const isBooleanLiteral = isNodeType<LuaBooleanLiteral>('BooleanLiteral');
-export const isNumericLiteral = isNodeType<LuaNumericLiteral>('NumericLiteral');
-export const isMultilineStringLiteral = isNodeType<LuaMultilineStringLiteral>(
-  'MultilineStringLiteral'
-);
-export const isStringLiteral = isNodeType<LuaStringLiteral>('StringLiteral');
-export const isNilLiteral = isNodeType<LuaNilLiteral>('NilLiteral');
-export const isCallExpression = isNodeType<LuaCallExpression>('CallExpression');
-export const isMemberExpression = isNodeType<LuaMemberExpression>(
-  'LuaMemberExpression'
+export const isTableConstructor = isNodeType<LuaTableConstructor>(
+  'TableConstructor'
 );
 export const isIdentifier = isNodeType<LuaIdentifier>('Identifier');
+export const isCallExpression = isNodeType<LuaCallExpression>('CallExpression');
+export const isBinaryExpression = isNodeType<LuaBinaryExpression>(
+  'LuaBinaryExpression'
+);
+export const isLogicalExpression = isNodeType<LuaLogicalExpression>(
+  'LogicalExpression'
+);
+export const isFunctionExpression = isNodeType<LuaFunctionExpression>(
+  'FunctionExpression'
+);
+export const isReturnStatement = isNodeType<LuaReturnStatement>(
+  'ReturnStatement'
+);
+export const isUnaryExpression = isNodeType<LuaUnaryExpression>(
+  'LuaUnaryExpression'
+);
+export const isUnaryVoidExpression = isNodeType<LuaUnaryVoidExpression>(
+  'LuaUnaryVoidExpression'
+);
 export const isUnaryNegation = isNodeType<LuaUnaryNegationExpression>(
   'LuaUnaryNegationExpression'
 );
-export const isBinaryExpression = isNodeType<LuaBinaryExpression>(
-  'LuaBinaryExpression'
+export const isIndexExpression = isNodeType<LuaIndexExpression>(
+  'IndexExpression'
+);
+export const isMemberExpression = isNodeType<LuaMemberExpression>(
+  'LuaMemberExpression'
+);
+export const isUnaryDeleteExpression = isNodeType<LuaUnaryDeleteExpression>(
+  'LuaUnaryDeleteExpression'
+);
+export const isUnhandledExpression = isNodeType<UnhandledExpression>(
+  'UnhandledExpression'
 );
 
 export const isStringInferable = (node: LuaExpression) =>
   isStringLiteral(node) ||
   isMultilineStringLiteral(node) ||
   (isBinaryExpression(node) && node.operator === '..');
+
+export const isExpression = isAnyNodeType<LuaExpression>([
+  isLiteral,
+  isTableConstructor,
+  isIdentifier,
+  isCallExpression,
+  isBinaryExpression,
+  isLogicalExpression,
+  isFunctionExpression,
+  isReturnStatement,
+  isUnaryExpression,
+  isUnaryVoidExpression,
+  isUnaryNegation,
+  isIndexExpression,
+  isMemberExpression,
+  isUnaryDeleteExpression,
+  isUnhandledExpression,
+]);

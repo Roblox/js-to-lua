@@ -1,8 +1,12 @@
 import { handleProgram } from './program.handler';
 import {
+  assignmentStatement,
+  binaryExpression,
   functionDeclaration,
   identifier,
+  ifStatement,
   LuaProgram,
+  nilLiteral,
   nodeGroup,
   program,
   stringLiteral,
@@ -22,7 +26,7 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        nodeGroup([functionDeclaration(identifier('foo'), [], [], [])]),
+        nodeGroup([functionDeclaration(identifier('foo'), [], [])]),
       ]);
       const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
@@ -34,7 +38,7 @@ describe('Program handler', () => {
     `);
 
       const expected: LuaProgram = program([
-        nodeGroup([functionDeclaration(identifier('foo'), [], [], [])]),
+        nodeGroup([functionDeclaration(identifier('foo'), [], [])]),
       ]);
       const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
@@ -50,7 +54,6 @@ describe('Program handler', () => {
           functionDeclaration(
             identifier('foo'),
             [identifier('bar'), identifier('baz')],
-            [],
             []
           ),
         ]),
@@ -70,19 +73,22 @@ describe('Program handler', () => {
           functionDeclaration(
             identifier('foo'),
             [identifier('bar'), identifier('baz')],
-            [],
-            []
+            [
+              ifStatement(
+                binaryExpression(identifier('baz'), '==', nilLiteral()),
+                [
+                  assignmentStatement(
+                    [identifier('baz')],
+                    [stringLiteral('hello')]
+                  ),
+                ]
+              ),
+            ]
           ),
         ]),
       ]);
 
       const luaProgram = handleProgram.handler(source, given);
-
-      expect(luaProgram.body[0].type).toEqual('NodeGroup');
-      if (luaProgram.body[0].type === 'NodeGroup') {
-        expect(luaProgram.body[0].body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
-        luaProgram.body[0].body[0]['defaultValues'] = []; //TODO: remove when AssigmentBlock is available
-      }
       expect(luaProgram).toEqual(expected);
     });
 
@@ -98,8 +104,16 @@ describe('Program handler', () => {
           functionDeclaration(
             identifier('foo'),
             [identifier('bar'), identifier('baz')],
-            [],
             [
+              ifStatement(
+                binaryExpression(identifier('baz'), '==', nilLiteral()),
+                [
+                  assignmentStatement(
+                    [identifier('baz')],
+                    [stringLiteral('hello')]
+                  ),
+                ]
+              ),
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('fizz'))],
                 [variableDeclaratorValue(stringLiteral('fuzz'))]
@@ -110,12 +124,6 @@ describe('Program handler', () => {
       ]);
 
       const luaProgram = handleProgram.handler(source, given);
-      expect(luaProgram.body[0].type).toEqual('NodeGroup');
-
-      if (luaProgram.body[0].type === 'NodeGroup') {
-        expect(luaProgram.body[0].body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
-        luaProgram.body[0].body[0]['defaultValues'] = []; //TODO: remove when AssigmentBlock is available
-      }
       expect(luaProgram).toEqual(expected);
     });
   });

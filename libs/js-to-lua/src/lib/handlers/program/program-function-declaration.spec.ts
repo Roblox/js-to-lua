@@ -1,7 +1,11 @@
 import {
+  assignmentStatement,
+  binaryExpression,
   functionDeclaration,
   identifier,
+  ifStatement,
   LuaProgram,
+  nilLiteral,
   program,
   stringLiteral,
   variableDeclaration,
@@ -19,21 +23,9 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      function foo() {}
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'FunctionDeclaration',
-            id: {
-              type: 'Identifier',
-              name: 'foo',
-            },
-            body: [],
-            params: [],
-            defaultValues: [],
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        functionDeclaration(identifier('foo'), [], []),
+      ]);
 
       const luaProgram = handleProgram.handler(source, given);
       expect(luaProgram).toEqual(expected);
@@ -44,30 +36,13 @@ describe('Program handler', () => {
     const given = getProgramNode(`
    function foo(bar, baz) {}
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'FunctionDeclaration',
-          id: {
-            type: 'Identifier',
-            name: 'foo',
-          },
-          body: [],
-          params: [
-            {
-              type: 'Identifier',
-              name: 'bar',
-            },
-            {
-              type: 'Identifier',
-              name: 'baz',
-            },
-          ],
-          defaultValues: [],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      functionDeclaration(
+        identifier('foo'),
+        [identifier('bar'), identifier('baz')],
+        []
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, given);
     expect(luaProgram).toEqual(expected);
@@ -77,34 +52,19 @@ describe('Program handler', () => {
     const given = getProgramNode(`
    function foo(bar, baz = 'hello') {}
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'FunctionDeclaration',
-          id: {
-            type: 'Identifier',
-            name: 'foo',
-          },
-          body: [],
-          params: [
-            {
-              type: 'Identifier',
-              name: 'bar',
-            },
-            {
-              type: 'Identifier',
-              name: 'baz',
-            },
-          ],
-          defaultValues: [],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      functionDeclaration(
+        identifier('foo'),
+        [identifier('bar'), identifier('baz')],
+        [
+          ifStatement(binaryExpression(identifier('baz'), '==', nilLiteral()), [
+            assignmentStatement([identifier('baz')], [stringLiteral('hello')]),
+          ]),
+        ]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, given);
-    expect(luaProgram.body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
-    luaProgram.body[0]['defaultValues'] = []; //TODO: remove when AssigmentBlock is available
     expect(luaProgram).toEqual(expected);
   });
 
@@ -119,8 +79,10 @@ describe('Program handler', () => {
       functionDeclaration(
         identifier('foo'),
         [identifier('bar'), identifier('baz')],
-        [],
         [
+          ifStatement(binaryExpression(identifier('baz'), '==', nilLiteral()), [
+            assignmentStatement([identifier('baz')], [stringLiteral('hello')]),
+          ]),
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('fizz'))],
             [variableDeclaratorValue(stringLiteral('fuzz'))]
@@ -130,8 +92,6 @@ describe('Program handler', () => {
     ]);
 
     const luaProgram = handleProgram.handler(source, given);
-    expect(luaProgram.body[0]['defaultValues'].length).toBe(1); //TODO: remove when AssignmentPattern is available
-    luaProgram.body[0]['defaultValues'] = []; //TODO: remove when AssigmentBlock is available
     expect(luaProgram).toEqual(expected);
   });
 });

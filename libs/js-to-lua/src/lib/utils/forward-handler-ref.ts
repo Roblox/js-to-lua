@@ -7,3 +7,10 @@ export const forwardHandlerRef = <
 >(
   handleFactory: () => BaseNodeHandler<R, T>
 ): HandlerFunction<R, T> => (...args) => handleFactory().handler(...args);
+
+export const forwardHandlerFunctionRef = <
+  R extends LuaNode,
+  T extends BabelNode = BabelNode
+>(
+  handleFactory: () => HandlerFunction<R, T>
+): HandlerFunction<R, T> => (...args) => handleFactory()(...args);

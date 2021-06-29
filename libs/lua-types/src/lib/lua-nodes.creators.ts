@@ -1,7 +1,5 @@
 import {
-  BaseLuaNode,
   LuaBinaryExpression,
-  LuaBooleanLiteral,
   LuaCallExpression,
   LuaExpression,
   LuaExpressionStatement,
@@ -13,13 +11,8 @@ import {
   LuaLogicalExpression,
   LuaLVal,
   LuaMemberExpression,
-  LuaNilLiteral,
-  LuaNode,
-  LuaNodeGroup,
-  LuaNumericLiteral,
   LuaProgram,
   LuaReturnStatement,
-  LuaStringLiteral,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
@@ -36,6 +29,7 @@ import {
   UnhandledStatement,
   UnhandledTypeAnnotation,
 } from './lua-nodes.types';
+import { BaseLuaNode } from './node.types';
 
 export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',
@@ -50,10 +44,10 @@ export const expressionStatement = (
 });
 
 export const returnStatement = (
-  argument: LuaReturnStatement['argument']
+  ...arguments_: LuaReturnStatement['arguments']
 ): LuaReturnStatement => ({
   type: 'ReturnStatement',
-  argument,
+  arguments: arguments_,
 });
 
 export const variableDeclaration = (
@@ -81,7 +75,6 @@ export const variableDeclaratorValue = (
 
 export const functionExpression = (
   params: LuaFunctionExpression['params'] = [],
-  defaultValues: LuaFunctionExpression['defaultValues'] = [],
   body: LuaFunctionExpression['body'] = [],
   returnType: LuaFunctionExpression['returnType'] = null
 ): LuaFunctionExpression => {
@@ -89,7 +82,6 @@ export const functionExpression = (
     return {
       type: 'FunctionExpression',
       params,
-      defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
       body,
       returnType,
     };
@@ -97,7 +89,6 @@ export const functionExpression = (
   return {
     type: 'FunctionExpression',
     params,
-    defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
     body,
   };
 };
@@ -105,7 +96,6 @@ export const functionExpression = (
 export const functionDeclaration = (
   id: LuaFunctionDeclaration['id'],
   params: LuaFunctionDeclaration['params'] = [],
-  defaultValues: LuaFunctionDeclaration['defaultValues'] = [],
   body: LuaFunctionDeclaration['body'] = [],
   returnType: LuaFunctionDeclaration['returnType'] = null
 ): LuaFunctionDeclaration => {
@@ -114,7 +104,6 @@ export const functionDeclaration = (
       type: 'FunctionDeclaration',
       id,
       params,
-      defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
       body,
       returnType,
     };
@@ -123,14 +112,6 @@ export const functionDeclaration = (
     type: 'FunctionDeclaration',
     id,
     params,
-    defaultValues, //TODO: should be <LuaAssignmentPattern>, but it's not available yet
-    body,
-  };
-};
-
-export const nodeGroup = (body: LuaNode[]): LuaNodeGroup => {
-  return {
-    type: 'NodeGroup',
     body,
   };
 };
@@ -165,35 +146,6 @@ export const tableNoKeyField = (
 ): LuaTableNoKeyField => ({
   type: 'TableNoKeyField',
   value,
-});
-
-export const numericLiteral = (
-  value: LuaNumericLiteral['value'],
-  raw?: LuaNumericLiteral['extra']['raw']
-): LuaNumericLiteral => ({
-  type: 'NumericLiteral',
-  value,
-  extra: raw && {
-    raw,
-  },
-});
-
-export const booleanLiteral = (
-  value: LuaBooleanLiteral['value']
-): LuaBooleanLiteral => ({
-  type: 'BooleanLiteral',
-  value,
-});
-
-export const stringLiteral = (
-  value: LuaStringLiteral['value']
-): LuaStringLiteral => ({
-  type: 'StringLiteral',
-  value,
-});
-
-export const nilLiteral = (): LuaNilLiteral => ({
-  type: 'NilLiteral',
 });
 
 export const callExpression = (

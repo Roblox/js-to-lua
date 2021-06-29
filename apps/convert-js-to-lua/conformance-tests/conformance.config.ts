@@ -22,12 +22,6 @@ export default {
     'conformance-tests/operators/ternary/5_m4.js',
     'conformance-tests/operators/ternary/6_m4.js',
 
-    'conformance-tests/operators/assignment/0_m4.js',
-    'conformance-tests/operators/assignment/1_m4.js',
-    'conformance-tests/operators/assignment/2_m4.js',
-    'conformance-tests/operators/assignment/3_m4.js',
-    'conformance-tests/operators/assignment/4_m4.js',
-
     'conformance-tests/operators/assignment-addition/0_m4.js',
     'conformance-tests/operators/assignment-addition/1_m4.js',
     'conformance-tests/operators/assignment-addition/2_m4x.js',

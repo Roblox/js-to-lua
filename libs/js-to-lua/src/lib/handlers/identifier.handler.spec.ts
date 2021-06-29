@@ -9,7 +9,10 @@ import {
   nilLiteral,
   numericLiteral,
 } from '@js-to-lua/lua-types';
-import { handleIdentifier } from './expression-statement.handler';
+import { createIdentifierHandler } from './identifier.handler';
+import { createTypeAnnotationHandler } from './type-annotation.handler';
+import { forwardHandlerRef } from '../utils/forward-handler-ref';
+import { handleExpression } from './expression-statement.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,
@@ -45,6 +48,11 @@ const KEYWORDS = [
   'until',
   'while',
 ];
+
+const handleIdentifier = createIdentifierHandler(
+  createTypeAnnotationHandler(forwardHandlerRef(() => handleExpression))
+    .typesHandler
+);
 
 describe('Identifier Handler', () => {
   it(`should return Lua NilLiteral Node if name is 'undefined'`, () => {

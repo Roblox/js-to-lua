@@ -68,7 +68,6 @@ export const createLogicalExpressionHandler = (
           : callExpression(
               functionExpression(
                 [],
-                [],
                 [
                   ifStatement(
                     callExpression(booleanMethod('toJSBoolean'), [

@@ -55,7 +55,6 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [],
                 [
                   ifStatement(
                     callExpression(booleanMethod('toJSBoolean'), [
@@ -102,7 +101,6 @@ describe('Program handler', () => {
             expressionStatement(
               callExpression(
                 functionExpression(
-                  [],
                   [],
                   [
                     ifStatement(

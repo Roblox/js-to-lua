@@ -1,19 +1,21 @@
 import { MemberExpression } from '@babel/types';
 import {
+  binaryExpression,
+  booleanLiteral,
+  callExpression,
   identifier,
   indexExpression,
   LuaIndexExpression,
-  callExpression,
+  LuaMemberExpression,
+  memberExpression,
   numericLiteral,
   stringLiteral,
-  booleanLiteral,
-  memberExpression,
-  LuaMemberExpression,
-  binaryExpression,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
 import { createMemberExpressionHandler } from './member-expression.handler';
+import { createIdentifierHandler } from './identifier.handler';
+import { createTypeAnnotationHandler } from './type-annotation.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,
@@ -23,6 +25,14 @@ const DEFAULT_NODE = {
   end: null,
   loc: null,
 };
+
+const handleMemberExpression = createMemberExpressionHandler(
+  forwardHandlerRef(() => handleExpression),
+  createIdentifierHandler(
+    createTypeAnnotationHandler(forwardHandlerRef(() => handleExpression))
+      .typesHandler
+  ).handler
+);
 
 const source = '';
 
@@ -43,10 +53,6 @@ describe('Member Expression Handler', () => {
         value: 'bar',
       },
     };
-
-    const handleMemberExpression = createMemberExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
-    );
 
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
@@ -72,10 +78,6 @@ describe('Member Expression Handler', () => {
         value: 5,
       },
     };
-
-    const handleMemberExpression = createMemberExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
-    );
 
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
@@ -105,10 +107,6 @@ describe('Member Expression Handler', () => {
       },
     };
 
-    const handleMemberExpression = createMemberExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
-    );
-
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
       numericLiteral(13)
@@ -134,10 +132,6 @@ describe('Member Expression Handler', () => {
       },
     };
 
-    const handleMemberExpression = createMemberExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
-    );
-
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
       callExpression(identifier('tostring'), [booleanLiteral(true)])
@@ -162,10 +156,6 @@ describe('Member Expression Handler', () => {
         name: 'bar',
       },
     };
-
-    const handleMemberExpression = createMemberExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
-    );
 
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
@@ -202,10 +192,6 @@ describe('Member Expression Handler', () => {
       },
     };
 
-    const handleMemberExpression = createMemberExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
-    );
-
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
       binaryExpression(
@@ -234,10 +220,6 @@ describe('Member Expression Handler', () => {
         name: 'bar',
       },
     };
-
-    const handleMemberExpression = createMemberExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
-    );
 
     const expected: LuaMemberExpression = memberExpression(
       identifier('foo'),

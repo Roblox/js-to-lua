@@ -1,3 +1,7 @@
+import { BaseLuaNode } from './node.types';
+import { AssignmentStatement, LuaNodeGroup } from './statement';
+import { LuaLiteral } from './literals';
+
 export type LuaNode =
   | LuaProgram
   | LuaStatement
@@ -18,19 +22,8 @@ export type LuaStatement =
   | LuaIfStatement
   | LuaNodeGroup
   | LuaDeclaration
+  | AssignmentStatement
   | UnhandledStatement;
-
-export interface BaseLuaNode {
-  type: string;
-  conversionComments?: string[];
-}
-
-export type LuaLiteral =
-  | LuaNumericLiteral
-  | LuaStringLiteral
-  | LuaMultilineStringLiteral
-  | LuaBooleanLiteral
-  | LuaNilLiteral;
 
 export type LuaExpression =
   | LuaLiteral
@@ -63,36 +56,6 @@ export interface LuaCallExpression extends BaseLuaNode {
   type: 'CallExpression';
   callee: LuaExpression;
   arguments: LuaExpression[];
-}
-
-export interface LuaNumericLiteral extends BaseLuaNode {
-  type: 'NumericLiteral';
-  value: number;
-  extra?: {
-    raw?: string;
-  };
-}
-
-export interface LuaStringLiteral extends BaseLuaNode {
-  type: 'StringLiteral';
-  value: string;
-  extra?: {
-    raw?: string;
-  };
-}
-
-export interface LuaMultilineStringLiteral extends BaseLuaNode {
-  type: 'MultilineStringLiteral';
-  value: string;
-}
-
-export interface LuaBooleanLiteral extends BaseLuaNode {
-  type: 'BooleanLiteral';
-  value: boolean;
-}
-
-export interface LuaNilLiteral extends BaseLuaNode {
-  type: 'NilLiteral';
 }
 
 export interface LuaTableNoKeyField extends BaseLuaNode {
@@ -154,10 +117,6 @@ export interface LuaVariableDeclaration extends BaseLuaNode {
   identifiers: LuaVariableDeclaratorIdentifier[];
   values: LuaVariableDeclaratorValue[];
 }
-export interface LuaNodeGroup extends BaseLuaNode {
-  type: 'NodeGroup';
-  body: LuaNode[];
-}
 
 export interface LuaBlockStatement extends BaseLuaNode {
   type: 'BlockStatement';
@@ -166,7 +125,7 @@ export interface LuaBlockStatement extends BaseLuaNode {
 
 export interface LuaReturnStatement extends BaseLuaNode {
   type: 'ReturnStatement';
-  argument: LuaExpression;
+  arguments: LuaExpression[];
 }
 
 export interface LuaVariableDeclarator extends BaseLuaNode {
@@ -193,7 +152,6 @@ export interface LuaFunctionDeclaration extends BaseLuaNode {
   type: 'FunctionDeclaration';
   id: LuaIdentifier;
   params: Array<LuaFunctionParam>;
-  defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
   body: Array<LuaStatement>;
   returnType?: LuaTypeAnnotation;
 }
@@ -201,7 +159,6 @@ export interface LuaFunctionDeclaration extends BaseLuaNode {
 export interface LuaFunctionExpression extends BaseLuaNode {
   type: 'FunctionExpression';
   params: Array<LuaFunctionParam>;
-  defaultValues: Array<any>; //TODO: should be <LuaAssignmentPattern>, but it's not available yet
   body: Array<LuaStatement>;
   returnType?: LuaTypeAnnotation;
 }

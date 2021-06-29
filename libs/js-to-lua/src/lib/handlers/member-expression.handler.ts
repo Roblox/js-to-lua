@@ -4,21 +4,27 @@ import {
   createHandlerFunction,
   HandlerFunction,
 } from '../types';
-import { Expression, MemberExpression, PrivateName } from '@babel/types';
+import {
+  Expression,
+  Identifier,
+  MemberExpression,
+  PrivateName,
+} from '@babel/types';
 import {
   callExpression,
   identifier,
   indexExpression,
+  LuaBinaryExpression,
   LuaExpression,
   LuaIdentifier,
   LuaIndexExpression,
   LuaMemberExpression,
+  LuaNilLiteral,
   LuaNumericLiteral,
   LuaStringLiteral,
   memberExpression,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
-import { handleIdentifier } from './expression-statement.handler';
 import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
@@ -26,7 +32,11 @@ import { createBinaryExpressionHandler } from './binary-expression.handler';
 import { defaultStatementHandler } from '../utils/default-handlers';
 
 export const createMemberExpressionHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleIdentifier: HandlerFunction<
+    LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression,
+    Identifier
+  >
 ): BaseNodeHandler<
   LuaIndexExpression | LuaMemberExpression,
   MemberExpression
@@ -57,7 +67,7 @@ export const createMemberExpressionHandler = (
           ]);
         case 'Identifier':
           return callExpression(identifier('tostring'), [
-            handleIdentifier.handler(source, node),
+            handleIdentifier(source, node),
           ]);
         case 'BinaryExpression':
           if (

@@ -22,12 +22,15 @@ import { printString } from './primitives/print-string';
 import { printMultilineString } from './primitives/print-multiline-string';
 import { printIndexExpression } from './print-index-expression';
 import { calculateEqualsForDelimiter } from './utils';
+import { createPrintAssignmentStatement } from './statements/print-assignment-statement';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
   const comment = _printConversionComment(node);
   return `${nodeStr}${comment}`;
 };
+
+const forwardRefPrintNode = (node: LuaNode) => printNode(node);
 
 const _printNode = (node: LuaNode): string => {
   switch (node.type) {
@@ -114,6 +117,8 @@ const _printNode = (node: LuaNode): string => {
       return printMemberExpression(node);
     case 'LuaIfStatement':
       return printIfStatement(node);
+    case 'AssignmentStatement':
+      return createPrintAssignmentStatement(forwardRefPrintNode)(node);
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':
@@ -206,7 +211,7 @@ end`;
 }
 
 export function printReturnStatement(node: LuaReturnStatement) {
-  return `return ${printNode(node.argument)}`;
+  return `return ${node.arguments.map(printNode).join(', ')}`;
 }
 
 function printCallExpression(node: LuaCallExpression): string {
@@ -233,24 +238,13 @@ function printFunction(node) {
     .map((parameter) => printNode(parameter))
     .join(', ');
 
-  const defaults = node.defaultValues
-    .map(
-      (assignmentPattern) =>
-        `  if ${assignmentPattern.left.name} == nil then
-    ${assignmentPattern.left.name} = ${printNode(assignmentPattern.right)}
-  end`
-    )
-    .join('\n');
-
   const body = node.body.map((statement) => printNode(statement)).join('\n');
 
   const returnType = node.returnType ? printNode(node.returnType) : '';
 
   return `function${name}(${parameters})${returnType}${
-    node.defaultValues.length || node.body.length ? '\n' : ' '
-  }${defaults}${
-    node.defaultValues.length && node.body.length ? '\n' : ''
-  }${body}${node.defaultValues.length || node.body.length ? '\n' : ''}end`;
+    node.body.length ? '\n' : ' '
+  }${body}${node.body.length ? '\n' : ''}end`;
 }
 
 function printTypeAliasDeclaration(node) {
@@ -296,12 +290,10 @@ function printMemberBaseExpression(base: LuaExpression): string {
 function printIfStatement(node: LuaIfStatement): string {
   const consequentStatements = node.consequent.map(printNode);
   const alternateStatement = node.alternate
-    ? `else
+    ? ` else
   ${node.alternate.map(printNode)}`
     : '';
   return `if ${printNode(node.test)} then
-  ${consequentStatements}
-${alternateStatement}
-end
-  `;
+  ${consequentStatements}${alternateStatement}
+end`;
 }

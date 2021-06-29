@@ -27,7 +27,6 @@ describe('Program handler', () => {
           callExpression(
             functionExpression(
               [],
-              [],
               [
                 //TODO: must be updated when handled properly
                 (identifier('foo += 1') as unknown) as LuaStatement,
@@ -52,7 +51,6 @@ describe('Program handler', () => {
         expressionStatement(
           callExpression(
             functionExpression(
-              [],
               [],
               [
                 variableDeclaration(
@@ -83,7 +81,6 @@ describe('Program handler', () => {
           callExpression(
             functionExpression(
               [],
-              [],
               [
                 //TODO: must be updated when handled properly
                 (identifier('foo -= 1') as unknown) as LuaStatement,
@@ -108,7 +105,6 @@ describe('Program handler', () => {
         expressionStatement(
           callExpression(
             functionExpression(
-              [],
               [],
               [
                 variableDeclaration(

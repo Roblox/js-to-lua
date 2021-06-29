@@ -63,7 +63,6 @@ describe('Logical Expression Handler', () => {
       const expected = callExpression(
         functionExpression(
           [],
-          [],
           [
             ifStatement(
               callExpression(booleanMethod('toJSBoolean'), [
@@ -97,7 +96,6 @@ describe('Logical Expression Handler', () => {
 
         const expected = callExpression(
           functionExpression(
-            [],
             [],
             [
               ifStatement(
