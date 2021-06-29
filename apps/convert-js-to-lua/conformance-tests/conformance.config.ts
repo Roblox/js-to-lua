@@ -135,5 +135,13 @@ export default {
     'conformance-tests/statements/conditional/if-else/0_m4.js',
     'conformance-tests/statements/conditional/if-else/1_m4.js',
     'conformance-tests/statements/conditional/if-else/2_m4.js',
+    
+    'conformance-tests/statements/error-handling/try-catch/0_m4.js',
+    'conformance-tests/statements/error-handling/try-catch/1_m4.js',
+    'conformance-tests/statements/error-handling/try-catch/2_m4.js',
+    'conformance-tests/statements/error-handling/try-catch/3_m4.js',
+    'conformance-tests/statements/error-handling/try-catch/4_m4.js',
+    'conformance-tests/statements/error-handling/try-catch/5_m4.js',
+    'conformance-tests/statements/error-handling/try-catch/6_m4.js',
   ],
 };
