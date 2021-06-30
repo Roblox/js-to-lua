@@ -1,22 +1,10 @@
 import { Expression, UnaryExpression } from '@babel/types';
 import {
   bit32Identifier,
-  booleanLiteral,
-  booleanMethod,
   callExpression,
   identifier,
-  isBooleanLiteral,
-  isMultilineStringLiteral,
-  isNilLiteral,
-  isNumericLiteral,
-  isStringLiteral,
-  isUnaryNegation,
   LuaCallExpression,
   LuaExpression,
-  LuaMultilineStringLiteral,
-  LuaNode,
-  LuaNumericLiteral,
-  LuaStringLiteral,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
@@ -31,6 +19,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
 import { defaultStatementHandler } from '../utils/default-handlers';
+import { createExpressionAsBooleanHandler } from './handle-as-boolean';
 
 export const createUnaryExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
@@ -44,6 +33,9 @@ export const createUnaryExpressionHandler = (
   UnaryExpression
 > =>
   createHandler('UnaryExpression', (source, node: UnaryExpression) => {
+    const expressionAsBooleanHandler = createExpressionAsBooleanHandler(
+      handleExpression
+    );
     switch (node.operator) {
       case 'typeof':
         return callExpression(identifier('typeof'), [
@@ -81,54 +73,7 @@ export const createUnaryExpressionHandler = (
       node: UnaryExpression
     ) {
       return unaryNegationExpression(
-        handleUnaryNegationExpressionArgument(source, node.argument)
+        expressionAsBooleanHandler(source, node.argument)
       );
-    }
-
-    function handleUnaryNegationExpressionArgument(
-      source: string,
-      node: Expression
-    ) {
-      const isCoercableLiteral = (
-        node: LuaNode
-      ): node is
-        | LuaStringLiteral
-        | LuaNumericLiteral
-        | LuaMultilineStringLiteral =>
-        [
-          isStringLiteral,
-          isNumericLiteral,
-          isMultilineStringLiteral,
-        ].some((predicate) => predicate(node));
-      const arg = handleExpression(source, node);
-
-      if (isBooleanLiteral(arg)) {
-        return arg;
-      }
-
-      if (isCoercableLiteral(arg)) {
-        return withConversionComment(
-          booleanLiteral(!!arg.value),
-          `ROBLOX DEVIATION: coerced from \`${source.slice(
-            node.start,
-            node.end
-          )}\` to preserve JS behavior`
-        );
-      }
-      if (isNilLiteral(arg)) {
-        return withConversionComment(
-          booleanLiteral(false),
-          `ROBLOX DEVIATION: coerced from \`${source.slice(
-            node.start,
-            node.end
-          )}\` to preserve JS behavior`
-        );
-      }
-
-      if (isUnaryNegation(arg)) {
-        return arg;
-      }
-
-      return callExpression(booleanMethod('toJSBoolean'), [arg]);
     }
   });

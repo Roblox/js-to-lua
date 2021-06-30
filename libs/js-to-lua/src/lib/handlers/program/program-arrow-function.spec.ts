@@ -15,6 +15,7 @@ import {
   binaryExpression,
   nilLiteral,
   assignmentStatement,
+  ifClause,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { stringLiteral } from '@babel/types';
@@ -67,13 +68,15 @@ describe('Program handler', () => {
             [identifier('bar'), identifier('baz')],
             [
               ifStatement(
-                binaryExpression(identifier('baz'), '==', nilLiteral()),
-                [
-                  assignmentStatement(
-                    [identifier('baz')],
-                    [stringLiteral('hello')]
-                  ),
-                ]
+                ifClause(
+                  binaryExpression(identifier('baz'), '==', nilLiteral()),
+                  [
+                    assignmentStatement(
+                      [identifier('baz')],
+                      [stringLiteral('hello')]
+                    ),
+                  ]
+                )
               ),
             ]
           ),
@@ -98,13 +101,15 @@ describe('Program handler', () => {
             [identifier('bar'), identifier('baz')],
             [
               ifStatement(
-                binaryExpression(identifier('baz'), '==', nilLiteral()),
-                [
-                  assignmentStatement(
-                    [identifier('baz')],
-                    [stringLiteral('hello')]
-                  ),
-                ]
+                ifClause(
+                  binaryExpression(identifier('baz'), '==', nilLiteral()),
+                  [
+                    assignmentStatement(
+                      [identifier('baz')],
+                      [stringLiteral('hello')]
+                    ),
+                  ]
+                )
               ),
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('fizz'))],

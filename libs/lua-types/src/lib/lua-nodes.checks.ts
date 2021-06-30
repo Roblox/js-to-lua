@@ -1,9 +1,12 @@
 import {
   LuaBinaryExpression,
   LuaCallExpression,
+  LuaElseClause,
+  LuaElseifClause,
   LuaExpression,
   LuaFunctionExpression,
   LuaIdentifier,
+  LuaIfClause,
   LuaIndexExpression,
   LuaLogicalExpression,
   LuaMemberExpression,
@@ -57,6 +60,13 @@ export const isMemberExpression = isNodeType<LuaMemberExpression>(
 export const isUnaryDeleteExpression = isNodeType<LuaUnaryDeleteExpression>(
   'LuaUnaryDeleteExpression'
 );
+
+export const isIfClause = isNodeType<LuaIfClause>('IfClause');
+
+export const isElseifClause = isNodeType<LuaElseifClause>('ElseifClause');
+
+export const isElseClause = isNodeType<LuaElseClause>('ElseClause');
+
 export const isUnhandledExpression = isNodeType<UnhandledExpression>(
   'UnhandledExpression'
 );

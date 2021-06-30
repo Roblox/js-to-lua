@@ -4,6 +4,7 @@ import {
   binaryExpression,
   functionDeclaration,
   identifier,
+  ifClause,
   ifStatement,
   LuaProgram,
   nilLiteral,
@@ -75,13 +76,15 @@ describe('Program handler', () => {
             [identifier('bar'), identifier('baz')],
             [
               ifStatement(
-                binaryExpression(identifier('baz'), '==', nilLiteral()),
-                [
-                  assignmentStatement(
-                    [identifier('baz')],
-                    [stringLiteral('hello')]
-                  ),
-                ]
+                ifClause(
+                  binaryExpression(identifier('baz'), '==', nilLiteral()),
+                  [
+                    assignmentStatement(
+                      [identifier('baz')],
+                      [stringLiteral('hello')]
+                    ),
+                  ]
+                )
               ),
             ]
           ),
@@ -106,13 +109,15 @@ describe('Program handler', () => {
             [identifier('bar'), identifier('baz')],
             [
               ifStatement(
-                binaryExpression(identifier('baz'), '==', nilLiteral()),
-                [
-                  assignmentStatement(
-                    [identifier('baz')],
-                    [stringLiteral('hello')]
-                  ),
-                ]
+                ifClause(
+                  binaryExpression(identifier('baz'), '==', nilLiteral()),
+                  [
+                    assignmentStatement(
+                      [identifier('baz')],
+                      [stringLiteral('hello')]
+                    ),
+                  ]
+                )
               ),
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('fizz'))],

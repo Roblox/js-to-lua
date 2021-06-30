@@ -3,7 +3,9 @@ import { Expression, LogicalExpression } from '@babel/types';
 import {
   booleanMethod,
   callExpression,
+  elseClause,
   functionExpression,
+  ifClause,
   ifStatement,
   logicalExpression,
   LuaCallExpression,
@@ -70,11 +72,14 @@ export const createLogicalExpressionHandler = (
                 [],
                 [
                   ifStatement(
-                    callExpression(booleanMethod('toJSBoolean'), [
-                      leftExpression,
-                    ]),
-                    [returnStatement(rightExpression)],
-                    [returnStatement(leftExpression)]
+                    ifClause(
+                      callExpression(booleanMethod('toJSBoolean'), [
+                        leftExpression,
+                      ]),
+                      [returnStatement(rightExpression)]
+                    ),
+                    [],
+                    elseClause([returnStatement(leftExpression)])
                   ),
                 ]
               ),

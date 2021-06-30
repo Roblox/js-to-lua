@@ -3,6 +3,7 @@ import {
   assignmentStatement,
   AssignmentStatement,
   binaryExpression,
+  ifClause,
   ifStatement,
   LuaExpression,
   LuaIdentifier,
@@ -17,7 +18,9 @@ export const createAssignmentPatternHandlerFunction = (
   createHandlerFunction((source, node: AssignmentPattern) => {
     const leftExpression = handleIdentifier(source, node.left as Identifier);
     const rightExpression = handleExpression(source, node.right);
-    return ifStatement(binaryExpression(leftExpression, '==', nilLiteral()), [
-      assignmentStatement([leftExpression], [rightExpression]),
-    ]);
+    return ifStatement(
+      ifClause(binaryExpression(leftExpression, '==', nilLiteral()), [
+        assignmentStatement([leftExpression], [rightExpression]),
+      ])
+    );
   });

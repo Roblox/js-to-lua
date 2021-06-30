@@ -5,6 +5,7 @@ import {
 import {
   assignmentStatement,
   binaryExpression,
+  ifClause,
   ifStatement,
   LuaIdentifier,
   nilLiteral,
@@ -29,13 +30,15 @@ describe('Assignment Pattern Handler', () => {
     const given = babelAssignmentPattern(leftGiven, rightGiven);
 
     const expected = ifStatement(
-      binaryExpression(mockNodeWithValue(leftGiven), '==', nilLiteral()),
-      [
-        assignmentStatement(
-          [mockNodeWithValue(leftGiven) as LuaIdentifier],
-          [mockNodeWithValue(rightGiven)]
-        ),
-      ]
+      ifClause(
+        binaryExpression(mockNodeWithValue(leftGiven), '==', nilLiteral()),
+        [
+          assignmentStatement(
+            [mockNodeWithValue(leftGiven) as LuaIdentifier],
+            [mockNodeWithValue(rightGiven)]
+          ),
+        ]
+      )
     );
 
     expect(handleAssignmentPattern(source, given)).toEqual(expected);

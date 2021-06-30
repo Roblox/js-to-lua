@@ -95,6 +95,7 @@ import { createAssignmentExpressionHandlerFunction } from './statement/assignmen
 import { createAssignmentStatementHandlerFunction } from './statement/assignment-statement.handler';
 import { createBlockStatementHandler } from './block-statement.handler';
 import { createIdentifierHandler } from './identifier.handler';
+import { createIfStatementHandler } from './if-statement.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -599,6 +600,10 @@ export const handleStatement = combineStatementHandlers<LuaStatement>([
   createReturnStatementHandler(
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleExpressionAsStatement)
+  ),
+  createIfStatementHandler(
+    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => handleStatement)
   ),
 ]);
 

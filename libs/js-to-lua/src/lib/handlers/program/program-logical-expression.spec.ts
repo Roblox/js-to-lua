@@ -4,9 +4,11 @@ import {
   booleanLiteral,
   booleanMethod,
   callExpression,
+  elseClause,
   expressionStatement,
   functionExpression,
   identifier,
+  ifClause,
   ifStatement,
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
@@ -57,11 +59,14 @@ describe('Program handler', () => {
                 [],
                 [
                   ifStatement(
-                    callExpression(booleanMethod('toJSBoolean'), [
-                      identifier('foo'),
-                    ]),
-                    [returnStatement(identifier('bar'))],
-                    [returnStatement(identifier('foo'))]
+                    ifClause(
+                      callExpression(booleanMethod('toJSBoolean'), [
+                        identifier('foo'),
+                      ]),
+                      [returnStatement(identifier('bar'))]
+                    ),
+                    [],
+                    elseClause([returnStatement(identifier('foo'))])
                   ),
                 ]
               ),
@@ -104,11 +109,14 @@ describe('Program handler', () => {
                   [],
                   [
                     ifStatement(
-                      callExpression(booleanMethod('toJSBoolean'), [
-                        leftExpected,
-                      ]),
-                      [returnStatement(rightExpected)],
-                      [returnStatement(leftExpected)]
+                      ifClause(
+                        callExpression(booleanMethod('toJSBoolean'), [
+                          leftExpected,
+                        ]),
+                        [returnStatement(rightExpected)]
+                      ),
+                      [],
+                      elseClause([returnStatement(leftExpected)])
                     ),
                   ]
                 ),

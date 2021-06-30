@@ -16,6 +16,7 @@ import {
   LuaVariableDeclaratorValue,
   LuaIfStatement,
   LuaMemberExpression,
+  LuaClause,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -288,12 +289,21 @@ function printMemberBaseExpression(base: LuaExpression): string {
 }
 
 function printIfStatement(node: LuaIfStatement): string {
-  const consequentStatements = node.consequent.map(printNode);
-  const alternateStatement = node.alternate
-    ? ` else
-  ${node.alternate.map(printNode)}`
-    : '';
-  return `if ${printNode(node.test)} then
-  ${consequentStatements}${alternateStatement}
+  const clauses = [
+    node.ifClause,
+    ...(node.elseifClauses ? node.elseifClauses : []),
+    ...(node.elseClause ? [node.elseClause] : []),
+  ];
+  return `${clauses.map(printClause).join('\n')}
 end`;
+}
+
+function printClause(node: LuaClause): string {
+  if (node.type === 'IfClause' || node.type === 'ElseifClause') {
+    return `${node.type === 'IfClause' ? 'if' : 'elseif'} ${printNode(
+      node.condition
+    )} then ${node.body.map(printNode)}`;
+  } else {
+    return `else ${node.body.map(printNode)}`;
+  }
 }

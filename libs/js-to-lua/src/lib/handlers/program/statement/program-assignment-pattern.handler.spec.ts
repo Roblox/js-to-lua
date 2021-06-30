@@ -3,6 +3,7 @@ import {
   binaryExpression,
   functionDeclaration,
   identifier,
+  ifClause,
   ifStatement,
   nilLiteral,
   program,
@@ -24,8 +25,10 @@ describe('Program handler', () => {
           [identifier('foo')],
           [
             ifStatement(
-              binaryExpression(identifier('foo'), '==', nilLiteral()),
-              [assignmentStatement([identifier('foo')], [identifier('bar')])]
+              ifClause(
+                binaryExpression(identifier('foo'), '==', nilLiteral()),
+                [assignmentStatement([identifier('foo')], [identifier('bar')])]
+              )
             ),
           ]
         ),

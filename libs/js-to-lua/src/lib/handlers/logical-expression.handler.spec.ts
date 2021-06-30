@@ -11,7 +11,9 @@ import {
 import {
   booleanMethod,
   callExpression,
+  elseClause,
   functionExpression,
+  ifClause,
   ifStatement,
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
@@ -65,11 +67,14 @@ describe('Logical Expression Handler', () => {
           [],
           [
             ifStatement(
-              callExpression(booleanMethod('toJSBoolean'), [
-                mockNodeWithValue(leftGiven),
-              ]),
-              [returnStatement(mockNodeWithValue(rightGiven))],
-              [returnStatement(mockNodeWithValue(leftGiven))]
+              ifClause(
+                callExpression(booleanMethod('toJSBoolean'), [
+                  mockNodeWithValue(leftGiven),
+                ]),
+                [returnStatement(mockNodeWithValue(rightGiven))]
+              ),
+              [],
+              elseClause([returnStatement(mockNodeWithValue(leftGiven))])
             ),
           ]
         ),
@@ -99,11 +104,14 @@ describe('Logical Expression Handler', () => {
             [],
             [
               ifStatement(
-                callExpression(booleanMethod('toJSBoolean'), [
-                  mockNodeWithValue(leftGiven),
-                ]),
-                [returnStatement(mockNodeWithValue(rightGiven))],
-                [returnStatement(mockNodeWithValue(leftGiven))]
+                ifClause(
+                  callExpression(booleanMethod('toJSBoolean'), [
+                    mockNodeWithValue(leftGiven),
+                  ]),
+                  [returnStatement(mockNodeWithValue(rightGiven))]
+                ),
+                [],
+                elseClause([returnStatement(mockNodeWithValue(leftGiven))])
               ),
             ]
           ),

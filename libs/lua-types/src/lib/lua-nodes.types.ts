@@ -12,7 +12,8 @@ export type LuaNode =
   | LuaVariableDeclaratorValue
   | TypeAnnotation
   | LuaType
-  | LuaPropertySignature;
+  | LuaPropertySignature
+  | LuaClause;
 
 export type LuaStatement =
   | LuaExpressionStatement
@@ -289,7 +290,26 @@ export interface LuaUnaryDeleteExpression extends BaseLuaNode {
 
 export interface LuaIfStatement extends BaseLuaNode {
   type: 'LuaIfStatement';
-  test: LuaExpression;
-  consequent: LuaStatement[];
-  alternate?: LuaStatement[];
+  ifClause: LuaIfClause;
+  elseifClauses?: LuaElseifClause[];
+  elseClause?: LuaElseClause;
 }
+
+export interface LuaIfClause extends BaseLuaNode {
+  type: 'IfClause';
+  condition: LuaExpression;
+  body: LuaNode[];
+}
+
+export interface LuaElseifClause extends BaseLuaNode {
+  type: 'ElseifClause';
+  condition: LuaExpression;
+  body: LuaNode[];
+}
+
+export interface LuaElseClause extends BaseLuaNode {
+  type: 'ElseClause';
+  body: LuaNode[];
+}
+
+export type LuaClause = LuaIfClause | LuaElseifClause | LuaElseClause;

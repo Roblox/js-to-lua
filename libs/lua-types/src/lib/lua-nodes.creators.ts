@@ -1,11 +1,14 @@
 import {
   LuaBinaryExpression,
   LuaCallExpression,
+  LuaElseClause,
+  LuaElseifClause,
   LuaExpression,
   LuaExpressionStatement,
   LuaFunctionDeclaration,
   LuaFunctionExpression,
   LuaIdentifier,
+  LuaIfClause,
   LuaIfStatement,
   LuaIndexExpression,
   LuaLogicalExpression,
@@ -242,14 +245,37 @@ export const logicalExpression = (
 });
 
 export const ifStatement = (
-  test: LuaIfStatement['test'],
-  consequent: LuaIfStatement['consequent'],
-  alternate?: LuaIfStatement['alternate']
+  ifClause: LuaIfStatement['ifClause'],
+  elseifClauses?: LuaIfStatement['elseifClauses'],
+  elseClause?: LuaIfStatement['elseClause']
 ): LuaIfStatement => ({
   type: 'LuaIfStatement',
-  test,
-  consequent,
-  ...(alternate ? { alternate } : {}),
+  ifClause,
+  ...(elseifClauses && elseifClauses.length ? { elseifClauses } : {}),
+  ...(elseClause ? { elseClause } : {}),
+});
+
+export const ifClause = (
+  condition: LuaIfClause['condition'],
+  body: LuaIfClause['body']
+): LuaIfClause => ({
+  type: 'IfClause',
+  condition,
+  body,
+});
+
+export const elseifClause = (
+  condition: LuaElseifClause['condition'],
+  body: LuaElseifClause['body']
+): LuaElseifClause => ({
+  type: 'ElseifClause',
+  condition,
+  body,
+});
+
+export const elseClause = (body: LuaElseClause['body']): LuaElseClause => ({
+  type: 'ElseClause',
+  body,
 });
 
 export const typeAnnotation = (
