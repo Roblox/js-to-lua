@@ -1,0 +1,1 @@
+import foo, { bar , baz as fizz} from 'foo'

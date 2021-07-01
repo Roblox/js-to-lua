@@ -151,5 +151,23 @@ export default {
     'conformance-tests/statements/export/default-direct_m4.js',
     'conformance-tests/statements/export/default-predeclared_m4.js',
     'conformance-tests/statements/export/named-and-default_m4.js',
+
+    'conformance-tests/statements/import/absolute/default-member-and-alias_m4x.js',
+    'conformance-tests/statements/import/absolute/default_m4x.js',
+    'conformance-tests/statements/import/absolute/multiple-imports_m4x.js',
+    'conformance-tests/statements/import/absolute/multiple-members_m4x.js',
+    'conformance-tests/statements/import/absolute/single-member_m4x.js',
+    'conformance-tests/statements/import/absolute/type-import_m4x.ts',
+    'conformance-tests/statements/import/absolute/module_m4x.js',
+
+    'conformance-tests/statements/import/relative/default-deep-nested-folder_m4x.js',
+    'conformance-tests/statements/import/relative/default-parent-folder_m4x.js',
+    'conformance-tests/statements/import/relative/default-same-folder_m4x.js',
+    'conformance-tests/statements/import/relative/import-everything_m4x.js',
+    'conformance-tests/statements/import/relative/multiple-named_m4x.js',
+    'conformance-tests/statements/import/relative/named-alias_m4x.js',
+    'conformance-tests/statements/import/relative/type-import_m4x.ts',
+    'conformance-tests/statements/import/relative/module_m4x.js',
+    'conformance-tests/statements/import/index_m4x.js',
   ],
 };
