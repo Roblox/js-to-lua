@@ -33,6 +33,9 @@
     },
     "stylua-wasm": {
       "tags": []
+    },
+    "shared-utils": {
+      "tags": []
     }
   }
 }

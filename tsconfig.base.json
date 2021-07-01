@@ -16,13 +16,14 @@
     "baseUrl": ".",
     "paths": {
       "@js-to-lua/js-to-lua": ["libs/js-to-lua/src/index.ts"],
-      "@js-to-lua/lua-types": ["libs/lua-types/src/index.ts"]
+      "@js-to-lua/lua-types": ["libs/lua-types/src/index.ts"],
+      "@js-to-lua/shared-utils": ["libs/shared-utils/src/index.ts"]
     },
     "alwaysStrict": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": false,
-    "strictPropertyInitialization": false,
+    "strictPropertyInitialization": true,
     "noImplicitAny": false,
     "noImplicitThis": true,
     "noImplicitReturns": true

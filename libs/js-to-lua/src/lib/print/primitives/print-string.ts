@@ -8,7 +8,7 @@ export const printString = (node: LuaStringLiteral): string => {
   const escapedString = node.value.replace(/"/g, '\\"').replace(/\n/g, '\\n');
   return Array.from(`"${escapedString}"`)
     .map((value) => {
-      const codePoint = value.codePointAt(0);
+      const codePoint = value.codePointAt(0)!;
       if (codePoint > 127) {
         const hex = codePoint.toString(16).toUpperCase();
         value = `\\u{${hex}}`;

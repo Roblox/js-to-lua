@@ -13,11 +13,14 @@ describe('Combine Handlers', () => {
   });
 
   it('should use default handler if no handler provided', () => {
-    combineHandlers([], mockNodeHandler).handler(source, {
-      type: 'StringLiteral',
-      start: 0,
-      end: 1,
-    });
+    combineHandlers(Array<BaseNodeHandler<LuaNode>>(), mockNodeHandler).handler(
+      source,
+      {
+        type: 'StringLiteral',
+        start: 0,
+        end: 1,
+      }
+    );
 
     expect(mockNodeHandler).toHaveBeenCalled();
   });

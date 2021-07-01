@@ -17,6 +17,7 @@ import {
   withConversionComment,
 } from '@js-to-lua/lua-types';
 import { HandlerFunction } from '../types';
+import { getNodeSource } from '../utils/get-node-source';
 
 export const createExpressionAsBooleanHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
@@ -34,18 +35,18 @@ export const createExpressionAsBooleanHandler = (
   if (isCoercableLiteral(arg)) {
     return withConversionComment(
       booleanLiteral(!!arg.value),
-      `ROBLOX DEVIATION: coerced from \`${source.slice(
-        node.start,
-        node.end
+      `ROBLOX DEVIATION: coerced from \`${getNodeSource(
+        source,
+        node
       )}\` to preserve JS behavior`
     );
   }
   if (isNilLiteral(arg)) {
     return withConversionComment(
       booleanLiteral(false),
-      `ROBLOX DEVIATION: coerced from \`${source.slice(
-        node.start,
-        node.end
+      `ROBLOX DEVIATION: coerced from \`${getNodeSource(
+        source,
+        node
       )}\` to preserve JS behavior`
     );
   }

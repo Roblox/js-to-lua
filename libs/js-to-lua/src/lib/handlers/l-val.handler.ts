@@ -15,6 +15,7 @@ import {
   createHandlerFunction,
   HandlerFunction,
 } from '../types';
+import { getNodeSource } from '../utils/get-node-source';
 
 export const createLValHandler = (
   handleIdentifier: HandlerFunction<
@@ -29,7 +30,7 @@ export const createLValHandler = (
     return withConversionComment(
       identifier('__unhandledIdentifier__'),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
-      source.slice(node.start, node.end)
+      getNodeSource(source, node)
     );
   });
 

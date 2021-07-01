@@ -12,7 +12,6 @@ import {
   LuaIfStatement,
   LuaIndexExpression,
   LuaLogicalExpression,
-  LuaLVal,
   LuaMemberExpression,
   LuaProgram,
   LuaReturnStatement,
@@ -26,6 +25,7 @@ import {
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
   LuaVariableDeclaration,
+  LuaVariableDeclarator,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
   UnhandledExpression,
@@ -33,6 +33,7 @@ import {
   UnhandledTypeAnnotation,
 } from './lua-nodes.types';
 import { BaseLuaNode } from './node.types';
+import { isTruthy } from '@js-to-lua/shared-utils';
 
 export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',
@@ -54,8 +55,8 @@ export const returnStatement = (
 });
 
 export const variableDeclaration = (
-  identifiers: LuaVariableDeclaratorIdentifier[],
-  values: LuaVariableDeclaratorValue[]
+  identifiers: LuaVariableDeclaration['identifiers'],
+  values: LuaVariableDeclaration['values']
 ): LuaVariableDeclaration => ({
   type: 'VariableDeclaration',
   identifiers,
@@ -63,23 +64,32 @@ export const variableDeclaration = (
 });
 
 export const variableDeclaratorIdentifier = (
-  value: LuaLVal
+  value: LuaVariableDeclaratorIdentifier['value']
 ): LuaVariableDeclaratorIdentifier => ({
   type: 'VariableDeclaratorIdentifier',
   value,
 });
 
 export const variableDeclaratorValue = (
-  value: LuaExpression | null
+  value: LuaVariableDeclaratorValue['value']
 ): LuaVariableDeclaratorValue => ({
   type: 'VariableDeclaratorValue',
   value,
 });
 
+export const variableDeclarator = (
+  id: LuaVariableDeclarator['id'],
+  init: LuaVariableDeclarator['init']
+): LuaVariableDeclarator => ({
+  type: 'VariableDeclarator',
+  id,
+  init,
+});
+
 export const functionExpression = (
   params: LuaFunctionExpression['params'] = [],
   body: LuaFunctionExpression['body'] = [],
-  returnType: LuaFunctionExpression['returnType'] = null
+  returnType: LuaFunctionExpression['returnType'] = undefined
 ): LuaFunctionExpression => {
   if (returnType) {
     return {
@@ -100,7 +110,7 @@ export const functionDeclaration = (
   id: LuaFunctionDeclaration['id'],
   params: LuaFunctionDeclaration['params'] = [],
   body: LuaFunctionDeclaration['body'] = [],
-  returnType: LuaFunctionDeclaration['returnType'] = null
+  returnType: LuaFunctionDeclaration['returnType'] = undefined
 ): LuaFunctionDeclaration => {
   if (returnType) {
     return {
@@ -279,7 +289,7 @@ export const elseClause = (body: LuaElseClause['body']): LuaElseClause => ({
 });
 
 export const typeAnnotation = (
-  typeAnnotation: LuaTypeAnnotation['typeAnnotation']
+  typeAnnotation?: LuaTypeAnnotation['typeAnnotation']
 ): LuaTypeAnnotation => ({
   type: 'LuaTypeAnnotation',
   typeAnnotation,
@@ -301,9 +311,9 @@ export const withConversionComment = <N extends BaseLuaNode>(
   node: N,
   ...conversionComments: string[]
 ): N => {
-  const _conversionComments = [].concat(
-    ...[node.conversionComments, conversionComments.filter(Boolean)].filter(
-      Boolean
+  const _conversionComments = Array<string>().concat(
+    ...[node.conversionComments, conversionComments.filter(isTruthy)].filter(
+      isTruthy
     )
   );
   return {

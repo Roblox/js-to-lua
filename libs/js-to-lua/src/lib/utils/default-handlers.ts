@@ -8,13 +8,14 @@ import {
   unhandledTypeAnnotation,
   withConversionComment,
 } from '@js-to-lua/lua-types';
+import { getNodeSource } from './get-node-source';
 
 export const defaultStatementHandler: HandlerFunction<LuaStatement> = createHandlerFunction(
   (source, node) => {
     return withConversionComment(
       unhandledStatement(),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
-      source.slice(node.start, node.end)
+      getNodeSource(source, node)
     );
   }
 );
@@ -24,7 +25,7 @@ export const defaultExpressionHandler: HandlerFunction<LuaExpression> = createHa
     return withConversionComment(
       unhandledExpression(),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
-      source.slice(node.start, node.end)
+      getNodeSource(source, node)
     );
   }
 );
@@ -34,7 +35,7 @@ export const defaultTypeAnnotationHandler: HandlerFunction<TypeAnnotation> = cre
     return withConversionComment(
       unhandledTypeAnnotation(),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
-      source.slice(node.start, node.end)
+      getNodeSource(source, node)
     );
   }
 );

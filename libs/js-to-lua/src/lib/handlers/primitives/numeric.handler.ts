@@ -7,7 +7,7 @@ export const handleNumericLiteral: BaseNodeHandler<
   NumericLiteral
 > = createHandler('NumericLiteral', (source, literal) => {
   const _raw = literal.extra?.raw;
-  let raw: string = undefined;
+  let raw: string | undefined = undefined;
   if (
     typeof _raw === 'string' &&
     validNumberStrings.some((regexp) => regexp.test(_raw))

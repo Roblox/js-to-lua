@@ -21,8 +21,7 @@ import {
   tableConstructor,
   tableNoKeyField,
 } from '@js-to-lua/lua-types';
-import { splitBy } from '../utils/split-by';
-import { Unpacked } from '../utils/types';
+import { isTruthy, splitBy, Unpacked } from '@js-to-lua/shared-utils';
 
 type ArrayExpressionElement = Unpacked<ArrayExpression['elements']>;
 
@@ -55,9 +54,11 @@ export const createArrayExpressionHandler = (
     ArrayExpression
   > = createHandlerFunction((source, expression: ArrayExpression) => {
     const propertiesGroups = expression.elements
-      .filter(Boolean)
+      .filter(isTruthy)
       .reduce(
-        splitBy<ArrayExpressionElement, SpreadElement>(isSpreadElement),
+        splitBy<NonNullable<ArrayExpressionElement>, SpreadElement>(
+          isSpreadElement
+        ),
         []
       );
     const args: LuaExpression[] = propertiesGroups.map((group) => {
@@ -72,20 +73,25 @@ export const createArrayExpressionHandler = (
   });
 
   type ArrayExpressionWithoutSpread = ArrayExpression;
-
   const handleArrayExpressionWithoutSpread: HandlerFunction<
     LuaTableConstructor,
     ArrayExpressionWithoutSpread
   > = createHandlerFunction(
     (source, { elements }: ArrayExpressionWithoutSpread) =>
       tableConstructor(
-        elements.map(handleExpressionTableNoKeyFieldHandler(source))
+        elements
+          .filter(isTruthy)
+          .map(handleExpressionTableNoKeyFieldHandler(source))
       )
   );
 
-  return createHandler('ArrayExpression', (source, expression) =>
-    expression.elements.every((element) => element.type !== 'SpreadElement')
-      ? handleArrayExpressionWithoutSpread(source, expression)
-      : handleArrayExpressionWithSpread(source, expression)
+  return createHandler(
+    'ArrayExpression',
+    (source, expression: ArrayExpression) =>
+      expression.elements.every(
+        (element) => !element || element.type !== 'SpreadElement'
+      )
+        ? handleArrayExpressionWithoutSpread(source, expression)
+        : handleArrayExpressionWithSpread(source, expression)
   );
 };

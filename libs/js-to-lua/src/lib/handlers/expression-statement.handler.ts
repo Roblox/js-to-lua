@@ -66,6 +66,7 @@ import {
   UnhandledStatement,
   unhandledStatement,
   variableDeclaration,
+  variableDeclarator,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
   withConversionComment,
@@ -76,8 +77,6 @@ import { createTypeAnnotationHandler } from './type-annotation.handler';
 import { createFunctionParamsHandler } from './function-params.handler';
 import { createLValHandler } from './l-val.handler';
 import { createTypeAliasDeclarationHandler } from './type-alias-declaration.handler';
-import { splitBy } from '../utils/split-by';
-import { Unpacked } from '../utils/types';
 import { createReturnStatementHandler } from './statement/return-statement.handler';
 import { createArrayExpressionHandler } from './array-expression.handler';
 import {
@@ -96,6 +95,7 @@ import { createAssignmentStatementHandlerFunction } from './statement/assignment
 import { createBlockStatementHandler } from './block-statement.handler';
 import { createIdentifierHandler } from './identifier.handler';
 import { createIfStatementHandler } from './if-statement.handler';
+import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -220,7 +220,7 @@ export const handleFunctionExpression: BaseNodeHandler<
         ),
       ...node.body.body.map<LuaStatement>(handleStatement.handler(source)),
     ],
-    node.returnType ? typesHandler(source, node.returnType) : null
+    node.returnType ? typesHandler(source, node.returnType) : undefined
   )
 );
 
@@ -243,7 +243,7 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
         ),
       ...body,
     ],
-    node.returnType ? typesHandler(source, node.returnType) : null
+    node.returnType ? typesHandler(source, node.returnType) : undefined
   );
 });
 
@@ -360,7 +360,7 @@ export const handleObjectValueFunctionExpression: BaseNodeHandler<
         ),
       ...node.body.body.map<LuaStatement>(handleStatement.handler(source)),
     ],
-    node.returnType ? typesHandler(source, node.returnType) : null
+    node.returnType ? typesHandler(source, node.returnType) : undefined
   );
 });
 
@@ -429,7 +429,7 @@ export const handleObjectMethod: BaseNodeHandler<
                 handleStatement.handler(source)
               ),
             ],
-            node.returnType ? typesHandler(source, node.returnType) : null
+            node.returnType ? typesHandler(source, node.returnType) : undefined
           )
         );
       default:
@@ -447,7 +447,7 @@ export const handleObjectMethod: BaseNodeHandler<
                 handleStatement.handler(source)
               ),
             ],
-            node.returnType ? typesHandler(source, node.returnType) : null
+            node.returnType ? typesHandler(source, node.returnType) : undefined
           )
         );
     }
@@ -468,11 +468,10 @@ const handleVariableDeclarator: BaseNodeHandler<
   LuaVariableDeclarator,
   VariableDeclarator
 > = createHandler('VariableDeclarator', (source, node: VariableDeclarator) => {
-  return {
-    type: 'VariableDeclarator',
-    id: lValHandler(source, node.id),
-    init: node.init ? handleExpression.handler(source, node.init) : null,
-  };
+  return variableDeclarator(
+    lValHandler(source, node.id),
+    node.init ? handleExpression.handler(source, node.init) : null
+  );
 });
 
 export const handleVariableDeclaration: BaseNodeHandler<
@@ -494,7 +493,7 @@ export const handleVariableDeclaration: BaseNodeHandler<
     ...declaration.declarations
       .filter(isNotFunctionDeclaration)
       .map(handleDeclaration)
-      .reduceRight(
+      .reduceRight<Pick<LuaVariableDeclaration, 'identifiers' | 'values'>>(
         (obj, declarator) => {
           obj.identifiers.unshift(variableDeclaratorIdentifier(declarator.id));
           if (declarator.init !== null || obj.values.length > 0) {
@@ -528,7 +527,7 @@ const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
   LuaFunctionDeclaration | UnhandledStatement,
   VariableDeclarator
 > = createHandlerFunction((source, node: VariableDeclarator) => {
-  switch (node.init.type) {
+  switch (node.init?.type) {
     case 'ArrowFunctionExpression':
     case 'FunctionExpression':
       return convertToFunctionDeclaration(
@@ -539,8 +538,8 @@ const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
     default:
       return withConversionComment(
         unhandledStatement(),
-        `ROBLOX TODO: Unhandled node for type: ${node.init.type}, when within 'init' expression for ${node.type} node`,
-        source.slice(node.start, node.end)
+        `ROBLOX TODO: Unhandled node for type: ${node.init?.type}, when within 'init' expression for ${node.type} node`,
+        source.slice(node.start || 0, node.end || 0)
       );
   }
 });
@@ -566,7 +565,7 @@ const convertToFunctionDeclaration = (
         ),
       ...body,
     ],
-    node.returnType ? typesHandler(source, node.returnType) : null
+    node.returnType ? typesHandler(source, node.returnType) : undefined
   );
 };
 
@@ -577,7 +576,7 @@ export const handleFunctionDeclaration: BaseNodeHandler<
   return convertToFunctionDeclaration(
     source,
     node,
-    handleIdentifier.handler(source, node.id) as LuaIdentifier
+    handleIdentifier.handler(source, node.id!) as LuaIdentifier
   );
 });
 

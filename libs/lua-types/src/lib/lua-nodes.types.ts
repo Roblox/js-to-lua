@@ -135,7 +135,10 @@ export interface LuaVariableDeclarator extends BaseLuaNode {
   init: LuaExpression | null;
 }
 
-export type LuaLVal = LuaIdentifier /*| MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty*/;
+export type LuaLVal =
+  | LuaIdentifier
+  | LuaMemberExpression
+  | LuaIndexExpression /*| MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty*/;
 
 export interface LuaVariableDeclaratorIdentifier extends BaseLuaNode {
   type: 'VariableDeclaratorIdentifier';
@@ -201,7 +204,7 @@ export type TypeAnnotation = LuaTypeAnnotation | UnhandledTypeAnnotation;
 
 export interface LuaTypeAnnotation extends BaseLuaNode {
   type: 'LuaTypeAnnotation';
-  typeAnnotation: LuaType | null;
+  typeAnnotation?: LuaType;
 }
 
 export interface LuaTypeAliasDeclaration extends BaseLuaNode {

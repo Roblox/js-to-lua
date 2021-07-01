@@ -39,7 +39,7 @@ export const createTypeAnnotationHandler = (
   const handleNoop: BaseNodeHandler<
     LuaTypeAnnotation,
     Noop
-  > = createHandler('Noop', () => typeAnnotation(null));
+  > = createHandler('Noop', () => typeAnnotation());
 
   const handleTsTypeAnnotation: BaseNodeHandler<
     LuaTypeAnnotation,

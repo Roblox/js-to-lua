@@ -10,13 +10,15 @@ export interface LuaNumericLiteral extends BaseLuaNode {
 
 export const numericLiteral = (
   value: LuaNumericLiteral['value'],
-  raw?: LuaNumericLiteral['extra']['raw']
+  raw?: string
 ): LuaNumericLiteral => ({
   type: 'NumericLiteral',
   value,
-  extra: raw && {
-    raw,
-  },
+  extra: raw
+    ? {
+        raw,
+      }
+    : undefined,
 });
 
 export const isNumericLiteral = isNodeType<LuaNumericLiteral>('NumericLiteral');
