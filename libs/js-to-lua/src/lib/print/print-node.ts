@@ -17,6 +17,8 @@ import {
   LuaIfStatement,
   LuaMemberExpression,
   LuaClause,
+  isIfClause,
+  isElseifClause,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -299,11 +301,12 @@ end`;
 }
 
 function printClause(node: LuaClause): string {
-  if (node.type === 'IfClause' || node.type === 'ElseifClause') {
-    return `${node.type === 'IfClause' ? 'if' : 'elseif'} ${printNode(
+  const body = node.body.map(printNode).join('\n');
+  if (isIfClause(node) || isElseifClause(node)) {
+    return `${isIfClause(node) ? 'if' : 'elseif'} ${printNode(
       node.condition
-    )} then ${node.body.map(printNode)}`;
+    )} then${node.body.length ? ' \n' : ''}${body}`;
   } else {
-    return `else ${node.body.map(printNode)}`;
+    return `else${node.body.length ? ' \n' : ''}${body}`;
   }
 }
