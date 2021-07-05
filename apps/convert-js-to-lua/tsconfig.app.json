@@ -5,6 +5,6 @@
     "module": "commonjs",
     "types": ["node"]
   },
-  "exclude": ["**/*.spec.ts", "src/fixtures/**"],
+  "exclude": ["**/*.spec.ts", "src/fixtures/**", "conformance-tests/**"],
   "include": ["**/*.ts"]
 }

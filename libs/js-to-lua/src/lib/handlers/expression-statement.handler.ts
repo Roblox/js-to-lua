@@ -14,8 +14,8 @@ import {
   FunctionDeclaration,
   FunctionExpression,
   Identifier,
-  isAssignmentPattern,
-  isSpreadElement,
+  isAssignmentPattern as isBabelAssignmentPattern_,
+  isSpreadElement as isBabelSpreadElement,
   MemberExpression,
   ObjectExpression,
   ObjectMethod,
@@ -96,6 +96,7 @@ import { createBlockStatementHandler } from './block-statement.handler';
 import { createIdentifierHandler } from './identifier.handler';
 import { createIfStatementHandler } from './if-statement.handler';
 import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
+import { createExportHandler } from './statement/export';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -104,6 +105,8 @@ type NoSpreadObjectProperty = Exclude<
   SpreadElement
 >;
 type ObjectExpressionProperty = Unpacked<ObjectExpression['properties']>;
+const isBabelAssignmentPattern = (param: unknown): param is AssignmentPattern =>
+  isBabelAssignmentPattern_(param as any);
 
 export const handleExpressionStatement = createHandler(
   'ExpressionStatement',
@@ -175,7 +178,7 @@ export const handleCallExpression = createHandler(
 const handleObjectExpressionWithSpread = createHandlerFunction(
   (source, expression: ObjectExpression): LuaCallExpression => {
     const propertiesGroups = expression.properties.reduce(
-      splitBy<ObjectExpressionProperty, SpreadElement>(isSpreadElement),
+      splitBy<ObjectExpressionProperty, SpreadElement>(isBabelSpreadElement),
       []
     );
     const args: LuaExpression[] = propertiesGroups.map((group) => {
@@ -214,10 +217,8 @@ export const handleFunctionExpression: BaseNodeHandler<
     node.params.map(functionParamsHandler(source)),
     [
       ...node.params
-        .filter((param) => isAssignmentPattern(param))
-        .map((param: AssignmentPattern) =>
-          handleAssignmentPattern(source, param)
-        ),
+        .filter(isBabelAssignmentPattern)
+        .map((param) => handleAssignmentPattern(source, param)),
       ...node.body.body.map<LuaStatement>(handleStatement.handler(source)),
     ],
     node.returnType ? typesHandler(source, node.returnType) : undefined
@@ -237,10 +238,8 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
     node.params.map(functionParamsHandler(source)),
     [
       ...node.params
-        .filter((param) => isAssignmentPattern(param))
-        .map((param: AssignmentPattern) =>
-          handleAssignmentPattern(source, param)
-        ),
+        .filter(isBabelAssignmentPattern)
+        .map((param) => handleAssignmentPattern(source, param)),
       ...body,
     ],
     node.returnType ? typesHandler(source, node.returnType) : undefined
@@ -354,10 +353,8 @@ export const handleObjectValueFunctionExpression: BaseNodeHandler<
     params,
     [
       ...node.params
-        .filter((param) => isAssignmentPattern(param))
-        .map((param: AssignmentPattern) =>
-          handleAssignmentPattern(source, param)
-        ),
+        .filter(isBabelAssignmentPattern)
+        .map((param) => handleAssignmentPattern(source, param)),
       ...node.body.body.map<LuaStatement>(handleStatement.handler(source)),
     ],
     node.returnType ? typesHandler(source, node.returnType) : undefined
@@ -421,10 +418,8 @@ export const handleObjectMethod: BaseNodeHandler<
             params,
             [
               ...node.params
-                .filter((param) => isAssignmentPattern(param))
-                .map((param: AssignmentPattern) =>
-                  handleAssignmentPattern(source, param)
-                ),
+                .filter(isBabelAssignmentPattern)
+                .map((param) => handleAssignmentPattern(source, param)),
               ...node.body.body.map<LuaStatement>(
                 handleStatement.handler(source)
               ),
@@ -439,10 +434,8 @@ export const handleObjectMethod: BaseNodeHandler<
             params,
             [
               ...node.params
-                .filter((param) => isAssignmentPattern(param))
-                .map((param: AssignmentPattern) =>
-                  handleAssignmentPattern(source, param)
-                ),
+                .filter(isBabelAssignmentPattern)
+                .map((param) => handleAssignmentPattern(source, param)),
               ...node.body.body.map<LuaStatement>(
                 handleStatement.handler(source)
               ),
@@ -559,10 +552,8 @@ const convertToFunctionDeclaration = (
     node.params.map(functionParamsHandler(source)),
     [
       ...node.params
-        .filter((param) => isAssignmentPattern(param))
-        .map((param: AssignmentPattern) =>
-          handleAssignmentPattern(source, param)
-        ),
+        .filter(isBabelAssignmentPattern)
+        .map((param) => handleAssignmentPattern(source, param)),
       ...body,
     ],
     node.returnType ? typesHandler(source, node.returnType) : undefined
@@ -580,7 +571,10 @@ export const handleFunctionDeclaration: BaseNodeHandler<
   );
 });
 
-export const handleDeclaration = combineStatementHandlers<
+export const handleDeclaration: BaseNodeHandler<
+  LuaDeclaration | LuaNodeGroup,
+  Declaration
+> = combineStatementHandlers<
   LuaDeclaration | LuaNodeGroup,
   BaseNodeHandler<LuaDeclaration | LuaNodeGroup, Declaration>
 >([
@@ -590,21 +584,27 @@ export const handleDeclaration = combineStatementHandlers<
     forwardHandlerRef(() => handleIdentifier),
     forwardHandlerRef(() => handleTsTypes)
   ),
+  createExportHandler(
+    forwardHandlerRef(() => handleDeclaration),
+    forwardHandlerRef(() => handleExpression)
+  ),
 ]);
 
-export const handleStatement = combineStatementHandlers<LuaStatement>([
-  handleExpressionStatement,
-  handleDeclaration,
-  createBlockStatementHandler(forwardHandlerRef(() => handleStatement)),
-  createReturnStatementHandler(
-    forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleExpressionAsStatement)
-  ),
-  createIfStatementHandler(
-    forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleStatement)
-  ),
-]);
+export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHandlers(
+  [
+    handleExpressionStatement,
+    handleDeclaration,
+    createBlockStatementHandler(forwardHandlerRef(() => handleStatement)),
+    createReturnStatementHandler(
+      forwardHandlerRef(() => handleExpression),
+      forwardHandlerRef(() => handleExpressionAsStatement)
+    ),
+    createIfStatementHandler(
+      forwardHandlerRef(() => handleExpression),
+      forwardHandlerRef(() => handleStatement)
+    ),
+  ]
+);
 
 // TODO: temporary method, remove later
 function handlePrefixOperator(node: UpdateExpression): Expression {

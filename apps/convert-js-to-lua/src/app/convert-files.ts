@@ -13,7 +13,7 @@ const safeApply = <T>(fn: (arg: T) => T, defaultValue?: T) => (arg: T) => {
 };
 
 export const convertFiles = (outputDir: string) => (files: string[]) => {
-  const output = (filePath) =>
+  const output = (filePath: string) =>
     join(outputDir, changeExtension(filePath, '.lua'));
 
   return Promise.all(

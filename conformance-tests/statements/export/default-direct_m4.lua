@@ -1,5 +1,3 @@
 local exports = {}
-exports.default = {
-	foo = "bar",
-}
+exports.default = { foo = "bar" }
 return exports

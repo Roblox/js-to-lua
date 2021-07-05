@@ -37,11 +37,8 @@ export const createHandlerFunction = <
     return func(source, node);
   });
 
-export const createHandler = <
-  R extends LuaNode,
-  T extends BabelNode = BabelNode
->(
-  type: T['type'],
+export const createHandler = <R extends LuaNode, T extends BabelNode>(
+  type: BaseNodeHandler<R, T>['type'],
   handler: NonCurriedHandlerFunction<R, T>
 ): BaseNodeHandler<R, T> => ({
   type,

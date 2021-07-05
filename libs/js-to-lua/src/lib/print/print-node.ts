@@ -1,24 +1,30 @@
 import {
   BaseLuaNode,
+  isElseifClause,
+  isFunctionDeclaration,
+  isIfClause,
   LuaBlockStatement,
   LuaCallExpression,
+  LuaClause,
   LuaExpression,
+  LuaFunctionDeclaration,
+  LuaFunctionExpression,
+  LuaIfStatement,
+  LuaMemberExpression,
   LuaNode,
+  LuaNodeGroup,
   LuaProgram,
+  LuaPropertySignature,
   LuaReturnStatement,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
   LuaTableNoKeyField,
-  LuaNodeGroup,
+  LuaTypeAliasDeclaration,
+  LuaTypeLiteral,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
-  LuaIfStatement,
-  LuaMemberExpression,
-  LuaClause,
-  isIfClause,
-  isElseifClause,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -235,8 +241,8 @@ function printCalleeExpression(callee: LuaExpression): string {
   }
 }
 
-function printFunction(node) {
-  const name = node.id ? ` ${printNode(node.id)}` : '';
+function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
+  const name = isFunctionDeclaration(node) ? ` ${printNode(node.id)}` : '';
   const parameters = node.params
     .map((parameter) => printNode(parameter))
     .join(', ');
@@ -250,18 +256,20 @@ function printFunction(node) {
   }${body}${node.body.length ? '\n' : ''}end`;
 }
 
-function printTypeAliasDeclaration(node) {
+function printTypeAliasDeclaration(node: LuaTypeAliasDeclaration) {
   return `type ${printNode(node.id)} = ${printNode(node.typeAnnotation)}`;
 }
 
-function printTypeLiteral(node) {
+function printTypeLiteral(node: LuaTypeLiteral) {
   return `{ ${node.members.map((member) => printNode(member)).join(', ')}${
     node.members.length ? ' ' : ''
   }}`;
 }
 
-function printPropertySignature(node) {
-  return `${printNode(node.key)}${printNode(node.typeAnnotation)}`;
+function printPropertySignature(node: LuaPropertySignature) {
+  return `${printNode(node.key)}${
+    node.typeAnnotation ? printNode(node.typeAnnotation) : ''
+  }`;
 }
 
 const LITERALS = ['StringLiteral', 'NumericLiteral', 'MultilineStringLiteral'];

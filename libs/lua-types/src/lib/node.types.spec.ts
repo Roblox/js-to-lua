@@ -10,7 +10,7 @@ import {
   stringLiteral,
 } from './literals';
 import { isAnyNodeType, isNodeType } from './node.types';
-import { LuaIdentifier } from './lua-nodes.types';
+import { LuaIdentifier, LuaNode } from './lua-nodes.types';
 import {
   callExpression,
   functionExpression,
@@ -45,7 +45,7 @@ describe('isNodeType', () => {
       sutName: 'Identifier',
     },
   ].forEach(({ givenValues, sut, sutName }) => {
-    givenValues.forEach((given) => {
+    givenValues.forEach((given: LuaNode) => {
       it(`should return false when checking for ${sutName}`, () => {
         expect(sut(given)).toBe(false);
       });
@@ -105,7 +105,7 @@ describe('isAnyNodeType', () => {
       sutName: 'Literal',
     },
   ].forEach(({ givenValues, sut, sutName }) => {
-    givenValues.forEach((given) => {
+    givenValues.forEach((given: LuaNode) => {
       it(`should return false when checking for ${sutName}`, () => {
         expect(sut(given)).toBe(false);
       });

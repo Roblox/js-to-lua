@@ -13,6 +13,7 @@ import {
   LuaIndexExpression,
   LuaLogicalExpression,
   LuaMemberExpression,
+  LuaNode,
   LuaProgram,
   LuaReturnStatement,
   LuaTableConstructor,
@@ -34,6 +35,7 @@ import {
 } from './lua-nodes.types';
 import { BaseLuaNode } from './node.types';
 import { isTruthy } from '@js-to-lua/shared-utils';
+import { curry } from 'ramda';
 
 export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',
@@ -323,6 +325,16 @@ export const withConversionComment = <N extends BaseLuaNode>(
       : {}),
   };
 };
+
+export const withExtras = curry(
+  <N extends LuaNode, E>(extras: E, node: N): N & { extras: E } => ({
+    ...node,
+    extras: {
+      ...node.extras,
+      ...extras,
+    },
+  })
+);
 
 type BooleanMethod = 'toJSBoolean';
 export const booleanIdentifier = (): LuaIdentifier => identifier('Boolean');

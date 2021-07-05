@@ -1,6 +1,4 @@
-import { exec } from 'child_process';
 import { readdirSync, statSync } from 'fs';
-import { promisify } from 'util';
 import { join, normalize, parse, ParsedPath } from 'path';
 import config from './conformance.config';
 
@@ -11,11 +9,10 @@ export const normalizedConfig = {
   }),
 };
 
-export const execAsync = promisify(exec);
+export const normalizeLineEndings = (content: string) =>
+  content.replace(/\r\n/g, '\n');
 
-export const normalizeLineEndings = (content) => content.replace(/\r\n/g, '\n');
-
-export function getFiles(directory): ParsedPath[] {
+export function getFiles(directory: string): ParsedPath[] {
   const dirContent = readdirSync(directory);
 
   const allContent = dirContent.map((file) => {

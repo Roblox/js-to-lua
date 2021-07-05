@@ -3,6 +3,7 @@ import { LuaNode } from './lua-nodes.types';
 export interface BaseLuaNode {
   type: string;
   conversionComments?: string[];
+  extras?: Record<string, unknown>;
 }
 
 type NodeTypeCheck<T extends LuaNode> = (node: LuaNode) => node is T;

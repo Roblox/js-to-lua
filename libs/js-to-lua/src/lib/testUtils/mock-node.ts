@@ -14,5 +14,5 @@ export const mockNodeWithValue = <T>(value: T): LuaExpression =>
 
 export const mockNodeHandler = createHandlerFunction(mockNode);
 export const mockNodeWithValueHandler = createHandlerFunction(
-  <T>(source, node: T) => mockNodeWithValue(node)
+  <T>(source: string, node: T) => mockNodeWithValue(node)
 );

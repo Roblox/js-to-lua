@@ -4,6 +4,7 @@ import {
   LuaElseClause,
   LuaElseifClause,
   LuaExpression,
+  LuaFunctionDeclaration,
   LuaFunctionExpression,
   LuaIdentifier,
   LuaIfClause,
@@ -66,6 +67,10 @@ export const isIfClause = isNodeType<LuaIfClause>('IfClause');
 export const isElseifClause = isNodeType<LuaElseifClause>('ElseifClause');
 
 export const isElseClause = isNodeType<LuaElseClause>('ElseClause');
+
+export const isFunctionDeclaration = isNodeType<LuaFunctionDeclaration>(
+  'FunctionDeclaration'
+);
 
 export const isUnhandledExpression = isNodeType<UnhandledExpression>(
   'UnhandledExpression'

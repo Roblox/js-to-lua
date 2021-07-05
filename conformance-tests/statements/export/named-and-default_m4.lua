@@ -9,5 +9,5 @@ exports.foo = foo
 local function bar()
 	return foo
 end
-export.default = bar
+exports.default = bar
 return exports

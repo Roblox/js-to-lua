@@ -146,12 +146,6 @@ export default {
     'conformance-tests/statements/error-handling/throw/1_m4x.js',
     'conformance-tests/statements/error-handling/throw/2_m4x.js',
 
-    'conformance-tests/statements/export/single-named_m4.js',
-    'conformance-tests/statements/export/multiple-named_m4.js',
-    'conformance-tests/statements/export/default-direct_m4.js',
-    'conformance-tests/statements/export/default-predeclared_m4.js',
-    'conformance-tests/statements/export/named-and-default_m4.js',
-
     'conformance-tests/statements/import/absolute/default-member-and-alias_m4x.js',
     'conformance-tests/statements/import/absolute/default_m4x.js',
     'conformance-tests/statements/import/absolute/multiple-imports_m4x.js',

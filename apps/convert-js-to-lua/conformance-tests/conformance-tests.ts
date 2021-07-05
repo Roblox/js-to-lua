@@ -35,9 +35,16 @@ const predicates = {
     !/_m\dx?$/.test(filePath.name),
 };
 
+interface Jest {
+  describe: jest.Describe;
+  it: jest.It;
+  xit: jest.It;
+  expect: jest.Expect;
+}
+
 export const conformanceTests = (
   milestone: Milestone,
-  { describe, it, xit, expect }
+  { describe, it, xit, expect }: Jest
 ) =>
   describe(`conformance tests - ${descriptions[milestone]}`, () => {
     const outputPath = join(normalizedConfig.outputPath, Milestone[milestone]);

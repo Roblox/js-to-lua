@@ -19,14 +19,7 @@
       "@js-to-lua/lua-types": ["libs/lua-types/src/index.ts"],
       "@js-to-lua/shared-utils": ["libs/shared-utils/src/index.ts"]
     },
-    "alwaysStrict": true,
-    "strictNullChecks": true,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": false,
-    "strictPropertyInitialization": true,
-    "noImplicitAny": false,
-    "noImplicitThis": true,
-    "noImplicitReturns": true
+    "strict": true
   },
   "exclude": ["node_modules", "tmp"]
 }

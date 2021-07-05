@@ -29,10 +29,10 @@ export const createIfStatementHandler = (
       : [];
 
     const alternateElseifClauses: LuaElseifClause[] = alternates.filter(
-      (node) => isElseifClause(node)
+      isElseifClause
     );
-    const alternateElseClause: LuaElseClause = alternates.find((node) =>
-      isElseClause(node)
+    const alternateElseClause: LuaElseClause | undefined = alternates.find(
+      isElseClause
     );
 
     return ifStatement(
@@ -44,7 +44,10 @@ export const createIfStatementHandler = (
       alternateElseClause
     );
 
-    function handleAlternate(source, node) {
+    function handleAlternate(
+      source: string,
+      node: Statement
+    ): Array<LuaElseifClause | LuaElseClause> {
       if (node.type === 'IfStatement') {
         return [
           elseifClause(
@@ -57,9 +60,10 @@ export const createIfStatementHandler = (
       return [elseClause(handleConsequent(source, node))];
     }
 
-    function handleConsequent(source, node) {
+    function handleConsequent(source: string, node: Statement) {
+      const handleStatement_ = handleStatement(source);
       return node.type === 'BlockStatement'
-        ? node.body.map(handleStatement(source))
+        ? node.body.map(handleStatement_)
         : [handleStatement(source, node)];
     }
   });
