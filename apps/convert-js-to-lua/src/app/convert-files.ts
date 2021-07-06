@@ -12,25 +12,38 @@ const safeApply = <T>(fn: (arg: T) => T, defaultValue?: T) => (arg: T) => {
   }
 };
 
-export const convertFiles = (outputDir: string) => (files: string[]) => {
+export const convertFiles = (outputDir: string, babelConfig?: string) => (
+  files: string[]
+) => {
   const output = (filePath: string) =>
     join(outputDir, changeExtension(filePath, '.lua'));
 
-  return Promise.all(
-    files.map((file) =>
-      readFile(file, { encoding: 'utf-8' })
-        .then(convert)
-        .then(safeApply(format_code))
-        .then((luaCode) => {
-          console.info('output file', output(file));
-          return prepareDir(output(file)).then((outputFile) =>
-            writeFile(outputFile, luaCode)
+  const babelOptions = babelConfig
+    ? readFile(babelConfig, { encoding: 'utf-8' })
+        .then((fileContent) => JSON.parse(fileContent))
+        .catch(() => {
+          console.warn(
+            'Provided babel config is invalid! Using default config'
           );
         })
-        .catch((err) => {
-          console.warn('failed file:', file);
-          console.warn('error: ', err);
-        })
+    : Promise.resolve();
+  return babelOptions.then((options) =>
+    Promise.all(
+      files.map((file) =>
+        readFile(file, { encoding: 'utf-8' })
+          .then(convert(options))
+          .then(safeApply(format_code))
+          .then((luaCode) => {
+            console.info('output file', output(file));
+            return prepareDir(output(file)).then((outputFile) =>
+              writeFile(outputFile, luaCode)
+            );
+          })
+          .catch((err) => {
+            console.warn('failed file:', file);
+            console.warn('error: ', err);
+          })
+      )
     )
   );
 };

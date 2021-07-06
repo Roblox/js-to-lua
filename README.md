@@ -48,6 +48,13 @@ The CLI tool accepts the following input parameters:
 
 - `--input` (`-i`) - a list of input file(s) or glob patterns (for more info on supported format please read the [glob package docs](https://github.com/isaacs/node-glob#readme))
 - `--output` (`-o`) - a directory in which the output files should be saved. The tool will keep the files structure of the input files.
+- `--babelConfig` - a path to a JSON file containing [Babel Configuration options](https://babeljs.io/docs/en/configuration). This param is optional. In case it's not provided the tool will use the following default configration:
+  ```json
+  {
+    "sourceType": "unambiguous",
+    "plugins": ["jsx", "typescript", "classProperties"]
+  }
+  ```
 
 To show help you can always use `--help` flag.
 
@@ -72,7 +79,18 @@ source-files
 To convert all the files in `source-files` directory you can run the following command:
 
 ```bash
-node ./js-to-lua/dist/apps/convert-js-to-lua/main.js --input source-files/**/*.js source-files/**/*.ts --output lua-source-files
+node ./js-to-lua/dist/apps/convert-js-to-lua/main.js \
+ --input source-files/**/*.js source-files/**/*.ts \
+ --output lua-source-files
+```
+
+If `source-files` contain files using Flow types you can use a provided default flow configuration:
+
+```bash
+node ./js-to-lua/dist/apps/convert-js-to-lua/main.js \
+ --input source-files/**/*.js source-files/**/*.ts \
+ --output lua-source-files \
+ --babelConfig js-to-lua/babel-flow.config.json
 ```
 
 This will output the Lua files into the following file structure:

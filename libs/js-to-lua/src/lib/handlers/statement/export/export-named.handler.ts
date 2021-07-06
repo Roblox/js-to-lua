@@ -11,6 +11,7 @@ import {
   nodeGroup,
 } from '@js-to-lua/lua-types';
 import { defaultStatementHandler } from '../../../utils/default-handlers';
+import { NonEmptyArray } from '@js-to-lua/shared-utils';
 
 export const createExportNamedHandler = (
   handleDeclaration: HandlerFunction<LuaDeclaration, Declaration>
@@ -20,7 +21,7 @@ export const createExportNamedHandler = (
     (source, node: ExportNamedDeclaration) => {
       if (node.declaration) {
         const declaration = handleDeclaration(source, node.declaration);
-        const declarationIds = declaration ? getDeclarationId(declaration) : [];
+        const declarationIds = getDeclarationId(declaration);
 
         return nodeGroup([
           declaration,
@@ -39,14 +40,19 @@ export const createExportNamedHandler = (
     }
   );
 
-const getDeclarationId = (declaration: LuaDeclaration): LuaLVal[] => {
+const getDeclarationId = (
+  declaration: LuaDeclaration
+): NonEmptyArray<LuaLVal> => {
   switch (declaration.type) {
     case 'FunctionDeclaration':
+    case 'LuaTypeAliasDeclaration':
       return [declaration.id];
     case 'VariableDeclaration':
-      return declaration.identifiers.map(({ value }) => value);
+      return declaration.identifiers.map(
+        ({ value }) => value
+      ) as NonEmptyArray<LuaLVal>;
     default:
-      return [];
+      return [declaration];
   }
 };
 export const foo = 'bar';

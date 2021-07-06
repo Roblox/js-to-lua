@@ -18,6 +18,7 @@ import {
 import { defaultStatementHandler } from '../../../utils/default-handlers';
 import { combineHandlers } from '../../../utils/combine-handlers';
 import { equals } from 'ramda';
+import { NonEmptyArray } from '@js-to-lua/shared-utils';
 
 export const createExportDefaultHandler = (
   handleDeclaration: HandlerFunction<
@@ -55,7 +56,7 @@ export const createExportDefaultHandler = (
 
       if (node.declaration) {
         const declaration = handler(source, node.declaration);
-        const declarationIds = declaration ? getDeclarationId(declaration) : [];
+        const declarationIds = getDeclarationId(declaration);
 
         return declarationIds.every(equals(declaration))
           ? assignmentStatement(
@@ -89,17 +90,20 @@ export const createExportDefaultHandler = (
 
 const getDeclarationId = (
   declaration: LuaExpression | LuaDeclaration
-): Array<LuaLVal | LuaTableConstructor> => {
+): NonEmptyArray<LuaLVal | LuaTableConstructor | LuaExpression> => {
   switch (declaration.type) {
     case 'FunctionDeclaration':
+    case 'LuaTypeAliasDeclaration':
       return [declaration.id];
     case 'VariableDeclaration':
-      return declaration.identifiers.map(({ value }) => value);
+      return declaration.identifiers.map(
+        ({ value }) => value
+      ) as NonEmptyArray<LuaLVal>;
     case 'TableConstructor':
     case 'Identifier':
       return [declaration];
     default:
-      return [];
+      return [declaration];
   }
 };
 export const foo = 'bar';
