@@ -1,5 +1,9 @@
 import { createHandler, HandlerFunction } from '../../../types';
-import { ExportDefaultDeclaration, Expression } from '@babel/types';
+import {
+  ExportDefaultDeclaration,
+  Expression,
+  FunctionDeclaration,
+} from '@babel/types';
 import {
   assignmentStatement,
   identifier,
@@ -31,12 +35,22 @@ export const createExportDefaultHandler = (
       >(
         [
           createHandler(
-            ['ClassDeclaration', 'FunctionDeclaration', 'TSDeclareFunction'],
+            ['ClassDeclaration', 'TSDeclareFunction'],
             (
               source,
               config,
               node: Exclude<ExportDefaultDeclaration['declaration'], Expression>
             ) => handleDeclaration(source, config, node)
+          ),
+          createHandler(
+            'FunctionDeclaration',
+            (source, config, node: FunctionDeclaration) =>
+              node.id
+                ? handleDeclaration(source, config, node)
+                : handleExpression(source, config, {
+                    ...node,
+                    type: 'FunctionExpression',
+                  })
           ),
           createHandler(
             ['ObjectExpression', 'Identifier'],

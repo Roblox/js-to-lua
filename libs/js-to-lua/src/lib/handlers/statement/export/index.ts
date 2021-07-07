@@ -4,20 +4,28 @@ import { createHandler, HandlerFunction } from '../../../types';
 import {
   LuaDeclaration,
   LuaExpression,
+  LuaIdentifier,
   LuaStatement,
   withExtras,
 } from '@js-to-lua/lua-types';
-import { Declaration, Expression } from '@babel/types';
+import { Declaration, Expression, Identifier } from '@babel/types';
 import { createExportDefaultHandler } from './export-default.handler';
+import { createExportAllHandler } from './export-all.handler';
 
 export const createExportHandler = (
   handleDeclaration: HandlerFunction<LuaDeclaration, Declaration>,
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
 ) => {
   const { type, handler } = combineStatementHandlers<LuaStatement, Declaration>(
     [
-      createExportNamedHandler(handleDeclaration),
+      createExportNamedHandler(
+        handleDeclaration,
+        handleExpression,
+        handleIdentifier
+      ),
       createExportDefaultHandler(handleDeclaration, handleExpression),
+      createExportAllHandler(),
     ]
   );
   const withExportsExtras = withExtras({ doesExport: true });

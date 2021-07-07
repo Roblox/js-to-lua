@@ -1,5 +1,6 @@
 import {
   assignmentStatement,
+  callExpression,
   functionDeclaration,
   identifier,
   memberExpression,
@@ -11,7 +12,7 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withExtras,
+  withConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
@@ -29,24 +30,20 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('foo'))],
-              [variableDeclaratorValue(numericLiteral(10, '10'))]
-            ),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('foo'))],
-              [identifier('foo')]
-            ),
-          ])
-        ),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('foo'))],
+            [variableDeclaratorValue(numericLiteral(10, '10'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
+            [identifier('foo')]
+          ),
+        ]),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should export named function declaration`, () => {
@@ -58,21 +55,17 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            functionDeclaration(identifier('foo'), [], []),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('foo'))],
-              [identifier('foo')]
-            ),
-          ])
-        ),
+        nodeGroup([
+          functionDeclaration(identifier('foo'), [], []),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
+            [identifier('foo')]
+          ),
+        ]),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should export multiple named declarations`, () => {
@@ -85,34 +78,412 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            functionDeclaration(identifier('foo'), [], []),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('foo'))],
-              [identifier('foo')]
-            ),
-          ])
-        ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('bar'))],
-              [variableDeclaratorValue(numericLiteral(10, '10'))]
-            ),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('bar'))],
-              [identifier('bar')]
-            ),
-          ])
-        ),
+        nodeGroup([
+          functionDeclaration(identifier('foo'), [], []),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
+            [identifier('foo')]
+          ),
+        ]),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('bar'))],
+            [variableDeclaratorValue(numericLiteral(10, '10'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar'))],
+            [identifier('bar')]
+          ),
+        ]),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should export named list`, () => {
+      const given = getProgramNode(`
+        function foo() {}
+        const bar = 10
+        export { foo, bar }
+      `);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        functionDeclaration(identifier('foo'), [], []),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('bar'))],
+          [variableDeclaratorValue(numericLiteral(10, '10'))]
+        ),
+        nodeGroup([
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
+            [identifier('foo')]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar'))],
+            [identifier('bar')]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should export named list with alias identifiers`, () => {
+      const given = getProgramNode(`
+        function foo() {}
+        const bar = 10
+        export { foo as foo1, bar as bar1 }
+      `);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        functionDeclaration(identifier('foo'), [], []),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('bar'))],
+          [variableDeclaratorValue(numericLiteral(10, '10'))]
+        ),
+        nodeGroup([
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo1'))],
+            [identifier('foo')]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar1'))],
+            [identifier('bar')]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should export named list with default alias`, () => {
+      const given = getProgramNode(`
+        function foo() {}
+        export { foo as default }
+      `);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        functionDeclaration(identifier('foo'), [], []),
+        nodeGroup([
+          assignmentStatement(
+            [
+              memberExpression(
+                identifier('exports'),
+                '.',
+                identifier('default')
+              ),
+            ],
+            [identifier('foo')]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+  });
+
+  describe('Re-Export relative Named Handler', () => {
+    it(`should re-export named list`, () => {
+      const given = getProgramNode(`
+        export { foo, bar } from './foo/bar'
+      `);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('barModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('script'),
+                    '.',
+                    memberExpression(
+                      identifier('Parent'),
+                      '.',
+                      memberExpression(
+                        identifier('foo'),
+                        '.',
+                        identifier('bar')
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
+            [memberExpression(identifier('barModule'), '.', identifier('foo'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar'))],
+            [memberExpression(identifier('barModule'), '.', identifier('bar'))]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should re-export named list with alias identifiers`, () => {
+      const given = getProgramNode(`
+        export { foo as foo1, bar as bar1 } from './foo/bar'
+      `);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('barModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('script'),
+                    '.',
+                    memberExpression(
+                      identifier('Parent'),
+                      '.',
+                      memberExpression(
+                        identifier('foo'),
+                        '.',
+                        identifier('bar')
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo1'))],
+            [memberExpression(identifier('barModule'), '.', identifier('foo'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar1'))],
+            [memberExpression(identifier('barModule'), '.', identifier('bar'))]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should re-export named list with default alias`, () => {
+      const given = getProgramNode(`
+        export { foo as default }  from './foo/bar'
+      `);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        nodeGroup([
+          assignmentStatement(
+            [
+              memberExpression(
+                identifier('exports'),
+                '.',
+                identifier('default')
+              ),
+            ],
+            [
+              memberExpression(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('script'),
+                    '.',
+                    memberExpression(
+                      identifier('Parent'),
+                      '.',
+                      memberExpression(
+                        identifier('foo'),
+                        '.',
+                        identifier('bar')
+                      )
+                    )
+                  ),
+                ]),
+                '.',
+                identifier('foo')
+              ),
+            ]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+  });
+
+  describe('Re-Export absolute Named Handler', () => {
+    it(`should re-export named list`, () => {
+      const given = getProgramNode(`
+        export { foo, bar } from 'foo/bar'
+      `);
+
+      const expected = program([
+        withConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('barModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                  ),
+                ])
+              ),
+            ]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
+            [memberExpression(identifier('barModule'), '.', identifier('foo'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar'))],
+            [memberExpression(identifier('barModule'), '.', identifier('bar'))]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should re-export named list with alias identifiers`, () => {
+      const given = getProgramNode(`
+        export { foo as foo1, bar as bar1 } from 'foo/bar'
+      `);
+
+      const expected = program([
+        withConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('barModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                  ),
+                ])
+              ),
+            ]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo1'))],
+            [memberExpression(identifier('barModule'), '.', identifier('foo'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar1'))],
+            [memberExpression(identifier('barModule'), '.', identifier('bar'))]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should re-export named list with default alias`, () => {
+      const given = getProgramNode(`
+        export { foo as default }  from 'foo/bar'
+      `);
+
+      const expected = program([
+        withConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        nodeGroup([
+          assignmentStatement(
+            [
+              memberExpression(
+                identifier('exports'),
+                '.',
+                identifier('default')
+              ),
+            ],
+            [
+              memberExpression(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                  ),
+                ]),
+                '.',
+                identifier('foo')
+              ),
+            ]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

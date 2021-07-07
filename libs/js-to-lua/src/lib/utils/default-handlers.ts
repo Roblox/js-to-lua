@@ -3,6 +3,8 @@ import {
   LuaExpression,
   LuaStatement,
   TypeAnnotation,
+  unhandledElement,
+  UnhandledElement,
   unhandledExpression,
   unhandledStatement,
   unhandledTypeAnnotation,
@@ -34,6 +36,16 @@ export const defaultTypeAnnotationHandler: HandlerFunction<TypeAnnotation> = cre
   (source, config, node) => {
     return withConversionComment(
       unhandledTypeAnnotation(),
+      `ROBLOX TODO: Unhandled node for type: ${node.type}`,
+      getNodeSource(source, node)
+    );
+  }
+);
+
+export const defaultElementHandler: HandlerFunction<UnhandledElement> = createHandlerFunction(
+  (source, config, node) => {
+    return withConversionComment(
+      unhandledElement(),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
       getNodeSource(source, node)
     );

@@ -618,7 +618,8 @@ export const handleDeclaration: BaseNodeHandler<
   ),
   createExportHandler(
     forwardHandlerRef(() => handleDeclaration),
-    forwardHandlerRef(() => handleExpression)
+    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => handleIdentifier)
   ),
   createImportHandler(
     forwardHandlerRef(() => handleExpression),

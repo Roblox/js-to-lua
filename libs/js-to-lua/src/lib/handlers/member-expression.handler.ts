@@ -29,7 +29,7 @@ import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
-import { defaultStatementHandler } from '../utils/default-handlers';
+import { defaultExpressionHandler } from '../utils/default-handlers';
 
 export const createMemberExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -82,7 +82,7 @@ export const createMemberExpressionHandler = (
             handleBinaryExpression.handler(source, config, node),
           ]);
         default:
-          return defaultStatementHandler(source, config, node);
+          return defaultExpressionHandler(source, config, node);
       }
     }
   );

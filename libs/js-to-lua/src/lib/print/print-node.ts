@@ -134,6 +134,8 @@ const _printNode = (node: LuaNode): string => {
       return `error("not implemented")`;
     case 'UnhandledTypeAnnotation':
       return ': any';
+    case 'UnhandledElement':
+      return '';
     default:
       return '--[[ default ]]';
   }

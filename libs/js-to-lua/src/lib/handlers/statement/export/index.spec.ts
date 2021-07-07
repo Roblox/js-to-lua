@@ -20,10 +20,12 @@ import {
   handleExpression,
 } from '../../expression-statement.handler';
 import { createExportHandler } from './index';
+import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
 
 const { handler } = createExportHandler(
   forwardHandlerRef(() => handleDeclaration),
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => handleExpression),
+  mockNodeWithValueHandler
 );
 
 const source = '';

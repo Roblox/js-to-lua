@@ -2,10 +2,8 @@ import { BaseNodeHandler, createHandler } from '../../types';
 import { Program } from '@babel/types';
 import { handleStatement } from '../expression-statement.handler';
 import {
+  BaseLuaNode,
   identifier,
-  isMemberExpression,
-  isNodeGroup,
-  isVariableDeclaration,
   LuaProgram,
   returnStatement,
   tableConstructor,
@@ -14,8 +12,8 @@ import {
   variableDeclaratorValue,
   withConversionComment,
 } from '@js-to-lua/lua-types';
-import { equals, pipe } from 'ramda';
-import { isTruthy } from '@js-to-lua/shared-utils';
+import { pipe } from 'ramda';
+import { visit } from '../../utils/visitor';
 
 export const handleProgram: BaseNodeHandler<
   LuaProgram,
@@ -30,36 +28,44 @@ export const handleProgram: BaseNodeHandler<
 });
 
 const postProcess = (program: LuaProgram): LuaProgram => {
-  return pipe(addImports, addExports)(program);
+  return pipe(gatherExtras, addExports, addImports, removeExtras)(program);
 };
 
-function addImports(program: LuaProgram): LuaProgram {
-  const needsPackageImport = program.body
-    .map((statement) =>
-      isNodeGroup(statement) ? [statement, ...statement.body] : [statement]
-    )
-    .flat()
-    .map((statement) =>
-      isVariableDeclaration(statement)
-        ? [
-            statement,
-            ...statement.values.map((v) => v.value),
-            ...statement.identifiers.map((v) => v.value),
-          ]
-        : [statement]
-    )
-    .flat()
-    .filter(isTruthy)
-    .map((statement) =>
-      isMemberExpression(statement)
-        ? [statement, statement.base, statement.identifier]
-        : [statement]
-    )
-    .flat()
-    .map((statement) => statement.extras?.needsPackages)
-    .some(equals<unknown>(true));
+function gatherExtras(program: LuaProgram): LuaProgram {
+  const extras = Array<BaseLuaNode['extras']>();
+  visit(program, (node) => {
+    if (node.extras) {
+      extras.push(node.extras);
+    }
+  });
 
-  return needsPackageImport
+  return {
+    ...program,
+    ...(extras.length
+      ? {
+          extras: extras.reduce(
+            (gathered, e) => ({
+              ...gathered,
+              ...e,
+            }),
+            {}
+          ),
+        }
+      : {}),
+  };
+}
+
+function removeExtras(program: LuaProgram): LuaProgram {
+  visit(program, (node) => {
+    if (node.extras) {
+      delete node.extras;
+    }
+  });
+  return program;
+}
+
+function addImports(program: LuaProgram): LuaProgram {
+  return program.extras?.needsPackages
     ? {
         ...program,
         body: [
@@ -77,11 +83,7 @@ function addImports(program: LuaProgram): LuaProgram {
 }
 
 function addExports(program: LuaProgram): LuaProgram {
-  const needsExports = program.body
-    .map((statement) => statement.extras?.doesExport)
-    .some(equals<unknown>(true));
-
-  return needsExports
+  return program.extras?.doesExport
     ? {
         ...program,
         body: [

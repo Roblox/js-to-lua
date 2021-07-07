@@ -13,7 +13,8 @@ export type LuaNode =
   | TypeAnnotation
   | LuaType
   | LuaPropertySignature
-  | LuaClause;
+  | LuaClause
+  | UnhandledElement;
 
 export type LuaStatement =
   | LuaExpressionStatement
@@ -100,6 +101,10 @@ export interface UnhandledExpression extends BaseLuaNode {
 
 export interface UnhandledTypeAnnotation extends BaseLuaNode {
   type: 'UnhandledTypeAnnotation';
+}
+
+export interface UnhandledElement extends BaseLuaNode {
+  type: 'UnhandledElement';
 }
 
 export interface LuaProgram extends BaseLuaNode {

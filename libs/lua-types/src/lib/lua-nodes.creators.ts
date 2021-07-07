@@ -30,6 +30,7 @@ import {
   LuaVariableDeclarator,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
+  UnhandledElement,
   UnhandledExpression,
   UnhandledStatement,
   UnhandledTypeAnnotation,
@@ -317,6 +318,10 @@ export const unhandledExpression = (): UnhandledExpression => ({
 
 export const unhandledTypeAnnotation = (): UnhandledTypeAnnotation => ({
   type: 'UnhandledTypeAnnotation',
+});
+
+export const unhandledElement = (): UnhandledElement => ({
+  type: 'UnhandledElement',
 });
 
 export const withConversionComment = <N extends BaseLuaNode>(

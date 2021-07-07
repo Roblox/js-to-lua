@@ -13,7 +13,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withExtras,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
@@ -33,47 +32,31 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            functionDeclaration(identifier('foo'), [], []),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('foo'))],
-              [identifier('foo')]
-            ),
-          ])
-        ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('bar'))],
-              [variableDeclaratorValue(numericLiteral(10, '10'))]
-            ),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('bar'))],
-              [identifier('bar')]
-            ),
-          ])
-        ),
-        withExtras(
-          { doesExport: true },
+        nodeGroup([
+          functionDeclaration(identifier('foo'), [], []),
           assignmentStatement(
-            [
-              memberExpression(
-                identifier('exports'),
-                '.',
-                identifier('default')
-              ),
-            ],
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [identifier('foo')]
-          )
+          ),
+        ]),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('bar'))],
+            [variableDeclaratorValue(numericLiteral(10, '10'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar'))],
+            [identifier('bar')]
+          ),
+        ]),
+        assignmentStatement(
+          [memberExpression(identifier('exports'), '.', identifier('default'))],
+          [identifier('foo')]
         ),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should export mixed named and default ObjectExpression`, () => {
@@ -89,51 +72,35 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            functionDeclaration(identifier('foo'), [], []),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('foo'))],
-              [identifier('foo')]
-            ),
-          ])
-        ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('bar'))],
-              [variableDeclaratorValue(numericLiteral(10, '10'))]
-            ),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('bar'))],
-              [identifier('bar')]
-            ),
-          ])
-        ),
-        withExtras(
-          { doesExport: true },
+        nodeGroup([
+          functionDeclaration(identifier('foo'), [], []),
           assignmentStatement(
-            [
-              memberExpression(
-                identifier('exports'),
-                '.',
-                identifier('default')
-              ),
-            ],
-            [
-              tableConstructor([
-                tableNameKeyField(identifier('foo'), stringLiteral('bar')),
-              ]),
-            ]
-          )
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
+            [identifier('foo')]
+          ),
+        ]),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('bar'))],
+            [variableDeclaratorValue(numericLiteral(10, '10'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar'))],
+            [identifier('bar')]
+          ),
+        ]),
+        assignmentStatement(
+          [memberExpression(identifier('exports'), '.', identifier('default'))],
+          [
+            tableConstructor([
+              tableNameKeyField(identifier('foo'), stringLiteral('bar')),
+            ]),
+          ]
         ),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should export mixed named and default function declaration`, () => {
@@ -147,50 +114,40 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            functionDeclaration(identifier('foo'), [], []),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('foo'))],
-              [identifier('foo')]
-            ),
-          ])
-        ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('bar'))],
-              [variableDeclaratorValue(numericLiteral(10, '10'))]
-            ),
-            assignmentStatement(
-              [memberExpression(identifier('exports'), '.', identifier('bar'))],
-              [identifier('bar')]
-            ),
-          ])
-        ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            functionDeclaration(identifier('buzz'), [], []),
-            assignmentStatement(
-              [
-                memberExpression(
-                  identifier('exports'),
-                  '.',
-                  identifier('default')
-                ),
-              ],
-              [identifier('buzz')]
-            ),
-          ])
-        ),
+        nodeGroup([
+          functionDeclaration(identifier('foo'), [], []),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('foo'))],
+            [identifier('foo')]
+          ),
+        ]),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('bar'))],
+            [variableDeclaratorValue(numericLiteral(10, '10'))]
+          ),
+          assignmentStatement(
+            [memberExpression(identifier('exports'), '.', identifier('bar'))],
+            [identifier('bar')]
+          ),
+        ]),
+        nodeGroup([
+          functionDeclaration(identifier('buzz'), [], []),
+          assignmentStatement(
+            [
+              memberExpression(
+                identifier('exports'),
+                '.',
+                identifier('default')
+              ),
+            ],
+            [identifier('buzz')]
+          ),
+        ]),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

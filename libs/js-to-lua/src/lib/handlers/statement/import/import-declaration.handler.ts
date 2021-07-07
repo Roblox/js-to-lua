@@ -1,31 +1,14 @@
+import { createHandler, HandlerFunction } from '../../../types';
+import { Expression, Identifier, ImportDeclaration } from '@babel/types';
 import {
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../../../types';
-import {
-  Expression,
-  Identifier,
-  ImportDeclaration,
-  StringLiteral,
-} from '@babel/types';
-import {
-  callExpression,
-  identifier,
   isVariableDeclaration,
-  LuaCallExpression,
   LuaExpression,
   LuaIdentifier,
-  LuaVariableDeclaration,
   nodeGroup,
-  variableDeclaration,
-  variableDeclaratorIdentifier,
-  variableDeclaratorValue,
-  withExtras,
 } from '@js-to-lua/lua-types';
 import { createImportSpecifierHandler } from './import-specifier.handler';
-import { getModulePath } from '../../../utils/get-module-path';
-import { memberExpressionFromPath } from '../../../utils/member-expression-from-path';
+import { createImportExpressionHandler } from './import-expression.handler';
+import { createImportModuleDeclarationHandler } from './import-module-declaration.handler';
 
 export const createImportDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -34,55 +17,23 @@ export const createImportDeclarationHandler = (
   createHandler(
     'ImportDeclaration',
     (source, config, node: ImportDeclaration) => {
-      const importExpressionHandler = createHandlerFunction(
-        (
-          source,
-          config: { isInitFile?: boolean },
-          node: StringLiteral
-        ): LuaCallExpression => {
-          const { isRelative, path } = getModulePath(
-            { isInitFile: !!config.isInitFile },
-            node.value
-          );
+      const importExpressionHandler = createImportExpressionHandler();
+      const handleImportExpression = importExpressionHandler(source, config);
 
-          const requireExpression = callExpression(identifier('require'), [
-            memberExpressionFromPath(path),
-          ]);
-          return isRelative
-            ? requireExpression
-            : withExtras({ needsPackages: true }, requireExpression);
-        }
-      )(source, config);
-
-      const importHandler = createHandlerFunction(
-        (
-          source,
-          config: { isInitFile?: boolean },
-          node: StringLiteral
-        ): LuaVariableDeclaration => {
-          const { path } = getModulePath(
-            { isInitFile: !!config.isInitFile },
-            node.value
-          );
-          const moduleName = `${path[path.length - 1]}Module`;
-
-          return variableDeclaration(
-            [variableDeclaratorIdentifier(identifier(moduleName))],
-            [variableDeclaratorValue(importExpressionHandler(node))]
-          );
-        }
+      const handleImportModuleDeclaration = createImportModuleDeclarationHandler(
+        importExpressionHandler
       )(source, config);
 
       if (!node.specifiers.length) {
-        return importExpressionHandler(node.source);
+        return handleImportExpression(node.source);
       }
 
       const needsSeparateModuleDeclaration =
         node.specifiers.length > 1 || node.importKind === 'type';
 
       const moduleAssignmentStatement = needsSeparateModuleDeclaration
-        ? importHandler(node.source)
-        : importExpressionHandler(node.source);
+        ? handleImportModuleDeclaration(node.source)
+        : handleImportExpression(node.source);
 
       const moduleExpression = isVariableDeclaration(moduleAssignmentStatement)
         ? moduleAssignmentStatement.identifiers[0].value

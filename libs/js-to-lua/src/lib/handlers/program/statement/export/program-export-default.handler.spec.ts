@@ -1,6 +1,7 @@
 import {
   assignmentStatement,
   functionDeclaration,
+  functionExpression,
   identifier,
   memberExpression,
   nodeGroup,
@@ -12,7 +13,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withExtras,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
@@ -30,24 +30,14 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          assignmentStatement(
-            [
-              memberExpression(
-                identifier('exports'),
-                '.',
-                identifier('default')
-              ),
-            ],
-            [identifier('foo')]
-          )
+        assignmentStatement(
+          [memberExpression(identifier('exports'), '.', identifier('default'))],
+          [identifier('foo')]
         ),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should export default ObjectExpression`, () => {
@@ -61,28 +51,18 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          assignmentStatement(
-            [
-              memberExpression(
-                identifier('exports'),
-                '.',
-                identifier('default')
-              ),
-            ],
-            [
-              tableConstructor([
-                tableNameKeyField(identifier('foo'), stringLiteral('bar')),
-              ]),
-            ]
-          )
+        assignmentStatement(
+          [memberExpression(identifier('exports'), '.', identifier('default'))],
+          [
+            tableConstructor([
+              tableNameKeyField(identifier('foo'), stringLiteral('bar')),
+            ]),
+          ]
         ),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should export default function declaration`, () => {
@@ -94,27 +74,42 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        withExtras(
-          { doesExport: true },
-          nodeGroup([
-            functionDeclaration(identifier('foo'), [], []),
-            assignmentStatement(
-              [
-                memberExpression(
-                  identifier('exports'),
-                  '.',
-                  identifier('default')
-                ),
-              ],
-              [identifier('foo')]
-            ),
-          ])
+        nodeGroup([
+          functionDeclaration(identifier('foo'), [], []),
+          assignmentStatement(
+            [
+              memberExpression(
+                identifier('exports'),
+                '.',
+                identifier('default')
+              ),
+            ],
+            [identifier('foo')]
+          ),
+        ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should export default function unnamed declaration`, () => {
+      const given = getProgramNode(`
+        export default function () {}
+      `);
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        assignmentStatement(
+          [memberExpression(identifier('exports'), '.', identifier('default'))],
+          [functionExpression([], [])]
         ),
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

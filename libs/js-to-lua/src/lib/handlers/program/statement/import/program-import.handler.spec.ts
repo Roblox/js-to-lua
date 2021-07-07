@@ -8,7 +8,6 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
   withConversionComment,
-  withExtras,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
@@ -112,20 +111,13 @@ describe('Program handler', () => {
           [
             variableDeclaratorValue(
               memberExpression(
-                withExtras(
-                  { needsPackages: true },
-                  callExpression(identifier('require'), [
-                    memberExpression(
-                      identifier('Packages'),
-                      '.',
-                      memberExpression(
-                        identifier('foo'),
-                        '.',
-                        identifier('bar')
-                      )
-                    ),
-                  ])
-                ),
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                  ),
+                ]),
                 '.',
                 identifier('default')
               )
@@ -298,20 +290,13 @@ describe('Program handler', () => {
           [
             variableDeclaratorValue(
               memberExpression(
-                withExtras(
-                  { needsPackages: true },
-                  callExpression(identifier('require'), [
-                    memberExpression(
-                      identifier('Packages'),
-                      '.',
-                      memberExpression(
-                        identifier('foo'),
-                        '.',
-                        identifier('bar')
-                      )
-                    ),
-                  ])
-                ),
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                  ),
+                ]),
                 '.',
                 identifier('foo')
               )
@@ -341,20 +326,13 @@ describe('Program handler', () => {
             [variableDeclaratorIdentifier(identifier('barModule'))],
             [
               variableDeclaratorValue(
-                withExtras(
-                  { needsPackages: true },
-                  callExpression(identifier('require'), [
-                    memberExpression(
-                      identifier('Packages'),
-                      '.',
-                      memberExpression(
-                        identifier('foo'),
-                        '.',
-                        identifier('bar')
-                      )
-                    ),
-                  ])
-                )
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                  ),
+                ])
               ),
             ]
           ),
@@ -473,16 +451,13 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
             variableDeclaratorValue(
-              withExtras(
-                { needsPackages: true },
-                callExpression(identifier('require'), [
-                  memberExpression(
-                    identifier('Packages'),
-                    '.',
-                    memberExpression(identifier('foo'), '.', identifier('bar'))
-                  ),
-                ])
-              )
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  memberExpression(identifier('foo'), '.', identifier('bar'))
+                ),
+              ])
             ),
           ]
         ),

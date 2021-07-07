@@ -32,6 +32,7 @@ import {
 } from '../utils/combine-handlers';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
 import { defaultTypeHandler } from '../utils/default-type.handler';
+import { defaultElementHandler } from '../utils/default-handlers';
 
 export const createTypeAnnotationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
@@ -101,7 +102,10 @@ export const createTypeAnnotationHandler = (
   > = createHandler('TSTypeLiteral', (source, config, node) => ({
     type: 'LuaTypeLiteral',
     members: node.members.map(
-      handleTsPropertySignature.handler(source, config)
+      combineHandlers(
+        [handleTsPropertySignature],
+        defaultElementHandler
+      ).handler(source, config)
     ),
   }));
 

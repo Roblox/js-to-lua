@@ -1,22 +1,36 @@
 import { createHandler, HandlerFunction } from '../../../types';
-import { Declaration, ExportNamedDeclaration } from '@babel/types';
+import {
+  Declaration,
+  ExportNamedDeclaration,
+  Expression,
+  Identifier,
+} from '@babel/types';
 import {
   assignmentStatement,
   identifier,
   indexExpression,
   isIdentifier,
+  isVariableDeclaration,
   LuaDeclaration,
+  LuaExpression,
+  LuaIdentifier,
   LuaLVal,
+  LuaNode,
   memberExpression,
   nodeGroup,
 } from '@js-to-lua/lua-types';
 import { defaultStatementHandler } from '../../../utils/default-handlers';
+import { createImportExpressionHandler } from '../import/import-expression.handler';
+import { createImportModuleDeclarationHandler } from '../import/import-module-declaration.handler';
+import { createExportSpecifierHandler } from './export-specifier.handler';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
 
 export const createExportNamedHandler = (
-  handleDeclaration: HandlerFunction<LuaDeclaration, Declaration>
-) =>
-  createHandler(
+  handleDeclaration: HandlerFunction<LuaDeclaration, Declaration>,
+  handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
+) => {
+  return createHandler(
     'ExportNamedDeclaration',
     (source, config, node: ExportNamedDeclaration) => {
       if (node.declaration) {
@@ -36,9 +50,50 @@ export const createExportNamedHandler = (
         ]);
       }
 
+      if (node.specifiers) {
+        let sourceDeclarations: LuaNode[] = [];
+        let moduleExpression: LuaExpression | null = null;
+        if (node.source) {
+          const importExpressionHandler = createImportExpressionHandler();
+          const handleImportExpression = importExpressionHandler(
+            source,
+            config
+          );
+          const handleImportModuleDeclaration = createImportModuleDeclarationHandler(
+            importExpressionHandler
+          )(source, config);
+          const needsSeparateModuleDeclaration =
+            node.specifiers.length > 1 || node.exportKind === 'type';
+
+          const moduleAssignmentStatement = needsSeparateModuleDeclaration
+            ? handleImportModuleDeclaration(node.source)
+            : handleImportExpression(node.source);
+
+          moduleExpression = isVariableDeclaration(moduleAssignmentStatement)
+            ? moduleAssignmentStatement.identifiers[0].value
+            : moduleAssignmentStatement;
+
+          sourceDeclarations = isVariableDeclaration(moduleAssignmentStatement)
+            ? [moduleAssignmentStatement]
+            : [];
+        }
+
+        const specifierHandler = createExportSpecifierHandler(
+          handleExpression,
+          handleIdentifier,
+          moduleExpression
+        ).handler;
+        const handleSpecifier = specifierHandler(source, config);
+        return nodeGroup([
+          ...sourceDeclarations,
+          ...node.specifiers.map(handleSpecifier),
+        ]);
+      }
+
       return defaultStatementHandler(source, config, node);
     }
   );
+};
 
 const getDeclarationId = (
   declaration: LuaDeclaration

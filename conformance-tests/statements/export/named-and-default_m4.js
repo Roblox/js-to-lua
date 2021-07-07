@@ -1,9 +1,12 @@
-export const a = 10
-const b = 8
+export const a = 10;
+const b = 8;
+
 export function foo() {
-    return b
+  return b;
 }
+
 function bar() {
-    return foo
+  return foo;
 }
-export default bar
+
+export default bar;
