@@ -26,7 +26,7 @@ describe('Numeric Handler', () => {
         value,
       };
 
-      expect(handleNumericLiteral.handler(source, given)).toEqual(expected);
+      expect(handleNumericLiteral.handler(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -131,7 +131,9 @@ describe('Numeric Handler', () => {
             },
           };
 
-          expect(handleNumericLiteral.handler(source, given)).toEqual(expected);
+          expect(handleNumericLiteral.handler(source, {}, given)).toEqual(
+            expected
+          );
         });
       });
     });
@@ -157,7 +159,9 @@ describe('Numeric Handler', () => {
             value,
           };
 
-          expect(handleNumericLiteral.handler(source, given)).toEqual(expected);
+          expect(handleNumericLiteral.handler(source, {}, given)).toEqual(
+            expected
+          );
         });
       });
     });

@@ -23,11 +23,11 @@ export const createLogicalExpressionHandler = (
   LuaLogicalExpression | LuaCallExpression | UnhandledStatement,
   LogicalExpression
 > =>
-  createHandler('LogicalExpression', (source, node) => {
+  createHandler('LogicalExpression', (source, config, node) => {
     switch (node.operator) {
       case '||': {
-        const leftExpression = handleExpression(source, node.left);
-        const rightExpression = handleExpression(source, node.right);
+        const leftExpression = handleExpression(source, config, node.left);
+        const rightExpression = handleExpression(source, config, node.right);
         return logicalExpression(
           LuaLogicalExpressionOperatorEnum.AND,
           callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
@@ -55,8 +55,8 @@ export const createLogicalExpressionHandler = (
 
         const isRightExpressionTruthy = isLuaTruthy(node.right);
 
-        const leftExpression = handleExpression(source, node.left);
-        const rightExpression = handleExpression(source, node.right);
+        const leftExpression = handleExpression(source, config, node.left);
+        const rightExpression = handleExpression(source, config, node.right);
         return isRightExpressionTruthy
           ? logicalExpression(
               LuaLogicalExpressionOperatorEnum.AND,
@@ -87,6 +87,6 @@ export const createLogicalExpressionHandler = (
             );
       }
       default:
-        return defaultStatementHandler(source, node);
+        return defaultStatementHandler(source, config, node);
     }
   });

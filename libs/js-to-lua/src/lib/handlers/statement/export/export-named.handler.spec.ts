@@ -44,7 +44,7 @@ describe('Export Default Handler', () => {
       ),
     ]);
 
-    expect(handler(source, given)).toEqual(expected);
+    expect(handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should export named function declaration`, () => {
@@ -64,6 +64,6 @@ describe('Export Default Handler', () => {
       ),
     ]);
 
-    expect(handler(source, given)).toEqual(expected);
+    expect(handler(source, {}, given)).toEqual(expected);
   });
 });

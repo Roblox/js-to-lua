@@ -1,6 +1,9 @@
 import {
+  BabelNode,
   BaseNodeHandler,
+  ConfigBase,
   createHandlerFunction,
+  EmptyConfig,
   HandlerFunction,
 } from '../types';
 import {
@@ -17,41 +20,51 @@ import {
 
 export const combineHandlers = <
   R extends LuaNode,
-  H extends BaseNodeHandler<R>
+  T extends BabelNode = BabelNode,
+  Config extends ConfigBase = EmptyConfig
 >(
-  ons: H[],
-  fallback: HandlerFunction<R>
-): H => {
+  ons: BaseNodeHandler<R, T, Config>[],
+  fallback: HandlerFunction<R, T, Config>
+): BaseNodeHandler<R, T, Config> => {
   return {
     type: ons.map(({ type }) => type).flat(),
-    handler: createHandlerFunction((source, node) => {
-      const { handler } = ons.find((on) => {
-        const types = Array.isArray(on.type) ? on.type : [on.type];
-        return types.includes(node.type);
-      }) || { handler: fallback };
+    handler: createHandlerFunction(
+      (source: string, config: Config, node: T): R => {
+        const handler =
+          ons.find((on) => {
+            const types = Array.isArray(on.type) ? on.type : [on.type];
+            return types.includes(node.type);
+          })?.handler || (fallback as HandlerFunction<R, T, Config>);
 
-      return handler(source, node);
-    }),
-  } as H;
+        return (handler as any)(source, config, node); // TODO fix typing error
+      }
+    ),
+  } as BaseNodeHandler<R, T, Config>;
 };
 
 export const combineStatementHandlers = <
   R extends LuaStatement = LuaStatement,
-  H extends BaseNodeHandler<R> = BaseNodeHandler<R>
+  T extends BabelNode = BabelNode,
+  Config extends ConfigBase = EmptyConfig
 >(
-  ons: H[]
-): H => combineHandlers(ons, defaultStatementHandler);
+  ons: BaseNodeHandler<R, T, Config>[]
+): BaseNodeHandler<R, T, Config> =>
+  combineHandlers<R, T, Config>(ons, defaultStatementHandler);
 
 export const combineExpressionsHandlers = <
   R extends LuaExpression = LuaExpression,
-  H extends BaseNodeHandler<R> = BaseNodeHandler<R>
+  T extends BabelNode = BabelNode,
+  Config extends ConfigBase = EmptyConfig
 >(
-  ons: H[]
-): H => combineHandlers(ons, defaultExpressionHandler);
+  ons: BaseNodeHandler<R, T, Config>[]
+): BaseNodeHandler<R, T, Config> =>
+  combineHandlers<R, T, Config>(ons, defaultExpressionHandler);
 
 export const combineTypeAnnotationHandlers = <
   R extends LuaTypeAnnotation = LuaTypeAnnotation,
-  H extends BaseNodeHandler<R> = BaseNodeHandler<R>
+  T extends BabelNode = BabelNode,
+  Config extends ConfigBase = EmptyConfig
 >(
-  ons: H[]
-): H => combineHandlers(ons, defaultTypeAnnotationHandler);
+  ons: BaseNodeHandler<R, T, Config>[]
+): BaseNodeHandler<R, T, Config> =>
+  combineHandlers<R, T, Config>(ons, defaultTypeAnnotationHandler);

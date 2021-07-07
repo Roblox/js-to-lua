@@ -20,6 +20,7 @@ import {
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
   LuaTableNoKeyField,
+  LuaTypeAliasDeclaration,
   LuaTypeAnnotation,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
@@ -294,6 +295,15 @@ export const typeAnnotation = (
   typeAnnotation?: LuaTypeAnnotation['typeAnnotation']
 ): LuaTypeAnnotation => ({
   type: 'LuaTypeAnnotation',
+  typeAnnotation,
+});
+
+export const typeAliasDeclaration = (
+  id: LuaTypeAliasDeclaration['id'],
+  typeAnnotation: LuaTypeAliasDeclaration['typeAnnotation']
+): LuaTypeAliasDeclaration => ({
+  type: 'LuaTypeAliasDeclaration',
+  id,
   typeAnnotation,
 });
 

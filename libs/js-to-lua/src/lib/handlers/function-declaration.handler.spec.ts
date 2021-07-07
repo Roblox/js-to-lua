@@ -26,6 +26,6 @@ describe('Function Declaration', () => {
       []
     );
 
-    expect(handleStatement.handler(source, given)).toEqual(expected);
+    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
 });

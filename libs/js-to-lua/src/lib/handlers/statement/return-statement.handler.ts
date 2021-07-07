@@ -16,13 +16,14 @@ export const createReturnStatementHandler = (
     Expression
   >
 ): BaseNodeHandler<LuaReturnStatement, ReturnStatement> =>
-  createHandler('ReturnStatement', (source, node) => {
+  createHandler('ReturnStatement', (source, config, node) => {
     if (!node.argument) {
       return returnStatement();
     }
 
     const argumentExpression = handleExpressionAsStatement(
       source,
+      config,
       node.argument
     );
     const returnExpressions = getReturnExpressions(argumentExpression);

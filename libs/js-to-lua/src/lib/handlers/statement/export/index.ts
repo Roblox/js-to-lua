@@ -1,10 +1,6 @@
 import { combineStatementHandlers } from '../../../utils/combine-handlers';
 import { createExportNamedHandler } from './export-named.handler';
-import {
-  BaseNodeHandler,
-  createHandler,
-  HandlerFunction,
-} from '../../../types';
+import { createHandler, HandlerFunction } from '../../../types';
 import {
   LuaDeclaration,
   LuaExpression,
@@ -18,15 +14,14 @@ export const createExportHandler = (
   handleDeclaration: HandlerFunction<LuaDeclaration, Declaration>,
   handleExpression: HandlerFunction<LuaExpression, Expression>
 ) => {
-  const { type, handler } = combineStatementHandlers<
-    LuaStatement,
-    BaseNodeHandler<LuaStatement, Declaration>
-  >([
-    createExportNamedHandler(handleDeclaration),
-    createExportDefaultHandler(handleDeclaration, handleExpression),
-  ]);
+  const { type, handler } = combineStatementHandlers<LuaStatement, Declaration>(
+    [
+      createExportNamedHandler(handleDeclaration),
+      createExportDefaultHandler(handleDeclaration, handleExpression),
+    ]
+  );
   const withExportsExtras = withExtras({ doesExport: true });
-  return createHandler(type, (source: string, node: Declaration) =>
-    withExportsExtras(handler(source, node))
+  return createHandler(type, (source: string, config, node: Declaration) =>
+    withExportsExtras(handler(source, config, node))
   );
 };

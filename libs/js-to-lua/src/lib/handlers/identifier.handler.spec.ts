@@ -63,7 +63,7 @@ describe('Identifier Handler', () => {
     };
     const expected: LuaNilLiteral = nilLiteral();
 
-    expect(handleIdentifier.handler(source, given)).toEqual(expected);
+    expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return math.huge member expression if identifier name is 'Infinity'`, () => {
@@ -78,7 +78,7 @@ describe('Identifier Handler', () => {
       identifier('huge')
     );
 
-    expect(handleIdentifier.handler(source, given)).toEqual(expected);
+    expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return 0/0 if identifier name is 'NaN'`, () => {
@@ -93,7 +93,7 @@ describe('Identifier Handler', () => {
       numericLiteral(0)
     );
 
-    expect(handleIdentifier.handler(source, given)).toEqual(expected);
+    expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return Lua Identifier Node if Symbol is present`, () => {
@@ -107,7 +107,7 @@ describe('Identifier Handler', () => {
       name: 'Symbol',
     };
 
-    expect(handleIdentifier.handler(source, given)).toEqual(expected);
+    expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
   });
 
   ['foo', 'bar', 'baz'].forEach((name) => {
@@ -122,7 +122,7 @@ describe('Identifier Handler', () => {
         name,
       };
 
-      expect(handleIdentifier.handler(source, given)).toEqual(expected);
+      expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -138,7 +138,7 @@ describe('Identifier Handler', () => {
         name: `${name}_`,
       };
 
-      expect(handleIdentifier.handler(source, given)).toEqual(expected);
+      expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

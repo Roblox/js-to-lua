@@ -28,7 +28,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should convert handle computed index expression: number literal`, () => {
@@ -42,7 +42,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should convert handle computed index expression: octal number literal`, () => {
@@ -56,7 +56,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should convert handle computed index expression: boolean literal`, () => {
@@ -73,7 +73,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should convert handle not computed member expression`, () => {
@@ -87,7 +87,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should convert handle mixed computed and not computed member expressions`, () => {
@@ -127,7 +127,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

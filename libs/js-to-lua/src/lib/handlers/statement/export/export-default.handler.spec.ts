@@ -40,7 +40,7 @@ describe('Export Default Handler', () => {
       [identifier('foo')]
     );
 
-    expect(handler(source, given)).toEqual(expected);
+    expect(handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should export default ObjectExpression`, () => {
@@ -59,7 +59,7 @@ describe('Export Default Handler', () => {
       ]
     );
 
-    expect(handler(source, given)).toEqual(expected);
+    expect(handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should export default function declaration`, () => {
@@ -79,6 +79,6 @@ describe('Export Default Handler', () => {
       ),
     ]);
 
-    expect(handler(source, given)).toEqual(expected);
+    expect(handler(source, {}, given)).toEqual(expected);
   });
 });

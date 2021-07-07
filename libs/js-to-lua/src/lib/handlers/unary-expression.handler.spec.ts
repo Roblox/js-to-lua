@@ -46,7 +46,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo'),
     ]);
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle plus operator`, () => {
@@ -64,7 +64,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo'),
     ]);
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle minus operator`, () => {
@@ -83,7 +83,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo')
     );
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle void operator`, () => {
@@ -101,7 +101,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo')
     );
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle negation operator`, () => {
@@ -119,7 +119,7 @@ describe('Unary Expression Handler', () => {
       callExpression(booleanMethod('toJSBoolean'), [identifier('foo')])
     );
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle negation operator of BooleanLiteral`, () => {
@@ -137,7 +137,7 @@ describe('Unary Expression Handler', () => {
       booleanLiteral(true)
     );
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle double negation operator`, () => {
@@ -157,7 +157,7 @@ describe('Unary Expression Handler', () => {
       )
     );
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle delete operator`, () => {
@@ -175,7 +175,7 @@ describe('Unary Expression Handler', () => {
       identifier('foo')
     );
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle ~ operator`, () => {
@@ -197,6 +197,6 @@ describe('Unary Expression Handler', () => {
       'ROBLOX CHECK: `bit32.bnot` clamps arguments and result to [0,2^32 - 1]'
     );
 
-    expect(handleUnaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 });

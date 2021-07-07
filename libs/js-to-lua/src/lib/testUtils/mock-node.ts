@@ -1,18 +1,20 @@
 import { LuaExpression } from '@js-to-lua/lua-types';
-import { createHandlerFunction } from '../types';
+import { createHandlerFunction, EmptyConfig } from '../types';
 
-export const mockNode = (): LuaExpression =>
+export const mockNode = <R = LuaExpression>(): R =>
   (({
     type: 'MockNode',
-  } as unknown) as LuaExpression);
+  } as unknown) as R);
 
-export const mockNodeWithValue = <T>(value: T): LuaExpression =>
+export const mockNodeWithValue = <R = LuaExpression, T = unknown>(
+  value: T
+): R =>
   (({
     type: 'MockNode',
     value,
-  } as unknown) as LuaExpression);
+  } as unknown) as R);
 
 export const mockNodeHandler = createHandlerFunction(mockNode);
 export const mockNodeWithValueHandler = createHandlerFunction(
-  <T>(source: string, node: T) => mockNodeWithValue(node)
+  <T>(source: string, config: EmptyConfig, node: T) => mockNodeWithValue(node)
 );

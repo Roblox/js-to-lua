@@ -1,8 +1,4 @@
-import {
-  BaseNodeHandler,
-  createHandler,
-  HandlerFunction,
-} from '../../../types';
+import { createHandler, HandlerFunction } from '../../../types';
 import { ExportDefaultDeclaration, Expression } from '@babel/types';
 import {
   assignmentStatement,
@@ -10,7 +6,6 @@ import {
   LuaDeclaration,
   LuaExpression,
   LuaLVal,
-  LuaStatement,
   LuaTableConstructor,
   memberExpression,
   nodeGroup,
@@ -29,25 +24,24 @@ export const createExportDefaultHandler = (
 ) =>
   createHandler(
     'ExportDefaultDeclaration',
-    (source, node: ExportDefaultDeclaration) => {
+    (source, config, node: ExportDefaultDeclaration) => {
       const { handler } = combineHandlers<
-        LuaStatement,
-        BaseNodeHandler<
-          LuaDeclaration | LuaExpression,
-          ExportDefaultDeclaration['declaration']
-        >
+        LuaDeclaration | LuaExpression,
+        ExportDefaultDeclaration['declaration']
       >(
         [
           createHandler(
             ['ClassDeclaration', 'FunctionDeclaration', 'TSDeclareFunction'],
             (
               source,
+              config,
               node: Exclude<ExportDefaultDeclaration['declaration'], Expression>
-            ) => handleDeclaration(source, node)
+            ) => handleDeclaration(source, config, node)
           ),
           createHandler(
             ['ObjectExpression', 'Identifier'],
-            (source, node: Expression) => handleExpression(source, node)
+            (source, config, node: Expression) =>
+              handleExpression(source, config, node)
           ),
           { type: [], handler: handleExpression },
         ],
@@ -55,7 +49,7 @@ export const createExportDefaultHandler = (
       );
 
       if (node.declaration) {
-        const declaration = handler(source, node.declaration);
+        const declaration = handler(source, config, node.declaration);
         const declarationIds = getDeclarationId(declaration);
 
         return declarationIds.every(equals(declaration))
@@ -84,7 +78,7 @@ export const createExportDefaultHandler = (
             ]);
       }
 
-      return defaultStatementHandler(source, node);
+      return defaultStatementHandler(source, config, node);
     }
   );
 

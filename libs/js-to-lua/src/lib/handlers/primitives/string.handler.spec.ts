@@ -26,7 +26,7 @@ describe('String Handler', () => {
         value,
       };
 
-      expect(handleStringLiteral.handler(source, given)).toEqual(expected);
+      expect(handleStringLiteral.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

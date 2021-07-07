@@ -47,6 +47,7 @@ export const createMemberExpressionHandler = (
   const handleIndex = createHandlerFunction(
     (
       source,
+      config,
       node: Expression | PrivateName
     ):
       | LuaStringLiteral
@@ -55,19 +56,19 @@ export const createMemberExpressionHandler = (
       | UnhandledStatement => {
       switch (node.type) {
         case 'NumericLiteral':
-          return handleNumericLiteral.handler(source, {
+          return handleNumericLiteral.handler(source, config, {
             ...node,
             value: node.value + 1,
           });
         case 'StringLiteral':
-          return handleStringLiteral.handler(source, node);
+          return handleStringLiteral.handler(source, config, node);
         case 'BooleanLiteral':
           return callExpression(identifier('tostring'), [
-            handleBooleanLiteral.handler(source, node),
+            handleBooleanLiteral.handler(source, config, node),
           ]);
         case 'Identifier':
           return callExpression(identifier('tostring'), [
-            handleIdentifier(source, node),
+            handleIdentifier(source, config, node),
           ]);
         case 'BinaryExpression':
           if (
@@ -75,30 +76,39 @@ export const createMemberExpressionHandler = (
             (node.left.type === 'StringLiteral' ||
               node.right.type === 'StringLiteral')
           ) {
-            return handleBinaryExpression.handler(source, node);
+            return handleBinaryExpression.handler(source, config, node);
           }
           return callExpression(identifier('tostring'), [
-            handleBinaryExpression.handler(source, node),
+            handleBinaryExpression.handler(source, config, node),
           ]);
         default:
-          return defaultStatementHandler(source, node);
+          return defaultStatementHandler(source, config, node);
       }
     }
   );
 
-  return createHandler('MemberExpression', (source, node: MemberExpression):
-    | LuaIndexExpression
-    | LuaMemberExpression => {
-    if (!node.computed) {
-      return memberExpression(
-        handleExpression(source, node.object),
-        '.',
-        handleExpression(source, node.property as Expression) as LuaIdentifier
+  return createHandler(
+    'MemberExpression',
+    (
+      source,
+      config,
+      node: MemberExpression
+    ): LuaIndexExpression | LuaMemberExpression => {
+      if (!node.computed) {
+        return memberExpression(
+          handleExpression(source, config, node.object),
+          '.',
+          handleExpression(
+            source,
+            config,
+            node.property as Expression
+          ) as LuaIdentifier
+        );
+      }
+      return indexExpression(
+        handleExpression(source, config, node.object),
+        handleIndex(source, config, node.property)
       );
     }
-    return indexExpression(
-      handleExpression(source, node.object),
-      handleIndex(source, node.property)
-    );
-  });
+  );
 };

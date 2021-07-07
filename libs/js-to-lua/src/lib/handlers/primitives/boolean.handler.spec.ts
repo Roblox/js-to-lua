@@ -26,7 +26,7 @@ describe('Boolean Handler', () => {
         value,
       };
 
-      expect(handleBooleanLiteral.handler(source, given)).toEqual(expected);
+      expect(handleBooleanLiteral.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

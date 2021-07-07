@@ -31,7 +31,9 @@ export const convertFiles = (outputDir: string, babelConfig?: string) => (
     Promise.all(
       files.map((file) =>
         readFile(file, { encoding: 'utf-8' })
-          .then(convert(options))
+          .then((code) =>
+            convert(options)({ isInitFile: isInitFile(file) }, code)
+          )
           .then(safeApply(format_code))
           .then((luaCode) => {
             console.info('output file', output(file));
@@ -59,4 +61,8 @@ const prepareDir = (file: string) => {
 function changeExtension(filePath: string, extension: string): string {
   const file = parse(filePath);
   return join(file.dir, file.name + extension);
+}
+
+function isInitFile(filePath: string): boolean {
+  return parse(filePath).name.startsWith('index');
 }

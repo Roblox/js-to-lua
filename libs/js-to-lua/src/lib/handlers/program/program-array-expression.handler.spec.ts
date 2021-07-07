@@ -27,7 +27,7 @@ describe('Program handler', () => {
         expressionStatement(tableConstructor([])),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should return Lua Table Constructor Node with TableNoKeyField elements', () => {
@@ -44,7 +44,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle array of arrays`, () => {
@@ -61,7 +61,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle deeply nested arrays`, () => {
@@ -83,7 +83,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle spread arrays`, () => {
@@ -107,7 +107,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -138,7 +138,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return Lua Table Constructor Node with spread strings`, () => {
@@ -168,6 +168,6 @@ describe('Program handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 });

@@ -16,8 +16,8 @@ export const createTypeAliasDeclarationHandler = (
   >,
   handleTsTypes: HandlerFunction<LuaType, TSType>
 ): BaseNodeHandler<LuaTypeAliasDeclaration, TSTypeAliasDeclaration> =>
-  createHandler('TSTypeAliasDeclaration', (source, node) => ({
+  createHandler('TSTypeAliasDeclaration', (source, config, node) => ({
     type: 'LuaTypeAliasDeclaration',
-    id: handleIdentifier(source, node.id) as LuaIdentifier,
-    typeAnnotation: handleTsTypes(source, node.typeAnnotation),
+    id: handleIdentifier(source, config, node.id) as LuaIdentifier,
+    typeAnnotation: handleTsTypes(source, config, node.typeAnnotation),
   }));

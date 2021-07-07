@@ -5,7 +5,7 @@ import { LuaStringLiteral } from '@js-to-lua/lua-types';
 export const handleStringLiteral: BaseNodeHandler<
   LuaStringLiteral,
   StringLiteral
-> = createHandler('StringLiteral', (source, literal) => {
+> = createHandler('StringLiteral', (source, config, literal) => {
   const _raw = literal.extra?.raw;
   let raw: string | undefined = undefined;
   if (typeof _raw === 'string' && _raw.slice(1, -1) !== literal.value) {

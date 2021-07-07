@@ -5,10 +5,10 @@ import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
 export const createBlockStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>
 ): BaseNodeHandler<LuaBlockStatement, BlockStatement> =>
-  createHandler('BlockStatement', (source, block) => {
+  createHandler('BlockStatement', (source, config, block) => {
     const body = Array.isArray(block.body) ? block.body : [block.body];
     return {
       type: 'BlockStatement',
-      body: body.map(handleStatement(source)),
+      body: body.map(handleStatement(source, config)),
     };
   });

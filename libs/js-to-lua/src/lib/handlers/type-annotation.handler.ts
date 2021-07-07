@@ -44,20 +44,20 @@ export const createTypeAnnotationHandler = (
   const handleTsTypeAnnotation: BaseNodeHandler<
     LuaTypeAnnotation,
     TSTypeAnnotation
-  > = createHandler('TSTypeAnnotation', (source, node) =>
-    typeAnnotation(handleTsTypes.handler(source, node.typeAnnotation))
+  > = createHandler('TSTypeAnnotation', (source, config, node) =>
+    typeAnnotation(handleTsTypes.handler(source, config, node.typeAnnotation))
   );
 
   const handleFlowTypeAnnotation: BaseNodeHandler<
     LuaTypeAnnotation,
     TypeAnnotation
-  > = createHandler('TypeAnnotation', (source, node) =>
-    typeAnnotation(handleFlowTypes.handler(source, node.typeAnnotation))
+  > = createHandler('TypeAnnotation', (source, config, node) =>
+    typeAnnotation(handleFlowTypes.handler(source, config, node.typeAnnotation))
   );
 
   const typesHandler = combineTypeAnnotationHandlers<
     LuaTypeAnnotation,
-    BaseNodeHandler<LuaTypeAnnotation, TypeAnnotation | TSTypeAnnotation | Noop>
+    TypeAnnotation | TSTypeAnnotation | Noop
   >([handleTsTypeAnnotation, handleFlowTypeAnnotation, handleNoop]).handler;
 
   const handleTsAnyKeyword: BaseNodeHandler<
@@ -98,26 +98,25 @@ export const createTypeAnnotationHandler = (
   const handleTsTypeLiteral: BaseNodeHandler<
     LuaTypeLiteral,
     TSTypeLiteral
-  > = createHandler('TSTypeLiteral', (source, node) => ({
+  > = createHandler('TSTypeLiteral', (source, config, node) => ({
     type: 'LuaTypeLiteral',
-    members: node.members.map(handleTsPropertySignature.handler(source)),
+    members: node.members.map(
+      handleTsPropertySignature.handler(source, config)
+    ),
   }));
 
   const handleTsPropertySignature: BaseNodeHandler<
     LuaPropertySignature,
     TSPropertySignature
-  > = createHandler('TSPropertySignature', (source, node) => ({
+  > = createHandler('TSPropertySignature', (source, config, node) => ({
     type: 'LuaPropertySignature',
-    key: handleExpression(source, node.key),
+    key: handleExpression(source, config, node.key),
     ...(node.typeAnnotation
-      ? { typeAnnotation: typesHandler(source, node.typeAnnotation) }
+      ? { typeAnnotation: typesHandler(source, config, node.typeAnnotation) }
       : {}),
   }));
 
-  const handleTsTypes = combineHandlers<
-    LuaType,
-    BaseNodeHandler<LuaType, TSType>
-  >(
+  const handleTsTypes = combineHandlers<LuaType, TSType>(
     [
       handleTsStringKeyword,
       handleTsNumberKeyword,
@@ -129,10 +128,10 @@ export const createTypeAnnotationHandler = (
     defaultTypeHandler
   );
 
-  const handleFlowTypes = combineHandlers<
-    LuaType,
-    BaseNodeHandler<LuaType, FlowType>
-  >([], defaultTypeHandler);
+  const handleFlowTypes = combineHandlers<LuaType, FlowType>(
+    [],
+    defaultTypeHandler
+  );
 
   return {
     typesHandler,

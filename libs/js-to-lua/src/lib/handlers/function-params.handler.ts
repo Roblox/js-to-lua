@@ -26,7 +26,7 @@ export const createFunctionParamsHandler = (
   const defaultFunctionParamHandler: HandlerFunction<
     LuaFunctionParam,
     LVal
-  > = createHandlerFunction((source, node) => {
+  > = createHandlerFunction((source, config, node) => {
     return withConversionComment(
       identifier('__unhandledIdentifier__'),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
@@ -34,20 +34,21 @@ export const createFunctionParamsHandler = (
     );
   });
 
-  return combineHandlers<
-    LuaFunctionParam,
-    BaseNodeHandler<LuaFunctionParam, LVal>
-  >(
+  return combineHandlers<LuaFunctionParam, LVal>(
     [
       createHandler(
         'Identifier',
-        (source, node: Identifier) =>
-          handleIdentifier(source, node) as LuaFunctionParam
+        (source, config, node: Identifier) =>
+          handleIdentifier(source, config, node) as LuaFunctionParam
       ),
       createHandler(
         'AssignmentPattern',
-        (source, node: AssignmentPattern) =>
-          handleIdentifier(source, node.left as Identifier) as LuaFunctionParam
+        (source, config, node: AssignmentPattern) =>
+          handleIdentifier(
+            source,
+            config,
+            node.left as Identifier
+          ) as LuaFunctionParam
       ),
     ],
     defaultFunctionParamHandler

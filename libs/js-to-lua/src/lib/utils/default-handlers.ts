@@ -11,7 +11,7 @@ import {
 import { getNodeSource } from './get-node-source';
 
 export const defaultStatementHandler: HandlerFunction<LuaStatement> = createHandlerFunction(
-  (source, node) => {
+  (source, config, node) => {
     return withConversionComment(
       unhandledStatement(),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
@@ -21,7 +21,7 @@ export const defaultStatementHandler: HandlerFunction<LuaStatement> = createHand
 );
 
 export const defaultExpressionHandler: HandlerFunction<LuaExpression> = createHandlerFunction(
-  (source, node) => {
+  (source, config, node) => {
     return withConversionComment(
       unhandledExpression(),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
@@ -31,7 +31,7 @@ export const defaultExpressionHandler: HandlerFunction<LuaExpression> = createHa
 );
 
 export const defaultTypeAnnotationHandler: HandlerFunction<TypeAnnotation> = createHandlerFunction(
-  (source, node) => {
+  (source, config, node) => {
     return withConversionComment(
       unhandledTypeAnnotation(),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,

@@ -1,5 +1,9 @@
 import { parse, ParserOptions } from '@babel/parser';
-import { handleProgram, printNode } from '@js-to-lua/js-to-lua';
+import { ConfigBase, handleProgram, printNode } from '@js-to-lua/js-to-lua';
+
+export interface ConversionConfig extends ConfigBase {
+  isInitFile: boolean;
+}
 
 const DEFAULT_BABEL_OPTIONS: ParserOptions = {
   sourceType: 'unambiguous',
@@ -7,6 +11,7 @@ const DEFAULT_BABEL_OPTIONS: ParserOptions = {
 };
 
 export const convert = (babelOptions_: ParserOptions | undefined) => (
+  config: ConversionConfig,
   code: string
 ): string => {
   const babelOptions = {
@@ -14,7 +19,11 @@ export const convert = (babelOptions_: ParserOptions | undefined) => (
     ...babelOptions_,
   };
   const babelASTFile = parse(code, babelOptions);
-  const luaASTProgram = handleProgram.handler(code, babelASTFile.program);
+  const luaASTProgram = handleProgram.handler(
+    code,
+    config,
+    babelASTFile.program
+  );
 
   return printNode(luaASTProgram);
 };

@@ -16,11 +16,11 @@ export const createAssignmentExpressionHandlerFunction = (
 ) =>
   createHandler(
     'AssignmentExpression',
-    (source, node: AssignmentExpression) => {
+    (source, config, node: AssignmentExpression) => {
       const assignmentStatement = createAssignmentStatementHandlerFunction(
         handleExpression,
         handleIdentifier
-      ).handler(source, node);
+      ).handler(source, config, node);
       return callExpression(
         functionExpression(
           [],

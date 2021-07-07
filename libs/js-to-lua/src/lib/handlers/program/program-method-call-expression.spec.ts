@@ -46,7 +46,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle not computed member expressions`, () => {
@@ -81,7 +81,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   describe('Special cases', () => {
@@ -115,7 +115,7 @@ describe('Call Expression Handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle React object`, () => {
@@ -160,7 +160,7 @@ describe('Call Expression Handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

@@ -21,6 +21,6 @@ describe('Null Literal Handler', () => {
     };
     const expected: LuaNilLiteral = nilLiteral();
 
-    expect(handleNullLiteral.handler(source, given)).toEqual(expected);
+    expect(handleNullLiteral.handler(source, {}, given)).toEqual(expected);
   });
 });

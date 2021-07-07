@@ -42,7 +42,7 @@ describe('Variable Declaration', () => {
         values: [],
       };
 
-      expect(handleVariableDeclaration.handler(source, given)).toEqual(
+      expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
         expected
       );
     });
@@ -89,7 +89,7 @@ describe('Variable Declaration', () => {
         ],
       };
 
-      expect(handleVariableDeclaration.handler(source, given)).toEqual(
+      expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
         expected
       );
     });
@@ -175,7 +175,9 @@ describe('Variable Declaration', () => {
       ],
     };
 
-    expect(handleVariableDeclaration.handler(source, given)).toEqual(expected);
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
   });
 
   it(`should return LuaVariableDeclaration Node with declarations and partial initialization - null at the end`, () => {
@@ -254,6 +256,8 @@ describe('Variable Declaration', () => {
       ],
     };
 
-    expect(handleVariableDeclaration.handler(source, given)).toEqual(expected);
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
   });
 });

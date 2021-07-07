@@ -51,7 +51,7 @@ describe('Export Handler', () => {
       ])
     );
 
-    expect(handler(source, given)).toEqual(expected);
+    expect(handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should add export named 'doesExport' extra to export default`, () => {
@@ -64,6 +64,6 @@ describe('Export Handler', () => {
       )
     );
 
-    expect(handler(source, given)).toEqual(expected);
+    expect(handler(source, {}, given)).toEqual(expected);
   });
 });

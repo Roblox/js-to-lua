@@ -18,9 +18,9 @@ export const createExportNamedHandler = (
 ) =>
   createHandler(
     'ExportNamedDeclaration',
-    (source, node: ExportNamedDeclaration) => {
+    (source, config, node: ExportNamedDeclaration) => {
       if (node.declaration) {
-        const declaration = handleDeclaration(source, node.declaration);
+        const declaration = handleDeclaration(source, config, node.declaration);
         const declarationIds = getDeclarationId(declaration);
 
         return nodeGroup([
@@ -36,7 +36,7 @@ export const createExportNamedHandler = (
         ]);
       }
 
-      return defaultStatementHandler(source, node);
+      return defaultStatementHandler(source, config, node);
     }
   );
 

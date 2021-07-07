@@ -5,6 +5,6 @@ import { booleanLiteral, LuaBooleanLiteral } from '@js-to-lua/lua-types';
 export const handleBooleanLiteral: BaseNodeHandler<
   LuaBooleanLiteral,
   BooleanLiteral
-> = createHandler('BooleanLiteral', (source, literal) =>
+> = createHandler('BooleanLiteral', (source, config, literal) =>
   booleanLiteral(literal.value)
 );

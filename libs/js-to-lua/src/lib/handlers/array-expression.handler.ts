@@ -34,25 +34,25 @@ export const createArrayExpressionHandler = (
   const handleExpressionTableNoKeyFieldHandler: HandlerFunction<
     LuaTableNoKeyField,
     Expression
-  > = createHandlerFunction((source, expression: Expression) =>
-    tableNoKeyField(handleExpression(source, expression))
+  > = createHandlerFunction((source, config, expression: Expression) =>
+    tableNoKeyField(handleExpression(source, config, expression))
   );
 
   const handleSpreadExpression: HandlerFunction<
     LuaExpression,
     SpreadElement
-  > = createHandlerFunction((source, spreadElement: SpreadElement) =>
+  > = createHandlerFunction((source, config, spreadElement: SpreadElement) =>
     spreadElement.argument.type === 'ArrayExpression'
-      ? handleExpression(source, spreadElement.argument)
+      ? handleExpression(source, config, spreadElement.argument)
       : callExpression(arraySpread(), [
-          handleExpression(source, spreadElement.argument),
+          handleExpression(source, config, spreadElement.argument),
         ])
   );
 
   const handleArrayExpressionWithSpread: HandlerFunction<
     LuaCallExpression,
     ArrayExpression
-  > = createHandlerFunction((source, expression: ArrayExpression) => {
+  > = createHandlerFunction((source, config, expression: ArrayExpression) => {
     const propertiesGroups = expression.elements
       .filter(isTruthy)
       .reduce(
@@ -64,9 +64,9 @@ export const createArrayExpressionHandler = (
     const args: LuaExpression[] = propertiesGroups.map((group) => {
       return Array.isArray(group)
         ? tableConstructor(
-            group.map(handleExpressionTableNoKeyFieldHandler(source))
+            group.map(handleExpressionTableNoKeyFieldHandler(source, config))
           )
-        : handleSpreadExpression(source, group);
+        : handleSpreadExpression(source, config, group);
     });
 
     return callExpression(arrayConcat(), [tableConstructor([]), ...args]);
@@ -77,21 +77,21 @@ export const createArrayExpressionHandler = (
     LuaTableConstructor,
     ArrayExpressionWithoutSpread
   > = createHandlerFunction(
-    (source, { elements }: ArrayExpressionWithoutSpread) =>
+    (source, config, { elements }: ArrayExpressionWithoutSpread) =>
       tableConstructor(
         elements
           .filter(isTruthy)
-          .map(handleExpressionTableNoKeyFieldHandler(source))
+          .map(handleExpressionTableNoKeyFieldHandler(source, config))
       )
   );
 
   return createHandler(
     'ArrayExpression',
-    (source, expression: ArrayExpression) =>
+    (source, config, expression: ArrayExpression) =>
       expression.elements.every(
         (element) => !element || element.type !== 'SpreadElement'
       )
-        ? handleArrayExpressionWithoutSpread(source, expression)
-        : handleArrayExpressionWithSpread(source, expression)
+        ? handleArrayExpressionWithoutSpread(source, config, expression)
+        : handleArrayExpressionWithSpread(source, config, expression)
   );
 };

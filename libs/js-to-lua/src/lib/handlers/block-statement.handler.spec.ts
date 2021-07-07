@@ -26,7 +26,7 @@ describe('Block Statement Handler', () => {
       body: [],
     };
 
-    expect(handleStatement.handler(source, given)).toEqual(expected);
+    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return Lua Block Constructor Node with expressions`, () => {
@@ -81,7 +81,7 @@ describe('Block Statement Handler', () => {
       ],
     };
 
-    expect(handleStatement.handler(source, given)).toEqual(expected);
+    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle nested block statements`, () => {
@@ -191,7 +191,7 @@ describe('Block Statement Handler', () => {
       ],
     };
 
-    expect(handleStatement.handler(source, given)).toEqual(expected);
+    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle deeply nested block statements`, () => {
@@ -329,6 +329,6 @@ describe('Block Statement Handler', () => {
       ],
     };
 
-    expect(handleStatement.handler(source, given)).toEqual(expected);
+    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
 });

@@ -15,9 +15,13 @@ export const createAssignmentPatternHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
 ): HandlerFunction<AssignmentStatement, AssignmentPattern> =>
-  createHandlerFunction((source, node: AssignmentPattern) => {
-    const leftExpression = handleIdentifier(source, node.left as Identifier);
-    const rightExpression = handleExpression(source, node.right);
+  createHandlerFunction((source, config, node: AssignmentPattern) => {
+    const leftExpression = handleIdentifier(
+      source,
+      config,
+      node.left as Identifier
+    );
+    const rightExpression = handleExpression(source, config, node.right);
     return ifStatement(
       ifClause(binaryExpression(leftExpression, '==', nilLiteral()), [
         assignmentStatement([leftExpression], [rightExpression]),

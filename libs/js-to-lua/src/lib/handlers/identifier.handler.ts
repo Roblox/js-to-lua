@@ -27,7 +27,7 @@ export const createIdentifierHandler = (
   LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression,
   Identifier
 > =>
-  createHandler('Identifier', (source, node) => {
+  createHandler('Identifier', (source, config, node) => {
     switch (node.name) {
       case 'undefined':
         return nilLiteral();
@@ -65,7 +65,9 @@ export const createIdentifierHandler = (
           type: 'Identifier',
           name: node.name,
           ...(node.typeAnnotation
-            ? { typeAnnotation: handleType(source, node.typeAnnotation) }
+            ? {
+                typeAnnotation: handleType(source, config, node.typeAnnotation),
+              }
             : {}),
         };
     }

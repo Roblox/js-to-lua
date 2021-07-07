@@ -22,7 +22,7 @@ describe('Program handler', () => {
         functionDeclaration(identifier('func'), [], [returnStatement()]),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle simple ReturnStatement `, () => {
@@ -39,7 +39,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle ReturnStatement that yields another statement`, () => {
@@ -61,7 +61,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, given);
+      const actual = handleProgram.handler(source, {}, given);
       expect(actual).toEqual(expected);
     });
   });

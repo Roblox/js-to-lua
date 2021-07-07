@@ -25,13 +25,18 @@ export const createAssignmentStatementHandlerFunction = (
     AssignmentExpression
   > = createHandler(
     'AssignmentExpression',
-    (source, node: AssignmentExpression) => {
-      const leftExpression = handleIdentifier(source, node.left as Identifier);
-      const rightExpression = handleExpression(source, node.right);
+    (source, config, node: AssignmentExpression) => {
+      const leftExpression = handleIdentifier(
+        source,
+        config,
+        node.left as Identifier
+      );
+      const rightExpression = handleExpression(source, config, node.right);
 
       if (isBabelAssignmentExpression(node.right)) {
         const rightAssignmentStatement = assignmentStatementHandler.handler(
           source,
+          config,
           node.right
         );
 
@@ -49,7 +54,7 @@ export const createAssignmentStatementHandlerFunction = (
         case '=':
           return assignmentStatement([leftExpression], [rightExpression]);
         default:
-          return defaultExpressionHandler(source, node);
+          return defaultExpressionHandler(source, config, node);
       }
     }
   );

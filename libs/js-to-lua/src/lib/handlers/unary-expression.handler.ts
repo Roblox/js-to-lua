@@ -32,40 +32,44 @@ export const createUnaryExpressionHandler = (
   | UnhandledStatement,
   UnaryExpression
 > =>
-  createHandler('UnaryExpression', (source, node: UnaryExpression) => {
+  createHandler('UnaryExpression', (source, config, node: UnaryExpression) => {
     const expressionAsBooleanHandler = createExpressionAsBooleanHandler(
       handleExpression
     );
     switch (node.operator) {
       case 'typeof':
         return callExpression(identifier('typeof'), [
-          handleExpression(source, node.argument),
+          handleExpression(source, config, node.argument),
         ]);
       case '+':
         return callExpression(identifier('tonumber'), [
-          handleExpression(source, node.argument),
+          handleExpression(source, config, node.argument),
         ]);
       case '-':
         return unaryExpression(
           node.operator,
-          handleExpression(source, node.argument)
+          handleExpression(source, config, node.argument)
         );
       case 'void':
-        return unaryVoidExpression(handleExpression(source, node.argument));
+        return unaryVoidExpression(
+          handleExpression(source, config, node.argument)
+        );
       case '!':
         return handleUnaryNegationExpression(source, node);
       case 'delete':
-        return unaryDeleteExpression(handleExpression(source, node.argument));
+        return unaryDeleteExpression(
+          handleExpression(source, config, node.argument)
+        );
       case '~':
         return withConversionComment(
           callExpression(
             memberExpression(bit32Identifier(), '.', identifier('bnot')),
-            [handleExpression(source, node.argument)]
+            [handleExpression(source, config, node.argument)]
           ),
           'ROBLOX CHECK: `bit32.bnot` clamps arguments and result to [0,2^32 - 1]'
         );
       default:
-        return defaultStatementHandler(source, node);
+        return defaultStatementHandler(source, config, node);
     }
 
     function handleUnaryNegationExpression(
@@ -73,7 +77,7 @@ export const createUnaryExpressionHandler = (
       node: UnaryExpression
     ) {
       return unaryNegationExpression(
-        expressionAsBooleanHandler(source, node.argument)
+        expressionAsBooleanHandler(source, config, node.argument)
       );
     }
   });

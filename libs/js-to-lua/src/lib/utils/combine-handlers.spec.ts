@@ -1,5 +1,10 @@
 import { combineHandlers } from './combine-handlers';
-import { BabelNode, BaseNodeHandler, createHandlerFunction } from '../types';
+import {
+  BabelNode,
+  BaseNodeHandler,
+  createHandlerFunction,
+  EmptyConfig,
+} from '../types';
 import { LuaNode } from '@js-to-lua/lua-types';
 import { mockNodeHandler } from '../testUtils/mock-node';
 
@@ -15,6 +20,7 @@ describe('Combine Handlers', () => {
   it('should use default handler if no handler provided', () => {
     combineHandlers(Array<BaseNodeHandler<LuaNode>>(), mockNodeHandler).handler(
       source,
+      {},
       {
         type: 'StringLiteral',
         start: 0,
@@ -38,11 +44,15 @@ describe('Combine Handlers', () => {
       },
     ];
 
-    combineHandlers(handlers, mockNodeHandler).handler(source, {
-      type: 'StringLiteral',
-      start: 0,
-      end: 1,
-    });
+    combineHandlers(handlers, mockNodeHandler).handler(
+      source,
+      {},
+      {
+        type: 'StringLiteral',
+        start: 0,
+        end: 1,
+      }
+    );
 
     expect(mockNodeHandler).not.toHaveBeenCalled();
 
@@ -62,13 +72,13 @@ describe('Combine Handlers', () => {
     };
 
     const handlerString = jest
-      .fn<LuaNode, [string, BabelNode]>()
+      .fn<LuaNode, [string, EmptyConfig, BabelNode]>()
       .mockReturnValue({
         type: 'StringLiteral',
         value: '123',
       });
     const handlerNumeric = jest
-      .fn<LuaNode, [string, BabelNode]>()
+      .fn<LuaNode, [string, EmptyConfig, BabelNode]>()
       .mockReturnValue({
         type: 'NumericLiteral',
         value: 1,
@@ -87,16 +97,16 @@ describe('Combine Handlers', () => {
 
     const { handler } = combineHandlers(handlers, mockNodeHandler);
 
-    handler(source, givenStringLiteral);
-    handler(source, givenNumericLiteral);
+    handler(source, {}, givenStringLiteral);
+    handler(source, {}, givenNumericLiteral);
 
     expect(mockNodeHandler).not.toHaveBeenCalled();
 
-    expect(handlerString).toHaveBeenCalledWith('', givenStringLiteral);
-    expect(handlerString).not.toHaveBeenCalledWith('', givenNumericLiteral);
+    expect(handlerString).toHaveBeenCalledWith('', {}, givenStringLiteral);
+    expect(handlerString).not.toHaveBeenCalledWith('', {}, givenNumericLiteral);
 
-    expect(handlerNumeric).toHaveBeenCalledWith('', givenNumericLiteral);
-    expect(handlerNumeric).not.toHaveBeenCalledWith('', givenStringLiteral);
+    expect(handlerNumeric).toHaveBeenCalledWith('', {}, givenNumericLiteral);
+    expect(handlerNumeric).not.toHaveBeenCalledWith('', {}, givenStringLiteral);
   });
 
   it('should use default handler if no matching handler', () => {
@@ -132,9 +142,9 @@ describe('Combine Handlers', () => {
 
     const { handler } = combineHandlers(handlers, mockNodeHandler);
 
-    handler(source, givenBooleanLiteral);
+    handler(source, {}, givenBooleanLiteral);
 
-    expect(mockNodeHandler).toHaveBeenCalledWith('', givenBooleanLiteral);
+    expect(mockNodeHandler).toHaveBeenCalledWith('', {}, givenBooleanLiteral);
     expect(handlerString).not.toHaveBeenCalled();
     expect(handlerNumeric).not.toHaveBeenCalled();
   });

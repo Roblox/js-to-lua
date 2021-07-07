@@ -26,7 +26,7 @@ export const createLValHandler = (
   const defaultLValHandler: HandlerFunction<
     LuaLVal,
     LVal
-  > = createHandlerFunction((source, node) => {
+  > = createHandlerFunction((source, config, node) => {
     return withConversionComment(
       identifier('__unhandledIdentifier__'),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
@@ -34,10 +34,10 @@ export const createLValHandler = (
     );
   });
 
-  return combineHandlers<LuaLVal, BaseNodeHandler<LuaLVal, LVal>>(
+  return combineHandlers<LuaLVal, LVal>(
     [
-      createHandler('Identifier', (source, node: Identifier) =>
-        handleIdentifier(source, node)
+      createHandler('Identifier', (source, config, node: Identifier) =>
+        handleIdentifier(source, config, node)
       ),
     ],
     defaultLValHandler

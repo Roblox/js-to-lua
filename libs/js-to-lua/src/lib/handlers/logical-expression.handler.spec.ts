@@ -49,7 +49,9 @@ describe('Logical Expression Handler', () => {
       )
     );
 
-    expect(handleLogicalExpression.handler(source, given)).toEqual(expected);
+    expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
+      expected
+    );
   });
 
   describe(`should handle && operator`, () => {
@@ -81,7 +83,9 @@ describe('Logical Expression Handler', () => {
         []
       );
 
-      expect(handleLogicalExpression.handler(source, given)).toEqual(expected);
+      expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
     });
 
     const falsyValues = [
@@ -118,7 +122,7 @@ describe('Logical Expression Handler', () => {
           []
         );
 
-        expect(handleLogicalExpression.handler(source, given)).toEqual(
+        expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
           expected
         );
       });
@@ -158,7 +162,7 @@ describe('Logical Expression Handler', () => {
           )
         );
 
-        expect(handleLogicalExpression.handler(source, given)).toEqual(
+        expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
           expected
         );
       });

@@ -17,6 +17,7 @@ import {
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
+  LuaVariableDeclaration,
   UnhandledExpression,
 } from './lua-nodes.types';
 import { isAnyNodeType, isNodeType } from './node.types';
@@ -70,6 +71,10 @@ export const isElseClause = isNodeType<LuaElseClause>('ElseClause');
 
 export const isFunctionDeclaration = isNodeType<LuaFunctionDeclaration>(
   'FunctionDeclaration'
+);
+
+export const isVariableDeclaration = isNodeType<LuaVariableDeclaration>(
+  'VariableDeclaration'
 );
 
 export const isUnhandledExpression = isNodeType<UnhandledExpression>(

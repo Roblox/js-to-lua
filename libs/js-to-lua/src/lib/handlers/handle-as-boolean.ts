@@ -16,17 +16,17 @@ import {
   LuaStringLiteral,
   withConversionComment,
 } from '@js-to-lua/lua-types';
-import { HandlerFunction } from '../types';
+import { EmptyConfig, HandlerFunction } from '../types';
 import { getNodeSource } from '../utils/get-node-source';
 
 export const createExpressionAsBooleanHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
-) => (source: string, node: Expression) => {
+) => (source: string, config: EmptyConfig, node: Expression) => {
   const isCoercableLiteral = isAnyNodeType<
     LuaStringLiteral | LuaNumericLiteral | LuaMultilineStringLiteral
   >([isStringLiteral, isNumericLiteral, isMultilineStringLiteral]);
 
-  const arg = handleExpression(source, node);
+  const arg = handleExpression(source, config, node);
 
   if (isBooleanLiteral(arg)) {
     return arg;

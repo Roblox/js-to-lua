@@ -41,7 +41,7 @@ describe('Call Expression Handler', () => {
       []
     );
 
-    expect(handleCallExpression.handler(source, given)).toEqual(expected);
+    expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return Call with parameters`, () => {
@@ -77,7 +77,7 @@ describe('Call Expression Handler', () => {
       stringLiteral('wole'),
     ]);
 
-    expect(handleCallExpression.handler(source, given)).toEqual(expected);
+    expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle computed member expressions`, () => {
@@ -113,7 +113,7 @@ describe('Call Expression Handler', () => {
       [identifier('foo'), stringLiteral('baz')]
     );
 
-    expect(handleCallExpression.handler(source, given)).toEqual(expected);
+    expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle not computed member expressions`, () => {
@@ -149,7 +149,7 @@ describe('Call Expression Handler', () => {
       [stringLiteral('baz')]
     );
 
-    expect(handleCallExpression.handler(source, given)).toEqual(expected);
+    expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   describe('Special cases', () => {
@@ -180,7 +180,7 @@ describe('Call Expression Handler', () => {
         [identifier('foo')]
       );
 
-      expect(handleCallExpression.handler(source, given)).toEqual(expected);
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle computed toString() method`, () => {
@@ -210,7 +210,7 @@ describe('Call Expression Handler', () => {
         [identifier('foo')]
       );
 
-      expect(handleCallExpression.handler(source, given)).toEqual(expected);
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle treat toString() method as a regular method when it has arguments`, () => {
@@ -246,7 +246,7 @@ describe('Call Expression Handler', () => {
         [identifier('foo'), stringLiteral('bar')]
       );
 
-      expect(handleCallExpression.handler(source, given)).toEqual(expected);
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
     });
 
     USE_DOT_NOTATION_IN_CALL_EXPRESSION.forEach((id) => {
@@ -276,7 +276,9 @@ describe('Call Expression Handler', () => {
           memberExpression(identifier(id), '.', identifier('foo')),
           []
         );
-        expect(handleCallExpression.handler(source, given)).toEqual(expected);
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
       });
 
       it(`should handle computed ${id} object`, () => {
@@ -305,7 +307,9 @@ describe('Call Expression Handler', () => {
           indexExpression(identifier(id), stringLiteral('foo')),
           []
         );
-        expect(handleCallExpression.handler(source, given)).toEqual(expected);
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
       });
     });
   });

@@ -41,7 +41,9 @@ describe('Assignment Statement Handler', () => {
       [mockNodeWithValue(rightGiven)]
     );
 
-    expect(handleAssignmentStatement.handler(source, given)).toEqual(expected);
+    expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
+      expected
+    );
   });
 
   it(`should handle chained AssignmentStatement `, () => {
@@ -65,6 +67,8 @@ describe('Assignment Statement Handler', () => {
       ),
     ]);
 
-    expect(handleAssignmentStatement.handler(source, given)).toEqual(expected);
+    expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
+      expected
+    );
   });
 });

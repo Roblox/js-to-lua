@@ -67,7 +67,9 @@ describe('Assignment Expression Handler', () => {
       []
     );
 
-    expect(handleAssignmentExpression.handler(source, given)).toEqual(expected);
+    expect(handleAssignmentExpression.handler(source, {}, given)).toEqual(
+      expected
+    );
   });
 
   it(`should handle wrap chained AssignmentStatement with an IIFE`, () => {
@@ -100,7 +102,7 @@ describe('Assignment Expression Handler', () => {
       []
     );
 
-    const actual = handleAssignmentExpression.handler(source, given);
+    const actual = handleAssignmentExpression.handler(source, {}, given);
     expect(actual).toEqual(expected);
   });
 });

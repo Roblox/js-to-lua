@@ -32,7 +32,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle plus operator`, () => {
@@ -46,7 +46,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle minus operator`, () => {
@@ -58,7 +58,7 @@ describe('Unary Expression Handler', () => {
       expressionStatement(unaryExpression('-', identifier('foo'))),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle void operator`, () => {
@@ -70,7 +70,7 @@ describe('Unary Expression Handler', () => {
       expressionStatement(unaryVoidExpression(identifier('foo'))),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle negation operator`, () => {
@@ -84,7 +84,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle negation operator of BooleanLiteral`, () => {
@@ -94,7 +94,7 @@ describe('Unary Expression Handler', () => {
       expressionStatement(unaryNegationExpression(booleanLiteral(true))),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle delete operator`, () => {
@@ -110,7 +110,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle ~ operator`, () => {
@@ -130,6 +130,6 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, given)).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 });

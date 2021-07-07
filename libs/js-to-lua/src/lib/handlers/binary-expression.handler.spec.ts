@@ -42,7 +42,7 @@ describe('Binary Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle division operator`, () => {
@@ -62,7 +62,7 @@ describe('Binary Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle multiplication operator`, () => {
@@ -82,7 +82,7 @@ describe('Binary Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle remainder operator`, () => {
@@ -102,7 +102,7 @@ describe('Binary Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle exponential operator`, () => {
@@ -122,7 +122,7 @@ describe('Binary Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle add operator`, () => {
@@ -142,7 +142,7 @@ describe('Binary Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle add operator with string literal (left)`, () => {
@@ -162,7 +162,7 @@ describe('Binary Expression Handler', () => {
       callExpression(identifier('tostring'), [identifier('bar')])
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle add operator with string literal (right)`, () => {
@@ -182,7 +182,7 @@ describe('Binary Expression Handler', () => {
       stringLiteral('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle add operator with both string literals`, () => {
@@ -202,7 +202,7 @@ describe('Binary Expression Handler', () => {
       stringLiteral('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle add operator with multiple string literals`, () => {
@@ -225,7 +225,7 @@ describe('Binary Expression Handler', () => {
       stringLiteral('fizz')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle loose equality`, () => {
@@ -244,7 +244,7 @@ describe('Binary Expression Handler', () => {
       `ROBLOX CHECK: loose equality used upstream`
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle loose inequality`, () => {
@@ -263,7 +263,7 @@ describe('Binary Expression Handler', () => {
       `ROBLOX CHECK: loose inequality used upstream`
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle strict equality`, () => {
@@ -283,7 +283,7 @@ describe('Binary Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle strict inequality`, () => {
@@ -303,7 +303,7 @@ describe('Binary Expression Handler', () => {
       identifier('bar')
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle in operator with variable`, () => {
@@ -332,7 +332,7 @@ describe('Binary Expression Handler', () => {
       numericLiteral(-1)
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle in operator with string literal`, () => {
@@ -355,7 +355,7 @@ describe('Binary Expression Handler', () => {
       numericLiteral(-1)
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle greater than operator`, () => {
@@ -374,7 +374,7 @@ describe('Binary Expression Handler', () => {
       `ROBLOX CHECK: operator '>' works only if either both arguments are strings or both are a number`
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle less than operator`, () => {
@@ -393,7 +393,7 @@ describe('Binary Expression Handler', () => {
       `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle greater than or equals operator`, () => {
@@ -412,7 +412,7 @@ describe('Binary Expression Handler', () => {
       `ROBLOX CHECK: operator '>=' works only if either both arguments are strings or both are a number`
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle less than or equals operator`, () => {
@@ -431,7 +431,7 @@ describe('Binary Expression Handler', () => {
       `ROBLOX CHECK: operator '<=' works only if either both arguments are strings or both are a number`
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle bitwise and operator`, () => {
@@ -453,7 +453,7 @@ describe('Binary Expression Handler', () => {
       'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle bitwise or operator`, () => {
@@ -475,7 +475,7 @@ describe('Binary Expression Handler', () => {
       'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle bitwise xor operator`, () => {
@@ -497,7 +497,7 @@ describe('Binary Expression Handler', () => {
       'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle bitwise unsigned shift right operator`, () => {
@@ -519,7 +519,7 @@ describe('Binary Expression Handler', () => {
       'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle bitwise shift right operator`, () => {
@@ -541,7 +541,7 @@ describe('Binary Expression Handler', () => {
       'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle bitwise shift left operator`, () => {
@@ -563,6 +563,6 @@ describe('Binary Expression Handler', () => {
       'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
     );
 
-    expect(handleBinaryExpression.handler(source, given)).toEqual(expected);
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 });

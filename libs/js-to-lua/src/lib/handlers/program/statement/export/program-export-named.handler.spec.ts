@@ -45,7 +45,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, given);
+      const actual = handleProgram.handler(source, {}, given);
       expect(actual).toEqual(expected);
     });
 
@@ -71,7 +71,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, given);
+      const actual = handleProgram.handler(source, {}, given);
       expect(actual).toEqual(expected);
     });
 
@@ -111,7 +111,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, given);
+      const actual = handleProgram.handler(source, {}, given);
       expect(actual).toEqual(expected);
     });
   });

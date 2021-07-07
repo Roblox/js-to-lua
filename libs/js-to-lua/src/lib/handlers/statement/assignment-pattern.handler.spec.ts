@@ -41,6 +41,6 @@ describe('Assignment Pattern Handler', () => {
       )
     );
 
-    expect(handleAssignmentPattern(source, given)).toEqual(expected);
+    expect(handleAssignmentPattern(source, {}, given)).toEqual(expected);
   });
 });

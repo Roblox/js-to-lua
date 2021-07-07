@@ -40,7 +40,7 @@ describe('If statement Handler', () => {
       )
     );
 
-    expect(handleIfStatement.handler(source, given)).toEqual(expected);
+    expect(handleIfStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle if/else`, () => {
@@ -59,7 +59,7 @@ describe('If statement Handler', () => {
       elseClause([])
     );
 
-    expect(handleIfStatement.handler(source, given)).toEqual(expected);
+    expect(handleIfStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle if/elseif`, () => {
@@ -82,7 +82,7 @@ describe('If statement Handler', () => {
       ]
     );
 
-    expect(handleIfStatement.handler(source, given)).toEqual(expected);
+    expect(handleIfStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle if/elseif/else`, () => {
@@ -110,6 +110,6 @@ describe('If statement Handler', () => {
       elseClause([])
     );
 
-    expect(handleIfStatement.handler(source, given)).toEqual(expected);
+    expect(handleIfStatement.handler(source, {}, given)).toEqual(expected);
   });
 });

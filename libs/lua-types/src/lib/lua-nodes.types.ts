@@ -210,7 +210,7 @@ export interface LuaTypeAnnotation extends BaseLuaNode {
 export interface LuaTypeAliasDeclaration extends BaseLuaNode {
   type: 'LuaTypeAliasDeclaration';
   id: LuaIdentifier;
-  typeAnnotation: LuaType;
+  typeAnnotation: LuaType | LuaMemberExpression;
 }
 export interface LuaPropertySignature extends BaseLuaNode {
   type: 'LuaPropertySignature';
@@ -284,7 +284,7 @@ export interface LuaMemberExpression extends BaseLuaNode {
   type: 'LuaMemberExpression';
   indexer: '.' | ':';
   base: LuaExpression;
-  identifier: LuaIdentifier;
+  identifier: LuaIdentifier | LuaMemberExpression;
 }
 export interface LuaUnaryDeleteExpression extends BaseLuaNode {
   type: 'LuaUnaryDeleteExpression';

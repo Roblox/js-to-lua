@@ -8,7 +8,7 @@ import {
 export const handleMultilineStringLiteral: BaseNodeHandler<
   LuaMultilineStringLiteral | LuaStringLiteral,
   TemplateLiteral
-> = createHandler('TemplateLiteral', (source, literal) => {
+> = createHandler('TemplateLiteral', (source, config, literal) => {
   return containsNewLine(literal)
     ? {
         type: 'MultilineStringLiteral',

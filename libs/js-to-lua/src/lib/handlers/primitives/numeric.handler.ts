@@ -5,7 +5,7 @@ import { LuaNumericLiteral } from '@js-to-lua/lua-types';
 export const handleNumericLiteral: BaseNodeHandler<
   LuaNumericLiteral,
   NumericLiteral
-> = createHandler('NumericLiteral', (source, literal) => {
+> = createHandler('NumericLiteral', (source, config, literal) => {
   const _raw = literal.extra?.raw;
   let raw: string | undefined = undefined;
   if (

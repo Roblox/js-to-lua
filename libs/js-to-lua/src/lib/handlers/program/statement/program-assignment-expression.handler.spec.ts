@@ -36,7 +36,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, given);
+      const actual = handleProgram.handler(source, {}, given);
       expect(actual).toEqual(expected);
     });
 
@@ -70,7 +70,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual1 = handleProgram.handler(source, given);
+      const actual1 = handleProgram.handler(source, {}, given);
       expect(actual1).toEqual(expected);
     });
   });

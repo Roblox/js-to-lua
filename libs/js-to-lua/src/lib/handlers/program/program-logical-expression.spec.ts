@@ -43,7 +43,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(source, given);
+      const luaProgram = handleProgram.handler(source, {}, given);
 
       expect(luaProgram).toEqual(expected);
     });
@@ -75,7 +75,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        const luaProgram = handleProgram.handler(source, given);
+        const luaProgram = handleProgram.handler(source, {}, given);
 
         expect(luaProgram).toEqual(expected);
       });
@@ -125,7 +125,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          const luaProgram = handleProgram.handler(source, given);
+          const luaProgram = handleProgram.handler(source, {}, given);
 
           expect(luaProgram).toEqual(expected);
         });
@@ -196,7 +196,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          const luaProgram = handleProgram.handler(source, given);
+          const luaProgram = handleProgram.handler(source, {}, given);
 
           expect(luaProgram).toEqual(expected);
         });

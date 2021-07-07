@@ -46,12 +46,12 @@ export const createBinaryExpressionHandler = (
   LuaBinaryExpression | UnhandledStatement,
   BinaryExpression
 > =>
-  createHandler('BinaryExpression', (source, node) => {
+  createHandler('BinaryExpression', (source, config, node) => {
     const handleOperandAsString: HandlerFunction<
       LuaCallExpression | LuaStringLiteral,
       Expression
-    > = createHandlerFunction((source, node: Expression) => {
-      const operandNode = handleExpression(source, node);
+    > = createHandlerFunction((source, config, node: Expression) => {
+      const operandNode = handleExpression(source, config, node);
 
       if (isStringInferable(operandNode)) {
         return operandNode;
@@ -60,21 +60,21 @@ export const createBinaryExpressionHandler = (
     });
 
     const handleBinaryAddOperator = createHandlerFunction(
-      (source: string, node: BinaryExpression & { operator: '+' }) => {
+      (source: string, config, node: BinaryExpression & { operator: '+' }) => {
         if (
           isBabelStringLiteral(node.left) ||
           isBabelStringLiteral(node.right)
         ) {
           return binaryExpression(
-            handleOperandAsString(source, node.left as Expression),
+            handleOperandAsString(source, config, node.left as Expression),
             '..',
-            handleOperandAsString(source, node.right)
+            handleOperandAsString(source, config, node.right)
           );
         } else {
           return binaryExpression(
-            handleExpression(source, node.left as Expression),
+            handleExpression(source, config, node.left as Expression),
             node.operator,
-            handleExpression(source, node.right)
+            handleExpression(source, config, node.right)
           );
         }
       }
@@ -86,22 +86,22 @@ export const createBinaryExpressionHandler = (
       case '*':
       case '%':
         return binaryExpression(
-          handleExpression(source, node.left as Expression),
+          handleExpression(source, config, node.left as Expression),
           node.operator,
-          handleExpression(source, node.right)
+          handleExpression(source, config, node.right)
         );
       case '**':
         return binaryExpression(
-          handleExpression(source, node.left as Expression),
+          handleExpression(source, config, node.left as Expression),
           '^',
-          handleExpression(source, node.right)
+          handleExpression(source, config, node.right)
         );
       case '==':
         return withConversionComment(
           binaryExpression(
-            handleExpression(source, node.left as Expression),
+            handleExpression(source, config, node.left as Expression),
             node.operator,
-            handleExpression(source, node.right)
+            handleExpression(source, config, node.right)
           ),
           `ROBLOX CHECK: loose equality used upstream`
         );
@@ -111,43 +111,46 @@ export const createBinaryExpressionHandler = (
       case '<=':
         return withConversionComment(
           binaryExpression(
-            handleExpression(source, node.left as Expression),
+            handleExpression(source, config, node.left as Expression),
             node.operator,
-            handleExpression(source, node.right)
+            handleExpression(source, config, node.right)
           ),
           `ROBLOX CHECK: operator '${node.operator}' works only if either both arguments are strings or both are a number`
         );
       case '!=':
         return withConversionComment(
           binaryExpression(
-            handleExpression(source, node.left as Expression),
+            handleExpression(source, config, node.left as Expression),
             '~=',
-            handleExpression(source, node.right)
+            handleExpression(source, config, node.right)
           ),
           `ROBLOX CHECK: loose inequality used upstream`
         );
       case '===':
         return binaryExpression(
-          handleExpression(source, node.left as Expression),
+          handleExpression(source, config, node.left as Expression),
           '==',
-          handleExpression(source, node.right)
+          handleExpression(source, config, node.right)
         );
       case '!==':
         return binaryExpression(
-          handleExpression(source, node.left as Expression),
+          handleExpression(source, config, node.left as Expression),
           '~=',
-          handleExpression(source, node.right)
+          handleExpression(source, config, node.right)
         );
 
       case '+':
-        return handleBinaryAddOperator(source, { ...node, operator: '+' });
+        return handleBinaryAddOperator(source, config, {
+          ...node,
+          operator: '+',
+        });
       case 'in':
         return binaryExpression(
           callExpression(arrayIndexOf(), [
             callExpression(objectKeys(), [
-              handleExpression(source, node.right),
+              handleExpression(source, config, node.right),
             ]),
-            handleOperandAsString(source, node.left as Expression),
+            handleOperandAsString(source, config, node.left as Expression),
           ]),
           '~=',
           numericLiteral(-1)
@@ -156,8 +159,8 @@ export const createBinaryExpressionHandler = (
         return withConversionComment(
           bit32MethodCall(
             'band',
-            handleExpression(source, node.left as Expression),
-            handleExpression(source, node.right as Expression)
+            handleExpression(source, config, node.left as Expression),
+            handleExpression(source, config, node.right as Expression)
           ),
           'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
         );
@@ -166,8 +169,8 @@ export const createBinaryExpressionHandler = (
         return withConversionComment(
           bit32MethodCall(
             'bor',
-            handleExpression(source, node.left as Expression),
-            handleExpression(source, node.right as Expression)
+            handleExpression(source, config, node.left as Expression),
+            handleExpression(source, config, node.right as Expression)
           ),
           'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
         );
@@ -175,8 +178,8 @@ export const createBinaryExpressionHandler = (
         return withConversionComment(
           bit32MethodCall(
             'bxor',
-            handleExpression(source, node.left as Expression),
-            handleExpression(source, node.right as Expression)
+            handleExpression(source, config, node.left as Expression),
+            handleExpression(source, config, node.right as Expression)
           ),
           'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
         );
@@ -184,8 +187,8 @@ export const createBinaryExpressionHandler = (
         return withConversionComment(
           bit32MethodCall(
             'rshift',
-            handleExpression(source, node.left as Expression),
-            handleExpression(source, node.right as Expression)
+            handleExpression(source, config, node.left as Expression),
+            handleExpression(source, config, node.right as Expression)
           ),
           'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
         );
@@ -193,8 +196,8 @@ export const createBinaryExpressionHandler = (
         return withConversionComment(
           bit32MethodCall(
             'arshift',
-            handleExpression(source, node.left as Expression),
-            handleExpression(source, node.right as Expression)
+            handleExpression(source, config, node.left as Expression),
+            handleExpression(source, config, node.right as Expression)
           ),
           'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
         );
@@ -202,12 +205,12 @@ export const createBinaryExpressionHandler = (
         return withConversionComment(
           bit32MethodCall(
             'lshift',
-            handleExpression(source, node.left as Expression),
-            handleExpression(source, node.right as Expression)
+            handleExpression(source, config, node.left as Expression),
+            handleExpression(source, config, node.right as Expression)
           ),
           'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
         );
       default:
-        return defaultStatementHandler(source, node);
+        return defaultStatementHandler(source, config, node);
     }
   });

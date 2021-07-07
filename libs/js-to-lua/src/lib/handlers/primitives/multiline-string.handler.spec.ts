@@ -68,7 +68,7 @@ describe('Multiline String Handler', () => {
 
   testCases.forEach(({ itLabel, given, expected }) => {
     it(itLabel, () => {
-      expect(handleMultilineStringLiteral.handler(source, given)).toEqual(
+      expect(handleMultilineStringLiteral.handler(source, {}, given)).toEqual(
         expected
       );
     });

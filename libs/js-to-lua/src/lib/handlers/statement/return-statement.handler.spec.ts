@@ -30,7 +30,7 @@ describe('Return Statement Handler', () => {
     const given = babelReturnStatement();
     const expected = returnStatement();
 
-    const actual = returnStatementHandler.handler(source, given);
+    const actual = returnStatementHandler.handler(source, {}, given);
     expect(actual).toEqual(expected);
   });
 
@@ -38,7 +38,7 @@ describe('Return Statement Handler', () => {
     const given = babelReturnStatement(babelIdentifier('foo'));
     const expected = returnStatement(mockNodeWithValue(babelIdentifier('foo')));
 
-    const actual = returnStatementHandler.handler(source, given);
+    const actual = returnStatementHandler.handler(source, {}, given);
     expect(actual).toEqual(expected);
   });
 
@@ -55,7 +55,7 @@ describe('Return Statement Handler', () => {
       returnStatement(mockNodeWithValue('mockStatement')),
     ]);
 
-    const actual = returnStatementHandler.handler(source, given);
+    const actual = returnStatementHandler.handler(source, {}, given);
     expect(actual).toEqual(expected);
   });
 });

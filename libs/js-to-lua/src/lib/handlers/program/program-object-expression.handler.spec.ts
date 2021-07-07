@@ -28,7 +28,7 @@ describe('Program handler', () => {
         expressionStatement(tableConstructor([])),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with TableNameKeyField elements`, () => {
@@ -49,7 +49,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with TableNameKeyField elements when shorthand JS notation is used`, () => {
@@ -70,7 +70,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with TableExpressionKeyField elements`, () => {
@@ -94,7 +94,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle object of objects`, () => {
@@ -136,7 +136,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle methods in objects`, () => {
@@ -165,7 +165,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle deeply nested objects`, () => {
@@ -196,7 +196,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with spread elements`, () => {
@@ -222,7 +222,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with multiple spread elements`, () => {
@@ -250,7 +250,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with multiple spread elements`, () => {
@@ -278,7 +278,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with nested spread elements`, () => {
@@ -309,7 +309,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with spread identifiers`, () => {
@@ -340,7 +340,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, given)).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });
