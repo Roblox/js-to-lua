@@ -40,8 +40,6 @@ export const printNode = (node: LuaNode): string => {
   return `${nodeStr}${comment}`;
 };
 
-const forwardRefPrintNode = (node: LuaNode) => printNode(node);
-
 const _printNode = (node: LuaNode): string => {
   switch (node.type) {
     case 'Program':
@@ -128,9 +126,9 @@ const _printNode = (node: LuaNode): string => {
     case 'LuaIfStatement':
       return printIfStatement(node);
     case 'AssignmentStatement':
-      return createPrintAssignmentStatement(forwardRefPrintNode)(node);
+      return createPrintAssignmentStatement(printNode)(node);
     case 'ExportTypeStatement':
-      return createPrintExportTypeStatement(printTypeAliasDeclaration)(node);
+      return createPrintExportTypeStatement(printNode)(node);
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':
