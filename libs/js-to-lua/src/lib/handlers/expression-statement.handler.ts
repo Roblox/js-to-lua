@@ -9,10 +9,8 @@ import {
   ArrowFunctionExpression,
   AssignmentPattern,
   CallExpression,
-  Declaration,
   Expression,
   ExpressionStatement,
-  FunctionDeclaration,
   FunctionExpression,
   Identifier,
   isAssignmentPattern as isBabelAssignmentPattern_,
@@ -25,8 +23,6 @@ import {
   SpreadElement,
   UpdateExpression,
   V8IntrinsicIdentifier,
-  VariableDeclaration,
-  VariableDeclarator,
 } from '@babel/types';
 import {
   combineExpressionsHandlers,
@@ -40,44 +36,31 @@ import { handleNullLiteral } from './primitives/null.handler';
 import {
   callExpression,
   expressionStatement,
-  functionDeclaration,
   functionExpression,
   identifier,
   LuaCallExpression,
-  LuaDeclaration,
   LuaExpression,
   LuaExpressionStatement,
-  LuaFunctionDeclaration,
   LuaFunctionExpression,
   LuaIdentifier,
-  LuaNodeGroup,
   LuaStatement,
   LuaTableConstructor,
   LuaTableField,
   LuaTableKeyField,
-  LuaVariableDeclaration,
-  LuaVariableDeclarator,
   memberExpression,
-  nodeGroup,
   objectAssign,
   returnStatement,
   tableConstructor,
   tableExpressionKeyField,
   tableNameKeyField,
-  UnhandledStatement,
-  unhandledStatement,
   variableDeclaration,
-  variableDeclarator,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withConversionComment,
 } from '@js-to-lua/lua-types';
 
 import { handleMultilineStringLiteral } from './primitives/multiline-string.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 import { createFunctionParamsHandler } from './function-params.handler';
-import { createLValHandler } from './l-val.handler';
-import { createTypeAliasDeclarationHandler } from './type-alias-declaration.handler';
 import { createReturnStatementHandler } from './statement/return-statement.handler';
 import { createArrayExpressionHandler } from './array-expression.handler';
 import {
@@ -97,8 +80,7 @@ import { createBlockStatementHandler } from './block-statement.handler';
 import { createIdentifierHandler } from './identifier.handler';
 import { createIfStatementHandler } from './if-statement.handler';
 import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
-import { createExportHandler } from './statement/export';
-import { createImportHandler } from './statement/import';
+import { createDeclarationHandler } from './declaration.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -348,9 +330,6 @@ const functionParamsHandler = createFunctionParamsHandler(
   forwardHandlerRef(() => handleIdentifier)
 ).handler;
 
-const lValHandler = createLValHandler(forwardHandlerRef(() => handleIdentifier))
-  .handler;
-
 const handleExpressionAsStatement = combineExpressionsHandlers([
   createAssignmentStatementHandlerFunction(
     forwardHandlerRef(() => handleExpression),
@@ -485,152 +464,15 @@ const handleCalleeExpression = combineExpressionsHandlers<
   Expression | V8IntrinsicIdentifier
 >([handleExpression]);
 
-const handleVariableDeclarator: BaseNodeHandler<
-  LuaVariableDeclarator,
-  VariableDeclarator
-> = createHandler(
-  'VariableDeclarator',
-  (source, config, node: VariableDeclarator) => {
-    return variableDeclarator(
-      lValHandler(source, config, node.id),
-      node.init ? handleExpression.handler(source, config, node.init) : null
-    );
-  }
-);
-
-export const handleVariableDeclaration: BaseNodeHandler<
-  LuaNodeGroup | LuaVariableDeclaration,
-  VariableDeclaration
-> = createHandler('VariableDeclaration', (source, config, declaration) => {
-  const handleDeclaration = handleVariableDeclarator.handler(source, config);
-  const isFunctionDeclaration = (declaration: VariableDeclarator) =>
-    declaration.init &&
-    ['FunctionExpression', 'ArrowFunctionExpression'].includes(
-      declaration.init.type
-    );
-
-  const isNotFunctionDeclaration = (declaration: VariableDeclarator) =>
-    !isFunctionDeclaration(declaration);
-
-  const varDeclaration: LuaVariableDeclaration = {
-    type: 'VariableDeclaration',
-    ...declaration.declarations
-      .filter(isNotFunctionDeclaration)
-      .map(handleDeclaration)
-      .reduceRight<Pick<LuaVariableDeclaration, 'identifiers' | 'values'>>(
-        (obj, declarator) => {
-          obj.identifiers.unshift(variableDeclaratorIdentifier(declarator.id));
-          if (declarator.init !== null || obj.values.length > 0) {
-            obj.values.unshift(variableDeclaratorValue(declarator.init));
-          }
-          return obj;
-        },
-        { identifiers: [], values: [] }
-      ),
-  };
-
-  const toFunctionDeclaration = convertVariableFunctionToFunctionDeclaration(
-    source,
-    config
-  );
-  const functionDeclarations = declaration.declarations
-    .filter(isFunctionDeclaration)
-    .map(toFunctionDeclaration);
-
-  if (functionDeclarations.length === 0) {
-    return varDeclaration;
-  }
-
-  if (varDeclaration.identifiers.length) {
-    return nodeGroup([varDeclaration, ...functionDeclarations]);
-  }
-
-  return nodeGroup(functionDeclarations);
-});
-
-const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
-  LuaFunctionDeclaration | UnhandledStatement,
-  VariableDeclarator
-> = createHandlerFunction((source, config, node: VariableDeclarator) => {
-  switch (node.init?.type) {
-    case 'ArrowFunctionExpression':
-    case 'FunctionExpression':
-      return convertToFunctionDeclaration(
-        source,
-        config,
-        node.init,
-        lValHandler(source, config, node.id) as LuaIdentifier
-      );
-    default:
-      return withConversionComment(
-        unhandledStatement(),
-        `ROBLOX TODO: Unhandled node for type: ${node.init?.type}, when within 'init' expression for ${node.type} node`,
-        source.slice(node.start || 0, node.end || 0)
-      );
-  }
-});
-
-const convertToFunctionDeclaration = (
-  source: string,
-  config: EmptyConfig,
-  node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
-  identifier: LuaIdentifier
-): LuaFunctionDeclaration => {
-  const body: LuaStatement[] =
-    node.body.type === 'BlockStatement'
-      ? node.body.body.map(handleStatement.handler(source, config))
-      : [returnStatement(handleExpression.handler(source, config, node.body))];
-
-  return functionDeclaration(
-    identifier,
-    node.params.map(functionParamsHandler(source, config)),
-    [
-      ...node.params
-        .filter(isBabelAssignmentPattern)
-        .map((param) => handleAssignmentPattern(source, config, param)),
-      ...body,
-    ],
-    node.returnType ? typesHandler(source, config, node.returnType) : undefined
-  );
-};
-
-export const handleFunctionDeclaration: BaseNodeHandler<
-  LuaFunctionDeclaration,
-  FunctionDeclaration
-> = createHandler('FunctionDeclaration', (source, config, node) => {
-  return convertToFunctionDeclaration(
-    source,
-    config,
-    node,
-    handleIdentifier.handler(source, config, node.id!) as LuaIdentifier
-  );
-});
-
-export const handleDeclaration: BaseNodeHandler<
-  LuaDeclaration | LuaNodeGroup,
-  Declaration
-> = combineStatementHandlers<LuaDeclaration | LuaNodeGroup, Declaration>([
-  handleVariableDeclaration,
-  handleFunctionDeclaration,
-  createTypeAliasDeclarationHandler(
-    forwardHandlerRef(() => handleIdentifier),
-    forwardHandlerRef(() => handleTsTypes)
-  ),
-  createExportHandler(
-    forwardHandlerRef(() => handleDeclaration),
-    forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleIdentifier)
-  ),
-  createImportHandler(
-    forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleIdentifier)
-  ),
-]);
-
 export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHandlers<LuaStatement>(
   [
     handleExpressionStatement,
-    handleDeclaration,
+    createDeclarationHandler(
+      forwardHandlerRef(() => handleExpression),
+      forwardHandlerRef(() => handleIdentifier),
+      forwardHandlerRef(() => handleStatement),
+      handleTsTypes
+    ),
     createBlockStatementHandler(forwardHandlerRef(() => handleStatement)),
     createReturnStatementHandler(
       forwardHandlerRef(() => handleExpression),

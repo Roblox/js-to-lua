@@ -1,2 +1,3 @@
-local variable, name = false, "wole"
+local variable = false
 local function other() end
+local name = "wole"

@@ -1,6 +1,20 @@
-import { LuaProgram } from '@js-to-lua/lua-types';
+import {
+  LuaProgram,
+  program,
+  expressionStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  identifier,
+  variableDeclaratorValue,
+  callExpression,
+  numericLiteral,
+  memberExpression,
+  nodeGroup,
+  stringLiteral,
+} from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
+import {} from '@babel/types';
 
 const source = '';
 
@@ -10,24 +24,12 @@ describe('Program handler', () => {
       const given = getProgramNode(`
      let foo;
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'VariableDeclaration',
-            identifiers: [
-              {
-                type: 'VariableDeclaratorIdentifier',
-                value: {
-                  type: 'Identifier',
-                  name: 'foo',
-                },
-              },
-            ],
-            values: [],
-          },
-        ],
-      };
+      const expected: LuaProgram = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          []
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -39,32 +41,12 @@ describe('Program handler', () => {
     const given = getProgramNode(`
    let foo = 'foo';
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'foo',
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('foo'))],
+        [variableDeclaratorValue(stringLiteral('foo'))]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -75,43 +57,18 @@ describe('Program handler', () => {
     const given = getProgramNode(`
     let foo, bar = 'bar';
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: null,
-            },
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'bar',
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [
+          variableDeclaratorValue(null),
+          variableDeclaratorValue(stringLiteral('bar')),
+        ]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -122,39 +79,15 @@ describe('Program handler', () => {
     const given = getProgramNode(`
     let foo = 'foo', bar;
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'foo',
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [variableDeclaratorValue(stringLiteral('foo'))]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -165,32 +98,12 @@ describe('Program handler', () => {
     const given = getProgramNode(`
    const foo = 'foo';
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'foo',
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('foo'))],
+        [variableDeclaratorValue(stringLiteral('foo'))]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -202,46 +115,18 @@ describe('Program handler', () => {
     const foo = 'foo', bar = 'bar';
 
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'foo',
-              },
-            },
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'bar',
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [
+          variableDeclaratorValue(stringLiteral('foo')),
+          variableDeclaratorValue(stringLiteral('bar')),
+        ]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -252,24 +137,12 @@ describe('Program handler', () => {
     const given = getProgramNode(`
     var foo;
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-          ],
-          values: [],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('foo'))],
+        []
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -280,32 +153,12 @@ describe('Program handler', () => {
     const given = getProgramNode(`
    var foo = 'foo';
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'foo',
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('foo'))],
+        [variableDeclaratorValue(stringLiteral('foo'))]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -316,43 +169,18 @@ describe('Program handler', () => {
     const given = getProgramNode(`
    var foo, bar = 'bar';
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: null,
-            },
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'bar',
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [
+          variableDeclaratorValue(null),
+          variableDeclaratorValue(stringLiteral('bar')),
+        ]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -363,39 +191,217 @@ describe('Program handler', () => {
     const given = getProgramNode(`
    var foo = 'foo', bar;
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'foo',
-              },
-            },
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'bar',
-              },
-            },
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [variableDeclaratorValue(stringLiteral('foo'))]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle array destructuring`, () => {
+    const given = getProgramNode(`
+    const [foo, bar] = baz;
+  `);
+
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('table.unpack'), [
+              identifier('baz'),
+              numericLiteral(1),
+              numericLiteral(2),
+            ])
+          ),
+        ]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle array destructuring with nested arrays`, () => {
+    const given = getProgramNode(`
+    const [foo, [bar,baz]] = fizz;
+  `);
+    const expected: LuaProgram = program([
+      nodeGroup([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('table.unpack'), [
+                identifier('fizz'),
+                numericLiteral(1),
+                numericLiteral(1),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(identifier('bar')),
+            variableDeclaratorIdentifier(identifier('baz')),
           ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'foo',
-              },
-            },
-          ],
-        },
-      ],
-    };
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('table.unpack'), [
+                callExpression(identifier('table.unpack'), [
+                  identifier('fizz'),
+                  numericLiteral(2),
+                  numericLiteral(2),
+                ]),
+                numericLiteral(1),
+                numericLiteral(2),
+              ])
+            ),
+          ]
+        ),
+      ]),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle array destructuring with rest element`, () => {
+    const given = getProgramNode(`
+    const [foo, ...bar] = baz;
+  `);
+
+    const expected: LuaProgram = program([
+      nodeGroup([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('table.unpack'), [
+                identifier('baz'),
+                numericLiteral(1),
+                numericLiteral(1),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('bar'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('table.pack'), [
+                callExpression(identifier('table.unpack'), [
+                  identifier('baz'),
+                  numericLiteral(2),
+                ]),
+              ])
+            ),
+          ]
+        ),
+      ]),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle object destructuring`, () => {
+    const given = getProgramNode(`
+    const {foo, bar} = baz;
+  `);
+
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [
+          variableDeclaratorValue(
+            memberExpression(identifier('baz'), '.', identifier('foo'))
+          ),
+          variableDeclaratorValue(
+            memberExpression(identifier('baz'), '.', identifier('bar'))
+          ),
+        ]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle object destructuring with aliases`, () => {
+    const given = getProgramNode(`
+    const {foo:fun, bar:bat} = baz;
+  `);
+
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('fun')),
+          variableDeclaratorIdentifier(identifier('bat')),
+        ],
+        [
+          variableDeclaratorValue(
+            memberExpression(identifier('baz'), '.', identifier('foo'))
+          ),
+          variableDeclaratorValue(
+            memberExpression(identifier('baz'), '.', identifier('bar'))
+          ),
+        ]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle object destructuring with nested object pattern`, () => {
+    const given = getProgramNode(`
+    const {foo:{bar,baz}} = fizz;
+  `);
+
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('bar')),
+          variableDeclaratorIdentifier(identifier('baz')),
+        ],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              memberExpression(identifier('fizz'), '.', identifier('foo')),
+              '.',
+              identifier('bar')
+            )
+          ),
+          variableDeclaratorValue(
+            memberExpression(
+              memberExpression(identifier('fizz'), '.', identifier('foo')),
+              '.',
+              identifier('baz')
+            )
+          ),
+        ]
+      ),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 

@@ -1,6 +1,6 @@
 const obj = {
   foo: 'bar',
   fizz: 'buzz',
-  fuzz: 'jazz'
+  fuzz: 'jazz',
 };
 const { foo, fizz, fuzz } = obj;

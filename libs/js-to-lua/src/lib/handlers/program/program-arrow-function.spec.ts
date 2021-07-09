@@ -9,7 +9,6 @@ import {
   functionExpression,
   returnStatement,
   numericLiteral,
-  nodeGroup,
   functionDeclaration,
   ifStatement,
   binaryExpression,
@@ -30,7 +29,7 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        nodeGroup([functionDeclaration(identifier('foo'), [], [])]),
+        functionDeclaration(identifier('foo'), [], []),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -43,13 +42,11 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        nodeGroup([
-          functionDeclaration(
-            identifier('foo'),
-            [identifier('bar'), identifier('baz')],
-            []
-          ),
-        ]),
+        functionDeclaration(
+          identifier('foo'),
+          [identifier('bar'), identifier('baz')],
+          []
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -62,25 +59,23 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        nodeGroup([
-          functionDeclaration(
-            identifier('foo'),
-            [identifier('bar'), identifier('baz')],
-            [
-              ifStatement(
-                ifClause(
-                  binaryExpression(identifier('baz'), '==', nilLiteral()),
-                  [
-                    assignmentStatement(
-                      [identifier('baz')],
-                      [stringLiteral('hello')]
-                    ),
-                  ]
-                )
-              ),
-            ]
-          ),
-        ]),
+        functionDeclaration(
+          identifier('foo'),
+          [identifier('bar'), identifier('baz')],
+          [
+            ifStatement(
+              ifClause(
+                binaryExpression(identifier('baz'), '==', nilLiteral()),
+                [
+                  assignmentStatement(
+                    [identifier('baz')],
+                    [stringLiteral('hello')]
+                  ),
+                ]
+              )
+            ),
+          ]
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -95,29 +90,27 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        nodeGroup([
-          functionDeclaration(
-            identifier('foo'),
-            [identifier('bar'), identifier('baz')],
-            [
-              ifStatement(
-                ifClause(
-                  binaryExpression(identifier('baz'), '==', nilLiteral()),
-                  [
-                    assignmentStatement(
-                      [identifier('baz')],
-                      [stringLiteral('hello')]
-                    ),
-                  ]
-                )
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('fizz'))],
-                [variableDeclaratorValue(stringLiteral('fuzz'))]
-              ),
-            ]
-          ),
-        ]),
+        functionDeclaration(
+          identifier('foo'),
+          [identifier('bar'), identifier('baz')],
+          [
+            ifStatement(
+              ifClause(
+                binaryExpression(identifier('baz'), '==', nilLiteral()),
+                [
+                  assignmentStatement(
+                    [identifier('baz')],
+                    [stringLiteral('hello')]
+                  ),
+                ]
+              )
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('fizz'))],
+              [variableDeclaratorValue(stringLiteral('fuzz'))]
+            ),
+          ]
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -130,13 +123,11 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        nodeGroup([
-          functionDeclaration(
-            identifier('foo'),
-            [],
-            [returnStatement(stringLiteral('wole'))]
-          ),
-        ]),
+        functionDeclaration(
+          identifier('foo'),
+          [],
+          [returnStatement(stringLiteral('wole'))]
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -149,20 +140,18 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        nodeGroup([
-          functionDeclaration(
-            identifier('foo'),
-            [],
-            [
-              returnStatement(
-                functionExpression(
-                  [],
-                  [returnStatement(numericLiteral(31337, '31337'))]
-                )
-              ),
-            ]
-          ),
-        ]),
+        functionDeclaration(
+          identifier('foo'),
+          [],
+          [
+            returnStatement(
+              functionExpression(
+                [],
+                [returnStatement(numericLiteral(31337, '31337'))]
+              )
+            ),
+          ]
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);

@@ -27,7 +27,7 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        nodeGroup([functionDeclaration(identifier('foo'), [], [])]),
+        functionDeclaration(identifier('foo'), [], []),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
       expect(luaProgram).toEqual(expected);
@@ -39,7 +39,7 @@ describe('Program handler', () => {
     `);
 
       const expected: LuaProgram = program([
-        nodeGroup([functionDeclaration(identifier('foo'), [], [])]),
+        functionDeclaration(identifier('foo'), [], []),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
       expect(luaProgram).toEqual(expected);
@@ -51,13 +51,11 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        nodeGroup([
-          functionDeclaration(
-            identifier('foo'),
-            [identifier('bar'), identifier('baz')],
-            []
-          ),
-        ]),
+        functionDeclaration(
+          identifier('foo'),
+          [identifier('bar'), identifier('baz')],
+          []
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -70,25 +68,23 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        nodeGroup([
-          functionDeclaration(
-            identifier('foo'),
-            [identifier('bar'), identifier('baz')],
-            [
-              ifStatement(
-                ifClause(
-                  binaryExpression(identifier('baz'), '==', nilLiteral()),
-                  [
-                    assignmentStatement(
-                      [identifier('baz')],
-                      [stringLiteral('hello')]
-                    ),
-                  ]
-                )
-              ),
-            ]
-          ),
-        ]),
+        functionDeclaration(
+          identifier('foo'),
+          [identifier('bar'), identifier('baz')],
+          [
+            ifStatement(
+              ifClause(
+                binaryExpression(identifier('baz'), '==', nilLiteral()),
+                [
+                  assignmentStatement(
+                    [identifier('baz')],
+                    [stringLiteral('hello')]
+                  ),
+                ]
+              )
+            ),
+          ]
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -103,29 +99,27 @@ describe('Program handler', () => {
   `);
 
       const expected: LuaProgram = program([
-        nodeGroup([
-          functionDeclaration(
-            identifier('foo'),
-            [identifier('bar'), identifier('baz')],
-            [
-              ifStatement(
-                ifClause(
-                  binaryExpression(identifier('baz'), '==', nilLiteral()),
-                  [
-                    assignmentStatement(
-                      [identifier('baz')],
-                      [stringLiteral('hello')]
-                    ),
-                  ]
-                )
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('fizz'))],
-                [variableDeclaratorValue(stringLiteral('fuzz'))]
-              ),
-            ]
-          ),
-        ]),
+        functionDeclaration(
+          identifier('foo'),
+          [identifier('bar'), identifier('baz')],
+          [
+            ifStatement(
+              ifClause(
+                binaryExpression(identifier('baz'), '==', nilLiteral()),
+                [
+                  assignmentStatement(
+                    [identifier('baz')],
+                    [stringLiteral('hello')]
+                  ),
+                ]
+              )
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('fizz'))],
+              [variableDeclaratorValue(stringLiteral('fuzz'))]
+            ),
+          ]
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);

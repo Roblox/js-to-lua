@@ -1,18 +1,18 @@
 import { createHandlerFunction, HandlerFunction } from '../types';
 import {
-  LuaExpression,
-  LuaStatement,
-  TypeAnnotation,
   unhandledElement,
   UnhandledElement,
+  UnhandledExpression,
   unhandledExpression,
+  UnhandledStatement,
   unhandledStatement,
+  UnhandledTypeAnnotation,
   unhandledTypeAnnotation,
   withConversionComment,
 } from '@js-to-lua/lua-types';
 import { getNodeSource } from './get-node-source';
 
-export const defaultStatementHandler: HandlerFunction<LuaStatement> = createHandlerFunction(
+export const defaultStatementHandler: HandlerFunction<UnhandledStatement> = createHandlerFunction(
   (source, config, node) => {
     return withConversionComment(
       unhandledStatement(),
@@ -22,7 +22,7 @@ export const defaultStatementHandler: HandlerFunction<LuaStatement> = createHand
   }
 );
 
-export const defaultExpressionHandler: HandlerFunction<LuaExpression> = createHandlerFunction(
+export const defaultExpressionHandler: HandlerFunction<UnhandledExpression> = createHandlerFunction(
   (source, config, node) => {
     return withConversionComment(
       unhandledExpression(),
@@ -32,7 +32,7 @@ export const defaultExpressionHandler: HandlerFunction<LuaExpression> = createHa
   }
 );
 
-export const defaultTypeAnnotationHandler: HandlerFunction<TypeAnnotation> = createHandlerFunction(
+export const defaultTypeAnnotationHandler: HandlerFunction<UnhandledTypeAnnotation> = createHandlerFunction(
   (source, config, node) => {
     return withConversionComment(
       unhandledTypeAnnotation(),

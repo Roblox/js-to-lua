@@ -18,11 +18,32 @@ import {
   tableNameKeyField,
 } from '@js-to-lua/lua-types';
 import { createExportDefaultHandler } from './export-default.handler';
-import { forwardHandlerRef } from '../../../utils/forward-handler-ref';
 import {
-  handleDeclaration,
+  forwardHandlerFunctionRef,
+  forwardHandlerRef,
+} from '../../../utils/forward-handler-ref';
+import {
   handleExpression,
+  handleStatement,
 } from '../../expression-statement.handler';
+import { createTypeAnnotationHandler } from '../../type-annotation.handler';
+import { createIdentifierHandler } from '../../identifier.handler';
+import { createDeclarationHandler } from '../../declaration.handler';
+
+const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
+  forwardHandlerRef(() => handleExpression)
+);
+
+const handleIdentifier = createIdentifierHandler(
+  forwardHandlerFunctionRef(() => typesHandler)
+);
+
+const handleDeclaration = createDeclarationHandler(
+  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleStatement),
+  handleTsTypes
+);
 
 const { handler } = createExportDefaultHandler(
   forwardHandlerRef(() => handleDeclaration),

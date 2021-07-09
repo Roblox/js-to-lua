@@ -1,17 +1,17 @@
 const obj = {
   objFoo: 'bar',
   objFizz: 'buzz',
-  objFuzz: 'jazz'
+  objFuzz: 'jazz',
 };
 
 const { foo, fizz, fuzz } = {
   foo: 'bar',
   fizz: 'buzz',
-  fuzz: 'jazz'
+  fuzz: 'jazz',
 };
 const { foo: foo1, fizz: fizz1, fuzz: fuzz1 } = {
   foo: 'bar',
   fizz: 'buzz',
-  fuzz: 'jazz'
+  fuzz: 'jazz',
 };
-const { objFoo, objFizz, objFuzz } = {...obj};
+const { objFoo, objFizz, objFuzz } = { ...obj };

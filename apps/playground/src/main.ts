@@ -6,6 +6,7 @@ import { parse } from '@babel/parser';
 
 const code = `
 // put code that you want to test here
+let [foo, ...bar] = wiii
 `;
 
 const file = parse(code, {

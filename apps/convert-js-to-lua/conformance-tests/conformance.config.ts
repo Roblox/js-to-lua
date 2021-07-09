@@ -82,15 +82,7 @@ export default {
     'conformance-tests/operators/assignment-shift-right-unsigned/2_m4.js',
 
     // --- destructuring begin
-    'conformance-tests/statements/declarations/destructure-array-identifier_m4.js',
-    'conformance-tests/statements/declarations/destructure-array_m4.js',
     'conformance-tests/statements/declarations/destructure-multiple-obj_m4.js',
-    'conformance-tests/statements/declarations/destructure-obj-expression-with-alias_m4.js',
-    'conformance-tests/statements/declarations/destructure-obj-expression_m4.js',
-    'conformance-tests/statements/declarations/destructure-obj-identifier-with-alias_m4.js',
-    'conformance-tests/statements/declarations/destructure-obj-identifier_m4.js',
-    'conformance-tests/statements/declarations/destructure-obj-with-alias_m4.js',
-    'conformance-tests/statements/declarations/destructure-obj_m4.js',
 
     'conformance-tests/structural-types/functions/arrow/with-destructured-arr-param-shorthand_m4.js',
     'conformance-tests/structural-types/functions/arrow/with-destructured-arr-param_m4.js',
