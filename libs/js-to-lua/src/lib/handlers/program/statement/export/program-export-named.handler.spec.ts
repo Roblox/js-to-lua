@@ -1,14 +1,20 @@
 import {
   assignmentStatement,
   callExpression,
+  exportTypeStatement,
   functionDeclaration,
   identifier,
   memberExpression,
   nodeGroup,
   numericLiteral,
   program,
+  propertySignature,
   returnStatement,
   tableConstructor,
+  typeAnnotation,
+  typeAliasDeclaration,
+  typeLiteral,
+  typeString,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -191,6 +197,33 @@ describe('Program handler', () => {
             [identifier('foo')]
           ),
         ]),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should export named type alias`, () => {
+      const given = getProgramNode(`
+        export type Foo = {foo: string};
+      `);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        exportTypeStatement(
+          typeAliasDeclaration(
+            identifier('Foo'),
+            typeLiteral([
+              propertySignature(
+                identifier('foo'),
+                typeAnnotation(typeString())
+              ),
+            ])
+          )
+        ),
         returnStatement(identifier('exports')),
       ]);
 

@@ -1,6 +1,7 @@
 import { BaseLuaNode } from './node.types';
 import { AssignmentStatement, LuaNodeGroup } from './statement';
 import { LuaLiteral } from './literals';
+import { ExportTypeStatement } from './statement/export-type-statement';
 
 export type LuaNode =
   | LuaProgram
@@ -25,6 +26,7 @@ export type LuaStatement =
   | LuaNodeGroup
   | LuaDeclaration
   | AssignmentStatement
+  | ExportTypeStatement
   | UnhandledStatement;
 
 export type LuaExpression =

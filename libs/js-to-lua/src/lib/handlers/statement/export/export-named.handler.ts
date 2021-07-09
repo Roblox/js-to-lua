@@ -7,6 +7,7 @@ import {
 } from '@babel/types';
 import {
   assignmentStatement,
+  exportTypeStatement,
   identifier,
   indexExpression,
   isIdentifier,
@@ -16,6 +17,7 @@ import {
   LuaIdentifier,
   LuaLVal,
   LuaNode,
+  LuaTypeAliasDeclaration,
   memberExpression,
   nodeGroup,
 } from '@js-to-lua/lua-types';
@@ -36,6 +38,10 @@ export const createExportNamedHandler = (
       if (node.declaration) {
         const declaration = handleDeclaration(source, config, node.declaration);
         const declarationIds = getDeclarationId(declaration);
+
+        if (node.exportKind === 'type') {
+          return exportTypeStatement(declaration as LuaTypeAliasDeclaration);
+        }
 
         return nodeGroup([
           declaration,

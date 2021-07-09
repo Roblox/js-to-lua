@@ -15,6 +15,7 @@ import {
   LuaMemberExpression,
   LuaNode,
   LuaProgram,
+  LuaPropertySignature,
   LuaReturnStatement,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
@@ -22,6 +23,8 @@ import {
   LuaTableNoKeyField,
   LuaTypeAliasDeclaration,
   LuaTypeAnnotation,
+  LuaTypeLiteral,
+  LuaTypeString,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
@@ -296,6 +299,24 @@ export const typeAnnotation = (
   typeAnnotation?: LuaTypeAnnotation['typeAnnotation']
 ): LuaTypeAnnotation => ({
   type: 'LuaTypeAnnotation',
+  typeAnnotation,
+});
+
+export const typeLiteral = (
+  members: LuaTypeLiteral['members']
+): LuaTypeLiteral => ({
+  type: 'LuaTypeLiteral',
+  members,
+});
+
+export const typeString = (): LuaTypeString => ({ type: 'LuaTypeString' });
+
+export const propertySignature = (
+  key: LuaPropertySignature['key'],
+  typeAnnotation?: LuaPropertySignature['typeAnnotation']
+): LuaPropertySignature => ({
+  type: 'LuaPropertySignature',
+  key,
   typeAnnotation,
 });
 

@@ -32,6 +32,7 @@ import { printMultilineString } from './primitives/print-multiline-string';
 import { printIndexExpression } from './print-index-expression';
 import { calculateEqualsForDelimiter } from './utils';
 import { createPrintAssignmentStatement } from './statements/print-assignment-statement';
+import { createPrintExportTypeStatement } from './statements/print-export-type-statement';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -128,6 +129,8 @@ const _printNode = (node: LuaNode): string => {
       return printIfStatement(node);
     case 'AssignmentStatement':
       return createPrintAssignmentStatement(forwardRefPrintNode)(node);
+    case 'ExportTypeStatement':
+      return createPrintExportTypeStatement(printTypeAliasDeclaration)(node);
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':
