@@ -4,22 +4,15 @@ import {
   createHandlerFunction,
   HandlerFunction,
 } from '../types';
-import {
-  Expression,
-  Identifier,
-  MemberExpression,
-  PrivateName,
-} from '@babel/types';
+import { Expression, MemberExpression, PrivateName } from '@babel/types';
 import {
   callExpression,
   identifier,
   indexExpression,
-  LuaBinaryExpression,
   LuaExpression,
   LuaIdentifier,
   LuaIndexExpression,
   LuaMemberExpression,
-  LuaNilLiteral,
   LuaNumericLiteral,
   LuaStringLiteral,
   memberExpression,
@@ -27,16 +20,11 @@ import {
 } from '@js-to-lua/lua-types';
 import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
-import { handleBooleanLiteral } from './primitives/boolean.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
 import { defaultExpressionHandler } from '../utils/default-handlers';
 
 export const createMemberExpressionHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleIdentifier: HandlerFunction<
-    LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression,
-    Identifier
-  >
+  handleExpression: HandlerFunction<LuaExpression, Expression>
 ): BaseNodeHandler<
   LuaIndexExpression | LuaMemberExpression,
   MemberExpression
@@ -62,14 +50,6 @@ export const createMemberExpressionHandler = (
           });
         case 'StringLiteral':
           return handleStringLiteral.handler(source, config, node);
-        case 'BooleanLiteral':
-          return callExpression(identifier('tostring'), [
-            handleBooleanLiteral.handler(source, config, node),
-          ]);
-        case 'Identifier':
-          return callExpression(identifier('tostring'), [
-            handleIdentifier(source, config, node),
-          ]);
         case 'BinaryExpression':
           if (
             node.operator === '+' &&
@@ -81,8 +61,12 @@ export const createMemberExpressionHandler = (
           return callExpression(identifier('tostring'), [
             handleBinaryExpression.handler(source, config, node),
           ]);
-        default:
+        case 'PrivateName':
           return defaultExpressionHandler(source, config, node);
+        default:
+          return callExpression(identifier('tostring'), [
+            handleExpression(source, config, node),
+          ]);
       }
     }
   );

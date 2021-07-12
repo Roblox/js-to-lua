@@ -3,7 +3,7 @@ import {
   AssignmentStatement,
   assignmentStatement,
   LuaExpression,
-  LuaIdentifier,
+  LuaLVal,
   LuaNodeGroup,
   nodeGroup,
 } from '@js-to-lua/lua-types';
@@ -12,13 +12,14 @@ import {
   Expression,
   Identifier,
   isAssignmentExpression as isBabelAssignmentExpression,
+  LVal,
 } from '@babel/types';
 import { defaultExpressionHandler } from '../../utils/default-handlers';
 import { getReturnExpressions } from '../../utils/get-return-expressions';
 
 export const createAssignmentStatementHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
+  handleLVal: HandlerFunction<LuaLVal, LVal>
 ) => {
   const assignmentStatementHandler: BaseNodeHandler<
     LuaNodeGroup | AssignmentStatement,
@@ -26,7 +27,7 @@ export const createAssignmentStatementHandlerFunction = (
   > = createHandler(
     'AssignmentExpression',
     (source, config, node: AssignmentExpression) => {
-      const leftExpression = handleIdentifier(
+      const leftExpression = handleLVal(
         source,
         config,
         node.left as Identifier

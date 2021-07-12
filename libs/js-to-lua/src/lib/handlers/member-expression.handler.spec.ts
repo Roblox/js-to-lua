@@ -14,8 +14,6 @@ import {
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
 import { createMemberExpressionHandler } from './member-expression.handler';
-import { createIdentifierHandler } from './identifier.handler';
-import { createTypeAnnotationHandler } from './type-annotation.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,
@@ -27,11 +25,7 @@ const DEFAULT_NODE = {
 };
 
 const handleMemberExpression = createMemberExpressionHandler(
-  forwardHandlerRef(() => handleExpression),
-  createIdentifierHandler(
-    createTypeAnnotationHandler(forwardHandlerRef(() => handleExpression))
-      .typesHandler
-  ).handler
+  forwardHandlerRef(() => handleExpression)
 );
 
 const source = '';

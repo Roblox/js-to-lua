@@ -66,7 +66,8 @@ export const createVariableDeclarationHandler = (
   VariableDeclaration
 > =>
   createHandler('VariableDeclaration', (source, config, declaration) => {
-    const lValHandler = createLValHandler(handleIdentifier).handler;
+    const lValHandler = createLValHandler(handleIdentifier, handleExpression)
+      .handler;
 
     const handleVariableDeclarator: BaseNodeHandler<
       LuaVariableDeclarator,
@@ -403,6 +404,5 @@ export const createVariableDeclarationHandler = (
         varIdsAndValues.identifiers,
         varIdsAndValues.values
       );
-      [];
     }
   });

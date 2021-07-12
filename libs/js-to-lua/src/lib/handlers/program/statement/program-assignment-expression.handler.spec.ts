@@ -36,8 +36,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle wrap chained AssignmentStatement with an IIFE`, () => {
@@ -70,8 +69,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual1 = handleProgram.handler(source, {}, given);
-      expect(actual1).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

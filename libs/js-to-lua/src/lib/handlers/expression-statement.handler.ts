@@ -2,7 +2,6 @@ import {
   BaseNodeHandler,
   createHandler,
   createHandlerFunction,
-  EmptyConfig,
   HandlerFunction,
 } from '../types';
 import {
@@ -81,6 +80,7 @@ import { createIdentifierHandler } from './identifier.handler';
 import { createIfStatementHandler } from './if-statement.handler';
 import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
 import { createDeclarationHandler } from './declaration.handler';
+import { createLValHandler } from './l-val.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -99,7 +99,10 @@ export const handleExpressionStatement = createHandler(
       combineExpressionsHandlers([
         createAssignmentStatementHandlerFunction(
           forwardHandlerRef(() => handleExpression),
-          forwardHandlerRef(() => handleIdentifier)
+          createLValHandler(
+            forwardHandlerRef(() => handleIdentifier),
+            forwardHandlerRef(() => handleExpression)
+          ).handler
         ),
         handleExpressionAsStatement,
       ]).handler(source, config, statement.expression)
@@ -308,10 +311,7 @@ export const handleExpression: BaseNodeHandler<
   handleFunctionExpression,
   handleArrowFunctionExpression,
   handleUpdateExpression,
-  createMemberExpressionHandler(
-    forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleIdentifier)
-  ),
+  createMemberExpressionHandler(forwardHandlerRef(() => handleExpression)),
   createAssignmentExpressionHandlerFunction(
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleIdentifier)
@@ -333,7 +333,10 @@ const functionParamsHandler = createFunctionParamsHandler(
 const handleExpressionAsStatement = combineExpressionsHandlers([
   createAssignmentStatementHandlerFunction(
     forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleIdentifier)
+    createLValHandler(
+      forwardHandlerRef(() => handleIdentifier),
+      forwardHandlerRef(() => handleExpression)
+    ).handler
   ),
   handleExpression,
 ]);
