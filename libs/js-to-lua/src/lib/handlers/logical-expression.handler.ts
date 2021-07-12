@@ -16,6 +16,7 @@ import {
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
 import { defaultStatementHandler } from '../utils/default-handlers';
+import { isLuaTruthy } from '../utils/is-lua-truthy';
 
 export const createLogicalExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
@@ -39,20 +40,6 @@ export const createLogicalExpressionHandler = (
         );
       }
       case '&&': {
-        const isLuaTruthy = (expression: Expression): boolean => {
-          const isTruthyPredicates = [
-            (e: Expression): boolean => e.type === 'NumericLiteral',
-            (e: Expression): boolean => e.type === 'StringLiteral',
-            (e: Expression): boolean => e.type === 'BooleanLiteral' && e.value,
-            (e: Expression): boolean => e.type === 'ObjectExpression',
-            (e: Expression): boolean => e.type === 'ArrayExpression',
-            (e: Expression): boolean =>
-              e.type === 'Identifier' && e.name === 'NaN',
-          ];
-
-          return isTruthyPredicates.some((predicate) => predicate(expression));
-        };
-
         const isRightExpressionTruthy = isLuaTruthy(node.right);
 
         const leftExpression = handleExpression(source, config, node.left);

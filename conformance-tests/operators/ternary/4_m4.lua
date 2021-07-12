@@ -1,4 +1,4 @@
-local a, b, c, d
+local a, b, c, d, e
 local f = (function()
 	if Boolean.toJSBoolean(a) then
 		return (function()

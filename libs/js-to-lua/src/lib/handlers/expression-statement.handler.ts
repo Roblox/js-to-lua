@@ -82,6 +82,7 @@ import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
 import { createDeclarationHandler } from './declaration.handler';
 import { createLValHandler } from './l-val.handler';
 import { createThrowStatementHandler } from './statement/throw-statement.handler';
+import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -317,6 +318,7 @@ export const handleExpression: BaseNodeHandler<
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleIdentifier)
   ),
+  createConditionalExpressionHandler(forwardHandlerRef(() => handleExpression)),
 ]);
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
