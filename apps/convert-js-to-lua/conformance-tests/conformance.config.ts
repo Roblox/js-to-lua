@@ -133,9 +133,5 @@ export default {
     'conformance-tests/statements/error-handling/try-catch/4_m4.js',
     'conformance-tests/statements/error-handling/try-catch/5_m4.js',
     'conformance-tests/statements/error-handling/try-catch/6_m4.js',
-
-    'conformance-tests/statements/error-handling/throw/0_m4x.js',
-    'conformance-tests/statements/error-handling/throw/1_m4x.js',
-    'conformance-tests/statements/error-handling/throw/2_m4x.js',
   ],
 };

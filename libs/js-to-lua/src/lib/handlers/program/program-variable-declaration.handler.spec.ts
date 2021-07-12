@@ -1,20 +1,18 @@
 import {
-  LuaProgram,
-  program,
-  expressionStatement,
-  variableDeclaration,
-  variableDeclaratorIdentifier,
-  identifier,
-  variableDeclaratorValue,
   callExpression,
-  numericLiteral,
+  identifier,
+  LuaProgram,
   memberExpression,
   nodeGroup,
+  numericLiteral,
+  program,
   stringLiteral,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
-import {} from '@babel/types';
 
 const source = '';
 

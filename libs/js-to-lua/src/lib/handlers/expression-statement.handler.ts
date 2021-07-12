@@ -81,6 +81,7 @@ import { createIfStatementHandler } from './if-statement.handler';
 import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
 import { createDeclarationHandler } from './declaration.handler';
 import { createLValHandler } from './l-val.handler';
+import { createThrowStatementHandler } from './statement/throw-statement.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -485,6 +486,7 @@ export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHa
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleStatement)
     ),
+    createThrowStatementHandler(forwardHandlerRef(() => handleExpression)),
   ]
 );
 
