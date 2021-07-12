@@ -16,7 +16,7 @@ import {
   numericLiteral,
   objectKeys,
   stringLiteral,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
@@ -239,7 +239,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = withConversionComment(
+    const expected: LuaBinaryExpression = withTrailingConversionComment(
       binaryExpression(identifier('foo'), '==', identifier('bar')),
       `ROBLOX CHECK: loose equality used upstream`
     );
@@ -258,7 +258,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = withConversionComment(
+    const expected: LuaBinaryExpression = withTrailingConversionComment(
       binaryExpression(identifier('foo'), '~=', identifier('bar')),
       `ROBLOX CHECK: loose inequality used upstream`
     );
@@ -369,7 +369,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = withConversionComment(
+    const expected: LuaBinaryExpression = withTrailingConversionComment(
       binaryExpression(stringLiteral('3'), '>', numericLiteral(4)),
       `ROBLOX CHECK: operator '>' works only if either both arguments are strings or both are a number`
     );
@@ -388,7 +388,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = withConversionComment(
+    const expected: LuaBinaryExpression = withTrailingConversionComment(
       binaryExpression(numericLiteral(3), '<', numericLiteral(4)),
       `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
     );
@@ -407,7 +407,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = withConversionComment(
+    const expected: LuaBinaryExpression = withTrailingConversionComment(
       binaryExpression(numericLiteral(3), '>=', numericLiteral(4)),
       `ROBLOX CHECK: operator '>=' works only if either both arguments are strings or both are a number`
     );
@@ -426,7 +426,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaBinaryExpression = withConversionComment(
+    const expected: LuaBinaryExpression = withTrailingConversionComment(
       binaryExpression(numericLiteral(3), '<=', numericLiteral(4)),
       `ROBLOX CHECK: operator '<=' works only if either both arguments are strings or both are a number`
     );
@@ -445,7 +445,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaCallExpression = withConversionComment(
+    const expected: LuaCallExpression = withTrailingConversionComment(
       callExpression(
         memberExpression(bit32Identifier(), '.', identifier('band')),
         [identifier('foo'), identifier('bar')]
@@ -467,7 +467,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaCallExpression = withConversionComment(
+    const expected: LuaCallExpression = withTrailingConversionComment(
       callExpression(
         memberExpression(bit32Identifier(), '.', identifier('bor')),
         [identifier('foo'), identifier('bar')]
@@ -489,7 +489,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaCallExpression = withConversionComment(
+    const expected: LuaCallExpression = withTrailingConversionComment(
       callExpression(
         memberExpression(bit32Identifier(), '.', identifier('bxor')),
         [identifier('foo'), identifier('bar')]
@@ -511,7 +511,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaCallExpression = withConversionComment(
+    const expected: LuaCallExpression = withTrailingConversionComment(
       callExpression(
         memberExpression(bit32Identifier(), '.', identifier('rshift')),
         [identifier('foo'), identifier('bar')]
@@ -533,7 +533,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaCallExpression = withConversionComment(
+    const expected: LuaCallExpression = withTrailingConversionComment(
       callExpression(
         memberExpression(bit32Identifier(), '.', identifier('arshift')),
         [identifier('foo'), identifier('bar')]
@@ -555,7 +555,7 @@ describe('Binary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaCallExpression = withConversionComment(
+    const expected: LuaCallExpression = withTrailingConversionComment(
       callExpression(
         memberExpression(bit32Identifier(), '.', identifier('lshift')),
         [identifier('foo'), identifier('bar')]

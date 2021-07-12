@@ -1,7 +1,7 @@
 import {
   LuaProgram,
   unhandledStatement,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
@@ -25,7 +25,7 @@ describe('Program handler', () => {
         type: 'Program',
         body: [
           // we do not handle EmptyStatements yet
-          withConversionComment(
+          withTrailingConversionComment(
             unhandledStatement(),
             'ROBLOX TODO: Unhandled node for type: EmptyStatement'
           ),

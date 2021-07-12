@@ -1,6 +1,8 @@
-let a, b;
-try {
-  a = 'foo';
-} finally {
-  return 'bar';
+function foo() {
+  let a;
+  try {
+    a = 'foo';
+  } finally {
+    return 'bar';
+  }
 }

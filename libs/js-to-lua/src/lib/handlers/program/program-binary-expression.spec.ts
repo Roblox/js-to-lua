@@ -11,7 +11,7 @@ import {
   booleanLiteral,
   arrayIndexOf,
   objectKeys,
-  withConversionComment,
+  withTrailingConversionComment,
   memberExpression,
   bit32Identifier,
 } from '@js-to-lua/lua-types';
@@ -203,7 +203,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             binaryExpression(identifier('foo'), '==', identifier('bar')),
             `ROBLOX CHECK: loose equality used upstream`
           )
@@ -221,7 +221,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             binaryExpression(identifier('foo'), '~=', identifier('bar')),
             `ROBLOX CHECK: loose inequality used upstream`
           )
@@ -313,7 +313,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             binaryExpression(
               numericLiteral(3, '3'),
               '<',
@@ -335,7 +335,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             binaryExpression(
               numericLiteral(3, '3'),
               '>',
@@ -357,7 +357,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             binaryExpression(
               numericLiteral(3, '3'),
               '<=',
@@ -379,7 +379,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             binaryExpression(
               numericLiteral(3, '3'),
               '>=',
@@ -401,7 +401,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             callExpression(
               memberExpression(bit32Identifier(), '.', identifier('band')),
               [identifier('foo'), identifier('bar')]
@@ -422,7 +422,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             callExpression(
               memberExpression(bit32Identifier(), '.', identifier('bor')),
               [identifier('foo'), identifier('bar')]
@@ -443,7 +443,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             callExpression(
               memberExpression(bit32Identifier(), '.', identifier('bxor')),
               [identifier('foo'), identifier('bar')]
@@ -464,7 +464,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             callExpression(
               memberExpression(bit32Identifier(), '.', identifier('rshift')),
               [identifier('foo'), identifier('bar')]
@@ -485,7 +485,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             callExpression(
               memberExpression(bit32Identifier(), '.', identifier('arshift')),
               [identifier('foo'), identifier('bar')]
@@ -506,7 +506,7 @@ describe('Program handler', () => {
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          withConversionComment(
+          withTrailingConversionComment(
             callExpression(
               memberExpression(bit32Identifier(), '.', identifier('lshift')),
               [identifier('foo'), identifier('bar')]

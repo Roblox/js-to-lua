@@ -1,12 +1,12 @@
 import {
   unhandledExpression,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { printNode } from './print-node';
 
 describe('Print conversion comment', () => {
   it('should print conversion comment', () => {
-    const given = withConversionComment(
+    const given = withTrailingConversionComment(
       unhandledExpression(),
       'some simple comment'
     );
@@ -16,7 +16,7 @@ describe('Print conversion comment', () => {
   });
 
   it('should print conversion comment with [[ inside', () => {
-    const given = withConversionComment(
+    const given = withTrailingConversionComment(
       unhandledExpression(),
       'some comment with [['
     );
@@ -26,7 +26,7 @@ describe('Print conversion comment', () => {
   });
 
   it('should print conversion comment with ]] inside', () => {
-    const given = withConversionComment(
+    const given = withTrailingConversionComment(
       unhandledExpression(),
       'some comment with ]]'
     );
@@ -36,7 +36,7 @@ describe('Print conversion comment', () => {
   });
 
   it('should print conversion comment with [[ and ]] inside', () => {
-    const given = withConversionComment(
+    const given = withTrailingConversionComment(
       unhandledExpression(),
       'some [[ comment ]]'
     );
@@ -46,7 +46,7 @@ describe('Print conversion comment', () => {
   });
 
   it('should print conversion comment with [=[ and ]=] inside', () => {
-    const given = withConversionComment(
+    const given = withTrailingConversionComment(
       unhandledExpression(),
       'some [=[ comment ]=]'
     );

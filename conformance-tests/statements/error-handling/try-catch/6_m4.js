@@ -2,8 +2,8 @@ let b, c;
 function d() {
   try {
     b = 'foo';
-  } catch (error) {
-    b = error.toString();
+  } catch (e) {
+    b = e.toString();
     return 'baz';
   } finally {
     c = 'bar';

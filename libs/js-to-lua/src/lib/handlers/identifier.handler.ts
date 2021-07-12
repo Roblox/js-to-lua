@@ -56,6 +56,7 @@ export const createIdentifierHandler = (
       case 'true':
       case 'until':
       case 'while':
+      case 'error':
         return {
           type: 'Identifier',
           name: `${node.name}_`,

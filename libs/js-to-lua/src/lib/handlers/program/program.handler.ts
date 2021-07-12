@@ -10,7 +10,7 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { pipe } from 'ramda';
 import { visit } from '../../utils/visitor';
@@ -69,7 +69,7 @@ function addImports(program: LuaProgram): LuaProgram {
     ? {
         ...program,
         body: [
-          withConversionComment(
+          withTrailingConversionComment(
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Packages'))],
               []

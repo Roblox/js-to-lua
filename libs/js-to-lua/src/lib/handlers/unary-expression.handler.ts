@@ -15,7 +15,7 @@ import {
   unaryNegationExpression,
   unaryVoidExpression,
   UnhandledStatement,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
 import { defaultStatementHandler } from '../utils/default-handlers';
@@ -61,7 +61,7 @@ export const createUnaryExpressionHandler = (
           handleExpression(source, config, node.argument)
         );
       case '~':
-        return withConversionComment(
+        return withTrailingConversionComment(
           callExpression(
             memberExpression(bit32Identifier(), '.', identifier('bnot')),
             [handleExpression(source, config, node.argument)]

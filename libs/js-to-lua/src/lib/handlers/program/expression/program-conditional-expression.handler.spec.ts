@@ -19,7 +19,7 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
@@ -65,7 +65,7 @@ describe('Conditional Expression Handler', () => {
     {
       values: ['1', "'abc'", '`\nfoo`'],
       coerced: (value: string) =>
-        withConversionComment(
+        withTrailingConversionComment(
           booleanLiteral(true),
           `ROBLOX DEVIATION: coerced from \`${value}\` to preserve JS behavior`
         ),
@@ -73,7 +73,7 @@ describe('Conditional Expression Handler', () => {
     {
       values: ['null', 'undefined', '0', "''"],
       coerced: (value: string) =>
-        withConversionComment(
+        withTrailingConversionComment(
           booleanLiteral(false),
           `ROBLOX DEVIATION: coerced from \`${value}\` to preserve JS behavior`
         ),

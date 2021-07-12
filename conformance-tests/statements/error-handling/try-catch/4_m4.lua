@@ -3,8 +3,7 @@ local function d()
 	do --[[ ROBLOX COMMENT: try-catch-finally block conversion ]]
 		local ok, result, hasReturned = xpcall(function()
 			return "foo", true
-		end, function(err)
-			local error_ = err
+		end, function(error_)
 			b = tostring(error_)
 		end)
 		do

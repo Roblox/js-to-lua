@@ -10,6 +10,7 @@ import {
   memberExpression,
   numericLiteral,
   stringLiteral,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
@@ -75,7 +76,10 @@ describe('Member Expression Handler', () => {
 
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
-      numericLiteral(6)
+      withTrailingConversionComment(
+        numericLiteral(6),
+        'ROBLOX adaptation: added 1 to array index'
+      )
     );
 
     expect(handleMemberExpression.handler(source, {}, given)).toEqual(expected);
@@ -103,7 +107,10 @@ describe('Member Expression Handler', () => {
 
     const expected: LuaIndexExpression = indexExpression(
       identifier('foo'),
-      numericLiteral(13)
+      withTrailingConversionComment(
+        numericLiteral(13),
+        'ROBLOX adaptation: added 1 to array index'
+      )
     );
 
     expect(handleMemberExpression.handler(source, {}, given)).toEqual(expected);

@@ -24,7 +24,7 @@ import {
   LuaExpression,
   LuaLogicalExpressionOperatorEnum,
   returnStatement,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   mockNodeWithValue,
@@ -83,7 +83,7 @@ describe('Conditional Expression Handler', () => {
         babelStringLiteral('abc'),
         babelTemplateLiteral([babelTemplateElement({ raw: '\nfoo' })], []),
       ],
-      coerced: withConversionComment(
+      coerced: withTrailingConversionComment(
         booleanLiteral(true),
         `ROBLOX DEVIATION: coerced from \`coercableValue\` to preserve JS behavior`
       ),
@@ -95,7 +95,7 @@ describe('Conditional Expression Handler', () => {
         babelNumericLiteral(0),
         babelStringLiteral(''),
       ],
-      coerced: withConversionComment(
+      coerced: withTrailingConversionComment(
         booleanLiteral(false),
         `ROBLOX DEVIATION: coerced from \`coercableValue\` to preserve JS behavior`
       ),

@@ -5,7 +5,7 @@ import {
   tableConstructor,
   tableNoKeyField,
   unhandledExpression,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { printNode } from './print-node';
 
@@ -33,7 +33,10 @@ describe('Print Member Expression', () => {
 
   it('should print member expression with unhandled node and identifier', () => {
     const given = memberExpression(
-      withConversionComment(unhandledExpression(), 'some conversion comment'),
+      withTrailingConversionComment(
+        unhandledExpression(),
+        'some conversion comment'
+      ),
       '.',
       identifier('foo')
     );

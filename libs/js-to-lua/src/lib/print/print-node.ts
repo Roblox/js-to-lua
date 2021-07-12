@@ -1,11 +1,12 @@
 import {
-  BaseLuaNode,
+  isCommentBlock,
   isElseifClause,
   isFunctionDeclaration,
   isIfClause,
   LuaBlockStatement,
   LuaCallExpression,
   LuaClause,
+  LuaComment,
   LuaExpression,
   LuaFunctionDeclaration,
   LuaFunctionExpression,
@@ -36,8 +37,9 @@ import { createPrintExportTypeStatement } from './statements/print-export-type-s
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
-  const comment = _printConversionComment(node);
-  return `${nodeStr}${comment}`;
+  const leadingComments = _printComments(node.leadingComments);
+  const trailingComments = _printComments(node.trailingComments);
+  return `${leadingComments}${nodeStr}${trailingComments}`;
 };
 
 const _printNode = (node: LuaNode): string => {
@@ -142,12 +144,13 @@ const _printNode = (node: LuaNode): string => {
   }
 };
 
-const _printConversionComment = ({
-  conversionComments,
-}: BaseLuaNode): string => {
-  return conversionComments
-    ? conversionComments
-        .map((conversionComment) => ` ${conversionComment} `)
+const _printComments = (
+  comments: ReadonlyArray<LuaComment> | undefined
+): string => {
+  return comments
+    ? comments
+        .filter(isCommentBlock)
+        .map((conversionComment) => ` ${conversionComment.value} `)
         .map<[string, number]>((conversionComment) => [
           conversionComment,
           calculateEqualsForDelimiter(conversionComment),
@@ -211,14 +214,15 @@ function printTableExpressionKeyField(
 
 export function printBlockStatement(node: LuaBlockStatement) {
   const blockBody = node.body.map((value) => printNode(value)).join('\n  ');
+  const innerComments = _printComments(node.innerComments);
 
   if (blockBody.length > 0) {
-    return `do
+    return `do${innerComments ? ` ${innerComments}` : ''}
   ${blockBody}
 end`;
   }
 
-  return `do
+  return `do${innerComments ? ` ${innerComments}` : ''}
 end`;
 }
 

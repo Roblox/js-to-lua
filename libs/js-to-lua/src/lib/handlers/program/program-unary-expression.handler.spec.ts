@@ -13,7 +13,7 @@ import {
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
@@ -120,7 +120,7 @@ describe('Unary Expression Handler', () => {
 
     const expected: LuaProgram = program([
       expressionStatement(
-        withConversionComment(
+        withTrailingConversionComment(
           callExpression(
             memberExpression(bit32Identifier(), '.', identifier('bnot')),
             [numericLiteral(5, '5')]

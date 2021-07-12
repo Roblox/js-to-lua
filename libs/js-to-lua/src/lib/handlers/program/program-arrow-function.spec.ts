@@ -1,23 +1,23 @@
 import { handleProgram } from './program.handler';
 import {
-  identifier,
-  LuaProgram,
-  program,
-  variableDeclaration,
-  variableDeclaratorValue,
-  variableDeclaratorIdentifier,
-  functionExpression,
-  returnStatement,
-  numericLiteral,
-  functionDeclaration,
-  ifStatement,
-  binaryExpression,
-  nilLiteral,
   assignmentStatement,
+  binaryExpression,
+  functionDeclaration,
+  functionExpression,
+  identifier,
   ifClause,
+  ifStatement,
+  LuaProgram,
+  nilLiteral,
+  numericLiteral,
+  program,
+  returnStatement,
+  stringLiteral,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
-import { stringLiteral } from '@babel/types';
 
 const source = '';
 

@@ -22,7 +22,7 @@ import {
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
@@ -189,7 +189,7 @@ describe('Unary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaCallExpression = withConversionComment(
+    const expected: LuaCallExpression = withTrailingConversionComment(
       callExpression(
         memberExpression(bit32Identifier(), '.', identifier('bnot')),
         [numericLiteral(5)]

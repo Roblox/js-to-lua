@@ -18,7 +18,7 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
@@ -384,7 +384,7 @@ describe('Program handler', () => {
       `);
 
       const expected = program([
-        withConversionComment(
+        withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
             []
@@ -431,7 +431,7 @@ describe('Program handler', () => {
       `);
 
       const expected = program([
-        withConversionComment(
+        withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
             []
@@ -478,7 +478,7 @@ describe('Program handler', () => {
       `);
 
       const expected = program([
-        withConversionComment(
+        withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
             []

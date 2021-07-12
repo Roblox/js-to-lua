@@ -17,6 +17,7 @@ import {
   LuaStringLiteral,
   memberExpression,
   UnhandledStatement,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
@@ -44,10 +45,14 @@ export const createMemberExpressionHandler = (
       | UnhandledStatement => {
       switch (node.type) {
         case 'NumericLiteral':
-          return handleNumericLiteral.handler(source, config, {
-            ...node,
-            value: node.value + 1,
-          });
+          return withTrailingConversionComment(
+            handleNumericLiteral.handler(source, config, {
+              ...node,
+              value: node.value + 1,
+              extra: undefined,
+            }),
+            'ROBLOX adaptation: added 1 to array index'
+          );
         case 'StringLiteral':
           return handleStringLiteral.handler(source, config, node);
         case 'BinaryExpression':

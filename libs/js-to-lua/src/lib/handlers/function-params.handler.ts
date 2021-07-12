@@ -6,7 +6,7 @@ import {
   LuaIdentifier,
   LuaMemberExpression,
   LuaNilLiteral,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { combineHandlers } from '../utils/combine-handlers';
 import {
@@ -27,7 +27,7 @@ export const createFunctionParamsHandler = (
     LuaFunctionParam,
     LVal
   > = createHandlerFunction((source, config, node) => {
-    return withConversionComment(
+    return withTrailingConversionComment(
       identifier('__unhandledIdentifier__'),
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
       getNodeSource(source, node)

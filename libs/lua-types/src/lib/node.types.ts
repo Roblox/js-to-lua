@@ -1,9 +1,12 @@
 import { LuaNode } from './lua-nodes.types';
+import { LuaComment } from './comment';
 
 export interface BaseLuaNode {
   type: string;
-  conversionComments?: string[];
   extras?: Record<string, unknown>;
+  leadingComments?: ReadonlyArray<LuaComment>;
+  innerComments?: ReadonlyArray<LuaComment>;
+  trailingComments?: ReadonlyArray<LuaComment>;
 }
 
 type NodeTypeCheck<T extends LuaNode> = (node: LuaNode) => node is T;

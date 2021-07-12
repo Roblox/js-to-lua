@@ -44,7 +44,7 @@ import {
   variableDeclarator,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
 import {
@@ -102,7 +102,7 @@ export const createVariableDeclarationHandler = (
             lValHandler(source, config, node.id) as LuaIdentifier
           );
         default:
-          return withConversionComment(
+          return withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled node for type: ${node.init?.type}, when within 'init' expression for ${node.type} node`,
             source.slice(node.start || 0, node.end || 0)
@@ -254,7 +254,7 @@ export const createVariableDeclarationHandler = (
         isObjectPattern(declaration.id) &&
         hasRestElement(declaration.id.properties)
       ) {
-        return withConversionComment(
+        return withTrailingConversionComment(
           unhandledStatement(),
           `ROBLOX TODO: Unhandled object destructuring with RestElement in "id.properties"`,
           source.slice(declaration.start || 0, declaration.end || 0)
@@ -282,7 +282,7 @@ export const createVariableDeclarationHandler = (
           idProperties
         );
       } else {
-        return withConversionComment(
+        return withTrailingConversionComment(
           unhandledStatement(),
           `ROBLOX TODO: Unhandled object destructuring init type: "${declaration.init?.type}"`,
           source.slice(declaration.start || 0, declaration.end || 0)
@@ -300,7 +300,7 @@ export const createVariableDeclarationHandler = (
         )
       ) {
         return [
-          withConversionComment(
+          withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled node for type: ArrayPattern variable declaration when one of the elements is not an Identifier or RestElement`,
             source.slice(declaration.start || 0, declaration.end || 0)

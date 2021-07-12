@@ -7,8 +7,7 @@ local function d()
 				b += 1
 				return result
 			end)(), true
-		end, function(err)
-			local error_ = err
+		end, function(error_)
 			return (function()
 				local result = c
 				c += 1

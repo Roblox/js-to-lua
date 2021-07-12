@@ -7,7 +7,7 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
@@ -99,7 +99,7 @@ describe('Program handler', () => {
         import foo from 'foo/bar'
       `);
       const expected = program([
-        withConversionComment(
+        withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
             []
@@ -278,7 +278,7 @@ describe('Program handler', () => {
         import { foo } from 'foo/bar'
       `);
       const expected = program([
-        withConversionComment(
+        withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
             []
@@ -314,7 +314,7 @@ describe('Program handler', () => {
         import { fizz, buzz } from 'foo/bar'
       `);
       const expected = program([
-        withConversionComment(
+        withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
             []
@@ -440,7 +440,7 @@ describe('Program handler', () => {
         import * as foo from 'foo/bar'
       `);
       const expected = program([
-        withConversionComment(
+        withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
             []

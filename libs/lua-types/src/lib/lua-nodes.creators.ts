@@ -3,7 +3,6 @@ import {
   LuaCallExpression,
   LuaElseClause,
   LuaElseifClause,
-  LuaExpression,
   LuaExpressionStatement,
   LuaFunctionDeclaration,
   LuaFunctionExpression,
@@ -41,6 +40,7 @@ import {
 import { BaseLuaNode } from './node.types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { curry } from 'ramda';
+import { commentBlock, LuaComment } from './comment';
 
 export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',
@@ -48,7 +48,7 @@ export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
 });
 
 export const expressionStatement = (
-  expression: LuaExpression
+  expression: LuaExpressionStatement['expression']
 ): LuaExpressionStatement => ({
   type: 'ExpressionStatement',
   expression,
@@ -234,9 +234,6 @@ export const indexExpression = (
   type: 'IndexExpression',
   base,
   index,
-  ...(index.type === 'NumericLiteral'
-    ? { conversionComments: ['ROBLOX adaptation: added 1 to array index'] }
-    : {}),
 });
 
 export const binaryExpression = (
@@ -345,20 +342,35 @@ export const unhandledElement = (): UnhandledElement => ({
   type: 'UnhandledElement',
 });
 
-export const withConversionComment = <N extends BaseLuaNode>(
+export const withTrailingConversionComment = <N extends BaseLuaNode>(
   node: N,
   ...conversionComments: string[]
 ): N => {
-  const _conversionComments = Array<string>().concat(
-    ...[node.conversionComments, conversionComments.filter(isTruthy)].filter(
-      isTruthy
-    )
+  const trailingComments = Array<LuaComment>().concat(
+    ...[
+      node.trailingComments,
+      conversionComments.filter(isTruthy).map(commentBlock),
+    ].filter(isTruthy)
   );
   return {
     ...node,
-    ...(_conversionComments.length
-      ? { conversionComments: _conversionComments }
-      : {}),
+    ...(trailingComments.length ? { trailingComments: trailingComments } : {}),
+  };
+};
+
+export const withInnerConversionComment = <N extends BaseLuaNode>(
+  node: N,
+  ...conversionComments: string[]
+): N => {
+  const innerComments = Array<LuaComment>().concat(
+    ...[
+      node.innerComments,
+      conversionComments.filter(isTruthy).map(commentBlock),
+    ].filter(isTruthy)
+  );
+  return {
+    ...node,
+    ...(innerComments.length ? { innerComments: innerComments } : {}),
   };
 };
 

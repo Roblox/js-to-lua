@@ -10,6 +10,7 @@ import {
   numericLiteral,
   program,
   stringLiteral,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
@@ -38,7 +39,13 @@ describe('Program handler', () => {
 
       const expected: LuaProgram = program([
         expressionStatement(
-          indexExpression(identifier('foo'), numericLiteral(6, '5'))
+          indexExpression(
+            identifier('foo'),
+            withTrailingConversionComment(
+              numericLiteral(6),
+              'ROBLOX adaptation: added 1 to array index'
+            )
+          )
         ),
       ]);
 
@@ -52,7 +59,13 @@ describe('Program handler', () => {
 
       const expected: LuaProgram = program([
         expressionStatement(
-          indexExpression(identifier('foo'), numericLiteral(13))
+          indexExpression(
+            identifier('foo'),
+            withTrailingConversionComment(
+              numericLiteral(13),
+              'ROBLOX adaptation: added 1 to array index'
+            )
+          )
         ),
       ]);
 

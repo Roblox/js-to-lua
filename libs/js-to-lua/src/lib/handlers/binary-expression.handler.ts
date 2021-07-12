@@ -18,7 +18,7 @@ import {
   numericLiteral,
   objectKeys,
   UnhandledStatement,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   BaseNodeHandler,
@@ -97,7 +97,7 @@ export const createBinaryExpressionHandler = (
           handleExpression(source, config, node.right)
         );
       case '==':
-        return withConversionComment(
+        return withTrailingConversionComment(
           binaryExpression(
             handleExpression(source, config, node.left as Expression),
             node.operator,
@@ -109,7 +109,7 @@ export const createBinaryExpressionHandler = (
       case '<':
       case '>=':
       case '<=':
-        return withConversionComment(
+        return withTrailingConversionComment(
           binaryExpression(
             handleExpression(source, config, node.left as Expression),
             node.operator,
@@ -118,7 +118,7 @@ export const createBinaryExpressionHandler = (
           `ROBLOX CHECK: operator '${node.operator}' works only if either both arguments are strings or both are a number`
         );
       case '!=':
-        return withConversionComment(
+        return withTrailingConversionComment(
           binaryExpression(
             handleExpression(source, config, node.left as Expression),
             '~=',
@@ -156,7 +156,7 @@ export const createBinaryExpressionHandler = (
           numericLiteral(-1)
         );
       case '&':
-        return withConversionComment(
+        return withTrailingConversionComment(
           bit32MethodCall(
             'band',
             handleExpression(source, config, node.left as Expression),
@@ -166,7 +166,7 @@ export const createBinaryExpressionHandler = (
         );
 
       case '|':
-        return withConversionComment(
+        return withTrailingConversionComment(
           bit32MethodCall(
             'bor',
             handleExpression(source, config, node.left as Expression),
@@ -175,7 +175,7 @@ export const createBinaryExpressionHandler = (
           'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
         );
       case '^':
-        return withConversionComment(
+        return withTrailingConversionComment(
           bit32MethodCall(
             'bxor',
             handleExpression(source, config, node.left as Expression),
@@ -184,7 +184,7 @@ export const createBinaryExpressionHandler = (
           'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
         );
       case '>>>':
-        return withConversionComment(
+        return withTrailingConversionComment(
           bit32MethodCall(
             'rshift',
             handleExpression(source, config, node.left as Expression),
@@ -193,7 +193,7 @@ export const createBinaryExpressionHandler = (
           'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
         );
       case '>>':
-        return withConversionComment(
+        return withTrailingConversionComment(
           bit32MethodCall(
             'arshift',
             handleExpression(source, config, node.left as Expression),
@@ -202,7 +202,7 @@ export const createBinaryExpressionHandler = (
           'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
         );
       case '<<':
-        return withConversionComment(
+        return withTrailingConversionComment(
           bit32MethodCall(
             'lshift',
             handleExpression(source, config, node.left as Expression),

@@ -14,7 +14,7 @@ import {
   LuaMultilineStringLiteral,
   LuaNumericLiteral,
   LuaStringLiteral,
-  withConversionComment,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { EmptyConfig, HandlerFunction } from '../types';
 import { getNodeSource } from '../utils/get-node-source';
@@ -33,7 +33,7 @@ export const createExpressionAsBooleanHandler = (
   }
 
   if (isCoercableLiteral(arg)) {
-    return withConversionComment(
+    return withTrailingConversionComment(
       booleanLiteral(!!arg.value),
       `ROBLOX DEVIATION: coerced from \`${getNodeSource(
         source,
@@ -42,7 +42,7 @@ export const createExpressionAsBooleanHandler = (
     );
   }
   if (isNilLiteral(arg)) {
-    return withConversionComment(
+    return withTrailingConversionComment(
       booleanLiteral(false),
       `ROBLOX DEVIATION: coerced from \`${getNodeSource(
         source,

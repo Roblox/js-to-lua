@@ -1,7 +1,11 @@
 import { BaseLuaNode } from './node.types';
-import { AssignmentStatement, LuaNodeGroup } from './statement';
+import {
+  AssignmentStatement,
+  ExportTypeStatement,
+  LuaBlockStatement,
+  LuaNodeGroup,
+} from './statement';
 import { LuaLiteral } from './literals';
-import { ExportTypeStatement } from './statement/export-type-statement';
 
 export type LuaNode =
   | LuaProgram
@@ -53,7 +57,7 @@ export type LuaDeclaration =
 
 export interface LuaExpressionStatement extends BaseLuaNode {
   type: 'ExpressionStatement';
-  expression: LuaExpression;
+  expression: LuaExpression | AssignmentStatement;
 }
 
 export interface LuaCallExpression extends BaseLuaNode {
@@ -124,11 +128,6 @@ export interface LuaVariableDeclaration extends BaseLuaNode {
   type: 'VariableDeclaration';
   identifiers: LuaVariableDeclaratorIdentifier[];
   values: LuaVariableDeclaratorValue[];
-}
-
-export interface LuaBlockStatement extends BaseLuaNode {
-  type: 'BlockStatement';
-  body: LuaStatement[];
 }
 
 export interface LuaReturnStatement extends BaseLuaNode {
