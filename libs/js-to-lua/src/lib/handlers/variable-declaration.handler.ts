@@ -3,46 +3,34 @@ import {
   ArrowFunctionExpression,
   Expression,
   FunctionExpression,
-  Identifier,
   isArrayPattern,
   isArrowFunctionExpression,
   isFunctionExpression,
   isIdentifier,
   isObjectExpression,
   isObjectPattern,
-  isObjectProperty,
   isRestElement,
   LVal,
   ObjectMethod,
   ObjectPattern,
   ObjectProperty,
   PatternLike,
-  RestElement,
   Statement,
   VariableDeclaration,
   VariableDeclarator,
 } from '@babel/types';
 import {
-  callExpression,
   identifier,
   LuaExpression,
   LuaFunctionDeclaration,
   LuaIdentifier,
-  LuaIndexExpression,
   LuaLVal,
-  LuaMemberExpression,
   LuaNodeGroup,
   LuaStatement,
   LuaTableKeyField,
   LuaVariableDeclaration,
   LuaVariableDeclarator,
-  LuaVariableDeclaratorIdentifier,
-  LuaVariableDeclaratorValue,
   nodeGroup,
-  numericLiteral,
-  objectAssign,
-  objectNone,
-  tableConstructor,
   UnhandledStatement,
   unhandledStatement,
   variableDeclaration,
@@ -59,9 +47,10 @@ import {
   HandlerFunction,
 } from '../types';
 import { defaultStatementHandler } from '../utils/default-handlers';
+import { handleArrayPatternDestructuring } from './array-pattern-destructuring.handler';
 import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
 import { createLValHandler } from './l-val.handler';
-import { createPropertyFromBaseHandler } from './expression/property-from-base.handler';
+import { createObjectPatternDestructuringHandler } from './object-pattern-destructuring.handler';
 
 export const createVariableDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -78,6 +67,12 @@ export const createVariableDeclarationHandler = (
   createHandler('VariableDeclaration', (source, config, declaration) => {
     const lValHandler = createLValHandler(handleIdentifier, handleExpression)
       .handler;
+
+    const objectPatternDestructuringHandler = createObjectPatternDestructuringHandler(
+      handleExpression,
+      lValHandler,
+      handleObjectField
+    );
 
     const handleVariableDeclarator: BaseNodeHandler<
       LuaVariableDeclarator,
@@ -155,7 +150,7 @@ export const createVariableDeclarationHandler = (
             )
           );
         } else if (isObjectPattern(group.id)) {
-          return handleObjectPatternDeclaration(
+          return objectPatternDestructuringDeclarationHandler(
             group as VariableDeclarator & { id: ObjectPattern }
           );
         } else if (isArrayPattern(group.id)) {
@@ -176,91 +171,19 @@ export const createVariableDeclarationHandler = (
 
     return declarations.length > 1 ? nodeGroup(declarations) : declarations[0];
 
-    function getObjectPropertiesIdentifiersAndValues(
-      properties: (RestElement | ObjectProperty)[],
-      base: LuaIdentifier | LuaMemberExpression | LuaIndexExpression
-    ): {
-      ids: LuaVariableDeclaratorIdentifier[];
-      values: LuaVariableDeclaratorValue[];
-    } {
-      const handlePropertyFromBase = createPropertyFromBaseHandler(
-        handleExpression,
-        base
-      )(source, config);
-
-      return properties.reduce(
-        (obj, property) => {
-          if (isObjectProperty(property) && isIdentifier(property.value)) {
-            obj.ids.push(
-              variableDeclaratorIdentifier(identifier(property.value.name))
-            );
-            obj.values.push(
-              variableDeclaratorValue(handlePropertyFromBase(property))
-            );
-          } else if (
-            isObjectProperty(property) &&
-            isObjectPattern(property.value)
-          ) {
-            const { ids, values } = getObjectPropertiesIdentifiersAndValues(
-              property.value.properties as ObjectProperty[],
-              handlePropertyFromBase(property)
-            );
-
-            obj.ids.push(...ids);
-            obj.values.push(...values);
-          } else if (isRestElement(property)) {
-            obj.ids.push(
-              variableDeclaratorIdentifier(
-                lValHandler(source, config, property.argument)
-              )
-            );
-            obj.values.push(
-              variableDeclaratorValue(
-                callExpression(objectAssign(), [
-                  tableConstructor(),
-                  base,
-                  tableConstructor([
-                    ...properties
-                      .filter((property): property is ObjectProperty =>
-                        isObjectProperty(property)
-                      )
-                      .map((property) => ({
-                        ...handleObjectField(source, config, property),
-                        value: objectNone(),
-                      })),
-                  ]),
-                ])
-              )
-            );
-          }
-          return obj;
-        },
-        {
-          ids: <LuaVariableDeclaratorIdentifier[]>[],
-          values: <LuaVariableDeclaratorValue[]>[],
-        }
-      );
-    }
-
-    function handleIdentifierDestructuring(
-      id: LuaIdentifier,
-      properties: (ObjectProperty | RestElement)[]
-    ) {
-      const { ids, values } = getObjectPropertiesIdentifiersAndValues(
-        properties,
-        id
-      );
-
-      return variableDeclaration(ids, values);
-    }
-
-    function handleObjectPatternDeclaration(
+    function objectPatternDestructuringDeclarationHandler(
       declaration: VariableDeclarator & { id: ObjectPattern }
     ) {
       const idProperties = declaration.id.properties;
 
       if (declaration.init && isObjectExpression(declaration.init)) {
         const helperIdentifier = identifier(`ref`);
+        const destructured = objectPatternDestructuringHandler(
+          source,
+          config,
+          helperIdentifier,
+          idProperties
+        );
         return nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(helperIdentifier)],
@@ -270,12 +193,21 @@ export const createVariableDeclarationHandler = (
               ),
             ]
           ),
-          handleIdentifierDestructuring(helperIdentifier, idProperties),
+          variableDeclaration(
+            destructured.ids.map((id) => variableDeclaratorIdentifier(id)),
+            destructured.values.map((value) => variableDeclaratorValue(value))
+          ),
         ]);
       } else if (declaration.init && isIdentifier(declaration.init)) {
-        return handleIdentifierDestructuring(
+        const destructured = objectPatternDestructuringHandler(
+          source,
+          config,
           handleExpression(source, config, declaration.init),
           idProperties
+        );
+        return variableDeclaration(
+          destructured.ids.map((id) => variableDeclaratorIdentifier(id)),
+          destructured.values.map((value) => variableDeclaratorValue(value))
         );
       } else {
         return withTrailingConversionComment(
@@ -304,80 +236,14 @@ export const createVariableDeclarationHandler = (
         ];
       }
 
-      const nodes: (LuaVariableDeclaration | UnhandledStatement)[] = [];
-
-      let tempIdentifierNodes: Identifier[] = [];
-      let startIndex: number | null = null;
-
-      function flushIdentifierDeclarations(fromIndex: number, toIndex: number) {
-        nodes.push(
-          variableDeclaration(
-            tempIdentifierNodes.map((element) =>
-              variableDeclaratorIdentifier(
-                handleExpression(source, config, element as Expression)
-              )
-            ),
-            [
-              variableDeclaratorValue(
-                callExpression(identifier('table.unpack'), [
-                  init,
-                  numericLiteral(fromIndex + 1),
-                  numericLiteral(toIndex + 1),
-                ])
-              ),
-            ]
-          )
-        );
-        tempIdentifierNodes = [];
-        startIndex = null;
-      }
-
-      elements.forEach((el, i) => {
-        if (isIdentifier(el)) {
-          startIndex = startIndex == null ? i : startIndex;
-          tempIdentifierNodes.push(el);
-          if (i === elements.length - 1) {
-            flushIdentifierDeclarations(startIndex, i);
-          }
-        } else {
-          flushIdentifierDeclarations(startIndex!, i - 1);
-
-          if (isRestElement(el)) {
-            nodes.push(
-              variableDeclaration(
-                [
-                  variableDeclaratorIdentifier(
-                    lValHandler(source, config, el.argument)
-                  ),
-                ],
-                [
-                  variableDeclaratorValue(
-                    callExpression(identifier('table.pack'), [
-                      callExpression(identifier('table.unpack'), [
-                        init,
-                        numericLiteral(i + 1),
-                      ]),
-                    ])
-                  ),
-                ]
-              )
-            );
-          } else if (isArrayPattern(el)) {
-            nodes.push(
-              ...handleArrayPatternDeclaration(
-                el.elements.filter(isTruthy),
-                callExpression(identifier('table.unpack'), [
-                  init,
-                  numericLiteral(i + 1),
-                  numericLiteral(i + 1),
-                ])
-              )
-            );
-          }
-        }
-      });
-
-      return nodes;
+      return handleArrayPatternDestructuring(elements, init).map((node) =>
+        variableDeclaration(
+          node.ids.map((id) =>
+            variableDeclaratorIdentifier(lValHandler(source, config, id))
+          ),
+          node.values.map((value) => variableDeclaratorValue(value))
+        )
+      );
     }
 
     function handleVariableDeclarationGroup(

@@ -104,7 +104,8 @@ export const handleExpressionStatement = createHandler(
           createLValHandler(
             forwardHandlerRef(() => handleIdentifier),
             forwardHandlerRef(() => handleExpression)
-          ).handler
+          ).handler,
+          forwardHandlerRef(() => handleObjectField)
         ),
         handleExpressionAsStatement,
       ]).handler(source, config, statement.expression)
@@ -316,7 +317,8 @@ export const handleExpression: BaseNodeHandler<
   createMemberExpressionHandler(forwardHandlerRef(() => handleExpression)),
   createAssignmentExpressionHandlerFunction(
     forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleIdentifier)
+    forwardHandlerRef(() => handleIdentifier),
+    forwardHandlerRef(() => handleObjectField)
   ),
   createConditionalExpressionHandler(forwardHandlerRef(() => handleExpression)),
 ]);
@@ -339,7 +341,8 @@ const handleExpressionAsStatement = combineExpressionsHandlers([
     createLValHandler(
       forwardHandlerRef(() => handleIdentifier),
       forwardHandlerRef(() => handleExpression)
-    ).handler
+    ).handler,
+    forwardHandlerRef(() => handleObjectField)
   ),
   handleExpression,
 ]);

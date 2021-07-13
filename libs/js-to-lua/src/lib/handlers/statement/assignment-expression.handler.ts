@@ -4,22 +4,34 @@ import {
   functionExpression,
   LuaExpression,
   LuaIdentifier,
+  LuaTableKeyField,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import { AssignmentExpression, Expression, Identifier } from '@babel/types';
+import {
+  AssignmentExpression,
+  Expression,
+  Identifier,
+  ObjectMethod,
+  ObjectProperty,
+} from '@babel/types';
 import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
 import { getReturnExpressions } from '../../utils/get-return-expressions';
 
 export const createAssignmentExpressionHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
+  handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>,
+  handleObjectField: HandlerFunction<
+    LuaTableKeyField,
+    ObjectMethod | ObjectProperty
+  >
 ) =>
   createHandler(
     'AssignmentExpression',
     (source, config, node: AssignmentExpression) => {
       const assignmentStatement = createAssignmentStatementHandlerFunction(
         handleExpression,
-        handleIdentifier
+        handleIdentifier,
+        handleObjectField
       ).handler(source, config, node);
       return callExpression(
         functionExpression(

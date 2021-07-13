@@ -93,15 +93,7 @@ export default {
     'conformance-tests/structural-types/functions/named/with-multiple-destructured-arr-param_m4.js',
     'conformance-tests/structural-types/functions/named/with-multiple-destructured-obj-param_m4.js',
 
-    'conformance-tests/operators/assignment/destructure-array-identifier_m4.js',
-    'conformance-tests/operators/assignment/destructure-array_m4.js',
     'conformance-tests/operators/assignment/destructure-multiple-obj_m4.js',
-    'conformance-tests/operators/assignment/destructure-obj-expression-with-alias_m4.js',
-    'conformance-tests/operators/assignment/destructure-obj-expression_m4.js',
-    'conformance-tests/operators/assignment/destructure-obj-identifier-with-alias_m4.js',
-    'conformance-tests/operators/assignment/destructure-obj-identifier_m4.js',
-    'conformance-tests/operators/assignment/destructure-obj-with-alias_m4.js',
-    'conformance-tests/operators/assignment/destructure-obj_m4.js',
     // --- destructuring end
 
     'conformance-tests/expressions/sequence/0_m4.js',
