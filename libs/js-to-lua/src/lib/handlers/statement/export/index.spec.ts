@@ -20,6 +20,7 @@ import {
 } from '../../../utils/forward-handler-ref';
 import {
   handleExpression,
+  handleObjectField,
   handleStatement,
 } from '../../expression-statement.handler';
 import { createExportHandler } from './index';
@@ -40,7 +41,8 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
-  handleTsTypes
+  handleTsTypes,
+  forwardHandlerRef(() => handleObjectField)
 );
 
 const { handler } = createExportHandler(

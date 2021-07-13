@@ -7,6 +7,8 @@ import {
   FunctionExpression,
   isAssignmentPattern,
   LVal,
+  ObjectMethod,
+  ObjectProperty,
   Statement,
   TSType,
 } from '@babel/types';
@@ -19,6 +21,7 @@ import {
   LuaLVal,
   LuaNodeGroup,
   LuaStatement,
+  LuaTableKeyField,
   LuaType,
   returnStatement,
 } from '@js-to-lua/lua-types';
@@ -38,7 +41,11 @@ export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleTsTypes: BaseNodeHandler<LuaType, TSType, EmptyConfig>
+  handleTsTypes: BaseNodeHandler<LuaType, TSType>,
+  handleObjectField: HandlerFunction<
+    LuaTableKeyField,
+    ObjectMethod | ObjectProperty
+  >
 ): BaseNodeHandler<LuaNodeGroup | LuaDeclaration, Declaration> => {
   const declarationHandler: BaseNodeHandler<
     LuaNodeGroup | LuaDeclaration,
@@ -48,7 +55,8 @@ export const createDeclarationHandler = (
     createVariableDeclarationHandler(
       handleExpression,
       handleIdentifier,
-      handleStatement
+      handleStatement,
+      handleObjectField
     ),
     createFunctionDeclarationHandler(
       handleIdentifier,

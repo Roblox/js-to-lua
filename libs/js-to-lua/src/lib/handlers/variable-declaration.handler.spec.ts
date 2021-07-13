@@ -21,10 +21,15 @@ import {
   nodeGroup,
   LuaNodeGroup,
   memberExpression,
+  objectAssign,
+  tableConstructor,
+  tableNameKeyField,
+  objectNone,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import {
   handleExpression,
+  handleObjectField,
   handleStatement,
 } from './expression-statement.handler';
 import { createIdentifierHandler } from './identifier.handler';
@@ -42,7 +47,8 @@ const handleIdentifier = createIdentifierHandler(typesHandler);
 const handleVariableDeclaration = createVariableDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifier),
-  forwardHandlerRef(() => handleStatement)
+  forwardHandlerRef(() => handleStatement),
+  forwardHandlerRef(() => handleObjectField)
 );
 
 describe('Variable Declaration', () => {
@@ -320,6 +326,43 @@ describe('Variable Declaration', () => {
         ),
         variableDeclaratorValue(
           memberExpression(identifier('baz'), '.', identifier('bar'))
+        ),
+      ]
+    );
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
+  it(`should handle object destructuring with rest element`, () => {
+    const given: VariableDeclaration = babelVariableDeclaration('let', [
+      babelVariableDeclarator(
+        objectPattern([
+          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
+          restElement(babelIdentifier('bar')),
+        ]),
+        babelIdentifier('baz')
+      ),
+    ]);
+
+    const expected: LuaVariableDeclaration = variableDeclaration(
+      [
+        variableDeclaratorIdentifier(identifier('foo')),
+        variableDeclaratorIdentifier(identifier('bar')),
+      ],
+      [
+        variableDeclaratorValue(
+          memberExpression(identifier('baz'), '.', identifier('foo'))
+        ),
+        variableDeclaratorValue(
+          callExpression(objectAssign(), [
+            tableConstructor(),
+            identifier('baz'),
+            tableConstructor([
+              tableNameKeyField(identifier('foo'), objectNone()),
+            ]),
+          ])
         ),
       ]
     );

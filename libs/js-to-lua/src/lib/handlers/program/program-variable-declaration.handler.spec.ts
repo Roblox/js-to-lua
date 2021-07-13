@@ -10,6 +10,12 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
+  objectAssign,
+  tableConstructor,
+  tableNameKeyField,
+  objectNone,
+  indexExpression,
+  tableExpressionKeyField,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
@@ -371,6 +377,39 @@ describe('Program handler', () => {
     expect(luaProgram).toEqual(expected);
   });
 
+  it(`should handle object destructuring with rest element`, () => {
+    const given = getProgramNode(`
+    const {foo, ...bar} = baz;
+  `);
+
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [
+          variableDeclaratorValue(
+            memberExpression(identifier('baz'), '.', identifier('foo'))
+          ),
+          variableDeclaratorValue(
+            callExpression(objectAssign(), [
+              tableConstructor(),
+              identifier('baz'),
+              tableConstructor([
+                tableNameKeyField(identifier('foo'), objectNone()),
+              ]),
+            ])
+          ),
+        ]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
   it(`should handle object destructuring with nested object pattern`, () => {
     const given = getProgramNode(`
     const {foo:{bar,baz}} = fizz;
@@ -396,6 +435,107 @@ describe('Program handler', () => {
               '.',
               identifier('baz')
             )
+          ),
+        ]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle object destructuring with rest element and aliases`, () => {
+    const given = getProgramNode(`
+    const { a, b, 'foo-bar': bar, method1, ...rest } = foo;
+  `);
+
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('a')),
+          variableDeclaratorIdentifier(identifier('b')),
+          variableDeclaratorIdentifier(identifier('bar')),
+          variableDeclaratorIdentifier(identifier('method1')),
+          variableDeclaratorIdentifier(identifier('rest')),
+        ],
+        [
+          variableDeclaratorValue(
+            memberExpression(identifier('foo'), '.', identifier('a'))
+          ),
+          variableDeclaratorValue(
+            memberExpression(identifier('foo'), '.', identifier('b'))
+          ),
+          variableDeclaratorValue(
+            indexExpression(identifier('foo'), stringLiteral('foo-bar'))
+          ),
+          variableDeclaratorValue(
+            memberExpression(identifier('foo'), '.', identifier('method1'))
+          ),
+          variableDeclaratorValue(
+            callExpression(objectAssign(), [
+              tableConstructor(),
+              identifier('foo'),
+              tableConstructor([
+                tableNameKeyField(identifier('a'), objectNone()),
+                tableNameKeyField(identifier('b'), objectNone()),
+                tableExpressionKeyField(stringLiteral('foo-bar'), objectNone()),
+                tableNameKeyField(identifier('method1'), objectNone()),
+              ]),
+            ])
+          ),
+        ]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle object destructuring with rest element, aliases and computed properties`, () => {
+    const given = getProgramNode(`
+    const { a, b, 'foo-bar': bar, method1, [bar]: computed, ...rest } = foo;
+  `);
+
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('a')),
+          variableDeclaratorIdentifier(identifier('b')),
+          variableDeclaratorIdentifier(identifier('bar')),
+          variableDeclaratorIdentifier(identifier('method1')),
+          variableDeclaratorIdentifier(identifier('computed')),
+          variableDeclaratorIdentifier(identifier('rest')),
+        ],
+        [
+          variableDeclaratorValue(
+            memberExpression(identifier('foo'), '.', identifier('a'))
+          ),
+          variableDeclaratorValue(
+            memberExpression(identifier('foo'), '.', identifier('b'))
+          ),
+          variableDeclaratorValue(
+            indexExpression(identifier('foo'), stringLiteral('foo-bar'))
+          ),
+          variableDeclaratorValue(
+            memberExpression(identifier('foo'), '.', identifier('method1'))
+          ),
+          variableDeclaratorValue(
+            indexExpression(identifier('foo'), identifier('bar'))
+          ),
+          variableDeclaratorValue(
+            callExpression(objectAssign(), [
+              tableConstructor(),
+              identifier('foo'),
+              tableConstructor([
+                tableNameKeyField(identifier('a'), objectNone()),
+                tableNameKeyField(identifier('b'), objectNone()),
+                tableExpressionKeyField(stringLiteral('foo-bar'), objectNone()),
+                tableNameKeyField(identifier('method1'), objectNone()),
+                tableExpressionKeyField(identifier('bar'), objectNone()),
+              ]),
+            ])
           ),
         ]
       ),

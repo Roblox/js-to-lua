@@ -24,6 +24,7 @@ import {
 } from '../../../utils/forward-handler-ref';
 import {
   handleExpression,
+  handleObjectField,
   handleStatement,
 } from '../../expression-statement.handler';
 import { createTypeAnnotationHandler } from '../../type-annotation.handler';
@@ -42,7 +43,8 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
-  handleTsTypes
+  handleTsTypes,
+  forwardHandlerRef(() => handleObjectField)
 );
 
 const { handler } = createExportDefaultHandler(

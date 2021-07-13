@@ -13,6 +13,7 @@ import {
   isObjectProperty,
   isRestElement,
   LVal,
+  ObjectMethod,
   ObjectPattern,
   ObjectProperty,
   PatternLike,
@@ -27,17 +28,21 @@ import {
   LuaExpression,
   LuaFunctionDeclaration,
   LuaIdentifier,
+  LuaIndexExpression,
   LuaLVal,
   LuaMemberExpression,
   LuaNodeGroup,
   LuaStatement,
+  LuaTableKeyField,
   LuaVariableDeclaration,
   LuaVariableDeclarator,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
-  memberExpression,
   nodeGroup,
   numericLiteral,
+  objectAssign,
+  objectNone,
+  tableConstructor,
   UnhandledStatement,
   unhandledStatement,
   variableDeclaration,
@@ -56,11 +61,16 @@ import {
 import { defaultStatementHandler } from '../utils/default-handlers';
 import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
 import { createLValHandler } from './l-val.handler';
+import { createPropertyFromBaseHandler } from './expression/property-from-base.handler';
 
 export const createVariableDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
-  handleStatement: HandlerFunction<LuaStatement, Statement>
+  handleStatement: HandlerFunction<LuaStatement, Statement>,
+  handleObjectField: HandlerFunction<
+    LuaTableKeyField,
+    ObjectMethod | ObjectProperty
+  >
 ): BaseNodeHandler<
   LuaNodeGroup | LuaVariableDeclaration,
   VariableDeclaration
@@ -167,41 +177,61 @@ export const createVariableDeclarationHandler = (
     return declarations.length > 1 ? nodeGroup(declarations) : declarations[0];
 
     function getObjectPropertiesIdentifiersAndValues(
-      properties: ObjectProperty[],
-      base: LuaIdentifier | LuaMemberExpression
+      properties: (RestElement | ObjectProperty)[],
+      base: LuaIdentifier | LuaMemberExpression | LuaIndexExpression
     ): {
       ids: LuaVariableDeclaratorIdentifier[];
       values: LuaVariableDeclaratorValue[];
     } {
+      const handlePropertyFromBase = createPropertyFromBaseHandler(
+        handleExpression,
+        base
+      )(source, config);
+
       return properties.reduce(
         (obj, property) => {
-          if (isIdentifier(property.value)) {
+          if (isObjectProperty(property) && isIdentifier(property.value)) {
             obj.ids.push(
               variableDeclaratorIdentifier(identifier(property.value.name))
             );
             obj.values.push(
-              variableDeclaratorValue(
-                memberExpression(
-                  base,
-                  '.',
-                  identifier((property.key as Identifier).name)
-                )
-              )
+              variableDeclaratorValue(handlePropertyFromBase(property))
             );
-            return obj;
-          } else if (isObjectPattern(property.value)) {
+          } else if (
+            isObjectProperty(property) &&
+            isObjectPattern(property.value)
+          ) {
             const { ids, values } = getObjectPropertiesIdentifiersAndValues(
               property.value.properties as ObjectProperty[],
-              memberExpression(
-                base,
-                '.',
-                identifier((property.key as Identifier).name)
-              )
+              handlePropertyFromBase(property)
             );
 
             obj.ids.push(...ids);
             obj.values.push(...values);
-            return obj;
+          } else if (isRestElement(property)) {
+            obj.ids.push(
+              variableDeclaratorIdentifier(
+                lValHandler(source, config, property.argument)
+              )
+            );
+            obj.values.push(
+              variableDeclaratorValue(
+                callExpression(objectAssign(), [
+                  tableConstructor(),
+                  base,
+                  tableConstructor([
+                    ...properties
+                      .filter((property): property is ObjectProperty =>
+                        isObjectProperty(property)
+                      )
+                      .map((property) => ({
+                        ...handleObjectField(source, config, property),
+                        value: objectNone(),
+                      })),
+                  ]),
+                ])
+              )
+            );
           }
           return obj;
         },
@@ -214,7 +244,7 @@ export const createVariableDeclarationHandler = (
 
     function handleIdentifierDestructuring(
       id: LuaIdentifier,
-      properties: ObjectProperty[]
+      properties: (ObjectProperty | RestElement)[]
     ) {
       const { ids, values } = getObjectPropertiesIdentifiersAndValues(
         properties,
@@ -224,44 +254,10 @@ export const createVariableDeclarationHandler = (
       return variableDeclaration(ids, values);
     }
 
-    function hasRestElement(
-      properties: (ObjectProperty | RestElement)[]
-    ): boolean {
-      if (properties.some((property) => isRestElement(property))) {
-        return true;
-      }
-
-      const objectPatternValues: ObjectPattern[] = properties
-        .filter(
-          (property): property is ObjectProperty & { value: ObjectPattern } =>
-            isObjectProperty(property) && isObjectPattern(property.value)
-        )
-        .map((property) => property.value);
-
-      if (objectPatternValues.length) {
-        return objectPatternValues.some((value) =>
-          hasRestElement(value.properties)
-        );
-      }
-
-      return false;
-    }
-
     function handleObjectPatternDeclaration(
       declaration: VariableDeclarator & { id: ObjectPattern }
     ) {
-      if (
-        isObjectPattern(declaration.id) &&
-        hasRestElement(declaration.id.properties)
-      ) {
-        return withTrailingConversionComment(
-          unhandledStatement(),
-          `ROBLOX TODO: Unhandled object destructuring with RestElement in "id.properties"`,
-          source.slice(declaration.start || 0, declaration.end || 0)
-        );
-      }
-
-      const idProperties = declaration.id.properties as ObjectProperty[];
+      const idProperties = declaration.id.properties;
 
       if (declaration.init && isObjectExpression(declaration.init)) {
         const helperIdentifier = identifier(`ref`);

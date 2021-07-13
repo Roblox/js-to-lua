@@ -44,7 +44,6 @@ import {
   LuaIdentifier,
   LuaStatement,
   LuaTableConstructor,
-  LuaTableField,
   LuaTableKeyField,
   memberExpression,
   objectAssign,
@@ -397,20 +396,28 @@ const handleObjectKeyExpression: HandlerFunction<
 export const handleObjectProperty: BaseNodeHandler<
   LuaTableKeyField,
   ObjectProperty
-> = createHandler('ObjectProperty', (source, config, { key, value }) => {
-  switch (key.type) {
-    case 'Identifier':
-      return tableNameKeyField(
-        handleIdentifier.handler(source, config, key) as LuaIdentifier,
-        handleObjectPropertyValue.handler(source, config, value)
-      );
-    default:
-      return tableExpressionKeyField(
-        handleObjectKeyExpression(source, config, key),
-        handleObjectPropertyValue.handler(source, config, value)
-      );
+> = createHandler(
+  'ObjectProperty',
+  (source, config, { key, value, computed }) => {
+    switch (key.type) {
+      case 'Identifier':
+        return computed
+          ? tableExpressionKeyField(
+              handleIdentifier.handler(source, config, key) as LuaIdentifier,
+              handleObjectPropertyValue.handler(source, config, value)
+            )
+          : tableNameKeyField(
+              handleIdentifier.handler(source, config, key) as LuaIdentifier,
+              handleObjectPropertyValue.handler(source, config, value)
+            );
+      default:
+        return tableExpressionKeyField(
+          handleObjectKeyExpression(source, config, key),
+          handleObjectPropertyValue.handler(source, config, value)
+        );
+    }
   }
-});
+);
 
 export const handleObjectMethod: BaseNodeHandler<
   LuaTableKeyField,
@@ -462,7 +469,7 @@ export const handleObjectMethod: BaseNodeHandler<
 );
 
 export const handleObjectField = combineHandlers<
-  LuaTableField,
+  LuaTableKeyField,
   NoSpreadObjectProperty
 >([handleObjectProperty, handleObjectMethod], defaultExpressionHandler);
 
@@ -478,7 +485,8 @@ export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHa
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleIdentifier),
       forwardHandlerRef(() => handleStatement),
-      handleTsTypes
+      handleTsTypes,
+      forwardHandlerRef(() => handleObjectField)
     ),
     createBlockStatementHandler(forwardHandlerRef(() => handleStatement)),
     createReturnStatementHandler(

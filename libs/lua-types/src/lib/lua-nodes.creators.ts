@@ -402,3 +402,6 @@ export const objectAssign = (): LuaMemberExpression =>
   memberExpression(identifier('Object'), '.', identifier('assign'));
 export const objectKeys = (): LuaMemberExpression =>
   memberExpression(identifier('Object'), '.', identifier('keys'));
+
+export const objectNone = (): LuaMemberExpression =>
+  memberExpression(identifier('Object'), '.', identifier('None'));
