@@ -1,6 +1,7 @@
 import { handleProgram } from './program.handler';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   binaryExpression,
   functionDeclaration,
   identifier,
@@ -76,6 +77,7 @@ describe('Program handler', () => {
                 binaryExpression(identifier('baz'), '==', nilLiteral()),
                 [
                   assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
                     [identifier('baz')],
                     [stringLiteral('hello')]
                   ),
@@ -107,6 +109,7 @@ describe('Program handler', () => {
                 binaryExpression(identifier('baz'), '==', nilLiteral()),
                 [
                   assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
                     [identifier('baz')],
                     [stringLiteral('hello')]
                   ),

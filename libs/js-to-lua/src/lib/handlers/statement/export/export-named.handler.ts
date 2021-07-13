@@ -7,6 +7,7 @@ import {
 } from '@babel/types';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   exportTypeStatement,
   identifier,
   indexExpression,
@@ -46,6 +47,7 @@ export const createExportNamedHandler = (
         return nodeGroup([
           declaration,
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             declarationIds.map((id) =>
               isIdentifier(id)
                 ? memberExpression(identifier('exports'), '.', id)

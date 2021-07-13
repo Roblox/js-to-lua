@@ -21,11 +21,7 @@ import {
   UnhandledExpression,
 } from './lua-nodes.types';
 import { isAnyNodeType, isNodeType } from './node.types';
-import {
-  isLiteral,
-  isMultilineStringLiteral,
-  isStringLiteral,
-} from './literals';
+import { isLiteral } from './literals';
 
 export const isTableConstructor = isNodeType<LuaTableConstructor>(
   'TableConstructor'
@@ -80,11 +76,6 @@ export const isVariableDeclaration = isNodeType<LuaVariableDeclaration>(
 export const isUnhandledExpression = isNodeType<UnhandledExpression>(
   'UnhandledExpression'
 );
-
-export const isStringInferable = (node: LuaExpression) =>
-  isStringLiteral(node) ||
-  isMultilineStringLiteral(node) ||
-  (isBinaryExpression(node) && node.operator === '..');
 
 export const isExpression = isAnyNodeType<LuaExpression>([
   isLiteral,

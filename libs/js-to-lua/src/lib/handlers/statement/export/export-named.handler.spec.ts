@@ -10,6 +10,7 @@ import {
 } from '@babel/types';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   functionDeclaration,
   identifier,
   indexExpression,
@@ -75,6 +76,7 @@ describe('Export Named Handler', () => {
         []
       ),
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('foo'))],
         [identifier('foo')]
       ),
@@ -95,6 +97,7 @@ describe('Export Named Handler', () => {
     const expected = nodeGroup([
       functionDeclaration(identifier('foo'), [], []),
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('foo'))],
         [identifier('foo')]
       ),
@@ -111,10 +114,12 @@ describe('Export Named Handler', () => {
 
     const expected = nodeGroup([
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('foo'))],
         [mockNodeWithValue(identifier('foo'))]
       ),
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('bar'))],
         [mockNodeWithValue(identifier('bar'))]
       ),
@@ -131,10 +136,12 @@ describe('Export Named Handler', () => {
 
     const expected = nodeGroup([
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('foo1'))],
         [mockNodeWithValue(identifier('foo'))]
       ),
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('bar1'))],
         [mockNodeWithValue(identifier('bar'))]
       ),
@@ -151,10 +158,12 @@ describe('Export Named Handler', () => {
 
     const expected = nodeGroup([
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [indexExpression(identifier('exports'), stringLiteral('foo-1'))],
         [mockNodeWithValue(identifier('foo'))]
       ),
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [indexExpression(identifier('exports'), stringLiteral('bar-1'))],
         [mockNodeWithValue(identifier('bar'))]
       ),

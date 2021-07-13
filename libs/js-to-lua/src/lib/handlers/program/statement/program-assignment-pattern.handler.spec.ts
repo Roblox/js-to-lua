@@ -1,5 +1,6 @@
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   binaryExpression,
   functionDeclaration,
   identifier,
@@ -27,7 +28,13 @@ describe('Program handler', () => {
             ifStatement(
               ifClause(
                 binaryExpression(identifier('foo'), '==', nilLiteral()),
-                [assignmentStatement([identifier('foo')], [identifier('bar')])]
+                [
+                  assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
+                    [identifier('foo')],
+                    [identifier('bar')]
+                  ),
+                ]
               )
             ),
           ]

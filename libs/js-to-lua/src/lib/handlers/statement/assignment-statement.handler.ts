@@ -1,13 +1,21 @@
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  EmptyConfig,
+  HandlerFunction,
+} from '../../types';
 import {
   AssignmentStatement,
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   identifier,
+  isStringInferable,
   LuaExpression,
   LuaLVal,
   LuaNodeGroup,
   LuaTableKeyField,
   nodeGroup,
+  stringInferableExpression,
   UnhandledStatement,
   unhandledStatement,
   variableDeclaration,
@@ -16,18 +24,18 @@ import {
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
+  ArrayPattern,
   AssignmentExpression,
   Expression,
+  isArrayPattern as isBabelArrayPattern,
   isAssignmentExpression as isBabelAssignmentExpression,
-  LVal,
-  ObjectPattern,
-  isObjectExpression,
   isIdentifier as isBabelIdentifier,
+  isObjectExpression,
   isObjectPattern as isBabelObjectPattern,
   isRestElement as isBabelRestElement,
-  isArrayPattern as isBabelArrayPattern,
-  ArrayPattern,
+  LVal,
   ObjectMethod,
+  ObjectPattern,
   ObjectProperty,
 } from '@babel/types';
 import { defaultExpressionHandler } from '../../utils/default-handlers';
@@ -35,6 +43,8 @@ import { getReturnExpressions } from '../../utils/get-return-expressions';
 import { createObjectPatternDestructuringHandler } from '../object-pattern-destructuring.handler';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { handleArrayPatternDestructuring } from '../array-pattern-destructuring.handler';
+import { createExpressionAsNumericHandler } from '../expression/handle-expression-as-numeric';
+import { equals } from 'ramda';
 
 export const createAssignmentStatementHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -44,12 +54,42 @@ export const createAssignmentStatementHandlerFunction = (
     ObjectMethod | ObjectProperty
   >
 ) => {
+  const getAssignmentStatementOperator = (
+    source: string,
+    config: EmptyConfig,
+    node: AssignmentExpression
+  ) => {
+    const rightExpression = handleExpression(source, config, node.right);
+    switch (node.operator) {
+      case '=':
+        return AssignmentStatementOperatorEnum.EQ;
+      case '+=':
+        return isStringInferable(rightExpression)
+          ? AssignmentStatementOperatorEnum.CONCAT
+          : AssignmentStatementOperatorEnum.ADD;
+      case '-=':
+        return AssignmentStatementOperatorEnum.SUB;
+      case '*=':
+        return AssignmentStatementOperatorEnum.MUL;
+      case '/=':
+        return AssignmentStatementOperatorEnum.DIV;
+      case '%=':
+        return AssignmentStatementOperatorEnum.REMAINDER;
+    }
+  };
+
   const assignmentStatementHandler: BaseNodeHandler<
     LuaNodeGroup | AssignmentStatement,
     AssignmentExpression
   > = createHandler(
     'AssignmentExpression',
-    (source, config, node: AssignmentExpression) => {
+    (source, config: EmptyConfig, node: AssignmentExpression) => {
+      const operator = getAssignmentStatementOperator(source, config, node);
+
+      if (!operator) {
+        return defaultExpressionHandler(source, config, node);
+      }
+
       const objectPatternDestructuringHandler = createObjectPatternDestructuringHandler(
         handleExpression,
         handleLVal,
@@ -57,18 +97,43 @@ export const createAssignmentStatementHandlerFunction = (
       );
 
       if (isBabelObjectPattern(node.left)) {
-        return objectPatternDestructuringAssignmentHandler(
-          node as AssignmentExpression & { left: ObjectPattern }
-        );
+        return operator === AssignmentStatementOperatorEnum.EQ
+          ? objectPatternDestructuringAssignmentHandler(
+              node as AssignmentExpression & { left: ObjectPattern }
+            )
+          : withTrailingConversionComment(
+              unhandledStatement(),
+              `ROBLOX TODO: Unhandled object destructuring assignment for: "${node.type}" with "${operator}" operator`,
+              source.slice(node.start || 0, node.end || 0)
+            );
       } else if (isBabelArrayPattern(node.left)) {
-        return nodeGroup(
-          arrayPatternDestructuringAssignmentHandler(
-            node as AssignmentExpression & { left: ArrayPattern }
-          )
-        );
+        return operator === AssignmentStatementOperatorEnum.EQ
+          ? nodeGroup(
+              arrayPatternDestructuringAssignmentHandler(
+                node as AssignmentExpression & { left: ArrayPattern }
+              )
+            )
+          : withTrailingConversionComment(
+              unhandledStatement(),
+              `ROBLOX TODO: Unhandled array destructuring assignment for: "${node.type}" with "${operator}" operator`,
+              source.slice(node.start || 0, node.end || 0)
+            );
       }
+
       const leftExpression = handleLVal(source, config, node.left);
-      const rightExpression = handleExpression(source, config, node.right);
+      const rightExpression = [
+        AssignmentStatementOperatorEnum.ADD,
+        AssignmentStatementOperatorEnum.SUB,
+        AssignmentStatementOperatorEnum.DIV,
+        AssignmentStatementOperatorEnum.MUL,
+        AssignmentStatementOperatorEnum.REMAINDER,
+      ].some(equals(operator))
+        ? createExpressionAsNumericHandler(handleExpression)(
+            source,
+            config,
+            node.right
+          )
+        : handleExpression(source, config, node.right);
 
       if (isBabelAssignmentExpression(node.right)) {
         const rightAssignmentStatement = assignmentStatementHandler.handler(
@@ -81,18 +146,37 @@ export const createAssignmentStatementHandlerFunction = (
           rightAssignmentStatement
         );
 
-        return nodeGroup([
-          rightAssignmentStatement,
-          assignmentStatement([leftExpression], returnExpressions),
-        ]);
+        const isRightStringInferable = returnExpressions.every(
+          isStringInferable
+        );
+
+        return isRightStringInferable &&
+          operator === AssignmentStatementOperatorEnum.ADD
+          ? nodeGroup([
+              rightAssignmentStatement,
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.CONCAT,
+                [stringInferableExpression(leftExpression)],
+                returnExpressions
+              ),
+            ])
+          : nodeGroup([
+              rightAssignmentStatement,
+              assignmentStatement(
+                operator,
+                [leftExpression],
+                returnExpressions
+              ),
+            ]);
       }
 
-      switch (node.operator) {
-        case '=':
-          return assignmentStatement([leftExpression], [rightExpression]);
-        default:
-          return defaultExpressionHandler(source, config, node);
-      }
+      return operator === AssignmentStatementOperatorEnum.CONCAT
+        ? assignmentStatement(
+            operator,
+            [stringInferableExpression(leftExpression)],
+            [rightExpression]
+          )
+        : assignmentStatement(operator, [leftExpression], [rightExpression]);
 
       function objectPatternDestructuringAssignmentHandler(
         node: AssignmentExpression & { left: ObjectPattern }
@@ -115,6 +199,7 @@ export const createAssignmentStatementHandlerFunction = (
               ]
             ),
             assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
               destructured.ids,
               destructured.values.filter(isTruthy)
             ),
@@ -127,6 +212,7 @@ export const createAssignmentStatementHandlerFunction = (
             node.left.properties
           );
           return assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             destructured.ids,
             destructured.values.filter(isTruthy)
           );
@@ -166,6 +252,7 @@ export const createAssignmentStatementHandlerFunction = (
           handleExpression(source, config, node.right)
         ).map((item) =>
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             item.ids.map((id) => handleLVal(source, config, id)),
             item.values.filter(isTruthy)
           )

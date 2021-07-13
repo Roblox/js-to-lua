@@ -4,6 +4,7 @@ import {
 } from '@babel/types';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   callExpression,
   functionExpression,
   LuaIdentifier,
@@ -60,6 +61,7 @@ describe('Assignment Expression Handler', () => {
         [],
         [
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [mockNodeWithValue(leftGiven) as LuaIdentifier],
             [mockNodeWithValue(rightGiven)]
           ),
@@ -90,10 +92,12 @@ describe('Assignment Expression Handler', () => {
         [
           nodeGroup([
             assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
               [mockNodeWithValue(middleGiven) as LuaIdentifier],
               [mockNodeWithValue(rightGiven)]
             ),
             assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
               [mockNodeWithValue(leftGiven) as LuaIdentifier],
               [mockNodeWithValue(middleGiven)]
             ),

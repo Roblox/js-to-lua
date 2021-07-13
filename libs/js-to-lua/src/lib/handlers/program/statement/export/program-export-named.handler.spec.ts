@@ -19,6 +19,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
   withTrailingConversionComment,
+  AssignmentStatementOperatorEnum,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
@@ -42,6 +43,7 @@ describe('Program handler', () => {
             [variableDeclaratorValue(numericLiteral(10, '10'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [identifier('foo')]
           ),
@@ -64,6 +66,7 @@ describe('Program handler', () => {
         nodeGroup([
           functionDeclaration(identifier('foo'), [], []),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [identifier('foo')]
           ),
@@ -87,6 +90,7 @@ describe('Program handler', () => {
         nodeGroup([
           functionDeclaration(identifier('foo'), [], []),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [identifier('foo')]
           ),
@@ -97,6 +101,7 @@ describe('Program handler', () => {
             [variableDeclaratorValue(numericLiteral(10, '10'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar'))],
             [identifier('bar')]
           ),
@@ -126,10 +131,12 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [identifier('foo')]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar'))],
             [identifier('bar')]
           ),
@@ -159,10 +166,12 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo1'))],
             [identifier('foo')]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar1'))],
             [identifier('bar')]
           ),
@@ -187,6 +196,7 @@ describe('Program handler', () => {
         functionDeclaration(identifier('foo'), [], []),
         nodeGroup([
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [
               memberExpression(
                 identifier('exports'),
@@ -266,10 +276,12 @@ describe('Program handler', () => {
             ]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [memberExpression(identifier('barModule'), '.', identifier('foo'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar'))],
             [memberExpression(identifier('barModule'), '.', identifier('bar'))]
           ),
@@ -314,10 +326,12 @@ describe('Program handler', () => {
             ]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo1'))],
             [memberExpression(identifier('barModule'), '.', identifier('foo'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar1'))],
             [memberExpression(identifier('barModule'), '.', identifier('bar'))]
           ),
@@ -340,6 +354,7 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [
               memberExpression(
                 identifier('exports'),
@@ -411,10 +426,12 @@ describe('Program handler', () => {
             ]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [memberExpression(identifier('barModule'), '.', identifier('foo'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar'))],
             [memberExpression(identifier('barModule'), '.', identifier('bar'))]
           ),
@@ -458,10 +475,12 @@ describe('Program handler', () => {
             ]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo1'))],
             [memberExpression(identifier('barModule'), '.', identifier('foo'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar1'))],
             [memberExpression(identifier('barModule'), '.', identifier('bar'))]
           ),
@@ -491,6 +510,7 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [
               memberExpression(
                 identifier('exports'),

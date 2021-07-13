@@ -1,5 +1,6 @@
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   functionDeclaration,
   identifier,
   nodeGroup,
@@ -54,7 +55,11 @@ describe('Program handler', () => {
           [],
           [
             nodeGroup([
-              assignmentStatement([identifier('foo')], [identifier('bar')]),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [identifier('foo')],
+                [identifier('bar')]
+              ),
               returnStatement(identifier('foo')),
             ]),
           ]

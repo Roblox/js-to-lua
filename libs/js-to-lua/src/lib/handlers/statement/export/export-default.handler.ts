@@ -6,6 +6,7 @@ import {
 } from '@babel/types';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   identifier,
   LuaDeclaration,
   LuaExpression,
@@ -68,6 +69,7 @@ export const createExportDefaultHandler = (
 
         return declarationIds.every(equals(declaration))
           ? assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
               [
                 memberExpression(
                   identifier('exports'),
@@ -80,6 +82,7 @@ export const createExportDefaultHandler = (
           : nodeGroup([
               declaration,
               assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
                 [
                   memberExpression(
                     identifier('exports'),

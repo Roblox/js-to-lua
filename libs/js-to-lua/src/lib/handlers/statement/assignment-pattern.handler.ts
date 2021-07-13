@@ -2,6 +2,7 @@ import { createHandlerFunction, HandlerFunction } from '../../types';
 import {
   assignmentStatement,
   AssignmentStatement,
+  AssignmentStatementOperatorEnum,
   binaryExpression,
   ifClause,
   ifStatement,
@@ -24,7 +25,11 @@ export const createAssignmentPatternHandlerFunction = (
     const rightExpression = handleExpression(source, config, node.right);
     return ifStatement(
       ifClause(binaryExpression(leftExpression, '==', nilLiteral()), [
-        assignmentStatement([leftExpression], [rightExpression]),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [leftExpression],
+          [rightExpression]
+        ),
       ])
     );
   });

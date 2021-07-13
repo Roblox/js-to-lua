@@ -4,6 +4,7 @@ import {
 } from '@babel/types';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   binaryExpression,
   ifClause,
   ifStatement,
@@ -34,6 +35,7 @@ describe('Assignment Pattern Handler', () => {
         binaryExpression(mockNodeWithValue(leftGiven), '==', nilLiteral()),
         [
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [mockNodeWithValue(leftGiven) as LuaIdentifier],
             [mockNodeWithValue(rightGiven)]
           ),

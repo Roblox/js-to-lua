@@ -16,6 +16,7 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
+  AssignmentStatementOperatorEnum,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
@@ -68,6 +69,7 @@ describe('Program handler', () => {
                 binaryExpression(identifier('baz'), '==', nilLiteral()),
                 [
                   assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
                     [identifier('baz')],
                     [stringLiteral('hello')]
                   ),
@@ -99,6 +101,7 @@ describe('Program handler', () => {
                 binaryExpression(identifier('baz'), '==', nilLiteral()),
                 [
                   assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
                     [identifier('baz')],
                     [stringLiteral('hello')]
                   ),

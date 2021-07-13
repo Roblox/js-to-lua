@@ -2,6 +2,7 @@ import { createHandler, HandlerFunction } from '../../../types';
 import { ExportSpecifier, Expression, Identifier } from '@babel/types';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   identifier,
   indexExpression,
   isIdentifier,
@@ -19,6 +20,7 @@ export const createExportNamedSpecifierHandler = (
     const localIdentifier = handleIdentifier(source, config, node.local);
     const exported = handleExpression(source, config, node.exported);
     return assignmentStatement(
+      AssignmentStatementOperatorEnum.EQ,
       [
         isIdentifier(exported)
           ? memberExpression(identifier('exports'), '.', exported)

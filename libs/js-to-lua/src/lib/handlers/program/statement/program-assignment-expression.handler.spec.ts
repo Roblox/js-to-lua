@@ -1,5 +1,6 @@
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   callExpression,
   expressionStatement,
   functionExpression,
@@ -26,7 +27,11 @@ describe('Program handler', () => {
               functionExpression(
                 [],
                 [
-                  assignmentStatement([identifier('foo')], [identifier('bar')]),
+                  assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
+                    [identifier('foo')],
+                    [identifier('bar')]
+                  ),
                   returnStatement(identifier('foo')),
                 ]
               ),
@@ -52,10 +57,12 @@ describe('Program handler', () => {
                 [
                   nodeGroup([
                     assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
                       [identifier('bar')],
                       [identifier('baz')]
                     ),
                     assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
                       [identifier('foo')],
                       [identifier('bar')]
                     ),

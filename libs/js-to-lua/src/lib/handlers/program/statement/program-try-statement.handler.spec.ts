@@ -1,5 +1,6 @@
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   blockStatement,
   booleanLiteral,
   callExpression,
@@ -49,6 +50,7 @@ describe('Program handler', () => {
                       [
                         expressionStatement(
                           assignmentStatement(
+                            AssignmentStatementOperatorEnum.EQ,
                             [identifier('a')],
                             [stringLiteral('foo')]
                           )
@@ -60,6 +62,7 @@ describe('Program handler', () => {
                       [
                         expressionStatement(
                           assignmentStatement(
+                            AssignmentStatementOperatorEnum.EQ,
                             [identifier('b')],
                             [
                               callExpression(identifier('tostring'), [
@@ -112,6 +115,7 @@ describe('Program handler', () => {
                       [
                         expressionStatement(
                           assignmentStatement(
+                            AssignmentStatementOperatorEnum.EQ,
                             [identifier('a')],
                             [stringLiteral('foo')]
                           )
@@ -124,7 +128,11 @@ describe('Program handler', () => {
             ),
             blockStatement([
               expressionStatement(
-                assignmentStatement([identifier('b')], [stringLiteral('bar')])
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [identifier('b')],
+                  [stringLiteral('bar')]
+                )
               ),
             ]),
             ifStatement(
@@ -176,6 +184,7 @@ describe('Program handler', () => {
                           [
                             expressionStatement(
                               assignmentStatement(
+                                AssignmentStatementOperatorEnum.EQ,
                                 [identifier('a')],
                                 [stringLiteral('foo')]
                               )
@@ -249,6 +258,7 @@ describe('Program handler', () => {
                           [
                             expressionStatement(
                               assignmentStatement(
+                                AssignmentStatementOperatorEnum.EQ,
                                 [identifier('b')],
                                 [
                                   callExpression(identifier('tostring'), [
@@ -266,6 +276,7 @@ describe('Program handler', () => {
                 blockStatement([
                   expressionStatement(
                     assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
                       [identifier('c')],
                       [stringLiteral('baz')]
                     )
@@ -328,6 +339,7 @@ describe('Program handler', () => {
                           [
                             expressionStatement(
                               assignmentStatement(
+                                AssignmentStatementOperatorEnum.EQ,
                                 [identifier('b')],
                                 [
                                   callExpression(identifier('tostring'), [

@@ -7,6 +7,7 @@ import {
 } from '@babel/types';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   identifier,
   memberExpression,
   nodeGroup,
@@ -70,6 +71,7 @@ describe('Export Handler', () => {
           []
         ),
         assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
           [memberExpression(identifier('exports'), '.', identifier('foo'))],
           [identifier('foo')]
         ),
@@ -84,6 +86,7 @@ describe('Export Handler', () => {
 
     const expected = withExportExtras(
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('default'))],
         [identifier('foo')]
       )

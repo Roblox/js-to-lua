@@ -1,5 +1,6 @@
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   functionDeclaration,
   functionExpression,
   identifier,
@@ -31,6 +32,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
           [memberExpression(identifier('exports'), '.', identifier('default'))],
           [identifier('foo')]
         ),
@@ -52,6 +54,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
           [memberExpression(identifier('exports'), '.', identifier('default'))],
           [
             tableConstructor([
@@ -77,6 +80,7 @@ describe('Program handler', () => {
         nodeGroup([
           functionDeclaration(identifier('foo'), [], []),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [
               memberExpression(
                 identifier('exports'),
@@ -103,6 +107,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
           [memberExpression(identifier('exports'), '.', identifier('default'))],
           [functionExpression([], [])]
         ),

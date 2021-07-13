@@ -1,5 +1,6 @@
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   functionDeclaration,
   identifier,
   memberExpression,
@@ -35,6 +36,7 @@ describe('Program handler', () => {
         nodeGroup([
           functionDeclaration(identifier('foo'), [], []),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [identifier('foo')]
           ),
@@ -45,11 +47,13 @@ describe('Program handler', () => {
             [variableDeclaratorValue(numericLiteral(10, '10'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar'))],
             [identifier('bar')]
           ),
         ]),
         assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
           [memberExpression(identifier('exports'), '.', identifier('default'))],
           [identifier('foo')]
         ),
@@ -75,6 +79,7 @@ describe('Program handler', () => {
         nodeGroup([
           functionDeclaration(identifier('foo'), [], []),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [identifier('foo')]
           ),
@@ -85,11 +90,13 @@ describe('Program handler', () => {
             [variableDeclaratorValue(numericLiteral(10, '10'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar'))],
             [identifier('bar')]
           ),
         ]),
         assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
           [memberExpression(identifier('exports'), '.', identifier('default'))],
           [
             tableConstructor([
@@ -117,6 +124,7 @@ describe('Program handler', () => {
         nodeGroup([
           functionDeclaration(identifier('foo'), [], []),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
             [identifier('foo')]
           ),
@@ -127,6 +135,7 @@ describe('Program handler', () => {
             [variableDeclaratorValue(numericLiteral(10, '10'))]
           ),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar'))],
             [identifier('bar')]
           ),
@@ -134,6 +143,7 @@ describe('Program handler', () => {
         nodeGroup([
           functionDeclaration(identifier('buzz'), [], []),
           assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
             [
               memberExpression(
                 identifier('exports'),

@@ -9,6 +9,7 @@ import {
 } from '@babel/types';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   functionDeclaration,
   identifier,
   memberExpression,
@@ -59,6 +60,7 @@ describe('Export Default Handler', () => {
     const given = babelExportDefaultDeclaration(babelIdentifier('foo'));
 
     const expected = assignmentStatement(
+      AssignmentStatementOperatorEnum.EQ,
       [memberExpression(identifier('exports'), '.', identifier('default'))],
       [identifier('foo')]
     );
@@ -74,6 +76,7 @@ describe('Export Default Handler', () => {
     );
 
     const expected = assignmentStatement(
+      AssignmentStatementOperatorEnum.EQ,
       [memberExpression(identifier('exports'), '.', identifier('default'))],
       [
         tableConstructor([
@@ -97,6 +100,7 @@ describe('Export Default Handler', () => {
     const expected = nodeGroup([
       functionDeclaration(identifier('foo'), [], []),
       assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('default'))],
         [identifier('foo')]
       ),
