@@ -6,7 +6,6 @@ import {
 import {
   arrayIndexOf,
   binaryExpression,
-  bit32Identifier,
   callExpression,
   identifier,
   isStringInferable,
@@ -14,39 +13,26 @@ import {
   LuaCallExpression,
   LuaExpression,
   LuaStringLiteral,
-  memberExpression,
   numericLiteral,
   objectKeys,
   UnhandledStatement,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
-  BaseNodeHandler,
   createHandler,
   createHandlerFunction,
   HandlerFunction,
 } from '../types';
 import { defaultStatementHandler } from '../utils/default-handlers';
-
-type Bit32Method = 'band' | 'bor' | 'bxor' | 'rshift' | 'arshift' | 'lshift';
-
-const bit32MethodCall = (
-  methodName: Bit32Method,
-  left: LuaExpression,
-  right: LuaExpression
-) =>
-  callExpression(
-    memberExpression(bit32Identifier(), '.', identifier(methodName)),
-    [left, right]
-  );
+import { bit32MethodCall } from '../utils/bit-32-method';
 
 export const createBinaryExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
-): BaseNodeHandler<
-  LuaBinaryExpression | UnhandledStatement,
-  BinaryExpression
-> =>
-  createHandler('BinaryExpression', (source, config, node) => {
+) =>
+  createHandler<
+    LuaBinaryExpression | LuaCallExpression | UnhandledStatement,
+    BinaryExpression
+  >('BinaryExpression', (source, config, node) => {
     const handleOperandAsString: HandlerFunction<
       LuaCallExpression | LuaStringLiteral,
       Expression

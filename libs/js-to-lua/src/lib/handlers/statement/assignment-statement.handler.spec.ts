@@ -49,6 +49,7 @@ const handleAssignmentStatement = createAssignmentStatementHandlerFunction(
     mockNodeWithValueHandler
   ).handler,
   mockNodeWithValueHandler,
+  mockNodeWithValueHandler,
   mockNodeWithValueHandler
 );
 
@@ -556,52 +557,6 @@ describe('Assignment Statement Handler', () => {
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.DIV,
-          [mockNodeWithValue(leftGiven) as LuaIdentifier],
-          [mockNodeWithValue(middleGiven)]
-        ),
-      ]);
-
-      expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
-        expected
-      );
-    });
-  });
-
-  describe('%= operator', () => {
-    it('should handle simple AssignmentStatement', () => {
-      const leftGiven = babelIdentifier('foo');
-      const rightGiven = babelIdentifier('bar');
-      const given = babelAssignmentExpression('%=', leftGiven, rightGiven);
-
-      const expected = assignmentStatement(
-        AssignmentStatementOperatorEnum.REMAINDER,
-        [mockNodeWithValue(leftGiven) as LuaIdentifier],
-        [mockNodeWithValue(rightGiven)]
-      );
-
-      expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
-        expected
-      );
-    });
-
-    it('should handle chained AssignmentStatement', () => {
-      const leftGiven = babelIdentifier('foo');
-      const middleGiven = babelIdentifier('bar');
-      const rightGiven = babelIdentifier('baz');
-      const given = babelAssignmentExpression(
-        '%=',
-        leftGiven,
-        babelAssignmentExpression('%=', middleGiven, rightGiven)
-      );
-
-      const expected = nodeGroup([
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.REMAINDER,
-          [mockNodeWithValue(middleGiven) as LuaIdentifier],
-          [mockNodeWithValue(rightGiven)]
-        ),
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.REMAINDER,
           [mockNodeWithValue(leftGiven) as LuaIdentifier],
           [mockNodeWithValue(middleGiven)]
         ),

@@ -31,6 +31,7 @@ const handleAssignmentStatement = createAssignmentStatementHandlerFunction(
     mockNodeWithValueHandler
   ).handler,
   mockNodeWithValueHandler,
+  mockNodeWithValueHandler,
   mockNodeWithValueHandler
 );
 
@@ -44,6 +45,7 @@ const handleAssignmentExpression = createAssignmentExpressionHandlerFunction(
     ],
     mockNodeWithValueHandler
   ).handler,
+  mockNodeWithValueHandler,
   mockNodeWithValueHandler,
   mockNodeWithValueHandler
 );

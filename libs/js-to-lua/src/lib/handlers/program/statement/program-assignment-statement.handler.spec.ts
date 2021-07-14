@@ -11,9 +11,11 @@ import {
   numericLiteral,
   program,
   stringLiteral,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import { bit32MethodCall } from '../../../utils/bit-32-method';
 
 const source = '';
 describe('Program handler', () => {
@@ -638,6 +640,636 @@ describe('Program handler', () => {
               AssignmentStatementOperatorEnum.REMAINDER,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [identifier('baz')]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+    });
+
+    describe('&= operator', () => {
+      it('should handle simple AssignmentStatement', () => {
+        const given = getProgramNode(`
+          foo &= bar
+        `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall('band', identifier('foo'), identifier('bar')),
+                  'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with member expression on the left', () => {
+        const given = getProgramNode(`
+          foo.bar &= baz
+        `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [memberExpression(identifier('foo'), '.', identifier('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'band',
+                    memberExpression(identifier('foo'), '.', identifier('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with index expression on the left', () => {
+        const given = getProgramNode(`
+          foo[bar] &= baz
+          foo['bar'] &= baz
+        `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                indexExpression(
+                  identifier('foo'),
+                  callExpression(identifier('tostring'), [identifier('bar')])
+                ),
+              ],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'band',
+                    indexExpression(
+                      identifier('foo'),
+                      callExpression(identifier('tostring'), [
+                        identifier('bar'),
+                      ])
+                    ),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [indexExpression(identifier('foo'), stringLiteral('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'band',
+                    indexExpression(identifier('foo'), stringLiteral('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+    });
+
+    describe('|= operator', () => {
+      it('should handle simple AssignmentStatement', () => {
+        const given = getProgramNode(`
+        foo |= bar
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall('bor', identifier('foo'), identifier('bar')),
+                  'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with member expression on the left', () => {
+        const given = getProgramNode(`
+        foo.bar |= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [memberExpression(identifier('foo'), '.', identifier('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'bor',
+                    memberExpression(identifier('foo'), '.', identifier('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with index expression on the left', () => {
+        const given = getProgramNode(`
+        foo[bar] |= baz
+        foo['bar'] |= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                indexExpression(
+                  identifier('foo'),
+                  callExpression(identifier('tostring'), [identifier('bar')])
+                ),
+              ],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'bor',
+                    indexExpression(
+                      identifier('foo'),
+                      callExpression(identifier('tostring'), [
+                        identifier('bar'),
+                      ])
+                    ),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [indexExpression(identifier('foo'), stringLiteral('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'bor',
+                    indexExpression(identifier('foo'), stringLiteral('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+    });
+
+    describe('^= operator', () => {
+      it('should handle simple AssignmentStatement', () => {
+        const given = getProgramNode(`
+        foo ^= bar
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall('bxor', identifier('foo'), identifier('bar')),
+                  'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with member expression on the left', () => {
+        const given = getProgramNode(`
+        foo.bar ^= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [memberExpression(identifier('foo'), '.', identifier('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'bxor',
+                    memberExpression(identifier('foo'), '.', identifier('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with index expression on the left', () => {
+        const given = getProgramNode(`
+        foo[bar] ^= baz
+        foo['bar'] ^= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                indexExpression(
+                  identifier('foo'),
+                  callExpression(identifier('tostring'), [identifier('bar')])
+                ),
+              ],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'bxor',
+                    indexExpression(
+                      identifier('foo'),
+                      callExpression(identifier('tostring'), [
+                        identifier('bar'),
+                      ])
+                    ),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [indexExpression(identifier('foo'), stringLiteral('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'bxor',
+                    indexExpression(identifier('foo'), stringLiteral('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+    });
+
+    describe('>>>= operator', () => {
+      it('should handle simple AssignmentStatement', () => {
+        const given = getProgramNode(`
+        foo >>>= bar
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'rshift',
+                    identifier('foo'),
+                    identifier('bar')
+                  ),
+                  'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with member expression on the left', () => {
+        const given = getProgramNode(`
+        foo.bar >>>= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [memberExpression(identifier('foo'), '.', identifier('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'rshift',
+                    memberExpression(identifier('foo'), '.', identifier('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with index expression on the left', () => {
+        const given = getProgramNode(`
+        foo[bar] >>>= baz
+        foo['bar'] >>>= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                indexExpression(
+                  identifier('foo'),
+                  callExpression(identifier('tostring'), [identifier('bar')])
+                ),
+              ],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'rshift',
+                    indexExpression(
+                      identifier('foo'),
+                      callExpression(identifier('tostring'), [
+                        identifier('bar'),
+                      ])
+                    ),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [indexExpression(identifier('foo'), stringLiteral('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'rshift',
+                    indexExpression(identifier('foo'), stringLiteral('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+    });
+
+    describe('>>= operator', () => {
+      it('should handle simple AssignmentStatement', () => {
+        const given = getProgramNode(`
+        foo >>= bar
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'arshift',
+                    identifier('foo'),
+                    identifier('bar')
+                  ),
+                  'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with member expression on the left', () => {
+        const given = getProgramNode(`
+        foo.bar >>= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [memberExpression(identifier('foo'), '.', identifier('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'arshift',
+                    memberExpression(identifier('foo'), '.', identifier('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with index expression on the left', () => {
+        const given = getProgramNode(`
+        foo[bar] >>= baz
+        foo['bar'] >>= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                indexExpression(
+                  identifier('foo'),
+                  callExpression(identifier('tostring'), [identifier('bar')])
+                ),
+              ],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'arshift',
+                    indexExpression(
+                      identifier('foo'),
+                      callExpression(identifier('tostring'), [
+                        identifier('bar'),
+                      ])
+                    ),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [indexExpression(identifier('foo'), stringLiteral('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'arshift',
+                    indexExpression(identifier('foo'), stringLiteral('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+    });
+
+    describe('<<= operator', () => {
+      it('should handle simple AssignmentStatement', () => {
+        const given = getProgramNode(`
+        foo <<= bar
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'lshift',
+                    identifier('foo'),
+                    identifier('bar')
+                  ),
+                  'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with member expression on the left', () => {
+        const given = getProgramNode(`
+        foo.bar <<= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [memberExpression(identifier('foo'), '.', identifier('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'lshift',
+                    memberExpression(identifier('foo'), '.', identifier('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement with index expression on the left', () => {
+        const given = getProgramNode(`
+        foo[bar] <<= baz
+        foo['bar'] <<= baz
+      `);
+        const expected = program([
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                indexExpression(
+                  identifier('foo'),
+                  callExpression(identifier('tostring'), [identifier('bar')])
+                ),
+              ],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'lshift',
+                    indexExpression(
+                      identifier('foo'),
+                      callExpression(identifier('tostring'), [
+                        identifier('bar'),
+                      ])
+                    ),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
+            ) as unknown) as LuaExpression
+          ),
+          expressionStatement(
+            (assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [indexExpression(identifier('foo'), stringLiteral('bar'))],
+              [
+                withTrailingConversionComment(
+                  bit32MethodCall(
+                    'lshift',
+                    indexExpression(identifier('foo'), stringLiteral('bar')),
+                    identifier('baz')
+                  ),
+                  'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
+                ),
+              ]
             ) as unknown) as LuaExpression
           ),
         ]);

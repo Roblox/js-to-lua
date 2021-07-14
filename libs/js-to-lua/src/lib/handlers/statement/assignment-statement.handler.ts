@@ -10,6 +10,8 @@ import {
   AssignmentStatementOperatorEnum,
   identifier,
   isStringInferable,
+  LuaBinaryExpression,
+  LuaCallExpression,
   LuaExpression,
   LuaLVal,
   LuaNodeGroup,
@@ -26,13 +28,17 @@ import {
 import {
   ArrayPattern,
   AssignmentExpression,
+  binaryExpression as babelBinaryExpression,
+  BinaryExpression,
   Expression,
   isArrayPattern as isBabelArrayPattern,
   isAssignmentExpression as isBabelAssignmentExpression,
+  isAssignmentPattern,
   isIdentifier as isBabelIdentifier,
   isObjectExpression,
   isObjectPattern as isBabelObjectPattern,
   isRestElement as isBabelRestElement,
+  isTSParameterProperty,
   LVal,
   ObjectMethod,
   ObjectPattern,
@@ -52,30 +58,68 @@ export const createAssignmentStatementHandlerFunction = (
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
+  >,
+  handleBinaryExpression: HandlerFunction<
+    LuaBinaryExpression | LuaCallExpression | UnhandledStatement,
+    BinaryExpression
   >
 ) => {
   const getAssignmentStatementOperator = (
     source: string,
     config: EmptyConfig,
     node: AssignmentExpression
-  ) => {
+  ): {
+    operator?: AssignmentStatementOperatorEnum;
+    binary?: BinaryExpression['operator'];
+  } => {
     const rightExpression = handleExpression(source, config, node.right);
     switch (node.operator) {
       case '=':
-        return AssignmentStatementOperatorEnum.EQ;
+        return { operator: AssignmentStatementOperatorEnum.EQ };
       case '+=':
         return isStringInferable(rightExpression)
-          ? AssignmentStatementOperatorEnum.CONCAT
-          : AssignmentStatementOperatorEnum.ADD;
+          ? { operator: AssignmentStatementOperatorEnum.CONCAT }
+          : { operator: AssignmentStatementOperatorEnum.ADD };
       case '-=':
-        return AssignmentStatementOperatorEnum.SUB;
+        return { operator: AssignmentStatementOperatorEnum.SUB };
       case '*=':
-        return AssignmentStatementOperatorEnum.MUL;
+        return { operator: AssignmentStatementOperatorEnum.MUL };
       case '/=':
-        return AssignmentStatementOperatorEnum.DIV;
+        return { operator: AssignmentStatementOperatorEnum.DIV };
       case '%=':
-        return AssignmentStatementOperatorEnum.REMAINDER;
+        return { operator: AssignmentStatementOperatorEnum.REMAINDER };
+      case '&=':
+        return {
+          operator: AssignmentStatementOperatorEnum.EQ,
+          binary: '&',
+        };
+      case '|=':
+        return {
+          operator: AssignmentStatementOperatorEnum.EQ,
+          binary: '|',
+        };
+      case '^=':
+        return {
+          operator: AssignmentStatementOperatorEnum.EQ,
+          binary: '^',
+        };
+      case '>>>=':
+        return {
+          operator: AssignmentStatementOperatorEnum.EQ,
+          binary: '>>>',
+        };
+      case '>>=':
+        return {
+          operator: AssignmentStatementOperatorEnum.EQ,
+          binary: '>>',
+        };
+      case '<<=':
+        return {
+          operator: AssignmentStatementOperatorEnum.EQ,
+          binary: '<<',
+        };
     }
+    return {};
   };
 
   const assignmentStatementHandler: BaseNodeHandler<
@@ -84,7 +128,11 @@ export const createAssignmentStatementHandlerFunction = (
   > = createHandler(
     'AssignmentExpression',
     (source, config: EmptyConfig, node: AssignmentExpression) => {
-      const operator = getAssignmentStatementOperator(source, config, node);
+      const { operator, binary } = getAssignmentStatementOperator(
+        source,
+        config,
+        node
+      );
 
       if (!operator) {
         return defaultExpressionHandler(source, config, node);
@@ -119,8 +167,45 @@ export const createAssignmentStatementHandlerFunction = (
               source.slice(node.start || 0, node.end || 0)
             );
       }
-
       const leftExpression = handleLVal(source, config, node.left);
+
+      if (binary) {
+        if (
+          isAssignmentPattern(node.left) ||
+          isBabelRestElement(node.left) ||
+          isTSParameterProperty(node.left)
+        ) {
+          return withTrailingConversionComment(
+            unhandledStatement(),
+            `ROBLOX TODO: Unhandled array assignment for: "${node.type}" with "${binary}" operator and ${node.left.type} as a left value`,
+            source.slice(node.start || 0, node.end || 0)
+          );
+        }
+
+        const rightBinaryExpression = handleBinaryExpression(
+          source,
+          config,
+          babelBinaryExpression(binary, node.left, node.right)
+        );
+
+        const returnExpressions = getReturnExpressions(rightBinaryExpression);
+
+        return returnExpressions.every((e) => e === rightBinaryExpression)
+          ? assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [leftExpression],
+              returnExpressions
+            )
+          : nodeGroup([
+              rightBinaryExpression,
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [leftExpression],
+                returnExpressions
+              ),
+            ]);
+      }
+
       const rightExpression = [
         AssignmentStatementOperatorEnum.ADD,
         AssignmentStatementOperatorEnum.SUB,

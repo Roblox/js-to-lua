@@ -105,7 +105,10 @@ export const handleExpressionStatement = createHandler(
             forwardHandlerRef(() => handleIdentifier),
             forwardHandlerRef(() => handleExpression)
           ).handler,
-          forwardHandlerRef(() => handleObjectField)
+          forwardHandlerRef(() => handleObjectField),
+          createBinaryExpressionHandler(
+            forwardHandlerRef(() => handleExpression)
+          ).handler
         ),
         handleExpressionAsStatement,
       ]).handler(source, config, statement.expression)
@@ -318,7 +321,9 @@ export const handleExpression: BaseNodeHandler<
   createAssignmentExpressionHandlerFunction(
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleIdentifier),
-    forwardHandlerRef(() => handleObjectField)
+    forwardHandlerRef(() => handleObjectField),
+    createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
+      .handler
   ),
   createConditionalExpressionHandler(forwardHandlerRef(() => handleExpression)),
 ]);
@@ -342,7 +347,9 @@ const handleExpressionAsStatement = combineExpressionsHandlers([
       forwardHandlerRef(() => handleIdentifier),
       forwardHandlerRef(() => handleExpression)
     ).handler,
-    forwardHandlerRef(() => handleObjectField)
+    forwardHandlerRef(() => handleObjectField),
+    createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
+      .handler
   ),
   handleExpression,
 ]);

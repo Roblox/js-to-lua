@@ -14,25 +14,6 @@ export default {
     'conformance-tests/operators/relational/in/string-key_m4.js',
     'conformance-tests/operators/relational/in/string_m4.js',
 
-    'conformance-tests/operators/assignment-bitwise-and/0_m4.js',
-    'conformance-tests/operators/assignment-bitwise-and/1_m4.js',
-
-    'conformance-tests/operators/assignment-bitwise-or/0_m4.js',
-    'conformance-tests/operators/assignment-bitwise-or/1_m4.js',
-
-    'conformance-tests/operators/assignment-bitwise-xor/0_m4.js',
-    'conformance-tests/operators/assignment-bitwise-xor/1_m4.js',
-
-    'conformance-tests/operators/assignment-shift-left/0_m4.js',
-    'conformance-tests/operators/assignment-shift-left/1_m4.js',
-
-    'conformance-tests/operators/assignment-shift-right/0_m4.js',
-    'conformance-tests/operators/assignment-shift-right/1_m4.js',
-
-    'conformance-tests/operators/assignment-shift-right-unsigned/0_m4.js',
-    'conformance-tests/operators/assignment-shift-right-unsigned/1_m4.js',
-    'conformance-tests/operators/assignment-shift-right-unsigned/2_m4.js',
-
     // --- destructuring begin
     'conformance-tests/statements/declarations/destructure-multiple-obj_m4.js',
 

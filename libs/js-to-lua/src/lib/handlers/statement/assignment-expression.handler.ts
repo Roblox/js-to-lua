@@ -2,13 +2,17 @@ import { createHandler, HandlerFunction } from '../../types';
 import {
   callExpression,
   functionExpression,
+  LuaBinaryExpression,
+  LuaCallExpression,
   LuaExpression,
   LuaIdentifier,
   LuaTableKeyField,
   returnStatement,
+  UnhandledStatement,
 } from '@js-to-lua/lua-types';
 import {
   AssignmentExpression,
+  BinaryExpression,
   Expression,
   Identifier,
   ObjectMethod,
@@ -23,6 +27,10 @@ export const createAssignmentExpressionHandlerFunction = (
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
+  >,
+  handleBinaryExpression: HandlerFunction<
+    LuaBinaryExpression | LuaCallExpression | UnhandledStatement,
+    BinaryExpression
   >
 ) =>
   createHandler(
@@ -31,7 +39,8 @@ export const createAssignmentExpressionHandlerFunction = (
       const assignmentStatement = createAssignmentStatementHandlerFunction(
         handleExpression,
         handleIdentifier,
-        handleObjectField
+        handleObjectField,
+        handleBinaryExpression
       ).handler(source, config, node);
       return callExpression(
         functionExpression(
