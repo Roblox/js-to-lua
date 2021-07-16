@@ -17,23 +17,6 @@ export default {
     // --- destructuring begin
     'conformance-tests/statements/declarations/destructure-multiple-obj_m4.js',
 
-    'conformance-tests/structural-types/functions/arrow/with-destructured-arr-param-shorthand_m4.js',
-    'conformance-tests/structural-types/functions/arrow/with-destructured-arr-param_m4.js',
-    'conformance-tests/structural-types/functions/arrow/with-destructured-obj-param-shorthand_m4.js',
-    'conformance-tests/structural-types/functions/arrow/with-destructured-obj-param_m4.js',
-    'conformance-tests/structural-types/functions/arrow/with-multiple-destructured-arr-param_m4.js',
-    'conformance-tests/structural-types/functions/arrow/with-multiple-destructured-obj-param_m4.js',
-
-    'conformance-tests/structural-types/functions/expressions/with-destructured-arr-param_m4.js',
-    'conformance-tests/structural-types/functions/expressions/with-destructured-obj-param_m4.js',
-    'conformance-tests/structural-types/functions/expressions/with-multiple-destructured-arr-param_m4.js',
-    'conformance-tests/structural-types/functions/expressions/with-multiple-destructured-obj-param_m4.js',
-
-    'conformance-tests/structural-types/functions/named/with-destructured-arr-param_m4.js',
-    'conformance-tests/structural-types/functions/named/with-destructured-obj-param_m4.js',
-    'conformance-tests/structural-types/functions/named/with-multiple-destructured-arr-param_m4.js',
-    'conformance-tests/structural-types/functions/named/with-multiple-destructured-obj-param_m4.js',
-
     'conformance-tests/operators/assignment/destructure-multiple-obj_m4.js',
     // --- destructuring end
 

@@ -43,12 +43,19 @@ import {
   ObjectMethod,
   ObjectPattern,
   ObjectProperty,
+  isObjectProperty,
 } from '@babel/types';
 import { defaultExpressionHandler } from '../../utils/default-handlers';
 import { getReturnExpressions } from '../../utils/get-return-expressions';
-import { createObjectPatternDestructuringHandler } from '../object-pattern-destructuring.handler';
+import {
+  createObjectPatternDestructuringHandler,
+  hasUnhandledObjectDestructuringParam,
+} from '../object-pattern-destructuring.handler';
 import { isTruthy } from '@js-to-lua/shared-utils';
-import { handleArrayPatternDestructuring } from '../array-pattern-destructuring.handler';
+import {
+  handleArrayPatternDestructuring,
+  hasUnhandledArrayDestructuringParam,
+} from '../array-pattern-destructuring.handler';
 import { createExpressionAsNumericHandler } from '../expression/handle-expression-as-numeric';
 import { equals } from 'ramda';
 
@@ -266,6 +273,20 @@ export const createAssignmentStatementHandlerFunction = (
       function objectPatternDestructuringAssignmentHandler(
         node: AssignmentExpression & { left: ObjectPattern }
       ) {
+        if (
+          hasUnhandledObjectDestructuringParam(
+            node.left.properties.filter((property) =>
+              isObjectProperty(property)
+            ) as ObjectProperty[]
+          )
+        ) {
+          return withTrailingConversionComment(
+            unhandledStatement(),
+            `ROBLOX TODO: Unhandled AssignmentStatement when one of the object properties is not supported`,
+            source.slice(node.start || 0, node.end || 0)
+          );
+        }
+
         if (isObjectExpression(node.right)) {
           const helperIdentifier = identifier(`ref`);
           const destructured = objectPatternDestructuringHandler(
@@ -314,19 +335,14 @@ export const createAssignmentStatementHandlerFunction = (
         node: AssignmentExpression & { left: ArrayPattern }
       ): (AssignmentStatement | UnhandledStatement)[] {
         if (
-          node.left.elements.some(
-            (el) =>
-              !(
-                isBabelIdentifier(el) ||
-                isBabelRestElement(el) ||
-                isBabelArrayPattern(el)
-              )
+          hasUnhandledArrayDestructuringParam(
+            node.left.elements.filter(isTruthy)
           )
         ) {
           return [
             withTrailingConversionComment(
               unhandledStatement(),
-              `ROBLOX TODO: Unhandled node for type: ArrayPattern variable declaration when one of the elements is not an Identifier or RestElement`,
+              `ROBLOX TODO: Unhandled node for ArrayPattern assignment when one of the elements is not supported`,
               source.slice(node.start || 0, node.end || 0)
             ),
           ];

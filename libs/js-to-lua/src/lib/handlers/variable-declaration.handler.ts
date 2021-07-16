@@ -9,6 +9,7 @@ import {
   isIdentifier,
   isObjectExpression,
   isObjectPattern,
+  isObjectProperty,
   isRestElement,
   LVal,
   ObjectMethod,
@@ -18,9 +19,11 @@ import {
   Statement,
   VariableDeclaration,
   VariableDeclarator,
+  Declaration,
 } from '@babel/types';
 import {
   identifier,
+  LuaDeclaration,
   LuaExpression,
   LuaFunctionDeclaration,
   LuaIdentifier,
@@ -47,10 +50,16 @@ import {
   HandlerFunction,
 } from '../types';
 import { defaultStatementHandler } from '../utils/default-handlers';
-import { handleArrayPatternDestructuring } from './array-pattern-destructuring.handler';
+import {
+  handleArrayPatternDestructuring,
+  hasUnhandledArrayDestructuringParam,
+} from './array-pattern-destructuring.handler';
 import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
 import { createLValHandler } from './l-val.handler';
-import { createObjectPatternDestructuringHandler } from './object-pattern-destructuring.handler';
+import {
+  createObjectPatternDestructuringHandler,
+  hasUnhandledObjectDestructuringParam,
+} from './object-pattern-destructuring.handler';
 
 export const createVariableDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -59,7 +68,8 @@ export const createVariableDeclarationHandler = (
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
-  >
+  >,
+  handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
 ): BaseNodeHandler<
   LuaNodeGroup | LuaVariableDeclaration,
   VariableDeclaration
@@ -90,7 +100,8 @@ export const createVariableDeclarationHandler = (
     const convertToFunctionDeclaration = createConvertToFunctionDeclarationHandler(
       handleStatement,
       handleExpression,
-      handleIdentifier
+      handleIdentifier,
+      handleDeclaration
     );
 
     const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
@@ -176,6 +187,22 @@ export const createVariableDeclarationHandler = (
     ) {
       const idProperties = declaration.id.properties;
 
+      if (
+        hasUnhandledObjectDestructuringParam(
+          idProperties.filter((property) =>
+            isObjectProperty(property)
+          ) as ObjectProperty[]
+        )
+      ) {
+        return [
+          withTrailingConversionComment(
+            unhandledStatement(),
+            `ROBLOX TODO: Unhandled Variable declaration when one of the object properties is not supported`,
+            source.slice(declaration.start || 0, declaration.end || 0)
+          ),
+        ];
+      }
+
       if (declaration.init && isObjectExpression(declaration.init)) {
         const helperIdentifier = identifier(`ref`);
         const destructured = objectPatternDestructuringHandler(
@@ -222,15 +249,11 @@ export const createVariableDeclarationHandler = (
       elements: PatternLike[],
       init: LuaExpression
     ): (LuaVariableDeclaration | UnhandledStatement)[] {
-      if (
-        elements.some(
-          (el) => !(isIdentifier(el) || isRestElement(el) || isArrayPattern(el))
-        )
-      ) {
+      if (hasUnhandledArrayDestructuringParam(elements)) {
         return [
           withTrailingConversionComment(
             unhandledStatement(),
-            `ROBLOX TODO: Unhandled node for type: ArrayPattern variable declaration when one of the elements is not an Identifier or RestElement`,
+            `ROBLOX TODO: Unhandled variable declaration when one of the elements is not supported`,
             source.slice(declaration.start || 0, declaration.end || 0)
           ),
         ];

@@ -9,27 +9,37 @@ import {
   LuaExpression,
   LuaIdentifier,
   nilLiteral,
+  unhandledStatement,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { AssignmentPattern, Expression, Identifier } from '@babel/types';
+import {
+  AssignmentPattern,
+  Expression,
+  Identifier,
+  isIdentifier as isBabelIdentifier,
+} from '@babel/types';
 
 export const createAssignmentPatternHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
 ): HandlerFunction<AssignmentStatement, AssignmentPattern> =>
   createHandlerFunction((source, config, node: AssignmentPattern) => {
-    const leftExpression = handleIdentifier(
-      source,
-      config,
-      node.left as Identifier
-    );
     const rightExpression = handleExpression(source, config, node.right);
-    return ifStatement(
-      ifClause(binaryExpression(leftExpression, '==', nilLiteral()), [
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.EQ,
-          [leftExpression],
-          [rightExpression]
-        ),
-      ])
+    if (isBabelIdentifier(node.left)) {
+      const leftExpression = handleIdentifier(source, config, node.left);
+      return ifStatement(
+        ifClause(binaryExpression(leftExpression, '==', nilLiteral()), [
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [leftExpression],
+            [rightExpression]
+          ),
+        ])
+      );
+    }
+    return withTrailingConversionComment(
+      unhandledStatement(),
+      `ROBLOX TODO: Unhandled assignment pattern handling for type: "${node.left.type}"`,
+      source.slice(node.start || 0, node.end || 0)
     );
   });

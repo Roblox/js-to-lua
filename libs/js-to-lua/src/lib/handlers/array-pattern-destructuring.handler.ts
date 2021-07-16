@@ -5,6 +5,7 @@ import {
   isRestElement,
   LVal,
   PatternLike,
+  ArrayPattern,
 } from '@babel/types';
 import {
   callExpression,
@@ -14,6 +15,7 @@ import {
   numericLiteral,
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
+import { anyPass } from 'ramda';
 
 export function handleArrayPatternDestructuring(
   elements: PatternLike[],
@@ -78,4 +80,21 @@ export function handleArrayPatternDestructuring(
     tempIdentifierNodes = [];
     startIndex = null;
   }
+}
+
+export function hasUnhandledArrayDestructuringParam(
+  elements: PatternLike[]
+): boolean {
+  return (
+    elements.some(
+      (el) =>
+        !anyPass([isIdentifier, isRestElement, isArrayPattern])(el, undefined)
+    ) ||
+    elements
+      .filter((el): el is ArrayPattern => isArrayPattern(el))
+      .map((el) =>
+        hasUnhandledArrayDestructuringParam(el.elements.filter(isTruthy))
+      )
+      .filter(Boolean).length > 0
+  );
 }

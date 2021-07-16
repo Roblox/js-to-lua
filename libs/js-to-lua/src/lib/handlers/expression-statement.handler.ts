@@ -354,6 +354,14 @@ const handleExpressionAsStatement = combineExpressionsHandlers([
   handleExpression,
 ]);
 
+const handleDeclaration = createDeclarationHandler(
+  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleStatement),
+  forwardHandlerRef(() => handleObjectField),
+  handleTsTypes
+);
+
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifier)
@@ -491,13 +499,7 @@ const handleCalleeExpression = combineExpressionsHandlers<
 export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHandlers<LuaStatement>(
   [
     handleExpressionStatement,
-    createDeclarationHandler(
-      forwardHandlerRef(() => handleExpression),
-      forwardHandlerRef(() => handleIdentifier),
-      forwardHandlerRef(() => handleStatement),
-      handleTsTypes,
-      forwardHandlerRef(() => handleObjectField)
-    ),
+    handleDeclaration,
     createBlockStatementHandler(forwardHandlerRef(() => handleStatement)),
     createReturnStatementHandler(
       forwardHandlerRef(() => handleExpression),

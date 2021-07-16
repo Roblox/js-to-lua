@@ -1,9 +1,17 @@
-import { Expression, FunctionDeclaration, LVal, Statement } from '@babel/types';
 import {
+  Expression,
+  FunctionDeclaration,
+  LVal,
+  Statement,
+  Declaration,
+} from '@babel/types';
+import {
+  LuaDeclaration,
   LuaExpression,
   LuaFunctionDeclaration,
   LuaIdentifier,
   LuaLVal,
+  LuaNodeGroup,
   LuaStatement,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
@@ -12,13 +20,15 @@ import { createConvertToFunctionDeclarationHandler } from './declaration.handler
 export const createFunctionDeclarationHandler = (
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
 ): BaseNodeHandler<LuaFunctionDeclaration, FunctionDeclaration> =>
   createHandler('FunctionDeclaration', (source, config, node) => {
     const convertToFunctionDeclaration = createConvertToFunctionDeclarationHandler(
       handleStatement,
       handleExpression,
-      handleIdentifier
+      handleIdentifier,
+      handleDeclaration
     );
     return convertToFunctionDeclaration(
       source,

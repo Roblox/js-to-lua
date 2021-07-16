@@ -7,24 +7,25 @@ import {
   LVal,
   ObjectMethod,
   ObjectProperty,
+  ObjectPattern,
   RestElement,
 } from '@babel/types';
 import {
   callExpression,
   identifier,
-  indexExpression,
   LuaExpression,
   LuaIdentifier,
   LuaIndexExpression,
   LuaLVal,
   LuaMemberExpression,
-  LuaTableKeyField,
   objectAssign,
   objectNone,
   tableConstructor,
+  LuaTableKeyField,
 } from '@js-to-lua/lua-types';
 import { EmptyConfig, HandlerFunction } from '../types';
 import { createPropertyFromBaseHandler } from './expression/property-from-base.handler';
+import { anyPass } from 'ramda';
 
 export const createObjectPatternDestructuringHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -105,3 +106,24 @@ export const createObjectPatternDestructuringHandler = (
     );
   }
 };
+
+export function hasUnhandledObjectDestructuringParam(
+  properties: ObjectProperty[]
+): boolean {
+  return (
+    properties.some(
+      (el) => !anyPass([isIdentifier, isObjectPattern])(el.value, undefined)
+    ) ||
+    properties
+      .map((property) => property.value)
+      .filter((value): value is ObjectPattern => isObjectPattern(value))
+      .map((value) =>
+        hasUnhandledObjectDestructuringParam(
+          value.properties.filter((prop): prop is ObjectProperty =>
+            isObjectProperty(prop)
+          )
+        )
+      )
+      .filter(Boolean).length > 0
+  );
+}

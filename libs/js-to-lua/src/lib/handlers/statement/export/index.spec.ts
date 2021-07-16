@@ -42,8 +42,8 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
-  handleTsTypes,
-  forwardHandlerRef(() => handleObjectField)
+  forwardHandlerRef(() => handleObjectField),
+  handleTsTypes
 );
 
 const { handler } = createExportHandler(

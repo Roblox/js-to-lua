@@ -2,12 +2,14 @@ import { handleProgram } from './program.handler';
 import {
   assignmentStatement,
   binaryExpression,
+  callExpression,
   functionDeclaration,
   functionExpression,
   identifier,
   ifClause,
   ifStatement,
   LuaProgram,
+  memberExpression,
   nilLiteral,
   numericLiteral,
   program,
@@ -47,6 +49,52 @@ describe('Program handler', () => {
           identifier('foo'),
           [identifier('bar'), identifier('baz')],
           []
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, {}, given);
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle function with destructured params', () => {
+      const given = getProgramNode(`
+     const foo = ({bar, baz}, [fizz,fuzz]) =>{}
+    `);
+      const expected: LuaProgram = program([
+        functionDeclaration(
+          identifier('foo'),
+          [identifier('ref'), identifier('ref_')],
+          [
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('bar')),
+                variableDeclaratorIdentifier(identifier('baz')),
+              ],
+              [
+                variableDeclaratorValue(
+                  memberExpression(identifier('ref'), '.', identifier('bar'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(identifier('ref'), '.', identifier('baz'))
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('fizz')),
+                variableDeclaratorIdentifier(identifier('fuzz')),
+              ],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('table.unpack'), [
+                    identifier('ref_'),
+                    numericLiteral(1),
+                    numericLiteral(2),
+                  ])
+                ),
+              ]
+            ),
+          ]
         ),
       ]);
 

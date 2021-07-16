@@ -5,12 +5,17 @@ import {
   Expression,
   FunctionDeclaration,
   FunctionExpression,
+  isArrayPattern,
   isAssignmentPattern,
+  isObjectPattern,
   LVal,
   ObjectMethod,
   ObjectProperty,
   Statement,
   TSType,
+  identifier as babelIdentifier,
+  variableDeclaration as babelVariableDeclaration,
+  variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
 import {
   functionDeclaration,
@@ -24,6 +29,10 @@ import {
   LuaTableKeyField,
   LuaType,
   returnStatement,
+  identifier,
+  nodeGroup,
+  withTrailingConversionComment,
+  unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, EmptyConfig, HandlerFunction } from '../types';
 import { combineStatementHandlers } from '../utils/combine-handlers';
@@ -36,16 +45,18 @@ import { createImportHandler } from './statement/import';
 import { createTypeAliasDeclarationHandler } from './type-alias-declaration.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
+import { anyPass } from 'ramda';
+import { defaultStatementHandler } from '../utils/default-handlers';
 
 export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleTsTypes: BaseNodeHandler<LuaType, TSType>,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
-  >
+  >,
+  handleTsTypes: BaseNodeHandler<LuaType, TSType>
 ): BaseNodeHandler<LuaNodeGroup | LuaDeclaration, Declaration> => {
   const declarationHandler: BaseNodeHandler<
     LuaNodeGroup | LuaDeclaration,
@@ -56,12 +67,14 @@ export const createDeclarationHandler = (
       handleExpression,
       handleIdentifier,
       handleStatement,
-      handleObjectField
+      handleObjectField,
+      forwardHandlerRef(() => declarationHandler)
     ),
     createFunctionDeclarationHandler(
       handleIdentifier,
       handleStatement,
-      handleExpression
+      handleExpression,
+      forwardHandlerRef(() => declarationHandler)
     ),
     createTypeAliasDeclarationHandler(
       handleIdentifier,
@@ -81,7 +94,8 @@ export const createDeclarationHandler = (
 export function createConvertToFunctionDeclarationHandler(
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleIdentifier: HandlerFunction<LuaLVal, LVal>
+  handleIdentifier: HandlerFunction<LuaLVal, LVal>,
+  handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
 ) {
   const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
     handleExpression,
@@ -95,22 +109,96 @@ export function createConvertToFunctionDeclarationHandler(
     source: string,
     config: EmptyConfig,
     node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
-    identifier: LuaIdentifier
+    id: LuaIdentifier
   ): LuaFunctionDeclaration {
     const body: LuaStatement[] =
       node.body.type === 'BlockStatement'
         ? node.body.body.map(handleStatement(source, config))
         : [returnStatement(handleExpression(source, config, node.body))];
 
+    let paramRefIdCount = 0;
+    let destructuringRefIdCount = 0;
     return functionDeclaration(
-      identifier,
-      node.params.map(functionParamsHandler(source, config)),
+      id,
+      node.params.map((param) => {
+        if (
+          isArrayPattern(param) ||
+          isObjectPattern(param) ||
+          (isAssignmentPattern(param) &&
+            (isObjectPattern(param.left) || isArrayPattern(param.left)))
+        ) {
+          return identifier(`ref${'_'.repeat(paramRefIdCount++)}`);
+        }
+        return functionParamsHandler(source, config, param);
+      }),
       [
         ...node.params
-          .filter((param) => isAssignmentPattern(param))
-          .map((param) =>
-            handleAssignmentPattern(source, config, param as AssignmentPattern)
-          ),
+          .filter((param) =>
+            anyPass([isAssignmentPattern, isObjectPattern, isArrayPattern])(
+              param,
+              undefined
+            )
+          )
+          .map((param) => {
+            if (isAssignmentPattern(param)) {
+              if (isArrayPattern(param.left) || isObjectPattern(param.left)) {
+                return nodeGroup([
+                  handleAssignmentPattern(source, config, {
+                    ...param,
+                    left: babelIdentifier(
+                      `ref${'_'.repeat(destructuringRefIdCount)}`
+                    ),
+                    right: { ...param.right },
+                  } as AssignmentPattern),
+                  handleDeclaration(
+                    source,
+                    node,
+                    babelVariableDeclaration('let', [
+                      babelVariableDeclarator(
+                        param.left,
+                        babelIdentifier(
+                          `ref${'_'.repeat(destructuringRefIdCount++)}`
+                        )
+                      ),
+                    ])
+                  ),
+                ]);
+              }
+              return handleAssignmentPattern(
+                source,
+                config,
+                param as AssignmentPattern
+              );
+            } else if (isArrayPattern(param)) {
+              return handleDeclaration(
+                source,
+                node,
+                babelVariableDeclaration('let', [
+                  babelVariableDeclarator(
+                    param,
+                    babelIdentifier(
+                      `ref${'_'.repeat(destructuringRefIdCount++)}`
+                    )
+                  ),
+                ])
+              );
+            } else if (isObjectPattern(param)) {
+              return handleDeclaration(
+                source,
+                node,
+                babelVariableDeclaration('let', [
+                  babelVariableDeclarator(
+                    param,
+                    babelIdentifier(
+                      `ref${'_'.repeat(destructuringRefIdCount++)}`
+                    )
+                  ),
+                ])
+              );
+            } else {
+              return defaultStatementHandler(source, config, param);
+            }
+          }),
         ...body,
       ],
       node.returnType

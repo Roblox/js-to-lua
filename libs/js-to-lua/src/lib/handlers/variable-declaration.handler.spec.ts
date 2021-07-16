@@ -27,6 +27,7 @@ import {
   objectNone,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
+import { createDeclarationHandler } from './declaration.handler';
 import {
   handleExpression,
   handleObjectField,
@@ -38,17 +39,25 @@ import { createVariableDeclarationHandler } from './variable-declaration.handler
 
 const source = '';
 
-const { typesHandler } = createTypeAnnotationHandler(
+const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression)
 );
 
 const handleIdentifier = createIdentifierHandler(typesHandler);
+const handleDeclaration = createDeclarationHandler(
+  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleStatement),
+  forwardHandlerRef(() => handleObjectField),
+  handleTsTypes
+);
 
 const handleVariableDeclaration = createVariableDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
-  forwardHandlerRef(() => handleObjectField)
+  forwardHandlerRef(() => handleObjectField),
+  forwardHandlerRef(() => handleDeclaration)
 );
 
 describe('Variable Declaration', () => {
