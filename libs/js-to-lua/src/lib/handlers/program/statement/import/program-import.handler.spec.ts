@@ -49,8 +49,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative default identifier - parent directory`, () => {
@@ -90,8 +89,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should import global default identifier`, () => {
@@ -126,8 +124,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -165,8 +162,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative named identifier - parent directory`, () => {
@@ -206,8 +202,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative multiple named identifiers`, () => {
@@ -269,8 +264,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should import global named identifier`, () => {
@@ -305,8 +299,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should import global multiple named identifiers`, () => {
@@ -363,8 +356,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -394,8 +386,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative default identifier - parent directory`, () => {
@@ -431,8 +422,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it(`should import global default identifier`, () => {
@@ -463,8 +453,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

@@ -1,5 +1,5 @@
 local a, b, c, d
-do --[[ ROBLOX comment: switch statement conversion ]]
+repeat --[[ ROBLOX comment: switch statement conversion ]]
 	local entered_, break_ = false, false
 	local condition_ = a
 	for _, v in ipairs({ 0, 1 }) do
@@ -17,4 +17,4 @@ do --[[ ROBLOX comment: switch statement conversion ]]
 	if not break_ then
 		d = 3
 	end
-end
+until true

@@ -25,13 +25,5 @@ export default {
     'conformance-tests/expressions/sequence/2_m4.js',
     'conformance-tests/expressions/sequence/3_m4.js',
     'conformance-tests/expressions/sequence/4_m4.js',
-
-    'conformance-tests/statements/conditional/switch/0_m4.js',
-    'conformance-tests/statements/conditional/switch/1_m4.js',
-    'conformance-tests/statements/conditional/switch/2_m4.js',
-    'conformance-tests/statements/conditional/switch/3_m4.js',
-    'conformance-tests/statements/conditional/switch/4_m4.js',
-    'conformance-tests/statements/conditional/switch/5_m4.js',
-    'conformance-tests/statements/conditional/switch/6_m4.js',
   ],
 };

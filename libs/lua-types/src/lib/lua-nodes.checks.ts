@@ -11,6 +11,7 @@ import {
   LuaIndexExpression,
   LuaLogicalExpression,
   LuaMemberExpression,
+  LuaProgram,
   LuaReturnStatement,
   LuaTableConstructor,
   LuaUnaryDeleteExpression,
@@ -22,6 +23,8 @@ import {
 } from './lua-nodes.types';
 import { isAnyNodeType, isNodeType } from './node.types';
 import { isLiteral } from './literals';
+
+export const isProgram = isNodeType<LuaProgram>('Program');
 
 export const isTableConstructor = isNodeType<LuaTableConstructor>(
   'TableConstructor'

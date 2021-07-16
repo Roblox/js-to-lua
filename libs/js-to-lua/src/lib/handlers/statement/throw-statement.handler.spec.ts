@@ -28,7 +28,6 @@ describe('Throw Statement Handler', () => {
       ])
     );
 
-    const actual = handleThrowStatement(source, {}, given);
-    expect(actual).toEqual(expected);
+    expect(handleThrowStatement(source, {}, given)).toEqual(expected);
   });
 });

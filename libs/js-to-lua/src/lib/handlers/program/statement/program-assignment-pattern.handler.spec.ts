@@ -41,8 +41,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
-      expect(actual).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

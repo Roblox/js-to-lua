@@ -34,6 +34,8 @@ import { printIndexExpression } from './print-index-expression';
 import { calculateEqualsForDelimiter } from './utils';
 import { createPrintAssignmentStatement } from './statements/print-assignment-statement';
 import { createPrintExportTypeStatement } from './statements/print-export-type-statement';
+import { createPrintForGenericStatement } from './statements/print-for-generic-statement';
+import { createPrintRepeatStatement } from './statements/print-repeat-statement';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -131,6 +133,12 @@ const _printNode = (node: LuaNode): string => {
       return createPrintAssignmentStatement(printNode)(node);
     case 'ExportTypeStatement':
       return createPrintExportTypeStatement(printNode)(node);
+    case 'ForGenericStatement':
+      return createPrintForGenericStatement(printNode, _printComments)(node);
+    case 'RepeatStatement':
+      return createPrintRepeatStatement(printNode, _printComments)(node);
+    case 'BreakStatement':
+      return 'break';
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':

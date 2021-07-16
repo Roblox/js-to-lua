@@ -83,6 +83,8 @@ import { createLValHandler } from './l-val.handler';
 import { createThrowStatementHandler } from './statement/throw-statement.handler';
 import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
 import { createTryStatementHandler } from './statement/try-statement.handler';
+import { createSwitchStatementHandler } from './statement/switch-statement.handler';
+import { createBreakStatementHandler } from './statement/break-statement.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -514,6 +516,11 @@ export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHa
       forwardHandlerRef(() => handleStatement),
       functionParamsHandler
     ),
+    createSwitchStatementHandler(
+      forwardHandlerRef(() => handleStatement),
+      forwardHandlerRef(() => handleExpression)
+    ),
+    createBreakStatementHandler(),
   ]
 );
 

@@ -110,7 +110,8 @@ describe('Assignment Expression Handler', () => {
       []
     );
 
-    const actual = handleAssignmentExpression.handler(source, {}, given);
-    expect(actual).toEqual(expected);
+    expect(handleAssignmentExpression.handler(source, {}, given)).toEqual(
+      expected
+    );
   });
 });

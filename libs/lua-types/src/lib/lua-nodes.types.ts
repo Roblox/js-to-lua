@@ -1,9 +1,12 @@
 import { BaseLuaNode } from './node.types';
 import {
   AssignmentStatement,
+  BreakStatement,
   ExportTypeStatement,
+  ForGenericStatement,
   LuaBlockStatement,
   LuaNodeGroup,
+  RepeatStatement,
 } from './statement';
 import { LuaLiteral } from './literals';
 
@@ -31,6 +34,9 @@ export type LuaStatement =
   | LuaDeclaration
   | AssignmentStatement
   | ExportTypeStatement
+  | ForGenericStatement
+  | BreakStatement
+  | RepeatStatement
   | UnhandledStatement;
 
 export type LuaExpression =

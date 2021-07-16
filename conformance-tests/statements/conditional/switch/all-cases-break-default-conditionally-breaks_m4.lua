@@ -1,7 +1,11 @@
-local a, b
-do --[[ ROBLOX comment: switch statement conversion ]]
+local a, b, breakFast = 0
+repeat --[[ ROBLOX comment: switch statement conversion ]]
 	local entered_, break_ = false, false
-	local condition_ = a
+	local condition_ = (function()
+		local result = a
+		a += 1
+		return result
+	end)()
 	for _, v in ipairs({ 0, 1 }) do
 		if condition_ == v then
 			if v == 0 then
@@ -18,4 +22,10 @@ do --[[ ROBLOX comment: switch statement conversion ]]
 			end
 		end
 	end
-end
+	if not break_ then
+		if Boolean.toJSBoolean(breakFast) then
+			break
+		end
+		b = 3
+	end
+until true

@@ -1,5 +1,5 @@
-local a, b
-do --[[ ROBLOX comment: switch statement conversion ]]
+local a, b = 0
+repeat --[[ ROBLOX comment: switch statement conversion ]]
 	local entered_, break_ = false, false
 	local condition_ = (function()
 		local result = a
@@ -24,5 +24,6 @@ do --[[ ROBLOX comment: switch statement conversion ]]
 	end
 	if not break_ then
 		b = 3
+		break
 	end
-end
+until true

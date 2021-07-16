@@ -145,8 +145,9 @@ describe('Conditional Expression Handler', () => {
           []
         );
 
-        const actual = handleConditionalExpression(source, {}, given);
-        expect(actual).toEqual(expected);
+        expect(handleConditionalExpression(source, {}, given)).toEqual(
+          expected
+        );
       });
     });
   });

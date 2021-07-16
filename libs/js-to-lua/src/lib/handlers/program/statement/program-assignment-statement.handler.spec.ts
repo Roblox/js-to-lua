@@ -1302,8 +1302,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    const actual = handleProgram.handler(source, {}, given);
-    expect(actual).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle array destructuring with nested arrays`, () => {
@@ -1344,8 +1343,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    const actual = handleProgram.handler(source, {}, given);
-    expect(actual).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle array destructuring with rest element`, () => {
@@ -1383,8 +1381,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    const actual = handleProgram.handler(source, {}, given);
-    expect(actual).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle object destructuring`, () => {
@@ -1405,8 +1402,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    const actual = handleProgram.handler(source, {}, given);
-    expect(actual).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle object destructuring with aliases`, () => {
@@ -1427,8 +1423,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    const actual = handleProgram.handler(source, {}, given);
-    expect(actual).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle object destructuring with nested object pattern`, () => {
@@ -1457,7 +1452,6 @@ describe('Program handler', () => {
       ),
     ]);
 
-    const actual = handleProgram.handler(source, {}, given);
-    expect(actual).toEqual(expected);
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 });
