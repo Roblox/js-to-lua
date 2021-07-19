@@ -21,12 +21,17 @@ export const createFunctionDeclarationHandler = (
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleExpressionAsStatement: HandlerFunction<
+    LuaExpression | LuaStatement,
+    Expression
+  >,
   handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
 ): BaseNodeHandler<LuaFunctionDeclaration, FunctionDeclaration> =>
   createHandler('FunctionDeclaration', (source, config, node) => {
     const convertToFunctionDeclaration = createConvertToFunctionDeclarationHandler(
       handleStatement,
       handleExpression,
+      handleExpressionAsStatement,
       handleIdentifier,
       handleDeclaration
     );

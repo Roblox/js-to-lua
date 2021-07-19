@@ -1,9 +1,9 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaNode } from '../lua-nodes.types';
+import { LuaExpression, LuaStatement } from '../lua-nodes.types';
 
 export interface LuaNodeGroup extends BaseLuaNode {
   type: 'NodeGroup';
-  body: LuaNode[];
+  body: Array<LuaExpression | LuaStatement>;
 }
 
 export const nodeGroup = (body: LuaNodeGroup['body']): LuaNodeGroup => ({

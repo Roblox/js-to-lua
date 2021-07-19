@@ -19,11 +19,5 @@ export default {
 
     'conformance-tests/operators/assignment/destructure-multiple-obj_m4.js',
     // --- destructuring end
-
-    'conformance-tests/expressions/sequence/0_m4.js',
-    'conformance-tests/expressions/sequence/1_m4.js',
-    'conformance-tests/expressions/sequence/2_m4.js',
-    'conformance-tests/expressions/sequence/3_m4.js',
-    'conformance-tests/expressions/sequence/4_m4.js',
   ],
 };

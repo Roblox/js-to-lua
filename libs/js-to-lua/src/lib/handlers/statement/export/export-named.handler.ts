@@ -17,7 +17,7 @@ import {
   LuaExpression,
   LuaIdentifier,
   LuaLVal,
-  LuaNode,
+  LuaStatement,
   LuaTypeAliasDeclaration,
   memberExpression,
   nodeGroup,
@@ -59,7 +59,7 @@ export const createExportNamedHandler = (
       }
 
       if (node.specifiers) {
-        let sourceDeclarations: LuaNode[] = [];
+        let sourceDeclarations: LuaStatement[] = [];
         let moduleExpression: LuaExpression | null = null;
         if (node.source) {
           const importExpressionHandler = createImportExpressionHandler();

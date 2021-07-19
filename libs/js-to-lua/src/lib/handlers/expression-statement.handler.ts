@@ -33,6 +33,8 @@ import { handleStringLiteral } from './primitives/string.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
 import { handleNullLiteral } from './primitives/null.handler';
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   callExpression,
   expressionStatement,
   functionExpression,
@@ -46,6 +48,7 @@ import {
   LuaTableConstructor,
   LuaTableKeyField,
   memberExpression,
+  numericLiteral,
   objectAssign,
   returnStatement,
   tableConstructor,
@@ -85,6 +88,11 @@ import { createConditionalExpressionHandler } from './expression/conditional-exp
 import { createTryStatementHandler } from './statement/try-statement.handler';
 import { createSwitchStatementHandler } from './statement/switch-statement.handler';
 import { createBreakStatementHandler } from './statement/break-statement.handler';
+import {
+  createSequenceExpressionAsStatementHandler,
+  createSequenceExpressionHandler,
+} from './expression/sequence-expression.handler';
+import { createFunctionBodyHandler } from './expression/function-body.handler';
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
 
@@ -237,10 +245,10 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
   LuaFunctionExpression,
   ArrowFunctionExpression
 > = createHandler('ArrowFunctionExpression', (source, config, node) => {
-  const body: LuaStatement[] =
-    node.body.type === 'BlockStatement'
-      ? node.body.body.map(handleStatement.handler(source, config))
-      : [returnStatement(handleExpression.handler(source, config, node.body))];
+  const handleFunctionBody = createFunctionBodyHandler(
+    handleStatement.handler,
+    handleExpressionAsStatement.handler
+  )(source, config);
 
   return functionExpression(
     node.params.map(functionParamsHandler(source, config)),
@@ -248,7 +256,7 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
       ...node.params
         .filter(isBabelAssignmentPattern)
         .map((param) => handleAssignmentPattern(source, config, param)),
-      ...body,
+      ...handleFunctionBody(node),
     ],
     node.returnType ? typesHandler(source, config, node.returnType) : undefined
   );
@@ -264,11 +272,12 @@ export const handleUpdateExpression: BaseNodeHandler<
       ? functionExpression(
           [],
           [
-            // TODO: must ve replaced by assignementstatement or similar when available
-            handleExpression.handler(
-              source,
-              config,
-              handlePrefixOperator(node)
+            assignmentStatement(
+              node.operator === '++'
+                ? AssignmentStatementOperatorEnum.ADD
+                : AssignmentStatementOperatorEnum.SUB,
+              [handleExpression.handler(source, config, node.argument)],
+              [numericLiteral(1)]
             ),
             returnStatement(
               handleExpression.handler(source, config, node.argument)
@@ -286,11 +295,12 @@ export const handleUpdateExpression: BaseNodeHandler<
                 ),
               ]
             ),
-            // TODO: must ve replaced by assignementstatement or similar when available
-            handleExpression.handler(
-              source,
-              config,
-              handleSuffixOperator(node)
+            assignmentStatement(
+              node.operator === '++'
+                ? AssignmentStatementOperatorEnum.ADD
+                : AssignmentStatementOperatorEnum.SUB,
+              [handleExpression.handler(source, config, node.argument)],
+              [numericLiteral(1)]
             ),
             returnStatement(identifier(resultName)),
           ]
@@ -328,6 +338,9 @@ export const handleExpression: BaseNodeHandler<
       .handler
   ),
   createConditionalExpressionHandler(forwardHandlerRef(() => handleExpression)),
+  createSequenceExpressionHandler(
+    forwardHandlerRef(() => handleExpressionAsStatement)
+  ),
 ]);
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
@@ -342,7 +355,10 @@ const functionParamsHandler = createFunctionParamsHandler(
   forwardHandlerRef(() => handleIdentifier)
 ).handler;
 
-const handleExpressionAsStatement = combineExpressionsHandlers([
+export const handleExpressionAsStatement: BaseNodeHandler<
+  LuaExpression | LuaStatement,
+  Expression
+> = combineExpressionsHandlers([
   createAssignmentStatementHandlerFunction(
     forwardHandlerRef(() => handleExpression),
     createLValHandler(
@@ -353,11 +369,15 @@ const handleExpressionAsStatement = combineExpressionsHandlers([
     createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
       .handler
   ),
+  createSequenceExpressionAsStatementHandler(
+    forwardHandlerRef(() => handleExpressionAsStatement)
+  ),
   handleExpression,
 ]);
 
 const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleExpressionAsStatement),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
@@ -523,21 +543,6 @@ export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHa
     createBreakStatementHandler(),
   ]
 );
-
-// TODO: temporary method, remove later
-function handlePrefixOperator(node: UpdateExpression): Expression {
-  const temp = { ...node.argument };
-  ((temp as unknown) as LuaIdentifier).name +=
-    node.operator === '++' ? ' += 1' : ' -= 1';
-  return temp;
-}
-
-// TODO: temporary method, remove later
-function handleSuffixOperator(node: UpdateExpression): Expression {
-  ((node.argument as unknown) as LuaIdentifier).name +=
-    node.operator === '++' ? ' += 1' : ' -= 1';
-  return node.argument;
-}
 
 function generateUniqueIdentifier(
   nodes: Expression[],

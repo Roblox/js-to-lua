@@ -30,6 +30,7 @@ import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { createDeclarationHandler } from './declaration.handler';
 import {
   handleExpression,
+  handleExpressionAsStatement,
   handleObjectField,
   handleStatement,
 } from './expression-statement.handler';
@@ -46,6 +47,7 @@ const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
 const handleIdentifier = createIdentifierHandler(typesHandler);
 const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleExpressionAsStatement),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
@@ -54,6 +56,7 @@ const handleDeclaration = createDeclarationHandler(
 
 const handleVariableDeclaration = createVariableDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleExpressionAsStatement),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),

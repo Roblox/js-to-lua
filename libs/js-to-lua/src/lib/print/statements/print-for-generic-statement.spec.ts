@@ -34,7 +34,7 @@ describe('Print for generic statement', () => {
     );
     const expected = dedent`
     for foo in iter do
-    \tprint("foo")
+    \tprint("foo");
     end`;
 
     expect(printNode(given)).toEqual(expected);
@@ -67,7 +67,7 @@ describe('Print for generic statement', () => {
     );
     const expected = dedent`
     for foo in iter do --[[ conversion comment ]]
-    \tprint("foo")
+    \tprint("foo");
     end`;
 
     expect(printNode(given)).toEqual(expected);

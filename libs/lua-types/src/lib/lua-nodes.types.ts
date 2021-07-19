@@ -232,7 +232,6 @@ export interface LuaPropertySignature extends BaseLuaNode {
 
 type LuaTypeElement = LuaPropertySignature; /*| TSCallSignatureDeclaration | TSConstructSignatureDeclaration |  TSMethodSignature | TSIndexSignature*/
 
-// TODO: may have to add later any of these'&' | '|' | '>>' | '>>>' | '<<' | '^' | '==' | '===' | '!=' | '!==' | 'in' | 'instanceof' | '>' | '<' | '>=' | '<=';
 export type LuaBinaryExpressionOperator =
   | '+'
   | '-'

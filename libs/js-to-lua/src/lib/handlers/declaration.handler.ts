@@ -5,6 +5,7 @@ import {
   Expression,
   FunctionDeclaration,
   FunctionExpression,
+  identifier as babelIdentifier,
   isArrayPattern,
   isAssignmentPattern,
   isObjectPattern,
@@ -13,12 +14,12 @@ import {
   ObjectProperty,
   Statement,
   TSType,
-  identifier as babelIdentifier,
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
 import {
   functionDeclaration,
+  identifier,
   LuaDeclaration,
   LuaExpression,
   LuaFunctionDeclaration,
@@ -28,11 +29,7 @@ import {
   LuaStatement,
   LuaTableKeyField,
   LuaType,
-  returnStatement,
-  identifier,
   nodeGroup,
-  withTrailingConversionComment,
-  unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, EmptyConfig, HandlerFunction } from '../types';
 import { combineStatementHandlers } from '../utils/combine-handlers';
@@ -47,9 +44,14 @@ import { createTypeAnnotationHandler } from './type-annotation.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
 import { anyPass } from 'ramda';
 import { defaultStatementHandler } from '../utils/default-handlers';
+import { createFunctionBodyHandler } from './expression/function-body.handler';
 
 export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleExpressionAsStatement: HandlerFunction<
+    LuaExpression | LuaStatement,
+    Expression
+  >,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleObjectField: HandlerFunction<
@@ -65,6 +67,7 @@ export const createDeclarationHandler = (
   > = combineStatementHandlers<LuaDeclaration | LuaNodeGroup, Declaration>([
     createVariableDeclarationHandler(
       handleExpression,
+      handleExpressionAsStatement,
       handleIdentifier,
       handleStatement,
       handleObjectField,
@@ -74,6 +77,7 @@ export const createDeclarationHandler = (
       handleIdentifier,
       handleStatement,
       handleExpression,
+      handleExpressionAsStatement,
       forwardHandlerRef(() => declarationHandler)
     ),
     createTypeAliasDeclarationHandler(
@@ -94,6 +98,10 @@ export const createDeclarationHandler = (
 export function createConvertToFunctionDeclarationHandler(
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleExpressionAsStatement: HandlerFunction<
+    LuaExpression | LuaStatement,
+    Expression
+  >,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
   handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
 ) {
@@ -111,10 +119,10 @@ export function createConvertToFunctionDeclarationHandler(
     node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
     id: LuaIdentifier
   ): LuaFunctionDeclaration {
-    const body: LuaStatement[] =
-      node.body.type === 'BlockStatement'
-        ? node.body.body.map(handleStatement(source, config))
-        : [returnStatement(handleExpression(source, config, node.body))];
+    const handleFunctionBody = createFunctionBodyHandler(
+      handleStatement,
+      handleExpressionAsStatement
+    )(source, config);
 
     let paramRefIdCount = 0;
     let destructuringRefIdCount = 0;
@@ -199,7 +207,7 @@ export function createConvertToFunctionDeclarationHandler(
               return defaultStatementHandler(source, config, param);
             }
           }),
-        ...body,
+        ...handleFunctionBody(node),
       ],
       node.returnType
         ? typesHandler(source, config, node.returnType)

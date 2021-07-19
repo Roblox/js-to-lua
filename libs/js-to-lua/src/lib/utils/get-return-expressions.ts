@@ -4,6 +4,7 @@ import {
   LuaNode,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
+import { last } from 'ramda';
 
 export const getReturnExpressions = (node: LuaNode): LuaExpression[] => {
   if (isExpression(node)) {
@@ -12,7 +13,7 @@ export const getReturnExpressions = (node: LuaNode): LuaExpression[] => {
 
   switch (node.type) {
     case 'NodeGroup': {
-      const lastItem_ = lastItem(node.body);
+      const lastItem_ = last(node.body);
       if (lastItem_) {
         return getReturnExpressions(lastItem_);
       }
@@ -23,6 +24,3 @@ export const getReturnExpressions = (node: LuaNode): LuaExpression[] => {
   }
   return [unhandledExpression()];
 };
-
-const lastItem = <T>(arr: T[]): T | undefined =>
-  arr.length ? arr[arr.length - 1] : undefined;

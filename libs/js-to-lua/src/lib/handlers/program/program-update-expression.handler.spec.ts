@@ -1,11 +1,13 @@
 import { handleProgram } from './program.handler';
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   callExpression,
   expressionStatement,
   functionExpression,
   identifier,
   LuaProgram,
-  LuaStatement,
+  numericLiteral,
   program,
   returnStatement,
   variableDeclaration,
@@ -28,8 +30,11 @@ describe('Program handler', () => {
             functionExpression(
               [],
               [
-                //TODO: must be updated when handled properly
-                (identifier('foo += 1') as unknown) as LuaStatement,
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.ADD,
+                  [identifier('foo')],
+                  [numericLiteral(1)]
+                ),
                 returnStatement(identifier('foo')),
               ]
             ),
@@ -57,8 +62,11 @@ describe('Program handler', () => {
                   [variableDeclaratorIdentifier(identifier('result'))],
                   [variableDeclaratorValue(identifier('foo'))]
                 ),
-                //TODO: must be updated when handled properly
-                (identifier('foo += 1') as unknown) as LuaStatement,
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.ADD,
+                  [identifier('foo')],
+                  [numericLiteral(1)]
+                ),
                 returnStatement(identifier('result')),
               ]
             ),
@@ -82,8 +90,11 @@ describe('Program handler', () => {
             functionExpression(
               [],
               [
-                //TODO: must be updated when handled properly
-                (identifier('foo -= 1') as unknown) as LuaStatement,
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.SUB,
+                  [identifier('foo')],
+                  [numericLiteral(1)]
+                ),
                 returnStatement(identifier('foo')),
               ]
             ),
@@ -111,8 +122,11 @@ describe('Program handler', () => {
                   [variableDeclaratorIdentifier(identifier('result'))],
                   [variableDeclaratorValue(identifier('foo'))]
                 ),
-                //TODO: must be updated when handled properly
-                (identifier('foo -= 1') as unknown) as LuaStatement,
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.SUB,
+                  [identifier('foo')],
+                  [numericLiteral(1)]
+                ),
                 returnStatement(identifier('result')),
               ]
             ),

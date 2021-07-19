@@ -1,6 +1,7 @@
 import {
   ArrayPattern,
   ArrowFunctionExpression,
+  Declaration,
   Expression,
   FunctionExpression,
   isArrayPattern,
@@ -10,7 +11,6 @@ import {
   isObjectExpression,
   isObjectPattern,
   isObjectProperty,
-  isRestElement,
   LVal,
   ObjectMethod,
   ObjectPattern,
@@ -19,7 +19,6 @@ import {
   Statement,
   VariableDeclaration,
   VariableDeclarator,
-  Declaration,
 } from '@babel/types';
 import {
   identifier,
@@ -63,6 +62,10 @@ import {
 
 export const createVariableDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleExpressionAsStatement: HandlerFunction<
+    LuaExpression | LuaStatement,
+    Expression
+  >,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleObjectField: HandlerFunction<
@@ -100,6 +103,7 @@ export const createVariableDeclarationHandler = (
     const convertToFunctionDeclaration = createConvertToFunctionDeclarationHandler(
       handleStatement,
       handleExpression,
+      handleExpressionAsStatement,
       handleIdentifier,
       handleDeclaration
     );

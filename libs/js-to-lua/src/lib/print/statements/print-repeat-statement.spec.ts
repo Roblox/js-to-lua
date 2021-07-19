@@ -27,7 +27,7 @@ describe('Print repeat statement', () => {
     ]);
     const expected = dedent`
     repeat
-    \tprint("foo")
+    \tprint("foo");
     until cond`;
 
     expect(printNode(given)).toEqual(expected);
@@ -56,7 +56,7 @@ describe('Print repeat statement', () => {
     );
     const expected = dedent`
     repeat --[[ conversion comment ]]
-    \tprint("foo")
+    \tprint("foo");
     until cond`;
 
     expect(printNode(given)).toEqual(expected);

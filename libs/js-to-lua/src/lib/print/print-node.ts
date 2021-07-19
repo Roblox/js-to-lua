@@ -54,7 +54,7 @@ const _printNode = (node: LuaNode): string => {
     case 'Program':
       return printProgram(node);
     case 'ExpressionStatement':
-      return printNode(node.expression);
+      return `${printNode(node.expression)};`;
     case 'BlockStatement':
       return printBlockStatement(node);
     case 'ReturnStatement':
