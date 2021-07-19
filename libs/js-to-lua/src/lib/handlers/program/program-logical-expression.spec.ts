@@ -32,13 +32,13 @@ describe('Program handler', () => {
       const expected: LuaProgram = program([
         expressionStatement(
           logicalExpression(
-            LuaLogicalExpressionOperatorEnum.AND,
-            callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
+            LuaLogicalExpressionOperatorEnum.OR,
             logicalExpression(
-              LuaLogicalExpressionOperatorEnum.OR,
-              identifier('foo'),
-              identifier('bar')
-            )
+              LuaLogicalExpressionOperatorEnum.AND,
+              callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
+              identifier('foo')
+            ),
+            identifier('bar')
           )
         ),
       ]);
@@ -185,13 +185,13 @@ describe('Program handler', () => {
           const expected: LuaProgram = program([
             expressionStatement(
               logicalExpression(
-                LuaLogicalExpressionOperatorEnum.AND,
-                callExpression(booleanMethod('toJSBoolean'), [leftExpected]),
+                LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.OR,
-                  rightExpected,
-                  leftExpected
-                )
+                  LuaLogicalExpressionOperatorEnum.AND,
+                  callExpression(booleanMethod('toJSBoolean'), [leftExpected]),
+                  rightExpected
+                ),
+                leftExpected
               )
             ),
           ]);

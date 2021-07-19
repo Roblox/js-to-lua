@@ -1,8 +1,11 @@
 import {
+  isBinaryExpression,
   isCommentBlock,
   isElseifClause,
   isFunctionDeclaration,
   isIfClause,
+  isLogicalExpression,
+  isUnaryNegation,
   LuaBlockStatement,
   LuaCallExpression,
   LuaClause,
@@ -26,6 +29,7 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
+  isUnaryExpression,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -36,6 +40,7 @@ import { createPrintAssignmentStatement } from './statements/print-assignment-st
 import { createPrintExportTypeStatement } from './statements/print-export-type-statement';
 import { createPrintForGenericStatement } from './statements/print-for-generic-statement';
 import { createPrintRepeatStatement } from './statements/print-repeat-statement';
+import { anyPass } from 'ramda';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -112,15 +117,19 @@ const _printNode = (node: LuaNode): string => {
       return printPropertySignature(node);
     case 'LuaBinaryExpression':
     case 'LogicalExpression':
-      return `${printNode(node.left)} ${node.operator} ${printNode(
-        node.right
-      )}`;
+      return `${useParenthesis(node.left, checkPrecedence(node))} ${
+        node.operator
+      } ${useParenthesis(node.right, checkPrecedence(node))}`;
     case 'LuaUnaryExpression':
-      return `${node.operator}${printUnaryOperatorArgument(node.argument)}`;
+      return `${node.operator}${useParenthesis(
+        node.argument,
+        (childNode: LuaNode) =>
+          anyPass([checkPrecedence(node), isUnaryExpression])(childNode)
+      )}`;
     case 'LuaUnaryVoidExpression':
       return `${printNode(node.argument)} and nil or nil`;
     case 'LuaUnaryNegationExpression':
-      return `not ${printNode(node.argument)}`;
+      return `not ${useParenthesis(node.argument, checkPrecedence(node))}`;
     case 'LuaUnaryDeleteExpression':
       return `${printNode(node.argument)} = nil`;
     case 'IndexExpression':
@@ -287,16 +296,6 @@ function printPropertySignature(node: LuaPropertySignature) {
   }`;
 }
 
-const LITERALS = ['StringLiteral', 'NumericLiteral', 'MultilineStringLiteral'];
-
-function printUnaryOperatorArgument(node: LuaExpression): string {
-  if ([...LITERALS, 'Identifier'].includes(node.type)) {
-    return printNode(node);
-  } else {
-    return `(${printNode(node)})`;
-  }
-}
-
 function printMemberExpression(node: LuaMemberExpression): string {
   return `${printMemberBaseExpression(node.base)}${node.indexer}${printNode(
     node.identifier
@@ -332,4 +331,64 @@ function printClause(node: LuaClause): string {
   } else {
     return `else${node.body.length ? ' \n' : ''}${body}`;
   }
+}
+
+function checkPrecedence(node: LuaNode) {
+  return (childNode: LuaNode) =>
+    anyPass([
+      isBinaryExpression,
+      isLogicalExpression,
+      isUnaryNegation,
+      isUnaryExpression,
+    ])(childNode) &&
+    anyPass([
+      isBinaryExpression,
+      isLogicalExpression,
+      isUnaryNegation,
+      isUnaryExpression,
+    ])(node) &&
+    getPrecedence(childNode) > getPrecedence(node);
+}
+
+function useParenthesis(
+  node: LuaNode,
+  conditionFn: (node: LuaNode) => boolean
+) {
+  if (conditionFn(node)) {
+    return `(${printNode(node)})`;
+  }
+
+  return printNode(node);
+}
+
+function getPrecedence(node: LuaNode) {
+  if (isBinaryExpression(node) && node.operator === '^') {
+    return 1;
+  }
+  if (
+    isUnaryNegation(node) ||
+    (isUnaryExpression(node) && node.operator === '-')
+  ) {
+    return 2;
+  }
+  if (isBinaryExpression(node) && ['*', '/'].includes(node.operator)) {
+    return 3;
+  }
+  if (isBinaryExpression(node) && ['+', '-'].includes(node.operator)) {
+    return 4;
+  }
+  if (
+    isBinaryExpression(node) &&
+    ['..', '<', '>', '<=', '>=', '~=', '=='].includes(node.operator)
+  ) {
+    return 5;
+  }
+  if (isLogicalExpression(node) && node.operator === 'and') {
+    return 6;
+  }
+  if (isLogicalExpression(node) && node.operator === 'or') {
+    return 7;
+  }
+
+  return 0;
 }

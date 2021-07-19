@@ -4,12 +4,11 @@ import {
   booleanMethod,
   callExpression,
   isAnyNodeType,
-  isBooleanLiteral,
+  isBooleanInferable,
   isMultilineStringLiteral,
   isNilLiteral,
   isNumericLiteral,
   isStringLiteral,
-  isUnaryNegation,
   LuaExpression,
   LuaMultilineStringLiteral,
   LuaNumericLiteral,
@@ -28,7 +27,7 @@ export const createExpressionAsBooleanHandler = (
 
   const arg = handleExpression(source, config, node);
 
-  if (isBooleanLiteral(arg)) {
+  if (isBooleanInferable(arg)) {
     return arg;
   }
 
@@ -49,10 +48,6 @@ export const createExpressionAsBooleanHandler = (
         node
       )}\` to preserve JS behavior`
     );
-  }
-
-  if (isUnaryNegation(arg)) {
-    return arg;
   }
 
   return callExpression(booleanMethod('toJSBoolean'), [arg]);

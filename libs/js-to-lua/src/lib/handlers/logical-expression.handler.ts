@@ -30,13 +30,13 @@ export const createLogicalExpressionHandler = (
         const leftExpression = handleExpression(source, config, node.left);
         const rightExpression = handleExpression(source, config, node.right);
         return logicalExpression(
-          LuaLogicalExpressionOperatorEnum.AND,
-          callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
+          LuaLogicalExpressionOperatorEnum.OR,
           logicalExpression(
-            LuaLogicalExpressionOperatorEnum.OR,
-            leftExpression,
-            rightExpression
-          )
+            LuaLogicalExpressionOperatorEnum.AND,
+            callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
+            leftExpression
+          ),
+          rightExpression
         );
       }
       case '&&': {
@@ -46,13 +46,13 @@ export const createLogicalExpressionHandler = (
         const rightExpression = handleExpression(source, config, node.right);
         return isRightExpressionTruthy
           ? logicalExpression(
-              LuaLogicalExpressionOperatorEnum.AND,
-              callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
+              LuaLogicalExpressionOperatorEnum.OR,
               logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                rightExpression,
-                leftExpression
-              )
+                LuaLogicalExpressionOperatorEnum.AND,
+                callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
+                rightExpression
+              ),
+              leftExpression
             )
           : callExpression(
               functionExpression(

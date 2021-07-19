@@ -272,7 +272,7 @@ export interface LuaLogicalExpression extends BaseLuaNode {
 }
 export interface LuaUnaryExpression extends BaseLuaNode {
   type: 'LuaUnaryExpression';
-  operator: 'throw' | 'delete' | '!' | '-' | '~';
+  operator: '-';
   argument: LuaExpression;
 }
 

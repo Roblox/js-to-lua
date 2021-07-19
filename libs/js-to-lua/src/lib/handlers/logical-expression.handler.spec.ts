@@ -38,15 +38,15 @@ describe('Logical Expression Handler', () => {
     );
 
     const expected = logicalExpression(
-      LuaLogicalExpressionOperatorEnum.AND,
-      callExpression(booleanMethod('toJSBoolean'), [
-        mockNodeWithValue(leftGiven),
-      ]),
+      LuaLogicalExpressionOperatorEnum.OR,
       logicalExpression(
-        LuaLogicalExpressionOperatorEnum.OR,
-        mockNodeWithValue(leftGiven),
-        mockNodeWithValue(rightGiven)
-      )
+        LuaLogicalExpressionOperatorEnum.AND,
+        callExpression(booleanMethod('toJSBoolean'), [
+          mockNodeWithValue(leftGiven),
+        ]),
+        mockNodeWithValue(leftGiven)
+      ),
+      mockNodeWithValue(rightGiven)
     );
 
     expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
@@ -151,15 +151,15 @@ describe('Logical Expression Handler', () => {
         );
 
         const expected = logicalExpression(
-          LuaLogicalExpressionOperatorEnum.AND,
-          callExpression(booleanMethod('toJSBoolean'), [
-            mockNodeWithValue(leftGiven),
-          ]),
+          LuaLogicalExpressionOperatorEnum.OR,
           logicalExpression(
-            LuaLogicalExpressionOperatorEnum.OR,
-            mockNodeWithValue(rightGiven),
-            mockNodeWithValue(leftGiven)
-          )
+            LuaLogicalExpressionOperatorEnum.AND,
+            callExpression(booleanMethod('toJSBoolean'), [
+              mockNodeWithValue(leftGiven),
+            ]),
+            mockNodeWithValue(rightGiven)
+          ),
+          mockNodeWithValue(leftGiven)
         );
 
         expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
