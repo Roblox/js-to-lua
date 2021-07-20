@@ -24,7 +24,6 @@ import {
   PatternLike,
   SpreadElement,
   UpdateExpression,
-  V8IntrinsicIdentifier,
 } from '@babel/types';
 import {
   combineExpressionsHandlers,
@@ -99,6 +98,8 @@ import {
   createSequenceExpressionHandler,
 } from './expression/sequence-expression.handler';
 import { createFunctionBodyHandler } from './expression/function-body.handler';
+import { createCalleeExpressionHandlerFunction } from './expression/callee-expression.handler';
+import { createNewExpressionHandler } from './expression/new-expression.handler';
 
 type MemberExpressionPredicate = (node: MemberExpression) => boolean;
 const isExpectCall = (node: MemberExpression): boolean => {
@@ -166,7 +167,7 @@ export const handleCallExpression = createHandler(
       )
     ) {
       return callExpression(
-        handleCalleeExpression.handler(source, config, expression.callee),
+        handleCalleeExpression(source, config, expression.callee),
         expression.arguments.map(handleExpression.handler(source, config))
       );
     }
@@ -176,23 +177,15 @@ export const handleCallExpression = createHandler(
       !expression.arguments.length
     ) {
       return callExpression(identifier('tostring'), [
-        handleCalleeExpression.handler(
-          source,
-          config,
-          expression.callee.object
-        ),
+        handleCalleeExpression(source, config, expression.callee.object),
       ]);
     }
 
     if (expression.callee.computed) {
       return callExpression(
-        handleCalleeExpression.handler(source, config, expression.callee),
+        handleCalleeExpression(source, config, expression.callee),
         [
-          handleCalleeExpression.handler(
-            source,
-            config,
-            expression.callee.object
-          ),
+          handleCalleeExpression(source, config, expression.callee.object),
           ...(expression.arguments.map(
             handleExpression.handler(source, config)
           ) as LuaExpression[]),
@@ -372,6 +365,7 @@ export const handleExpression: BaseNodeHandler<
   createSequenceExpressionHandler(
     forwardHandlerRef(() => handleExpressionAsStatement)
   ),
+  createNewExpressionHandler(forwardHandlerRef(() => handleExpression)),
 ]);
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
@@ -546,10 +540,9 @@ export const handleObjectField = combineHandlers<
   NoSpreadObjectProperty
 >([handleObjectProperty, handleObjectMethod], defaultExpressionHandler);
 
-const handleCalleeExpression = combineExpressionsHandlers<
-  LuaExpression,
-  Expression | V8IntrinsicIdentifier
->([handleExpression]);
+const handleCalleeExpression = createCalleeExpressionHandlerFunction(
+  forwardHandlerRef(() => handleExpression)
+);
 
 export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHandlers<LuaStatement>(
   [
