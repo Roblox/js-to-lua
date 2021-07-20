@@ -8,11 +8,8 @@ import {
   ifClause,
   ifStatement,
   isReturnStatement,
-  LuaBinaryExpression,
   LuaCallExpression,
   LuaIdentifier,
-  LuaMemberExpression,
-  LuaNilLiteral,
   LuaStatement,
   returnStatement,
   unaryNegationExpression,
@@ -22,21 +19,18 @@ import {
   withInnerConversionComment,
 } from '@js-to-lua/lua-types';
 import {
-  ArrayPattern,
   Identifier,
-  ObjectPattern,
   Statement,
   TryStatement,
+  FunctionDeclaration,
 } from '@babel/types';
 import { pipe } from 'ramda';
 import { isTruthy } from '@js-to-lua/shared-utils';
+import { createFunctionParamsHandler } from '../function-params.handler';
 
 export const createTryStatementHandler = (
   statementHandlerFunction: HandlerFunction<LuaStatement, Statement>,
-  functionParamHandlerFunction: HandlerFunction<
-    LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression,
-    Identifier | ArrayPattern | ObjectPattern
-  >
+  identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>
 ): BaseNodeHandler<LuaStatement, TryStatement> =>
   createHandler('TryStatement', (source, config, node) => {
     const handleStatement = statementHandlerFunction(source, config);
@@ -50,7 +44,9 @@ export const createTryStatementHandler = (
             }
           : result
     );
-    const handleFunctionParam = functionParamHandlerFunction(source, config);
+    const functionParamsHandler = createFunctionParamsHandler(
+      identifierHandlerFunction
+    );
 
     const executeTryCatchDeclaration = (expression: LuaCallExpression) =>
       variableDeclaration(
@@ -78,7 +74,9 @@ export const createTryStatementHandler = (
                   ),
                   functionExpression(
                     node.handler.param
-                      ? [handleFunctionParam(node.handler.param)]
+                      ? functionParamsHandler(source, config, {
+                          params: [node.handler.param],
+                        } as FunctionDeclaration)
                       : [],
                     (node.handler.body.body || []).map(handleTryCatchStatement)
                   ),
