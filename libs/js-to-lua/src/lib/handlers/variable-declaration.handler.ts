@@ -21,6 +21,9 @@ import {
   VariableDeclarator,
 } from '@babel/types';
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
+  blockStatement,
   identifier,
   LuaDeclaration,
   LuaExpression,
@@ -217,17 +220,24 @@ export const createVariableDeclarationHandler = (
         );
         return nodeGroup([
           variableDeclaration(
-            [variableDeclaratorIdentifier(helperIdentifier)],
-            [
-              variableDeclaratorValue(
-                handleExpression(source, config, declaration.init)
-              ),
-            ]
-          ),
-          variableDeclaration(
             destructured.ids.map((id) => variableDeclaratorIdentifier(id)),
-            destructured.values.map((value) => variableDeclaratorValue(value))
+            []
           ),
+          blockStatement([
+            variableDeclaration(
+              [variableDeclaratorIdentifier(helperIdentifier)],
+              [
+                variableDeclaratorValue(
+                  handleExpression(source, config, declaration.init)
+                ),
+              ]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              destructured.ids,
+              destructured.values
+            ),
+          ]),
         ]);
       } else if (declaration.init && isIdentifier(declaration.init)) {
         const destructured = objectPatternDestructuringHandler(

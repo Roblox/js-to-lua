@@ -41,7 +41,7 @@ export const createObjectPatternDestructuringHandler = (
   properties: (ObjectProperty | RestElement)[]
 ) => {
   ids: LuaIdentifier[];
-  values: (LuaExpression | null)[];
+  values: LuaExpression[];
 }) => (source, config, id, properties) => {
   const { ids, values } = getObjectPropertiesIdentifiersAndValues(
     properties,
@@ -55,7 +55,7 @@ export const createObjectPatternDestructuringHandler = (
     base: LuaIdentifier | LuaMemberExpression | LuaIndexExpression
   ): {
     ids: LuaIdentifier[];
-    values: (LuaExpression | null)[];
+    values: LuaExpression[];
   } {
     const handlePropertyFromBase = createPropertyFromBaseHandler(
       handleExpression,
@@ -100,8 +100,8 @@ export const createObjectPatternDestructuringHandler = (
         return obj;
       },
       {
-        ids: <LuaIdentifier[]>[],
-        values: <(LuaExpression | null)[]>[],
+        ids: Array<LuaIdentifier>(),
+        values: Array<LuaExpression>(),
       }
     );
   }

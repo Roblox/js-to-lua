@@ -8,6 +8,7 @@ import {
   AssignmentStatement,
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  blockStatement,
   identifier,
   isStringInferable,
   LuaBinaryExpression,
@@ -295,7 +296,7 @@ export const createAssignmentStatementHandlerFunction = (
             helperIdentifier,
             node.left.properties
           );
-          return nodeGroup([
+          return blockStatement([
             variableDeclaration(
               [variableDeclaratorIdentifier(helperIdentifier)],
               [

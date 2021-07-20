@@ -13,11 +13,5 @@ export default {
 
     'conformance-tests/operators/relational/in/string-key_m4.js',
     'conformance-tests/operators/relational/in/string_m4.js',
-
-    // --- destructuring begin
-    'conformance-tests/statements/declarations/destructure-multiple-obj_m4.js',
-
-    'conformance-tests/operators/assignment/destructure-multiple-obj_m4.js',
-    // --- destructuring end
   ],
 };
