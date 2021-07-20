@@ -1,15 +1,27 @@
-import { TemplateLiteral } from '@babel/types';
-import { LuaMultilineStringLiteral } from '@js-to-lua/lua-types';
-import { handleMultilineStringLiteral } from './multiline-string.handler';
+import {
+  identifier as babelIdentifier,
+  numericLiteral as babelNumericLiteral,
+  stringLiteral as babelStringLiteral,
+  templateElement as babelTemplateElement,
+  templateLiteral as babelTemplateLiteral,
+  TemplateLiteral,
+} from '@babel/types';
+import {
+  callExpression,
+  identifier,
+  LuaMultilineStringLiteral,
+  memberExpression,
+  multilineStringLiteral,
+} from '@js-to-lua/lua-types';
+import { createMultilineStringLiteralHandler } from './multiline-string.handler';
+import {
+  mockNodeWithValue,
+  mockNodeWithValueHandler,
+} from '../../testUtils/mock-node';
 
-const DEFAULT_NODE = {
-  leadingComments: null,
-  innerComments: null,
-  trailingComments: null,
-  start: null,
-  end: null,
-  loc: null,
-};
+const handleMultilineStringLiteral = createMultilineStringLiteralHandler(
+  mockNodeWithValueHandler
+);
 
 const source = '';
 
@@ -43,25 +55,15 @@ describe('Multiline String Handler', () => {
   const testCasesMapFn = (rawTestCase: RawTestCase): TestCase => {
     return {
       itLabel: rawTestCase.itLabel,
-      given: {
-        ...DEFAULT_NODE,
-        type: 'TemplateLiteral',
-        expressions: [],
-        quasis: [
-          {
-            ...DEFAULT_NODE,
-            type: 'TemplateElement',
-            value: {
-              raw: rawTestCase.givenValue,
-            },
-            tail: true,
-          },
+      given: babelTemplateLiteral(
+        [
+          babelTemplateElement({
+            raw: rawTestCase.givenValue,
+          }),
         ],
-      },
-      expected: {
-        type: 'MultilineStringLiteral',
-        value: rawTestCase.expectedValue,
-      },
+        []
+      ),
+      expected: multilineStringLiteral(rawTestCase.expectedValue),
     };
   };
   const testCases = rawTestCases.map(testCasesMapFn);
@@ -72,5 +74,46 @@ describe('Multiline String Handler', () => {
         expected
       );
     });
+  });
+
+  it('should handle template literal with expressions', () => {
+    const given = babelTemplateLiteral(
+      [
+        babelTemplateElement({
+          raw: 'foo: ',
+        }),
+        babelTemplateElement({
+          raw: '\nbar: ',
+        }),
+        babelTemplateElement({
+          raw: '\nbaz: ',
+        }),
+        babelTemplateElement({
+          raw: '\n',
+        }),
+      ],
+      [
+        babelIdentifier('foo'),
+        babelStringLiteral('bar'),
+        babelNumericLiteral(1),
+      ]
+    );
+
+    const expected = callExpression(
+      memberExpression(
+        multilineStringLiteral('foo: %s\nbar: %s\nbaz: %s\n'),
+        ':',
+        identifier('format')
+      ),
+      [
+        mockNodeWithValue(babelIdentifier('foo')),
+        mockNodeWithValue(babelStringLiteral('bar')),
+        mockNodeWithValue(babelNumericLiteral(1)),
+      ]
+    );
+
+    expect(handleMultilineStringLiteral.handler(source, {}, given)).toEqual(
+      expected
+    );
   });
 });

@@ -59,7 +59,7 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 
-import { handleMultilineStringLiteral } from './primitives/multiline-string.handler';
+import { createMultilineStringLiteralHandler } from './primitives/multiline-string.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 import { createFunctionParamsHandler } from './function-params.handler';
 import { createReturnStatementHandler } from './statement/return-statement.handler';
@@ -316,7 +316,9 @@ export const handleExpression: BaseNodeHandler<
   handleNumericLiteral,
   handleBigIntLiteral,
   handleStringLiteral,
-  handleMultilineStringLiteral,
+  createMultilineStringLiteralHandler(
+    forwardHandlerRef(() => handleExpression)
+  ),
   handleBooleanLiteral,
   handleNullLiteral,
   createArrayExpressionHandler(forwardHandlerRef(() => handleExpression)),

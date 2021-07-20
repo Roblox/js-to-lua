@@ -305,6 +305,8 @@ function printMemberExpression(node: LuaMemberExpression): string {
 function printMemberBaseExpression(base: LuaExpression): string {
   switch (base.type) {
     case 'TableConstructor':
+    case 'StringLiteral':
+    case 'MultilineStringLiteral':
     case 'UnhandledExpression':
       return `(${printNode(base)})`;
     default:

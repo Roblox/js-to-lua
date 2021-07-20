@@ -1,29 +1,43 @@
-import { BaseNodeHandler, createHandler } from '../../types';
-import { TemplateLiteral } from '@babel/types';
+import { createHandler, HandlerFunction } from '../../types';
+import { Expression, TemplateLiteral } from '@babel/types';
 import {
+  callExpression,
+  identifier,
+  LuaCallExpression,
+  LuaExpression,
   LuaMultilineStringLiteral,
   LuaStringLiteral,
+  memberExpression,
+  multilineStringLiteral,
+  stringLiteral,
 } from '@js-to-lua/lua-types';
 
-export const handleMultilineStringLiteral: BaseNodeHandler<
-  LuaMultilineStringLiteral | LuaStringLiteral,
-  TemplateLiteral
-> = createHandler('TemplateLiteral', (source, config, literal) => {
+export const createMultilineStringLiteralHandler = (
+  expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>
+) => {
+  return createHandler<
+    LuaMultilineStringLiteral | LuaStringLiteral | LuaCallExpression,
+    TemplateLiteral
+  >('TemplateLiteral', (source, config, literal) => {
+    const handleExpression = expressionHandlerFunction(source, config);
+
+    return literal.expressions.length
+      ? callExpression(
+          memberExpression(getLiteral(literal), ':', identifier('format')),
+          literal.expressions.map(handleExpression)
+        )
+      : getLiteral(literal);
+  });
+};
+
+function getLiteral(literal: TemplateLiteral) {
   return containsNewLine(literal)
-    ? {
-        type: 'MultilineStringLiteral',
-        value: getMultilineString(literal),
-      }
-    : {
-        type: 'StringLiteral',
-        value: getString(literal),
-      };
-});
+    ? multilineStringLiteral(getMultilineString(literal))
+    : stringLiteral(getString(literal));
+}
 
 function getString(literal: TemplateLiteral) {
-  return literal.quasis.reduce((accu, curr) => {
-    return accu + (curr.value.cooked || curr.value.raw);
-  }, '');
+  return literal.quasis.map((q) => q.value.cooked || q.value.raw).join('%s');
 }
 
 const getMultilineString = (literal: TemplateLiteral) => {
