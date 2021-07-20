@@ -5,7 +5,7 @@ import {
   LuaBinaryExpression,
   LuaCallExpression,
   LuaExpression,
-  LuaIdentifier,
+  LuaLVal,
   LuaTableKeyField,
   returnStatement,
   UnhandledStatement,
@@ -14,7 +14,7 @@ import {
   AssignmentExpression,
   BinaryExpression,
   Expression,
-  Identifier,
+  LVal,
   ObjectMethod,
   ObjectProperty,
 } from '@babel/types';
@@ -23,7 +23,7 @@ import { getReturnExpressions } from '../../utils/get-return-expressions';
 
 export const createAssignmentExpressionHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>,
+  handleLVal: HandlerFunction<LuaLVal, LVal>,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
@@ -38,7 +38,7 @@ export const createAssignmentExpressionHandlerFunction = (
     (source, config, node: AssignmentExpression) => {
       const assignmentStatement = createAssignmentStatementHandlerFunction(
         handleExpression,
-        handleIdentifier,
+        handleLVal,
         handleObjectField,
         handleBinaryExpression
       ).handler(source, config, node);

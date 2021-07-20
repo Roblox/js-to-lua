@@ -1,16 +1,12 @@
 local function getCurrent(queryDataRef)
 	local context = {}
-	local queryData = queryDataRef.current
-		or function()
-			queryDataRef.current = {
-				context = context,
-				onNewData = function(self) end,
-			}
+	local queryData = Boolean.toJSBoolean(queryDataRef.current) and queryDataRef.current
+		or (function()
+			queryDataRef.current = { context = context, onNewData = function(self) end }
 			return queryDataRef.current
-		end
+		end)()
 	return queryData
 end
-
 describe("Query Data Ref", function()
 	it("should use existing current", function()
 		local givenCurrent = { context = "context", onNewData = function(self) end }

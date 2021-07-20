@@ -1,10 +1,8 @@
-import { Program } from '@babel/types';
 import {
   callExpression,
   expressionStatement,
   identifier,
   indexExpression,
-  LuaProgram,
   memberExpression,
   program,
   stringLiteral,
@@ -16,13 +14,13 @@ const source = '';
 
 describe('Call Expression Handler', () => {
   it(`should handle computed member expressions`, () => {
-    const given: Program = getProgramNode(`
-    foo['bar']()
-    foo['bar']('baz')
-    foo.bar['baz']()
+    const given = getProgramNode(`
+      foo['bar']()
+      foo['bar']('baz')
+      foo.bar['baz']()
     `);
 
-    const expected: LuaProgram = program([
+    const expected = program([
       expressionStatement(
         callExpression(
           indexExpression(identifier('foo'), stringLiteral('bar')),
@@ -50,13 +48,13 @@ describe('Call Expression Handler', () => {
   });
 
   it(`should handle not computed member expressions`, () => {
-    const given: Program = getProgramNode(`
+    const given = getProgramNode(`
       foo.bar()
       foo.bar('baz')
       foo.bar.baz()
       `);
 
-    const expected: LuaProgram = program([
+    const expected = program([
       expressionStatement(
         callExpression(
           memberExpression(identifier('foo'), ':', identifier('bar')),
@@ -84,16 +82,49 @@ describe('Call Expression Handler', () => {
     expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
+  it(`should handle deeply nested method call`, () => {
+    const given = getProgramNode(`
+          expect_(foo).never.to.be.empty()
+        `);
+
+    const expected = program([
+      expressionStatement(
+        callExpression(
+          memberExpression(
+            memberExpression(
+              memberExpression(
+                memberExpression(
+                  callExpression(identifier('expect_'), [identifier('foo')]),
+                  '.',
+                  identifier('never')
+                ),
+                '.',
+                identifier('to')
+              ),
+              '.',
+              identifier('be')
+            ),
+            ':',
+            identifier('empty')
+          ),
+          []
+        )
+      ),
+    ]);
+
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+  });
+
   describe('Special cases', () => {
     it(`should handle toString() method`, () => {
-      const given: Program = getProgramNode(`
-      foo.toString()
-      foo['toString']()
-      foo.toString('baz')
-      foo['toString']('baz')
+      const given = getProgramNode(`
+        foo.toString()
+        foo['toString']()
+        foo.toString('baz')
+        foo['toString']('baz')
       `);
 
-      const expected: LuaProgram = program([
+      const expected = program([
         expressionStatement(
           callExpression(identifier('tostring'), [identifier('foo')])
         ),
@@ -119,14 +150,14 @@ describe('Call Expression Handler', () => {
     });
 
     it(`should handle React object`, () => {
-      const given: Program = getProgramNode(`
+      const given = getProgramNode(`
       React.createElement("div")
       React['createElement']("div")
       React.foo()
       React['foo']()
       `);
 
-      const expected: LuaProgram = program([
+      const expected = program([
         expressionStatement(
           callExpression(
             memberExpression(
@@ -161,6 +192,87 @@ describe('Call Expression Handler', () => {
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    describe('should handle Jest expect calls', () => {
+      it(`direct method call`, () => {
+        const given = getProgramNode(`
+          expect(foo).toEqual(bar)
+        `);
+
+        const expected = program([
+          expressionStatement(
+            callExpression(
+              memberExpression(
+                callExpression(identifier('expect'), [identifier('foo')]),
+                '.',
+                identifier('toEqual')
+              ),
+              [identifier('bar')]
+            )
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it(`nested method call`, () => {
+        const given = getProgramNode(`
+          expect(foo).never.toEqual(bar)
+        `);
+
+        const expected = program([
+          expressionStatement(
+            callExpression(
+              memberExpression(
+                memberExpression(
+                  callExpression(identifier('expect'), [identifier('foo')]),
+                  '.',
+                  identifier('never')
+                ),
+                '.',
+                identifier('toEqual')
+              ),
+              [identifier('bar')]
+            )
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it(`deeply nested method call`, () => {
+        const given = getProgramNode(`
+          expect(foo).never.to.be.empty()
+        `);
+
+        const expected = program([
+          expressionStatement(
+            callExpression(
+              memberExpression(
+                memberExpression(
+                  memberExpression(
+                    memberExpression(
+                      callExpression(identifier('expect'), [identifier('foo')]),
+                      '.',
+                      identifier('never')
+                    ),
+                    '.',
+                    identifier('to')
+                  ),
+                  '.',
+                  identifier('be')
+                ),
+                '.',
+                identifier('empty')
+              ),
+              []
+            )
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
     });
   });
 });

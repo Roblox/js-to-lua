@@ -13,6 +13,9 @@ import {
   FunctionExpression,
   Identifier,
   isAssignmentPattern as isBabelAssignmentPattern_,
+  isCallExpression as isBabelCallExpression,
+  isIdentifier as isBabelIdentifier,
+  isMemberExpression as isBabelMemberExpression,
   isSpreadElement as isBabelSpreadElement,
   MemberExpression,
   ObjectExpression,
@@ -97,7 +100,25 @@ import {
 } from './expression/sequence-expression.handler';
 import { createFunctionBodyHandler } from './expression/function-body.handler';
 
-export const USE_DOT_NOTATION_IN_CALL_EXPRESSION = ['React'];
+type MemberExpressionPredicate = (node: MemberExpression) => boolean;
+const isExpectCall = (node: MemberExpression): boolean => {
+  return (
+    isBabelCallExpression(node.object) &&
+    isBabelIdentifier(node.object.callee) &&
+    node.object.callee.name === 'expect'
+  );
+};
+
+const isNestedExpectCall = (node: MemberExpression): boolean => {
+  return (
+    isBabelMemberExpression(node.object) &&
+    (isExpectCall(node.object) || isNestedExpectCall(node.object))
+  );
+};
+
+export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
+  string | MemberExpressionPredicate
+> = ['React', isExpectCall, isNestedExpectCall];
 
 type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,
@@ -107,6 +128,11 @@ type ObjectExpressionProperty = Unpacked<ObjectExpression['properties']>;
 const isBabelAssignmentPattern = (param: unknown): param is AssignmentPattern =>
   isBabelAssignmentPattern_(param as any);
 
+const handleLVal = createLValHandler(
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleExpression)
+).handler;
+
 export const handleExpressionStatement = createHandler(
   'ExpressionStatement',
   (source, config, statement: ExpressionStatement): LuaExpressionStatement =>
@@ -114,10 +140,7 @@ export const handleExpressionStatement = createHandler(
       combineExpressionsHandlers([
         createAssignmentStatementHandlerFunction(
           forwardHandlerRef(() => handleExpression),
-          createLValHandler(
-            forwardHandlerRef(() => handleIdentifier),
-            forwardHandlerRef(() => handleExpression)
-          ).handler,
+          handleLVal,
           forwardHandlerRef(() => handleObjectField),
           createBinaryExpressionHandler(
             forwardHandlerRef(() => handleExpression)
@@ -134,10 +157,12 @@ export const handleCallExpression = createHandler(
     if (
       expression.callee.type !== 'MemberExpression' ||
       USE_DOT_NOTATION_IN_CALL_EXPRESSION.some((identifierName) =>
-        matchesMemberExpressionObject(
-          identifierName,
-          expression.callee as MemberExpression
-        )
+        typeof identifierName === 'string'
+          ? matchesMemberExpressionObject(
+              identifierName,
+              expression.callee as MemberExpression
+            )
+          : identifierName(expression.callee as MemberExpression)
       )
     ) {
       return callExpression(
@@ -338,7 +363,7 @@ export const handleExpression: BaseNodeHandler<
   createMemberExpressionHandler(forwardHandlerRef(() => handleExpression)),
   createAssignmentExpressionHandlerFunction(
     forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleIdentifier),
+    handleLVal,
     forwardHandlerRef(() => handleObjectField),
     createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
       .handler
@@ -367,10 +392,7 @@ export const handleExpressionAsStatement: BaseNodeHandler<
 > = combineExpressionsHandlers([
   createAssignmentStatementHandlerFunction(
     forwardHandlerRef(() => handleExpression),
-    createLValHandler(
-      forwardHandlerRef(() => handleIdentifier),
-      forwardHandlerRef(() => handleExpression)
-    ).handler,
+    handleLVal,
     forwardHandlerRef(() => handleObjectField),
     createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
       .handler
