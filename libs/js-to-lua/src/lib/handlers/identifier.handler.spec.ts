@@ -1,27 +1,17 @@
-import { Identifier } from '@babel/types';
+import { identifier as babelIdentifier } from '@babel/types';
 import {
   binaryExpression,
   identifier,
   LuaIdentifier,
-  LuaMemberExpression,
-  LuaNilLiteral,
   memberExpression,
   nilLiteral,
   numericLiteral,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { createIdentifierHandler } from './identifier.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
-
-const DEFAULT_NODE = {
-  leadingComments: null,
-  innerComments: null,
-  trailingComments: null,
-  start: null,
-  end: null,
-  loc: null,
-};
 
 const source = '';
 
@@ -49,6 +39,12 @@ const KEYWORDS = [
   'while',
 ];
 
+const UNHANDLED_CHARS_IDENTIFIERS = [
+  { givenName: '$foo', expectedName: '_foo' },
+  { givenName: '$$foo', expectedName: '__foo' },
+  { givenName: '$$foo$$', expectedName: '__foo__' },
+];
+
 const handleIdentifier = createIdentifierHandler(
   createTypeAnnotationHandler(forwardHandlerRef(() => handleExpression))
     .typesHandler
@@ -56,23 +52,15 @@ const handleIdentifier = createIdentifierHandler(
 
 describe('Identifier Handler', () => {
   it(`should return Lua NilLiteral Node if name is 'undefined'`, () => {
-    const given: Identifier = {
-      ...DEFAULT_NODE,
-      type: 'Identifier',
-      name: 'undefined',
-    };
-    const expected: LuaNilLiteral = nilLiteral();
+    const given = babelIdentifier('undefined');
+    const expected = nilLiteral();
 
     expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return math.huge member expression if identifier name is 'Infinity'`, () => {
-    const given: Identifier = {
-      ...DEFAULT_NODE,
-      type: 'Identifier',
-      name: 'Infinity',
-    };
-    const expected: LuaMemberExpression = memberExpression(
+    const given = babelIdentifier('Infinity');
+    const expected = memberExpression(
       identifier('math'),
       '.',
       identifier('huge')
@@ -82,11 +70,7 @@ describe('Identifier Handler', () => {
   });
 
   it(`should return 0/0 if identifier name is 'NaN'`, () => {
-    const given: Identifier = {
-      ...DEFAULT_NODE,
-      type: 'Identifier',
-      name: 'NaN',
-    };
+    const given = babelIdentifier('NaN');
     const expected = binaryExpression(
       numericLiteral(0),
       '/',
@@ -97,30 +81,16 @@ describe('Identifier Handler', () => {
   });
 
   it(`should return Lua Identifier Node if Symbol is present`, () => {
-    const given: Identifier = {
-      ...DEFAULT_NODE,
-      type: 'Identifier',
-      name: 'Symbol',
-    };
-    const expected: LuaIdentifier = {
-      type: 'Identifier',
-      name: 'Symbol',
-    };
+    const given = babelIdentifier('Symbol');
+    const expected = identifier('Symbol');
 
     expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
   });
 
   ['foo', 'bar', 'baz'].forEach((name) => {
     it(`should return Lua Identifier Node when name is not undefined and is not a keyword`, () => {
-      const given: Identifier = {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name,
-      };
-      const expected: LuaIdentifier = {
-        type: 'Identifier',
-        name,
-      };
+      const given = babelIdentifier(name);
+      const expected = identifier(name);
 
       expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
     });
@@ -128,15 +98,25 @@ describe('Identifier Handler', () => {
 
   KEYWORDS.forEach((name) => {
     it(`should return Lua Identifier Node with '_' prepended when name is not undefined and is a keyword`, () => {
-      const given: Identifier = {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name,
+      const given = babelIdentifier(name);
+      const expected = identifier(`${name}_`);
+
+      expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
+    });
+  });
+
+  UNHANDLED_CHARS_IDENTIFIERS.forEach(({ givenName, expectedName }) => {
+    it(`should return Lua Identifier Node with '_' instead of unsupported characters`, () => {
+      const source = `${givenName}`;
+      const given = {
+        ...babelIdentifier(givenName),
+        start: 0,
+        end: source.length,
       };
-      const expected: LuaIdentifier = {
-        type: 'Identifier',
-        name: `${name}_`,
-      };
+      const expected: LuaIdentifier = withTrailingConversionComment(
+        identifier(expectedName),
+        `ROBLOX CHECK: replaced unhandled characters in identifier. Original identifier: ${givenName}`
+      );
 
       expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
     });

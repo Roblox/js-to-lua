@@ -10,6 +10,7 @@ import {
   memberExpression,
   nilLiteral,
   numericLiteral,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   Identifier,
@@ -17,6 +18,11 @@ import {
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
+import { getNodeSource } from '../utils/get-node-source';
+import {
+  isValidIdentifier,
+  toValidIdentifier,
+} from '../utils/valid-identifier';
 
 export const createIdentifierHandler = (
   handleType: HandlerFunction<
@@ -57,19 +63,22 @@ export const createIdentifierHandler = (
       case 'until':
       case 'while':
       case 'error':
-        return {
-          type: 'Identifier',
-          name: `${node.name}_`,
-        };
-      default:
-        return {
-          type: 'Identifier',
-          name: node.name,
-          ...(node.typeAnnotation
-            ? {
-                typeAnnotation: handleType(source, config, node.typeAnnotation),
-              }
-            : {}),
-        };
+        return identifier(`${node.name}_`);
+      default: {
+        const typeAnnotation =
+          (node.typeAnnotation &&
+            handleType(source, config, node.typeAnnotation)) ||
+          undefined;
+
+        return !isValidIdentifier(node.name)
+          ? withTrailingConversionComment(
+              identifier(toValidIdentifier(node.name), typeAnnotation),
+              `ROBLOX CHECK: replaced unhandled characters in identifier. Original identifier: ${getNodeSource(
+                source,
+                node
+              )}`
+            )
+          : identifier(node.name, typeAnnotation);
+      }
     }
   });

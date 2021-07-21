@@ -9,6 +9,7 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { getModulePath } from '../../../utils/get-module-path';
+import { toValidIdentifier } from '../../../utils/valid-identifier';
 
 export const createImportModuleDeclarationHandler = (
   importExpressionHandler: HandlerFunction<LuaExpression, StringLiteral>
@@ -23,7 +24,7 @@ export const createImportModuleDeclarationHandler = (
         { isInitFile: !!config.isInitFile },
         node.value
       );
-      const moduleName = `${path[path.length - 1]}Module`;
+      const moduleName = toValidIdentifier(`${path[path.length - 1]}Module`);
 
       return variableDeclaration(
         [variableDeclaratorIdentifier(identifier(moduleName))],

@@ -297,7 +297,7 @@ export interface LuaMemberExpression extends BaseLuaNode {
   type: 'LuaMemberExpression';
   indexer: '.' | ':';
   base: LuaExpression;
-  identifier: LuaIdentifier | LuaMemberExpression;
+  identifier: LuaIdentifier;
 }
 export interface LuaUnaryDeleteExpression extends BaseLuaNode {
   type: 'LuaUnaryDeleteExpression';

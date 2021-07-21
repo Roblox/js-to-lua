@@ -28,17 +28,17 @@ describe('Program handler', () => {
               memberExpression(
                 callExpression(identifier('require'), [
                   memberExpression(
-                    identifier('script'),
-                    '.',
                     memberExpression(
-                      identifier('Parent'),
-                      '.',
                       memberExpression(
-                        identifier('foo'),
+                        identifier('script'),
                         '.',
-                        identifier('bar')
-                      )
-                    )
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('foo')
+                    ),
+                    '.',
+                    identifier('bar')
                   ),
                 ]),
                 '.',
@@ -64,21 +64,21 @@ describe('Program handler', () => {
               memberExpression(
                 callExpression(identifier('require'), [
                   memberExpression(
-                    identifier('script'),
-                    '.',
                     memberExpression(
-                      identifier('Parent'),
-                      '.',
                       memberExpression(
-                        identifier('Parent'),
-                        '.',
                         memberExpression(
-                          identifier('foo'),
+                          identifier('script'),
                           '.',
-                          identifier('bar')
-                        )
-                      )
-                    )
+                          identifier('Parent')
+                        ),
+                        '.',
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('foo')
+                    ),
+                    '.',
+                    identifier('bar')
                   ),
                 ]),
                 '.',
@@ -111,9 +111,13 @@ describe('Program handler', () => {
               memberExpression(
                 callExpression(identifier('require'), [
                   memberExpression(
-                    identifier('Packages'),
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('foo')
+                    ),
                     '.',
-                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                    identifier('bar')
                   ),
                 ]),
                 '.',
@@ -141,17 +145,17 @@ describe('Program handler', () => {
               memberExpression(
                 callExpression(identifier('require'), [
                   memberExpression(
-                    identifier('script'),
-                    '.',
                     memberExpression(
-                      identifier('Parent'),
-                      '.',
                       memberExpression(
-                        identifier('foo'),
+                        identifier('script'),
                         '.',
-                        identifier('bar')
-                      )
-                    )
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('foo')
+                    ),
+                    '.',
+                    identifier('bar')
                   ),
                 ]),
                 '.',
@@ -177,21 +181,21 @@ describe('Program handler', () => {
               memberExpression(
                 callExpression(identifier('require'), [
                   memberExpression(
-                    identifier('script'),
-                    '.',
                     memberExpression(
-                      identifier('Parent'),
-                      '.',
                       memberExpression(
-                        identifier('Parent'),
-                        '.',
                         memberExpression(
-                          identifier('foo'),
+                          identifier('script'),
                           '.',
-                          identifier('bar')
-                        )
-                      )
-                    )
+                          identifier('Parent')
+                        ),
+                        '.',
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('foo')
+                    ),
+                    '.',
+                    identifier('bar')
                   ),
                 ]),
                 '.',
@@ -217,21 +221,21 @@ describe('Program handler', () => {
               variableDeclaratorValue(
                 callExpression(identifier('require'), [
                   memberExpression(
-                    identifier('script'),
-                    '.',
                     memberExpression(
-                      identifier('Parent'),
-                      '.',
                       memberExpression(
-                        identifier('Parent'),
-                        '.',
                         memberExpression(
-                          identifier('foo'),
+                          identifier('script'),
                           '.',
-                          identifier('bar')
-                        )
-                      )
-                    )
+                          identifier('Parent')
+                        ),
+                        '.',
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('foo')
+                    ),
+                    '.',
+                    identifier('bar')
                   ),
                 ])
               ),
@@ -286,9 +290,13 @@ describe('Program handler', () => {
               memberExpression(
                 callExpression(identifier('require'), [
                   memberExpression(
-                    identifier('Packages'),
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('foo')
+                    ),
                     '.',
-                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                    identifier('bar')
                   ),
                 ]),
                 '.',
@@ -321,9 +329,13 @@ describe('Program handler', () => {
               variableDeclaratorValue(
                 callExpression(identifier('require'), [
                   memberExpression(
-                    identifier('Packages'),
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('foo')
+                    ),
                     '.',
-                    memberExpression(identifier('foo'), '.', identifier('bar'))
+                    identifier('bar')
                   ),
                 ])
               ),
@@ -372,13 +384,17 @@ describe('Program handler', () => {
             variableDeclaratorValue(
               callExpression(identifier('require'), [
                 memberExpression(
-                  identifier('script'),
-                  '.',
                   memberExpression(
-                    identifier('Parent'),
+                    memberExpression(
+                      identifier('script'),
+                      '.',
+                      identifier('Parent')
+                    ),
                     '.',
-                    memberExpression(identifier('foo'), '.', identifier('bar'))
-                  )
+                    identifier('foo')
+                  ),
+                  '.',
+                  identifier('bar')
                 ),
               ])
             ),
@@ -400,21 +416,21 @@ describe('Program handler', () => {
             variableDeclaratorValue(
               callExpression(identifier('require'), [
                 memberExpression(
-                  identifier('script'),
-                  '.',
                   memberExpression(
-                    identifier('Parent'),
-                    '.',
                     memberExpression(
-                      identifier('Parent'),
-                      '.',
                       memberExpression(
-                        identifier('foo'),
+                        identifier('script'),
                         '.',
-                        identifier('bar')
-                      )
-                    )
-                  )
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('Parent')
+                    ),
+                    '.',
+                    identifier('foo')
+                  ),
+                  '.',
+                  identifier('bar')
                 ),
               ])
             ),
@@ -443,9 +459,13 @@ describe('Program handler', () => {
             variableDeclaratorValue(
               callExpression(identifier('require'), [
                 memberExpression(
-                  identifier('Packages'),
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('foo')
+                  ),
                   '.',
-                  memberExpression(identifier('foo'), '.', identifier('bar'))
+                  identifier('bar')
                 ),
               ])
             ),

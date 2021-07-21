@@ -47,9 +47,13 @@ describe('Import Declaration Handler', () => {
           memberExpression(
             callExpression(identifier('require'), [
               memberExpression(
-                identifier('script'),
+                memberExpression(
+                  identifier('script'),
+                  '.',
+                  identifier('Parent')
+                ),
                 '.',
-                memberExpression(identifier('Parent'), '.', identifier('foo'))
+                identifier('foo')
               ),
             ]),
             '.',
@@ -79,9 +83,13 @@ describe('Import Declaration Handler', () => {
           memberExpression(
             callExpression(identifier('require'), [
               memberExpression(
-                identifier('script'),
+                memberExpression(
+                  identifier('script'),
+                  '.',
+                  identifier('Parent')
+                ),
                 '.',
-                memberExpression(identifier('Parent'), '.', identifier('foo'))
+                identifier('foo')
               ),
             ]),
             '.',
@@ -116,9 +124,13 @@ describe('Import Declaration Handler', () => {
           memberExpression(
             callExpression(identifier('require'), [
               memberExpression(
-                identifier('script'),
+                memberExpression(
+                  identifier('script'),
+                  '.',
+                  identifier('Parent')
+                ),
                 '.',
-                memberExpression(identifier('Parent'), '.', identifier('foo'))
+                identifier('foo')
               ),
             ]),
             '.',
@@ -147,9 +159,13 @@ describe('Import Declaration Handler', () => {
           variableDeclaratorValue(
             callExpression(identifier('require'), [
               memberExpression(
-                identifier('script'),
+                memberExpression(
+                  identifier('script'),
+                  '.',
+                  identifier('Parent')
+                ),
                 '.',
-                memberExpression(identifier('Parent'), '.', identifier('foo'))
+                identifier('foo')
               ),
             ])
           ),
@@ -208,9 +224,9 @@ describe('Import Declaration Handler', () => {
         variableDeclaratorValue(
           callExpression(identifier('require'), [
             memberExpression(
-              identifier('script'),
+              memberExpression(identifier('script'), '.', identifier('Parent')),
               '.',
-              memberExpression(identifier('Parent'), '.', identifier('foo'))
+              identifier('foo')
             ),
           ])
         ),
@@ -244,9 +260,13 @@ describe('Import Declaration Handler', () => {
           variableDeclaratorValue(
             callExpression(identifier('require'), [
               memberExpression(
-                identifier('script'),
+                memberExpression(
+                  identifier('script'),
+                  '.',
+                  identifier('Parent')
+                ),
                 '.',
-                memberExpression(identifier('Parent'), '.', identifier('foo'))
+                identifier('foo')
               ),
             ])
           ),
