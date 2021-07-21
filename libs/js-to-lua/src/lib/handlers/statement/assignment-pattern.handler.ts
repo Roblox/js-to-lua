@@ -27,6 +27,7 @@ export const createAssignmentPatternHandlerFunction = (
     const rightExpression = handleExpression(source, config, node.right);
     if (isBabelIdentifier(node.left)) {
       const leftExpression = handleIdentifier(source, config, node.left);
+      delete leftExpression.typeAnnotation;
       return ifStatement(
         ifClause(binaryExpression(leftExpression, '==', nilLiteral()), [
           assignmentStatement(

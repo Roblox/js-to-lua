@@ -21,6 +21,7 @@ import {
   LuaTypeAliasDeclaration,
   memberExpression,
   nodeGroup,
+  unhandledExpression,
 } from '@js-to-lua/lua-types';
 import { defaultStatementHandler } from '../../../utils/default-handlers';
 import { createImportExpressionHandler } from '../import/import-expression.handler';
@@ -114,6 +115,13 @@ const getDeclarationId = (
       return declaration.identifiers.map(
         ({ value }) => value
       ) as NonEmptyArray<LuaLVal>;
+    case 'UnhandledStatement':
+      return [
+        {
+          ...declaration,
+          ...unhandledExpression(),
+        },
+      ];
     default:
       return [declaration];
   }

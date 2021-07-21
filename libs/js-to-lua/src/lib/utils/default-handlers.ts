@@ -1,5 +1,7 @@
 import { createHandlerFunction, HandlerFunction } from '../types';
 import {
+  identifier,
+  LuaIdentifier,
   unhandledElement,
   UnhandledElement,
   UnhandledExpression,
@@ -50,4 +52,13 @@ export const defaultElementHandler: HandlerFunction<UnhandledElement> = createHa
       getNodeSource(source, node)
     );
   }
+);
+
+export const defaultUnhandledIdentifierHandler = createHandlerFunction<LuaIdentifier>(
+  (source, config, node) =>
+    withTrailingConversionComment(
+      identifier('__unhandledIdentifier__'),
+      `ROBLOX TODO: Unhandled node for type: ${node.type}`,
+      getNodeSource(source, node)
+    )
 );

@@ -1,19 +1,19 @@
 import {
   ArrowFunctionExpression,
   AssignmentPattern,
+  Declaration,
   FunctionDeclaration,
   FunctionExpression,
   Identifier,
+  identifier as babelIdentifier,
   isArrayPattern,
   isAssignmentPattern,
+  isIdentifier,
   isObjectPattern,
   LVal,
+  ObjectMethod,
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
-  identifier as babelIdentifier,
-  Declaration,
-  isIdentifier,
-  ObjectMethod,
 } from '@babel/types';
 import {
   AssignmentStatement,
@@ -27,11 +27,12 @@ import {
   LuaNodeGroup,
   nodeGroup,
   UnhandledStatement,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { createHandlerFunction, EmptyConfig, HandlerFunction } from '../types';
-import { getNodeSource } from '../utils/get-node-source';
-import { defaultStatementHandler } from '../utils/default-handlers';
+import {
+  defaultStatementHandler,
+  defaultUnhandledIdentifierHandler,
+} from '../utils/default-handlers';
 import { anyPass } from 'ramda';
 
 type FunctionTypes =
@@ -54,11 +55,7 @@ export const createFunctionParamsHandler = (
     LuaFunctionParam,
     LVal
   > = createHandlerFunction((source, config, node) => {
-    return withTrailingConversionComment(
-      identifier('__unhandledIdentifier__'),
-      `ROBLOX TODO: Unhandled node for type: ${node.type}`,
-      getNodeSource(source, node)
-    );
+    return defaultUnhandledIdentifierHandler(source, config, node);
   });
 
   return (source: string, config: EmptyConfig, node: FunctionTypes) => {
@@ -122,7 +119,7 @@ export const createFunctionParamsBodyHandler = (
                   `ref${'_'.repeat(destructuringRefIdCount)}`
                 ),
                 right: { ...param.right },
-              } as AssignmentPattern),
+              }),
               handleDeclaration(
                 source,
                 node,
@@ -137,11 +134,7 @@ export const createFunctionParamsBodyHandler = (
               ),
             ]);
           }
-          return handleAssignmentPattern(
-            source,
-            config,
-            param as AssignmentPattern
-          );
+          return handleAssignmentPattern(source, config, param);
         } else if (isArrayPattern(param)) {
           return handleDeclaration(
             source,

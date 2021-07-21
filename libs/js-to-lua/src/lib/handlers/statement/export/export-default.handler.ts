@@ -14,6 +14,7 @@ import {
   LuaTableConstructor,
   memberExpression,
   nodeGroup,
+  unhandledExpression,
 } from '@js-to-lua/lua-types';
 import { defaultStatementHandler } from '../../../utils/default-handlers';
 import { combineHandlers } from '../../../utils/combine-handlers';
@@ -113,6 +114,13 @@ const getDeclarationId = (
     case 'TableConstructor':
     case 'Identifier':
       return [declaration];
+    case 'UnhandledStatement':
+      return [
+        {
+          ...declaration,
+          ...unhandledExpression(),
+        },
+      ];
     default:
       return [declaration];
   }

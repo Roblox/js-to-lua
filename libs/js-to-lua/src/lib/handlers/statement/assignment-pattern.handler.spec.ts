@@ -1,11 +1,15 @@
 import {
   assignmentPattern as babelAssignmentPattern,
   identifier as babelIdentifier,
+  Identifier,
+  tsAnyKeyword as babelTsAnyKeyword,
+  tsTypeAnnotation as babelTsTypeAnnotation,
 } from '@babel/types';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   binaryExpression,
+  identifier,
   ifClause,
   ifStatement,
   LuaIdentifier,
@@ -16,6 +20,7 @@ import {
   mockNodeWithValueHandler,
 } from '../../testUtils/mock-node';
 import { createAssignmentPatternHandlerFunction } from './assignment-pattern.handler';
+import { createIdentifierHandler } from '../identifier.handler';
 
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
   mockNodeWithValueHandler,
@@ -23,6 +28,14 @@ const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
 );
 
 const source = '';
+
+const withTypeAnnotation = (
+  id: Identifier,
+  typeAnnotation: Identifier['typeAnnotation']
+): Identifier => ({
+  ...id,
+  typeAnnotation,
+});
 
 describe('Assignment Pattern Handler', () => {
   it(`should handle AssignmentPattern `, () => {
@@ -41,6 +54,32 @@ describe('Assignment Pattern Handler', () => {
           ),
         ]
       )
+    );
+
+    expect(handleAssignmentPattern(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should remove type annotation when handling AssignmentPattern `, () => {
+    const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
+      mockNodeWithValueHandler,
+      createIdentifierHandler(mockNodeWithValueHandler).handler
+    );
+
+    const leftGiven = withTypeAnnotation(
+      babelIdentifier('foo'),
+      babelTsTypeAnnotation(babelTsAnyKeyword())
+    );
+    const rightGiven = babelIdentifier('bar');
+    const given = babelAssignmentPattern(leftGiven, rightGiven);
+
+    const expected = ifStatement(
+      ifClause(binaryExpression(identifier('foo'), '==', nilLiteral()), [
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [mockNodeWithValue(rightGiven)]
+        ),
+      ])
     );
 
     expect(handleAssignmentPattern(source, {}, given)).toEqual(expected);

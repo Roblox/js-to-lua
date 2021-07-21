@@ -59,7 +59,8 @@ export type LuaExpression =
 export type LuaDeclaration =
   | LuaFunctionDeclaration
   | LuaVariableDeclaration
-  | LuaTypeAliasDeclaration;
+  | LuaTypeAliasDeclaration
+  | UnhandledStatement;
 
 export interface LuaExpressionStatement extends BaseLuaNode {
   type: 'ExpressionStatement';
@@ -150,7 +151,8 @@ export interface LuaVariableDeclarator extends BaseLuaNode {
 export type LuaLVal =
   | LuaIdentifier
   | LuaMemberExpression
-  | LuaIndexExpression /*| MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty*/;
+  | LuaIndexExpression
+  | UnhandledExpression /*| MemberExpression | RestElement | AssignmentPattern | ArrayPattern | ObjectPattern | TSParameterProperty*/;
 
 export interface LuaVariableDeclaratorIdentifier extends BaseLuaNode {
   type: 'VariableDeclaratorIdentifier';

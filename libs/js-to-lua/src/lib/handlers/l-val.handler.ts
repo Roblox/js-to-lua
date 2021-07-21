@@ -1,13 +1,11 @@
 import { Expression, Identifier, LVal, MemberExpression } from '@babel/types';
 import {
-  identifier,
   LuaBinaryExpression,
   LuaExpression,
   LuaIdentifier,
   LuaLVal,
   LuaMemberExpression,
   LuaNilLiteral,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { combineHandlers } from '../utils/combine-handlers';
 import {
@@ -16,8 +14,8 @@ import {
   createHandlerFunction,
   HandlerFunction,
 } from '../types';
-import { getNodeSource } from '../utils/get-node-source';
 import { createMemberExpressionHandler } from './member-expression.handler';
+import { defaultUnhandledIdentifierHandler } from '../utils/default-handlers';
 
 export const createLValHandler = (
   handleIdentifier: HandlerFunction<
@@ -30,11 +28,7 @@ export const createLValHandler = (
     LuaLVal,
     LVal
   > = createHandlerFunction((source, config, node) => {
-    return withTrailingConversionComment(
-      identifier('__unhandledIdentifier__'),
-      `ROBLOX TODO: Unhandled node for type: ${node.type}`,
-      getNodeSource(source, node)
-    );
+    return defaultUnhandledIdentifierHandler(source, config, node);
   });
 
   const handleMemberExpression = createMemberExpressionHandler(handleExpression)
