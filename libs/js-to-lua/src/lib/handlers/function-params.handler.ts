@@ -61,10 +61,9 @@ export const createFunctionParamsHandler = (
     );
   });
 
-  let paramRefIdCount = 0;
-
-  return (source: string, config: EmptyConfig, node: FunctionTypes) =>
-    node.params.map((param) => {
+  return (source: string, config: EmptyConfig, node: FunctionTypes) => {
+    let paramRefIdCount = 0;
+    return node.params.map((param) => {
       if (
         isArrayPattern(param) ||
         isObjectPattern(param) ||
@@ -83,6 +82,7 @@ export const createFunctionParamsHandler = (
       }
       return defaultFunctionParamHandler(source, config, param);
     });
+  };
 };
 
 type ParamsBodyResponse = Array<
