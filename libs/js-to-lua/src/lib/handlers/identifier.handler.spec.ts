@@ -12,6 +12,7 @@ import { createIdentifierHandler } from './identifier.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { handleExpression } from './expression-statement.handler';
+import { createWithOriginalIdentifierNameExtras } from '../utils/with-original-identifier-name-extras';
 
 const source = '';
 
@@ -99,7 +100,9 @@ describe('Identifier Handler', () => {
   KEYWORDS.forEach((name) => {
     it(`should return Lua Identifier Node with '_' prepended when name is not undefined and is a keyword`, () => {
       const given = babelIdentifier(name);
-      const expected = identifier(`${name}_`);
+      const expected = createWithOriginalIdentifierNameExtras(name)(
+        identifier(`${name}_`)
+      );
 
       expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
     });

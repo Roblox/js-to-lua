@@ -5,7 +5,6 @@ export default {
     // ---- Milestone 1 ----
     'conformance-tests/base-types/strings/octal-escape-sequence-follow-by-8.js',
     'conformance-tests/base-types/strings/octal-escape-sequences.js',
-    'conformance-tests/structural-types/object/single-false-key-to-boolean.js',
 
     // ---- Milestone 4 ----
     'conformance-tests/complex/graph-ql-lexer-test.ts',

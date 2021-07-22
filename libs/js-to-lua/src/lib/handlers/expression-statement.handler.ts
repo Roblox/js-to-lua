@@ -41,6 +41,7 @@ import {
   expressionStatement,
   functionExpression,
   identifier,
+  isIdentifier,
   LuaCallExpression,
   LuaExpression,
   LuaExpressionStatement,
@@ -53,6 +54,7 @@ import {
   numericLiteral,
   objectAssign,
   returnStatement,
+  stringLiteral,
   tableConstructor,
   tableExpressionKeyField,
   tableNameKeyField,
@@ -457,6 +459,31 @@ const handleObjectKeyExpression: HandlerFunction<
       )
 );
 
+export const handleObjectPropertyIdentifier = createHandlerFunction<
+  LuaExpression,
+  Identifier
+>((source, config, node) => {
+  const identifierResult = handleIdentifier.handler(source, config, node);
+
+  if (typeof identifierResult?.extras?.originalIdentifierName === 'string') {
+    return stringLiteral(identifierResult.extras.originalIdentifierName);
+  }
+
+  return isIdentifier(identifierResult)
+    ? identifierResult
+    : defaultExpressionHandler(source, config, node);
+});
+
+function tableKeyField(
+  computed: boolean,
+  key: LuaExpression,
+  value: LuaExpression
+) {
+  return computed || !isIdentifier(key)
+    ? tableExpressionKeyField(key, value)
+    : tableNameKeyField(key, value);
+}
+
 export const handleObjectProperty: BaseNodeHandler<
   LuaTableKeyField,
   ObjectProperty
@@ -465,15 +492,11 @@ export const handleObjectProperty: BaseNodeHandler<
   (source, config, { key, value, computed }) => {
     switch (key.type) {
       case 'Identifier':
-        return computed
-          ? tableExpressionKeyField(
-              handleIdentifier.handler(source, config, key) as LuaIdentifier,
-              handleObjectPropertyValue.handler(source, config, value)
-            )
-          : tableNameKeyField(
-              handleIdentifier.handler(source, config, key) as LuaIdentifier,
-              handleObjectPropertyValue.handler(source, config, value)
-            );
+        return tableKeyField(
+          computed,
+          handleObjectPropertyIdentifier(source, config, key),
+          handleObjectPropertyValue.handler(source, config, value)
+        );
       default:
         return tableExpressionKeyField(
           handleObjectKeyExpression(source, config, key),
@@ -489,6 +512,7 @@ export const handleObjectMethod: BaseNodeHandler<
 > = createHandler(
   'ObjectMethod',
   (source, config, node): LuaTableKeyField => {
+    const { key, computed } = node;
     const handleParamsBody = createFunctionParamsBodyHandler(
       forwardHandlerRef(() => handleDeclaration),
       handleAssignmentPattern
@@ -498,10 +522,11 @@ export const handleObjectMethod: BaseNodeHandler<
       identifier('self'),
       ...functionParamsHandler(source, config, node),
     ];
-    switch (node.key.type) {
+    switch (key.type) {
       case 'Identifier':
-        return tableNameKeyField(
-          handleIdentifier.handler(source, config, node.key) as LuaIdentifier,
+        return tableKeyField(
+          computed,
+          handleObjectPropertyIdentifier(source, config, key),
           functionExpression(
             params,
             [

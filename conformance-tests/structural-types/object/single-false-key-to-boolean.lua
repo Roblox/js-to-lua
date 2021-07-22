@@ -1,1 +1,1 @@
-local value = { [tostring(false)] = true }
+local value = { ["false"] = true }

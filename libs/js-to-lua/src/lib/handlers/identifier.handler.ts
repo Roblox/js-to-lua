@@ -23,6 +23,7 @@ import {
   isValidIdentifier,
   toValidIdentifier,
 } from '../utils/valid-identifier';
+import { createWithOriginalIdentifierNameExtras } from '../utils/with-original-identifier-name-extras';
 
 export const createIdentifierHandler = (
   handleType: HandlerFunction<
@@ -34,6 +35,9 @@ export const createIdentifierHandler = (
   Identifier
 > =>
   createHandler('Identifier', (source, config, node) => {
+    const withOriginalIdentifierNameExtras = createWithOriginalIdentifierNameExtras(
+      node.name
+    );
     switch (node.name) {
       case 'undefined':
         return nilLiteral();
@@ -63,7 +67,7 @@ export const createIdentifierHandler = (
       case 'until':
       case 'while':
       case 'error':
-        return identifier(`${node.name}_`);
+        return withOriginalIdentifierNameExtras(identifier(`${node.name}_`));
       default: {
         const typeAnnotation =
           (node.typeAnnotation &&
