@@ -1,30 +1,39 @@
 import {
-  variableDeclaration as babelVariableDeclaration,
-  variableDeclarator as babelVariableDeclarator,
-  identifier as babelIdentifier,
-  stringLiteral as babelStringLiteral,
   arrayPattern,
-  VariableDeclaration,
-  restElement,
+  assignmentPattern as babelAssignmentPattern,
+  identifier as babelIdentifier,
+  numericLiteral as babelNumericLiteral,
   objectPattern,
   objectProperty,
+  restElement,
+  stringLiteral as babelStringLiteral,
+  variableDeclaration as babelVariableDeclaration,
+  VariableDeclaration,
+  variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
 import {
+  binaryExpression,
+  callExpression,
+  elseClause,
+  functionExpression,
   identifier,
+  ifClause,
+  ifStatement,
+  LuaNodeGroup,
   LuaVariableDeclaration,
+  memberExpression,
+  nilLiteral,
+  nodeGroup,
+  numericLiteral,
+  objectAssign,
+  objectNone,
+  returnStatement,
+  stringLiteral,
+  tableConstructor,
+  tableNameKeyField,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  stringLiteral,
-  callExpression,
-  numericLiteral,
-  nodeGroup,
-  LuaNodeGroup,
-  memberExpression,
-  objectAssign,
-  tableConstructor,
-  tableNameKeyField,
-  objectNone,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../utils/forward-handler-ref';
 import { createDeclarationHandler } from './declaration.handler';
@@ -285,6 +294,79 @@ describe('Variable Declaration', () => {
     );
   });
 
+  it(`should handle array destructuring with assignment pattern element`, () => {
+    const given: VariableDeclaration = babelVariableDeclaration('let', [
+      babelVariableDeclarator(
+        arrayPattern([
+          babelIdentifier('foo'),
+          babelAssignmentPattern(
+            babelIdentifier('bar'),
+            babelNumericLiteral(3)
+          ),
+        ]),
+        babelIdentifier('baz')
+      ),
+    ]);
+
+    const expected: LuaNodeGroup = nodeGroup([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('foo'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('table.unpack'), [
+              identifier('baz'),
+              numericLiteral(1),
+              numericLiteral(1),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('bar'))],
+        [
+          variableDeclaratorValue(
+            callExpression(
+              functionExpression(
+                [],
+                [
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('element'))],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('table.unpack'), [
+                          identifier('baz'),
+                          numericLiteral(2),
+                          numericLiteral(2),
+                        ])
+                      ),
+                    ]
+                  ),
+                  ifStatement(
+                    ifClause(
+                      binaryExpression(
+                        identifier('element'),
+                        '==',
+                        nilLiteral()
+                      ),
+                      [returnStatement(numericLiteral(3))]
+                    ),
+                    undefined,
+                    elseClause([returnStatement(identifier('element'))])
+                  ),
+                ]
+              ),
+              []
+            )
+          ),
+        ]
+      ),
+    ]);
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
   it(`should handle object destructuring`, () => {
     const given: VariableDeclaration = babelVariableDeclaration('let', [
       babelVariableDeclarator(
@@ -418,6 +500,74 @@ describe('Variable Declaration', () => {
             memberExpression(identifier('fizz'), '.', identifier('foo')),
             '.',
             identifier('baz')
+          )
+        ),
+      ]
+    );
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
+  it(`should handle object destructuring with assignment pattern property`, () => {
+    const given: VariableDeclaration = babelVariableDeclaration('let', [
+      babelVariableDeclarator(
+        objectPattern([
+          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
+          objectProperty(
+            babelIdentifier('bar'),
+            babelAssignmentPattern(
+              babelIdentifier('bar'),
+              babelNumericLiteral(3)
+            )
+          ),
+        ]),
+        babelIdentifier('fizz')
+      ),
+    ]);
+
+    const expected: LuaVariableDeclaration = variableDeclaration(
+      [
+        variableDeclaratorIdentifier(identifier('foo')),
+        variableDeclaratorIdentifier(identifier('bar')),
+      ],
+      [
+        variableDeclaratorValue(
+          memberExpression(identifier('fizz'), '.', identifier('foo'))
+        ),
+        variableDeclaratorValue(
+          callExpression(
+            functionExpression(
+              [],
+              [
+                ifStatement(
+                  ifClause(
+                    binaryExpression(
+                      memberExpression(
+                        identifier('fizz'),
+                        '.',
+                        identifier('bar')
+                      ),
+                      '==',
+                      nilLiteral()
+                    ),
+                    [returnStatement(numericLiteral(3))]
+                  ),
+                  undefined,
+                  elseClause([
+                    returnStatement(
+                      memberExpression(
+                        identifier('fizz'),
+                        '.',
+                        identifier('bar')
+                      )
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            []
           )
         ),
       ]

@@ -1,5 +1,6 @@
 import {
   Expression,
+  isAssignmentPattern,
   isIdentifier,
   isObjectPattern,
   isObjectProperty,
@@ -8,6 +9,7 @@ import {
   ObjectMethod,
   ObjectProperty,
   ObjectPattern,
+  PatternLike,
   RestElement,
 } from '@babel/types';
 import {
@@ -18,10 +20,17 @@ import {
   LuaIndexExpression,
   LuaLVal,
   LuaMemberExpression,
+  functionExpression,
   objectAssign,
   objectNone,
   tableConstructor,
   LuaTableKeyField,
+  ifStatement,
+  ifClause,
+  binaryExpression,
+  nilLiteral,
+  returnStatement,
+  elseClause,
 } from '@js-to-lua/lua-types';
 import { EmptyConfig, HandlerFunction } from '../types';
 import { createPropertyFromBaseHandler } from './expression/property-from-base.handler';
@@ -78,6 +87,40 @@ export const createObjectPatternDestructuringHandler = (
 
           obj.ids.push(...ids);
           obj.values.push(...values);
+        } else if (
+          isObjectProperty(property) &&
+          isAssignmentPattern(property.value) &&
+          isIdentifier(property.value.left)
+        ) {
+          obj.ids.push(identifier(property.value.left.name));
+          obj.values.push(
+            callExpression(
+              functionExpression(
+                [],
+                [
+                  ifStatement(
+                    ifClause(
+                      binaryExpression(
+                        handlePropertyFromBase(property),
+                        '==',
+                        nilLiteral()
+                      ),
+                      [
+                        returnStatement(
+                          handleExpression(source, config, property.value.right)
+                        ),
+                      ]
+                    ),
+                    undefined,
+                    elseClause([
+                      returnStatement(handlePropertyFromBase(property)),
+                    ])
+                  ),
+                ]
+              ),
+              []
+            )
+          );
         } else if (isRestElement(property)) {
           obj.ids.push(handleLVal(source, config, property.argument));
           obj.values.push(
@@ -112,7 +155,11 @@ export function hasUnhandledObjectDestructuringParam(
 ): boolean {
   return (
     properties.some(
-      (el) => !anyPass([isIdentifier, isObjectPattern])(el.value, undefined)
+      (el) =>
+        !anyPass([isIdentifier, isObjectPattern, isHandledAssignmentPattern])(
+          el.value,
+          undefined
+        )
     ) ||
     properties
       .map((property) => property.value)
@@ -126,4 +173,10 @@ export function hasUnhandledObjectDestructuringParam(
       )
       .filter(Boolean).length > 0
   );
+}
+
+function isHandledAssignmentPattern(
+  node: Expression | PatternLike | null | undefined
+) {
+  return isAssignmentPattern(node) && isIdentifier(node.left);
 }

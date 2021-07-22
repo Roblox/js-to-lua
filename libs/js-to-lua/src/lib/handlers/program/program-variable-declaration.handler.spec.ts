@@ -16,6 +16,13 @@ import {
   objectNone,
   indexExpression,
   tableExpressionKeyField,
+  binaryExpression,
+  elseClause,
+  functionExpression,
+  ifClause,
+  ifStatement,
+  nilLiteral,
+  returnStatement,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
@@ -323,6 +330,72 @@ describe('Program handler', () => {
     expect(luaProgram).toEqual(expected);
   });
 
+  it(`should handle array destructuring with assignment pattern element`, () => {
+    const given = getProgramNode(`
+    const [foo, bar=3] = baz;
+  `);
+
+    const expected: LuaProgram = program([
+      nodeGroup([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('table.unpack'), [
+                identifier('baz'),
+                numericLiteral(1),
+                numericLiteral(1),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('bar'))],
+          [
+            variableDeclaratorValue(
+              callExpression(
+                functionExpression(
+                  [],
+                  [
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(identifier('element'))],
+                      [
+                        variableDeclaratorValue(
+                          callExpression(identifier('table.unpack'), [
+                            identifier('baz'),
+                            numericLiteral(2),
+                            numericLiteral(2),
+                          ])
+                        ),
+                      ]
+                    ),
+                    ifStatement(
+                      ifClause(
+                        binaryExpression(
+                          identifier('element'),
+                          '==',
+                          nilLiteral()
+                        ),
+                        [returnStatement(numericLiteral(3, '3'))]
+                      ),
+                      undefined,
+                      elseClause([returnStatement(identifier('element'))])
+                    ),
+                  ]
+                ),
+                []
+              )
+            ),
+          ]
+        ),
+      ]),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
   it(`should handle object destructuring`, () => {
     const given = getProgramNode(`
     const {foo, bar} = baz;
@@ -536,6 +609,64 @@ describe('Program handler', () => {
                 tableExpressionKeyField(identifier('bar'), objectNone()),
               ]),
             ])
+          ),
+        ]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle object destructuring with assignment pattern property`, () => {
+    const given = getProgramNode(`
+    const { foo, bar = 3 } = fizz;
+  `);
+
+    const expected: LuaProgram = program([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        [
+          variableDeclaratorValue(
+            memberExpression(identifier('fizz'), '.', identifier('foo'))
+          ),
+          variableDeclaratorValue(
+            callExpression(
+              functionExpression(
+                [],
+                [
+                  ifStatement(
+                    ifClause(
+                      binaryExpression(
+                        memberExpression(
+                          identifier('fizz'),
+                          '.',
+                          identifier('bar')
+                        ),
+                        '==',
+                        nilLiteral()
+                      ),
+                      [returnStatement(numericLiteral(3, '3'))]
+                    ),
+                    undefined,
+                    elseClause([
+                      returnStatement(
+                        memberExpression(
+                          identifier('fizz'),
+                          '.',
+                          identifier('bar')
+                        )
+                      ),
+                    ])
+                  ),
+                ]
+              ),
+              []
+            )
           ),
         ]
       ),

@@ -1,100 +1,205 @@
 import {
+  ArrayPattern,
+  Expression,
   Identifier,
-  isArrayPattern,
-  isIdentifier,
-  isRestElement,
+  isArrayPattern as isBabelArrayPattern,
+  isAssignmentPattern as isBabelAssignmentPattern,
+  isIdentifier as isBabelIdentifier,
+  isRestElement as isBabelRestElement,
   LVal,
   PatternLike,
-  ArrayPattern,
 } from '@babel/types';
 import {
+  binaryExpression,
   callExpression,
+  elseClause,
+  functionExpression,
   identifier,
+  ifClause,
+  ifStatement,
   LuaCallExpression,
   LuaExpression,
+  nilLiteral,
   numericLiteral,
+  returnStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { isTruthy } from '@js-to-lua/shared-utils';
-import { anyPass } from 'ramda';
+import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
+import { anyPass, last } from 'ramda';
+import { EmptyConfig, HandlerFunction } from '../types';
 
-export function handleArrayPatternDestructuring(
+interface DestructuredArrayPattern {
+  ids: LVal[];
+  values: LuaCallExpression[];
+}
+type NotIdentifier = Exclude<PatternLike, Identifier>;
+interface DestructuredGroup {
+  startIndex: number;
+  endIndex: number;
+  group: NotIdentifier | Identifier[];
+}
+
+export const createArrayPatternDestructuringHandler = (
+  handleExpression: HandlerFunction<LuaExpression, Expression>
+) => (
+  source: string,
+  config: EmptyConfig,
   elements: PatternLike[],
   init: LuaExpression
-) {
-  const nodes: { ids: LVal[]; values: LuaCallExpression[] }[] = [];
-  let tempIdentifierNodes: Identifier[] = [];
-  let startIndex: number | null = null;
+): DestructuredArrayPattern[] => {
+  return handleArrayPatternDestructuring(elements, init);
 
-  elements.forEach((el, i) => {
-    if (isIdentifier(el)) {
-      startIndex = startIndex == null ? i : startIndex;
-      tempIdentifierNodes.push(el);
-      if (i === elements.length - 1) {
-        flushIdentifierDeclarations(startIndex, i);
-      }
-    } else {
-      flushIdentifierDeclarations(startIndex!, i - 1);
+  function handleArrayPatternDestructuring(
+    elements: PatternLike[],
+    init: LuaExpression
+  ): DestructuredArrayPattern[] {
+    return elements
+      .reduce(
+        splitBy<PatternLike, NotIdentifier>(
+          (node): node is NotIdentifier => !isBabelIdentifier(node)
+        ),
+        []
+      )
+      .reduce((result, group) => {
+        const startIndex = (last(result)?.endIndex || 0) + 1;
+        const groupLength = Array.isArray(group) ? group.length : 1;
+        return [
+          ...result,
+          {
+            group,
+            startIndex,
+            endIndex: startIndex + groupLength - 1,
+          },
+        ];
+      }, Array<DestructuredGroup>())
+      .map(({ group, startIndex, endIndex }) =>
+        Array.isArray(group)
+          ? handleIdentifier(group, startIndex, endIndex)
+          : handleNotIdentifier(group, startIndex, endIndex)
+      )
+      .flat();
 
-      if (isRestElement(el)) {
-        nodes.push({
-          ids: [el.argument],
-          values: [
-            callExpression(identifier('table.pack'), [
-              callExpression(identifier('table.unpack'), [
-                init,
-                numericLiteral(i + 1),
-              ]),
-            ]),
-          ],
-        });
-      } else if (isArrayPattern(el)) {
-        nodes.push(
-          ...handleArrayPatternDestructuring(
-            el.elements.filter(isTruthy),
-            callExpression(identifier('table.unpack'), [
-              init,
-              numericLiteral(i + 1),
-              numericLiteral(i + 1),
-            ])
-          )
-        );
-      }
-    }
-  });
-
-  return nodes;
-
-  function flushIdentifierDeclarations(fromIndex: number, toIndex: number) {
-    if (tempIdentifierNodes.length) {
-      nodes.push({
-        ids: tempIdentifierNodes,
+    function handleIdentifier(
+      group: Identifier[],
+      startIndex: number,
+      endIndex: number
+    ): DestructuredArrayPattern {
+      return {
+        ids: group,
         values: [
           callExpression(identifier('table.unpack'), [
             init,
-            numericLiteral(fromIndex + 1),
-            numericLiteral(toIndex + 1),
+            numericLiteral(startIndex),
+            numericLiteral(endIndex),
           ]),
         ],
-      });
+      };
     }
-    tempIdentifierNodes = [];
-    startIndex = null;
-  }
-}
 
+    function handleNotIdentifier(
+      el: NotIdentifier,
+      startIndex: number,
+      endIndex: number
+    ): DestructuredArrayPattern[] {
+      if (isBabelRestElement(el)) {
+        return [
+          {
+            ids: [el.argument],
+            values: [
+              callExpression(identifier('table.pack'), [
+                callExpression(identifier('table.unpack'), [
+                  init,
+                  numericLiteral(startIndex),
+                ]),
+              ]),
+            ],
+          },
+        ];
+      } else if (isBabelArrayPattern(el)) {
+        return handleArrayPatternDestructuring(
+          el.elements.filter(isTruthy),
+          callExpression(identifier('table.unpack'), [
+            init,
+            numericLiteral(startIndex),
+            numericLiteral(endIndex),
+          ])
+        );
+      } else if (isBabelAssignmentPattern(el) && isBabelIdentifier(el.left)) {
+        return [
+          {
+            ids: [el.left],
+            values: [
+              callExpression(
+                functionExpression(
+                  [],
+                  [
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(identifier('element'))],
+                      [
+                        variableDeclaratorValue(
+                          callExpression(identifier('table.unpack'), [
+                            init,
+                            numericLiteral(startIndex),
+                            numericLiteral(endIndex),
+                          ])
+                        ),
+                      ]
+                    ),
+                    ifStatement(
+                      ifClause(
+                        binaryExpression(
+                          identifier('element'),
+                          '==',
+                          nilLiteral()
+                        ),
+                        [
+                          returnStatement(
+                            handleExpression(source, config, el.right)
+                          ),
+                        ]
+                      ),
+                      undefined,
+                      elseClause([returnStatement(identifier('element'))])
+                    ),
+                  ]
+                ),
+                []
+              ),
+            ],
+          },
+        ];
+      }
+      // should never reach this code because `hasUnhandledArrayDestructuringParam` check is called before
+      throw new Error(
+        `Unhandled node for type ${el.type} when destructuring an Array Pattern`
+      );
+    }
+  }
+};
 export function hasUnhandledArrayDestructuringParam(
   elements: PatternLike[]
 ): boolean {
   return (
     elements.some(
       (el) =>
-        !anyPass([isIdentifier, isRestElement, isArrayPattern])(el, undefined)
+        !anyPass([
+          isBabelIdentifier,
+          isBabelRestElement,
+          isBabelArrayPattern,
+          isHandledAssignmentPattern,
+        ])(el, undefined)
     ) ||
     elements
-      .filter((el): el is ArrayPattern => isArrayPattern(el))
+      .filter((el): el is ArrayPattern => isBabelArrayPattern(el))
       .map((el) =>
         hasUnhandledArrayDestructuringParam(el.elements.filter(isTruthy))
       )
       .filter(Boolean).length > 0
   );
+}
+
+function isHandledAssignmentPattern(node: PatternLike | null | undefined) {
+  return isBabelAssignmentPattern(node) && isBabelIdentifier(node.left);
 }

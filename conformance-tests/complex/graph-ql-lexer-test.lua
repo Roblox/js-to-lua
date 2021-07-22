@@ -15,7 +15,7 @@ return function()
 
 	local function expectSyntaxError(text: string)
 		return expect(function()
-			lexSecond(text)
+			return lexSecond(text)
 		end).to.throw()
 	end
 

@@ -53,7 +53,7 @@ import {
 } from '../types';
 import { defaultStatementHandler } from '../utils/default-handlers';
 import {
-  handleArrayPatternDestructuring,
+  createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,
 } from './array-pattern-destructuring.handler';
 import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
@@ -88,6 +88,10 @@ export const createVariableDeclarationHandler = (
       handleExpression,
       lValHandler,
       handleObjectField
+    );
+
+    const arrayPatternDestructuringHandler = createArrayPatternDestructuringHandler(
+      handleExpression
     );
 
     const handleVariableDeclarator: BaseNodeHandler<
@@ -273,7 +277,12 @@ export const createVariableDeclarationHandler = (
         ];
       }
 
-      return handleArrayPatternDestructuring(elements, init).map((node) =>
+      return arrayPatternDestructuringHandler(
+        source,
+        config,
+        elements,
+        init
+      ).map((node) =>
         variableDeclaration(
           node.ids.map((id) =>
             variableDeclaratorIdentifier(lValHandler(source, config, id))

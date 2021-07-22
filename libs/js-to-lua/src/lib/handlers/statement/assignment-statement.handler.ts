@@ -54,7 +54,7 @@ import {
 } from '../object-pattern-destructuring.handler';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import {
-  handleArrayPatternDestructuring,
+  createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,
 } from '../array-pattern-destructuring.handler';
 import { createExpressionAsNumericHandler } from '../expression/handle-expression-as-numeric';
@@ -150,6 +150,10 @@ export const createAssignmentStatementHandlerFunction = (
         handleExpression,
         handleLVal,
         handleObjectField
+      );
+
+      const arrayPatternDestructuringHandler = createArrayPatternDestructuringHandler(
+        handleExpression
       );
 
       if (isBabelObjectPattern(node.left)) {
@@ -349,7 +353,9 @@ export const createAssignmentStatementHandlerFunction = (
           ];
         }
 
-        return handleArrayPatternDestructuring(
+        return arrayPatternDestructuringHandler(
+          source,
+          config,
           node.left.elements.filter(isTruthy),
           handleExpression(source, config, node.right)
         ).map((item) =>
