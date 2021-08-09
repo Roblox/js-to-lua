@@ -50,18 +50,18 @@ import {
   createHandler,
   createHandlerFunction,
   HandlerFunction,
-} from '../types';
-import { defaultStatementHandler } from '../utils/default-handlers';
+} from '../../types';
+import { defaultStatementHandler } from '../../utils/default-handlers';
 import {
   createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,
-} from './array-pattern-destructuring.handler';
+} from '../expression/array-pattern-destructuring.handler';
 import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
-import { createLValHandler } from './l-val.handler';
+import { createLValHandler } from '../l-val.handler';
 import {
   createObjectPatternDestructuringHandler,
   hasUnhandledObjectDestructuringParam,
-} from './object-pattern-destructuring.handler';
+} from '../object-pattern-destructuring.handler';
 
 export const createVariableDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

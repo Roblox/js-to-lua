@@ -5,6 +5,7 @@ import {
   isFunctionDeclaration,
   isIfClause,
   isLogicalExpression,
+  isUnaryExpression,
   isUnaryNegation,
   LuaBlockStatement,
   LuaCallExpression,
@@ -14,7 +15,6 @@ import {
   LuaFunctionDeclaration,
   LuaFunctionExpression,
   LuaIfStatement,
-  LuaMemberExpression,
   LuaNode,
   LuaNodeGroup,
   LuaProgram,
@@ -29,12 +29,10 @@ import {
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
-  isUnaryExpression,
 } from '@js-to-lua/lua-types';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
 import { printMultilineString } from './primitives/print-multiline-string';
-import { printIndexExpression } from './print-index-expression';
 import { calculateEqualsForDelimiter } from './utils';
 import { createPrintAssignmentStatement } from './statements/print-assignment-statement';
 import { createPrintExportTypeStatement } from './statements/print-export-type-statement';
@@ -42,6 +40,9 @@ import { createPrintForGenericStatement } from './statements/print-for-generic-s
 import { createPrintRepeatStatement } from './statements/print-repeat-statement';
 import { anyPass } from 'ramda';
 import { createPrintTypeCastExpression } from './expression/print-type-cast-expression';
+import { createPrintTypeReference } from './type/print-type-reference';
+import { createPrintIndexExpression } from './expression/print-index-expression';
+import { createPrintMemberExpression } from './expression/print-member-expression';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -134,9 +135,9 @@ const _printNode = (node: LuaNode): string => {
     case 'LuaUnaryDeleteExpression':
       return `${printNode(node.argument)} = nil`;
     case 'IndexExpression':
-      return printIndexExpression(node);
+      return createPrintIndexExpression(printNode)(node);
     case 'LuaMemberExpression':
-      return printMemberExpression(node);
+      return createPrintMemberExpression(printNode)(node);
     case 'LuaIfStatement':
       return printIfStatement(node);
     case 'AssignmentStatement':
@@ -151,6 +152,8 @@ const _printNode = (node: LuaNode): string => {
       return 'break';
     case 'TypeCastExpression':
       return createPrintTypeCastExpression(printNode)(node);
+    case 'TypeReference':
+      return createPrintTypeReference(printNode)(node);
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':
@@ -297,27 +300,6 @@ function printPropertySignature(node: LuaPropertySignature) {
   return `${printNode(node.key)}${
     node.typeAnnotation ? printNode(node.typeAnnotation) : ''
   }`;
-}
-
-function printMemberExpression(node: LuaMemberExpression): string {
-  return `${printMemberBaseExpression(node.base)}${node.indexer}${printNode(
-    node.identifier
-  )}`;
-}
-
-function printMemberBaseExpression(base: LuaExpression): string {
-  switch (base.type) {
-    case 'Identifier':
-    case 'CallExpression':
-    case 'LuaBinaryExpression':
-    case 'LogicalExpression':
-    case 'FunctionExpression':
-    case 'IndexExpression':
-    case 'LuaMemberExpression':
-      return `${printNode(base)}`;
-    default:
-      return `(${printNode(base)})`;
-  }
 }
 
 function printIfStatement(node: LuaIfStatement): string {

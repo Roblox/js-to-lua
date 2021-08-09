@@ -3,7 +3,7 @@ import {
   createHandler,
   createHandlerFunction,
   HandlerFunction,
-} from '../types';
+} from '../../types';
 import { Expression, MemberExpression, PrivateName } from '@babel/types';
 import {
   callExpression,
@@ -19,10 +19,10 @@ import {
   UnhandledStatement,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { handleNumericLiteral } from './primitives/numeric.handler';
-import { handleStringLiteral } from './primitives/string.handler';
+import { handleNumericLiteral } from '../primitives/numeric.handler';
+import { handleStringLiteral } from '../primitives/string.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
-import { defaultExpressionHandler } from '../utils/default-handlers';
+import { defaultExpressionHandler } from '../../utils/default-handlers';
 
 export const createMemberExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

@@ -17,9 +17,9 @@ import {
   UnhandledStatement,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
-import { defaultStatementHandler } from '../utils/default-handlers';
-import { createExpressionAsBooleanHandler } from './handle-as-boolean';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import { defaultStatementHandler } from '../../utils/default-handlers';
+import { createExpressionAsBooleanHandler } from '../handle-as-boolean';
 
 export const createUnaryExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

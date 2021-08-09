@@ -27,12 +27,13 @@ import {
 } from '../../expression-statement.handler';
 import { createExportHandler } from './index';
 import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
-import { createDeclarationHandler } from '../../declaration.handler';
-import { createIdentifierHandler } from '../../identifier.handler';
-import { createTypeAnnotationHandler } from '../../type-annotation.handler';
+import { createDeclarationHandler } from '../../declaration/declaration.handler';
+import { createIdentifierHandler } from '../../expression/identifier.handler';
+import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleIdentifier)
 );
 
 const handleIdentifier = createIdentifierHandler(

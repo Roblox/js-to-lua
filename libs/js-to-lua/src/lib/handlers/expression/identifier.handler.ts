@@ -1,4 +1,4 @@
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import {
   binaryExpression,
   identifier,
@@ -18,12 +18,12 @@ import {
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
-import { getNodeSource } from '../utils/get-node-source';
+import { getNodeSource } from '../../utils/get-node-source';
 import {
   isValidIdentifier,
   toValidIdentifier,
-} from '../utils/valid-identifier';
-import { createWithOriginalIdentifierNameExtras } from '../utils/with-original-identifier-name-extras';
+} from '../../utils/valid-identifier';
+import { createWithOriginalIdentifierNameExtras } from '../../utils/with-original-identifier-name-extras';
 
 export const createIdentifierHandler = (
   handleType: HandlerFunction<

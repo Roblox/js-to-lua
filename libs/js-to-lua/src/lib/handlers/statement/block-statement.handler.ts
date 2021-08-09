@@ -1,6 +1,6 @@
 import { BlockStatement, Statement } from '@babel/types';
 import { LuaBlockStatement, LuaStatement } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 
 export const createBlockStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>

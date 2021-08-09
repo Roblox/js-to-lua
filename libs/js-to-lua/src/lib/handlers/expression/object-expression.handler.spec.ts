@@ -10,7 +10,7 @@ import {
   functionExpression,
   tableExpressionKeyField,
 } from '@js-to-lua/lua-types';
-import { handleObjectExpression } from './expression-statement.handler';
+import { handleObjectExpression } from '../expression-statement.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,

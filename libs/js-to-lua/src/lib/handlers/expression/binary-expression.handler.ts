@@ -20,9 +20,9 @@ import {
   createHandler,
   createHandlerFunction,
   HandlerFunction,
-} from '../types';
-import { defaultExpressionHandler } from '../utils/default-handlers';
-import { bit32MethodCall } from '../utils/bit-32-method';
+} from '../../types';
+import { defaultExpressionHandler } from '../../utils/default-handlers';
+import { bit32MethodCall } from '../../utils/bit-32-method';
 
 export const createBinaryExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

@@ -3,7 +3,7 @@ import {
   createHandler,
   createHandlerFunction,
   HandlerFunction,
-} from '../types';
+} from '../../types';
 import {
   ArrayExpression,
   Expression,

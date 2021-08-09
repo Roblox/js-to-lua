@@ -9,7 +9,7 @@ import {
   identifier,
   LuaFunctionDeclaration,
 } from '@js-to-lua/lua-types';
-import { handleStatement } from './expression-statement.handler';
+import { handleStatement } from '../expression-statement.handler';
 
 const source = '';
 

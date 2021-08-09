@@ -24,8 +24,8 @@ import {
   unaryVoidExpression,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { forwardHandlerRef } from '../utils/forward-handler-ref';
-import { handleExpression } from './expression-statement.handler';
+import { forwardHandlerRef } from '../../utils/forward-handler-ref';
+import { handleExpression } from '../expression-statement.handler';
 import { createUnaryExpressionHandler } from './unary-expression.handler';
 
 const source = '';

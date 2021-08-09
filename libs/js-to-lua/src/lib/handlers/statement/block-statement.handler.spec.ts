@@ -1,6 +1,6 @@
 import { BlockStatement } from '@babel/types';
 import { LuaBlockStatement } from '@js-to-lua/lua-types';
-import { handleStatement } from './expression-statement.handler';
+import { handleStatement } from '../expression-statement.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,

@@ -20,7 +20,7 @@ import {
   mockNodeWithValueHandler,
 } from '../../testUtils/mock-node';
 import { createAssignmentPatternHandlerFunction } from './assignment-pattern.handler';
-import { createIdentifierHandler } from '../identifier.handler';
+import { createIdentifierHandler } from '../expression/identifier.handler';
 
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
   mockNodeWithValueHandler,

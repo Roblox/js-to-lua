@@ -7,7 +7,7 @@ import {
   LuaType,
   LuaTypeAliasDeclaration,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 
 export const createTypeAliasDeclarationHandler = (
   handleIdentifier: HandlerFunction<

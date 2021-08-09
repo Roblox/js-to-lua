@@ -23,7 +23,7 @@ import { createLogicalExpressionHandler } from './logical-expression.handler';
 import {
   mockNodeWithValue,
   mockNodeWithValueHandler,
-} from '../testUtils/mock-node';
+} from '../../testUtils/mock-node';
 
 const source = '';
 

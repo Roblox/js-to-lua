@@ -14,7 +14,7 @@ import {
   createHandlerFunction,
   HandlerFunction,
 } from '../types';
-import { createMemberExpressionHandler } from './member-expression.handler';
+import { createMemberExpressionHandler } from './expression/member-expression.handler';
 import { defaultUnhandledIdentifierHandler } from '../utils/default-handlers';
 
 export const createLValHandler = (

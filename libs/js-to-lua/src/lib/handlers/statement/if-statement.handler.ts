@@ -17,8 +17,8 @@ import {
   createHandler,
   EmptyConfig,
   HandlerFunction,
-} from '../types';
-import { createExpressionAsBooleanHandler } from './handle-as-boolean';
+} from '../../types';
+import { createExpressionAsBooleanHandler } from '../handle-as-boolean';
 
 export const createIfStatementHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

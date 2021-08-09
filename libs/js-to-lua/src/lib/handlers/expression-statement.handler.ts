@@ -64,31 +64,31 @@ import {
 } from '@js-to-lua/lua-types';
 
 import { createMultilineStringLiteralHandler } from './primitives/multiline-string.handler';
-import { createTypeAnnotationHandler } from './type-annotation.handler';
+import { createTypeAnnotationHandler } from './type/type-annotation.handler';
 import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from './function-params.handler';
 import { createReturnStatementHandler } from './statement/return-statement.handler';
-import { createArrayExpressionHandler } from './array-expression.handler';
+import { createArrayExpressionHandler } from './expression/array-expression.handler';
 import {
   forwardHandlerFunctionRef,
   forwardHandlerRef,
 } from '../utils/forward-handler-ref';
-import { createMemberExpressionHandler } from './member-expression.handler';
-import { createUnaryExpressionHandler } from './unary-expression.handler';
-import { createBinaryExpressionHandler } from './binary-expression.handler';
+import { createMemberExpressionHandler } from './expression/member-expression.handler';
+import { createUnaryExpressionHandler } from './expression/unary-expression.handler';
+import { createBinaryExpressionHandler } from './expression/binary-expression.handler';
 import { handleBigIntLiteral } from './primitives/big-int.handler';
-import { createLogicalExpressionHandler } from './logical-expression.handler';
+import { createLogicalExpressionHandler } from './expression/logical-expression.handler';
 import { defaultExpressionHandler } from '../utils/default-handlers';
 import { createAssignmentPatternHandlerFunction } from './statement/assignment-pattern.handler';
 import { createAssignmentExpressionHandlerFunction } from './statement/assignment-expression.handler';
 import { createAssignmentStatementHandlerFunction } from './statement/assignment-statement.handler';
-import { createBlockStatementHandler } from './block-statement.handler';
-import { createIdentifierHandler } from './identifier.handler';
-import { createIfStatementHandler } from './if-statement.handler';
+import { createBlockStatementHandler } from './statement/block-statement.handler';
+import { createIdentifierHandler } from './expression/identifier.handler';
+import { createIfStatementHandler } from './statement/if-statement.handler';
 import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
-import { createDeclarationHandler } from './declaration.handler';
+import { createDeclarationHandler } from './declaration/declaration.handler';
 import { createLValHandler } from './l-val.handler';
 import { createThrowStatementHandler } from './statement/throw-statement.handler';
 import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
@@ -376,7 +376,8 @@ export const handleExpression: BaseNodeHandler<
 ]);
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleIdentifier)
 );
 
 const handleIdentifier = createIdentifierHandler(

@@ -7,10 +7,10 @@ import {
   typeLiteral,
   typeNumber,
   typePropertySignature,
+  typeReference,
   typeString,
   variableDeclaration,
   variableDeclaratorIdentifier,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
@@ -136,9 +136,9 @@ describe('Program handler', () => {
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
-    it('should default unhandled types to "any"', () => {
+    it('should handle type reference', () => {
       const source = `
-        let foo: UnhandledType;
+        let foo: TypeReference;
       `;
       const given = getProgramNode(source);
       const expected = program([
@@ -147,13 +147,7 @@ describe('Program handler', () => {
             variableDeclaratorIdentifier(
               identifier(
                 'foo',
-                typeAnnotation(
-                  withTrailingConversionComment(
-                    typeAny(),
-                    `ROBLOX TODO: Unhandled node for type: TSTypeReference`,
-                    'UnhandledType'
-                  )
-                )
+                typeAnnotation(typeReference(identifier('TypeReference')))
               )
             ),
           ],

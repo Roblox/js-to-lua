@@ -56,7 +56,7 @@ import { isTruthy } from '@js-to-lua/shared-utils';
 import {
   createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,
-} from '../array-pattern-destructuring.handler';
+} from '../expression/array-pattern-destructuring.handler';
 import { createExpressionAsNumericHandler } from '../expression/handle-expression-as-numeric';
 import { equals } from 'ramda';
 

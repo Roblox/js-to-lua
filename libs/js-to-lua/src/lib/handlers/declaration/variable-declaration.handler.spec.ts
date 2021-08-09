@@ -35,22 +35,23 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { forwardHandlerRef } from '../utils/forward-handler-ref';
+import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { createDeclarationHandler } from './declaration.handler';
 import {
   handleExpression,
   handleExpressionAsStatement,
   handleObjectField,
   handleStatement,
-} from './expression-statement.handler';
-import { createIdentifierHandler } from './identifier.handler';
-import { createTypeAnnotationHandler } from './type-annotation.handler';
+} from '../expression-statement.handler';
+import { createIdentifierHandler } from '../expression/identifier.handler';
+import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
 
 const source = '';
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleIdentifier)
 );
 
 const handleIdentifier = createIdentifierHandler(typesHandler);

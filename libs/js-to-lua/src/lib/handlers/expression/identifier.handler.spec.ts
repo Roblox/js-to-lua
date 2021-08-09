@@ -9,10 +9,10 @@ import {
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { createIdentifierHandler } from './identifier.handler';
-import { createTypeAnnotationHandler } from './type-annotation.handler';
-import { forwardHandlerRef } from '../utils/forward-handler-ref';
-import { handleExpression } from './expression-statement.handler';
-import { createWithOriginalIdentifierNameExtras } from '../utils/with-original-identifier-name-extras';
+import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
+import { forwardHandlerRef } from '../../utils/forward-handler-ref';
+import { handleExpression } from '../expression-statement.handler';
+import { createWithOriginalIdentifierNameExtras } from '../../utils/with-original-identifier-name-extras';
 
 const source = '';
 
@@ -47,8 +47,10 @@ const UNHANDLED_CHARS_IDENTIFIERS = [
 ];
 
 const handleIdentifier = createIdentifierHandler(
-  createTypeAnnotationHandler(forwardHandlerRef(() => handleExpression))
-    .typesHandler
+  createTypeAnnotationHandler(
+    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => handleIdentifier)
+  ).typesHandler
 );
 
 describe('Identifier Handler', () => {

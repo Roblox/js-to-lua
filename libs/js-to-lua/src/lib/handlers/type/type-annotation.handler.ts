@@ -1,6 +1,7 @@
 import {
   Expression,
   FlowType,
+  Identifier,
   Noop,
   TSAnyKeyword,
   TSBooleanKeyword,
@@ -15,6 +16,7 @@ import {
 } from '@babel/types';
 import {
   LuaExpression,
+  LuaIdentifier,
   LuaPropertySignature,
   LuaType,
   LuaTypeAnnotation,
@@ -35,15 +37,18 @@ import {
 import {
   combineHandlers,
   combineTypeAnnotationHandlers,
-} from '../utils/combine-handlers';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
+} from '../../utils/combine-handlers';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import {
   defaultElementHandler,
   defaultTypeHandler,
-} from '../utils/default-handlers';
+} from '../../utils/default-handlers';
+import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
+import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 
 export const createTypeAnnotationHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
+  identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>
 ) => {
   const handleNoop: BaseNodeHandler<
     LuaTypeAnnotation,
@@ -113,13 +118,16 @@ export const createTypeAnnotationHandler = (
     TSPropertySignature
   > = createHandler('TSPropertySignature', (source, config, node) => ({
     type: 'LuaPropertySignature',
-    key: handleExpression(source, config, node.key),
+    key: expressionHandlerFunction(source, config, node.key),
     ...(node.typeAnnotation
       ? { typeAnnotation: typesHandler(source, config, node.typeAnnotation) }
       : {}),
   }));
 
-  const handleTsTypes = combineHandlers<LuaType, TSType>(
+  const handleTsTypes: BaseNodeHandler<LuaType, TSType> = combineHandlers<
+    LuaType,
+    TSType
+  >(
     [
       handleTsStringKeyword,
       handleTsNumberKeyword,
@@ -127,6 +135,10 @@ export const createTypeAnnotationHandler = (
       handleTsVoidKeyword,
       handleTsAnyKeyword,
       handleTsTypeLiteral,
+      createTsTypeReferenceHandler(
+        identifierHandlerFunction,
+        forwardHandlerRef(() => handleTsTypes)
+      ),
     ],
     defaultTypeHandler
   );

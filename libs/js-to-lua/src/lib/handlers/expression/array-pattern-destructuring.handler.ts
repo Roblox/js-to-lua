@@ -28,7 +28,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
 import { anyPass, last } from 'ramda';
-import { EmptyConfig, HandlerFunction } from '../types';
+import { EmptyConfig, HandlerFunction } from '../../types';
 
 interface DestructuredArrayPattern {
   ids: LVal[];

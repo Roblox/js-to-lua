@@ -13,8 +13,8 @@ import {
   tableNoKeyField,
 } from '@js-to-lua/lua-types';
 import { createArrayExpressionHandler } from './array-expression.handler';
-import { combineHandlers } from '../utils/combine-handlers';
-import { mockNode, mockNodeHandler } from '../testUtils/mock-node';
+import { combineHandlers } from '../../utils/combine-handlers';
+import { mockNode, mockNodeHandler } from '../../testUtils/mock-node';
 
 const source = '';
 

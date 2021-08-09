@@ -22,21 +22,21 @@ import {
   LuaTableKeyField,
   LuaType,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, EmptyConfig, HandlerFunction } from '../types';
-import { combineStatementHandlers } from '../utils/combine-handlers';
-import { forwardHandlerRef } from '../utils/forward-handler-ref';
+import { BaseNodeHandler, EmptyConfig, HandlerFunction } from '../../types';
+import { combineStatementHandlers } from '../../utils/combine-handlers';
+import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { createFunctionDeclarationHandler } from './function-declaration.handler';
 import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
-} from './function-params.handler';
-import { createAssignmentPatternHandlerFunction } from './statement/assignment-pattern.handler';
-import { createExportHandler } from './statement/export';
-import { createImportHandler } from './statement/import';
+} from '../function-params.handler';
+import { createAssignmentPatternHandlerFunction } from '../statement/assignment-pattern.handler';
+import { createExportHandler } from '../statement/export';
+import { createImportHandler } from '../statement/import';
 import { createTypeAliasDeclarationHandler } from './type-alias-declaration.handler';
-import { createTypeAnnotationHandler } from './type-annotation.handler';
+import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
-import { createFunctionBodyHandler } from './expression/function-body.handler';
+import { createFunctionBodyHandler } from '../expression/function-body.handler';
 
 export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -101,7 +101,10 @@ export function createConvertToFunctionDeclarationHandler(
     handleExpression,
     handleIdentifier
   );
-  const { typesHandler } = createTypeAnnotationHandler(handleExpression);
+  const { typesHandler } = createTypeAnnotationHandler(
+    handleExpression,
+    handleIdentifier
+  );
   const functionParamsHandler = createFunctionParamsHandler(handleIdentifier);
 
   return function (

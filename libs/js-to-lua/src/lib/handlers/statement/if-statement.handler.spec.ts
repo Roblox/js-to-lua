@@ -12,11 +12,11 @@ import {
   ifClause,
   ifStatement,
 } from '@js-to-lua/lua-types';
-import { forwardHandlerRef } from '../utils/forward-handler-ref';
+import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import {
   handleExpression,
   handleStatement,
-} from './expression-statement.handler';
+} from '../expression-statement.handler';
 import { createIfStatementHandler } from './if-statement.handler';
 
 const handleIfStatement = createIfStatementHandler(

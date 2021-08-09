@@ -1,4 +1,4 @@
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import { Expression, LogicalExpression } from '@babel/types';
 import {
   booleanMethod,
@@ -15,8 +15,8 @@ import {
   returnStatement,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
-import { defaultStatementHandler } from '../utils/default-handlers';
-import { isLuaTruthy } from '../utils/is-lua-truthy';
+import { defaultStatementHandler } from '../../utils/default-handlers';
+import { isLuaTruthy } from '../../utils/is-lua-truthy';
 
 export const createLogicalExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

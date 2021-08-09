@@ -16,7 +16,7 @@ import {
 import {
   handleCallExpression,
   USE_DOT_NOTATION_IN_CALL_EXPRESSION,
-} from './expression-statement.handler';
+} from '../expression-statement.handler';
 
 const source = '';
 
