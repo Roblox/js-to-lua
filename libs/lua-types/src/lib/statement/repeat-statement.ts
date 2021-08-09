@@ -1,5 +1,6 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaExpression, LuaStatement } from '../lua-nodes.types';
+import { LuaExpression } from '../expression';
+import { LuaStatement } from './statement';
 
 export interface RepeatStatement extends BaseLuaNode {
   type: 'RepeatStatement';

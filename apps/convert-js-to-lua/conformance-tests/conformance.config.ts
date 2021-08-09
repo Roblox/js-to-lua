@@ -11,5 +11,7 @@ export default {
 
     'conformance-tests/operators/relational/in/string-key_m4.js',
     'conformance-tests/operators/relational/in/string_m4.js',
+
+    'conformance-tests/expressions/member/computed-with-as-cast_m5.ts',
   ],
 };

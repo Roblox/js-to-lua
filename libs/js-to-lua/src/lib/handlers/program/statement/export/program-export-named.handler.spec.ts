@@ -8,7 +8,7 @@ import {
   nodeGroup,
   numericLiteral,
   program,
-  propertySignature,
+  typePropertySignature,
   returnStatement,
   tableConstructor,
   typeAnnotation,
@@ -227,7 +227,7 @@ describe('Program handler', () => {
           typeAliasDeclaration(
             identifier('Foo'),
             typeLiteral([
-              propertySignature(
+              typePropertySignature(
                 identifier('foo'),
                 typeAnnotation(typeString())
               ),

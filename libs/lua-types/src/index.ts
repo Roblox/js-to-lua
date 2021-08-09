@@ -6,5 +6,8 @@ export * from './lib/comment';
 export * from './lib/string-inferable';
 export * from './lib/boolean-inferable';
 
+export * from './lib/declaration';
 export * from './lib/literals';
+export * from './lib/expression';
 export * from './lib/statement';
+export * from './lib/type';

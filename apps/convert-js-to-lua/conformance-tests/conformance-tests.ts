@@ -15,6 +15,7 @@ export enum Milestone {
   M2,
   M3,
   M4,
+  M5,
   Unspecified,
 }
 
@@ -23,6 +24,7 @@ const descriptions = {
   [Milestone.M2]: 'Milestone 2',
   [Milestone.M3]: 'Milestone 3',
   [Milestone.M4]: 'Milestone 4',
+  [Milestone.M5]: 'Milestone 4',
   [Milestone.Unspecified]: 'Milestone Unspecified',
 };
 
@@ -31,6 +33,7 @@ const predicates = {
   [Milestone.M2]: (filePath: ParsedPath) => /_m2x?$/.test(filePath.name),
   [Milestone.M3]: (filePath: ParsedPath) => /_m3x?$/.test(filePath.name),
   [Milestone.M4]: (filePath: ParsedPath) => /_m4x?$/.test(filePath.name),
+  [Milestone.M5]: (filePath: ParsedPath) => /_m5x?$/.test(filePath.name),
   [Milestone.Unspecified]: (filePath: ParsedPath) =>
     !/_m\dx?$/.test(filePath.name),
 };

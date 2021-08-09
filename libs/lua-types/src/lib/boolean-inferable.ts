@@ -7,11 +7,8 @@ import {
   isUnaryNegation,
 } from './lua-nodes.checks';
 import { booleanMethod, withExtras } from './lua-nodes.creators';
-import {
-  LuaExpression,
-  LuaIdentifier,
-  LuaMemberExpression,
-} from './lua-nodes.types';
+import { LuaIdentifier, LuaMemberExpression } from './lua-nodes.types';
+import { LuaExpression } from './expression';
 
 export const booleanInferableExpression = withExtras({
   isBooleanInferable: true,

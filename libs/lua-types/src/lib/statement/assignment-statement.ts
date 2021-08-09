@@ -1,5 +1,5 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaExpression, LuaLVal } from '../lua-nodes.types';
+import { LuaExpression, LuaLVal } from '../expression';
 
 export enum AssignmentStatementOperatorEnum {
   EQ = '=',

@@ -2,6 +2,8 @@ import { createHandlerFunction, HandlerFunction } from '../types';
 import {
   identifier,
   LuaIdentifier,
+  LuaType,
+  typeAny,
   unhandledElement,
   UnhandledElement,
   UnhandledExpression,
@@ -13,6 +15,7 @@ import {
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getNodeSource } from './get-node-source';
+import { FlowType, TSType } from '@babel/types';
 
 export const defaultStatementHandler: HandlerFunction<UnhandledStatement> = createHandlerFunction(
   (source, config, node) => {
@@ -61,4 +64,15 @@ export const defaultUnhandledIdentifierHandler = createHandlerFunction<LuaIdenti
       `ROBLOX TODO: Unhandled node for type: ${node.type}`,
       getNodeSource(source, node)
     )
+);
+
+export const defaultTypeHandler = createHandlerFunction<
+  LuaType,
+  TSType | FlowType
+>((source, config, node) =>
+  withTrailingConversionComment(
+    typeAny(),
+    `ROBLOX TODO: Unhandled node for type: ${node.type}`,
+    getNodeSource(source, node)
+  )
 );

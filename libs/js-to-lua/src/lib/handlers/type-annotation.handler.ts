@@ -25,14 +25,22 @@ import {
   LuaTypeString,
   LuaTypeVoid,
   typeAnnotation,
+  typeAny,
+  typeBoolean,
+  typeLiteral,
+  typeNumber,
+  typeString,
+  typeVoid,
 } from '@js-to-lua/lua-types';
 import {
   combineHandlers,
   combineTypeAnnotationHandlers,
 } from '../utils/combine-handlers';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../types';
-import { defaultTypeHandler } from '../utils/default-type.handler';
-import { defaultElementHandler } from '../utils/default-handlers';
+import {
+  defaultElementHandler,
+  defaultTypeHandler,
+} from '../utils/default-handlers';
 
 export const createTypeAnnotationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
@@ -64,50 +72,41 @@ export const createTypeAnnotationHandler = (
   const handleTsAnyKeyword: BaseNodeHandler<
     LuaTypeAny,
     TSAnyKeyword
-  > = createHandler('TSAnyKeyword', () => ({
-    type: 'LuaTypeAny',
-  }));
+  > = createHandler('TSAnyKeyword', () => typeAny());
 
   const handleTsStringKeyword: BaseNodeHandler<
     LuaTypeString,
     TSStringKeyword
-  > = createHandler('TSStringKeyword', () => ({
-    type: 'LuaTypeString',
-  }));
+  > = createHandler('TSStringKeyword', () => typeString());
 
   const handleTsNumberKeyword: BaseNodeHandler<
     LuaTypeNumber,
     TSNumberKeyword
-  > = createHandler('TSNumberKeyword', () => ({
-    type: 'LuaTypeNumber',
-  }));
+  > = createHandler('TSNumberKeyword', () => typeNumber());
 
   const handleTsBooleanKeyword: BaseNodeHandler<
     LuaTypeBoolean,
     TSBooleanKeyword
-  > = createHandler('TSBooleanKeyword', () => ({
-    type: 'LuaTypeBoolean',
-  }));
+  > = createHandler('TSBooleanKeyword', () => typeBoolean());
 
   const handleTsVoidKeyword: BaseNodeHandler<
     LuaTypeVoid,
     TSVoidKeyword
-  > = createHandler('TSVoidKeyword', () => ({
-    type: 'LuaTypeVoid',
-  }));
+  > = createHandler('TSVoidKeyword', () => typeVoid());
 
   const handleTsTypeLiteral: BaseNodeHandler<
     LuaTypeLiteral,
     TSTypeLiteral
-  > = createHandler('TSTypeLiteral', (source, config, node) => ({
-    type: 'LuaTypeLiteral',
-    members: node.members.map(
-      combineHandlers(
-        [handleTsPropertySignature],
-        defaultElementHandler
-      ).handler(source, config)
-    ),
-  }));
+  > = createHandler('TSTypeLiteral', (source, config, node) =>
+    typeLiteral(
+      node.members.map(
+        combineHandlers(
+          [handleTsPropertySignature],
+          defaultElementHandler
+        ).handler(source, config)
+      )
+    )
+  );
 
   const handleTsPropertySignature: BaseNodeHandler<
     LuaPropertySignature,

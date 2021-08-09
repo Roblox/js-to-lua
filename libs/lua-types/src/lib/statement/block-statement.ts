@@ -1,5 +1,5 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaStatement } from '../lua-nodes.types';
+import { LuaStatement } from './statement';
 
 export interface LuaBlockStatement extends BaseLuaNode {
   type: 'BlockStatement';

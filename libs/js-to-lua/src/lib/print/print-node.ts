@@ -41,6 +41,7 @@ import { createPrintExportTypeStatement } from './statements/print-export-type-s
 import { createPrintForGenericStatement } from './statements/print-for-generic-statement';
 import { createPrintRepeatStatement } from './statements/print-repeat-statement';
 import { anyPass } from 'ramda';
+import { createPrintTypeCastExpression } from './expression/print-type-cast-expression';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -148,6 +149,8 @@ const _printNode = (node: LuaNode): string => {
       return createPrintRepeatStatement(printNode, _printComments)(node);
     case 'BreakStatement':
       return 'break';
+    case 'TypeCastExpression':
+      return createPrintTypeCastExpression(printNode)(node);
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':
@@ -304,13 +307,16 @@ function printMemberExpression(node: LuaMemberExpression): string {
 
 function printMemberBaseExpression(base: LuaExpression): string {
   switch (base.type) {
-    case 'TableConstructor':
-    case 'StringLiteral':
-    case 'MultilineStringLiteral':
-    case 'UnhandledExpression':
-      return `(${printNode(base)})`;
-    default:
+    case 'Identifier':
+    case 'CallExpression':
+    case 'LuaBinaryExpression':
+    case 'LogicalExpression':
+    case 'FunctionExpression':
+    case 'IndexExpression':
+    case 'LuaMemberExpression':
       return `${printNode(base)}`;
+    default:
+      return `(${printNode(base)})`;
   }
 }
 

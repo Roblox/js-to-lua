@@ -1,4 +1,17 @@
-import { LuaProgram } from '@js-to-lua/lua-types';
+import {
+  identifier,
+  program,
+  typeAnnotation,
+  typeAny,
+  typeBoolean,
+  typeLiteral,
+  typeNumber,
+  typePropertySignature,
+  typeString,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
@@ -8,265 +21,147 @@ describe('Program handler', () => {
   describe('TS: TypeAnnotations', () => {
     it('should handle "any"', () => {
       const given = getProgramNode(`
-     let foo: any;
-    `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'VariableDeclaration',
-            identifiers: [
-              {
-                type: 'VariableDeclaratorIdentifier',
-                value: {
-                  type: 'Identifier',
-                  name: 'foo',
-                  typeAnnotation: {
-                    type: 'LuaTypeAnnotation',
-                    typeAnnotation: {
-                      type: 'LuaTypeAny',
-                    },
-                  },
-                },
-              },
-            ],
-            values: [],
-          },
-        ],
-      };
+        let foo: any;
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier('foo', typeAnnotation(typeAny()))
+            ),
+          ],
+          []
+        ),
+      ]);
 
-      const luaProgram = handleProgram.handler(source, {}, given);
-
-      expect(luaProgram).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should handle "string"', () => {
       const given = getProgramNode(`
-     let foo: string;
-    `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'VariableDeclaration',
-            identifiers: [
-              {
-                type: 'VariableDeclaratorIdentifier',
-                value: {
-                  type: 'Identifier',
-                  name: 'foo',
-                  typeAnnotation: {
-                    type: 'LuaTypeAnnotation',
-                    typeAnnotation: {
-                      type: 'LuaTypeString',
-                    },
-                  },
-                },
-              },
-            ],
-            values: [],
-          },
-        ],
-      };
+        let foo: string;
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier('foo', typeAnnotation(typeString()))
+            ),
+          ],
+          []
+        ),
+      ]);
 
-      const luaProgram = handleProgram.handler(source, {}, given);
-
-      expect(luaProgram).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should handle "number"', () => {
       const given = getProgramNode(`
-     let foo: number;
-    `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'VariableDeclaration',
-            identifiers: [
-              {
-                type: 'VariableDeclaratorIdentifier',
-                value: {
-                  type: 'Identifier',
-                  name: 'foo',
-                  typeAnnotation: {
-                    type: 'LuaTypeAnnotation',
-                    typeAnnotation: {
-                      type: 'LuaTypeNumber',
-                    },
-                  },
-                },
-              },
-            ],
-            values: [],
-          },
-        ],
-      };
+        let foo: number;
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier('foo', typeAnnotation(typeNumber()))
+            ),
+          ],
+          []
+        ),
+      ]);
 
-      const luaProgram = handleProgram.handler(source, {}, given);
-
-      expect(luaProgram).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should handle "boolean"', () => {
       const given = getProgramNode(`
-     let foo: boolean;
-    `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'VariableDeclaration',
-            identifiers: [
-              {
-                type: 'VariableDeclaratorIdentifier',
-                value: {
-                  type: 'Identifier',
-                  name: 'foo',
-                  typeAnnotation: {
-                    type: 'LuaTypeAnnotation',
-                    typeAnnotation: {
-                      type: 'LuaTypeBoolean',
-                    },
-                  },
-                },
-              },
-            ],
-            values: [],
-          },
-        ],
-      };
+        let foo: boolean;
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier('foo', typeAnnotation(typeBoolean()))
+            ),
+          ],
+          []
+        ),
+      ]);
 
-      const luaProgram = handleProgram.handler(source, {}, given);
-
-      expect(luaProgram).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should handle type literal', () => {
       const given = getProgramNode(`
-     let foo: {
-       bar: number,
-       baz: string,
-       fizz: boolean,
-       fuzz: any
-     }
-    `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'VariableDeclaration',
-            identifiers: [
-              {
-                type: 'VariableDeclaratorIdentifier',
-                value: {
-                  type: 'Identifier',
-                  name: 'foo',
-                  typeAnnotation: {
-                    type: 'LuaTypeAnnotation',
-                    typeAnnotation: {
-                      type: 'LuaTypeLiteral',
-                      members: [
-                        {
-                          key: {
-                            name: 'bar',
-                            type: 'Identifier',
-                          },
-                          type: 'LuaPropertySignature',
-                          typeAnnotation: {
-                            type: 'LuaTypeAnnotation',
-                            typeAnnotation: {
-                              type: 'LuaTypeNumber',
-                            },
-                          },
-                        },
-                        {
-                          key: {
-                            name: 'baz',
-                            type: 'Identifier',
-                          },
-                          type: 'LuaPropertySignature',
-                          typeAnnotation: {
-                            type: 'LuaTypeAnnotation',
-                            typeAnnotation: {
-                              type: 'LuaTypeString',
-                            },
-                          },
-                        },
-                        {
-                          key: {
-                            name: 'fizz',
-                            type: 'Identifier',
-                          },
-                          type: 'LuaPropertySignature',
-                          typeAnnotation: {
-                            type: 'LuaTypeAnnotation',
-                            typeAnnotation: {
-                              type: 'LuaTypeBoolean',
-                            },
-                          },
-                        },
-                        {
-                          key: {
-                            name: 'fuzz',
-                            type: 'Identifier',
-                          },
-                          type: 'LuaPropertySignature',
-                          typeAnnotation: {
-                            type: 'LuaTypeAnnotation',
-                            typeAnnotation: {
-                              type: 'LuaTypeAny',
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            values: [],
-          },
-        ],
-      };
+      let foo: {
+        bar: number,
+        baz: string,
+        fizz: boolean,
+        fuzz: any
+      }
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier(
+                'foo',
+                typeAnnotation(
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('bar'),
+                      typeAnnotation(typeNumber())
+                    ),
+                    typePropertySignature(
+                      identifier('baz'),
+                      typeAnnotation(typeString())
+                    ),
+                    typePropertySignature(
+                      identifier('fizz'),
+                      typeAnnotation(typeBoolean())
+                    ),
+                    typePropertySignature(
+                      identifier('fuzz'),
+                      typeAnnotation(typeAny())
+                    ),
+                  ])
+                )
+              )
+            ),
+          ],
+          []
+        ),
+      ]);
 
-      const luaProgram = handleProgram.handler(source, {}, given);
-
-      expect(luaProgram).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should default unhandled types to "any"', () => {
-      const given = getProgramNode(`
-       let foo: UnhandledType;
-      `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'VariableDeclaration',
-            identifiers: [
-              {
-                type: 'VariableDeclaratorIdentifier',
-                value: {
-                  type: 'Identifier',
-                  name: 'foo',
-                  typeAnnotation: {
-                    type: 'LuaTypeAnnotation',
-                    typeAnnotation: {
-                      type: 'LuaTypeAny',
-                    },
-                  },
-                },
-              },
-            ],
-            values: [],
-          },
-        ],
-      };
+      const source = `
+        let foo: UnhandledType;
+      `;
+      const given = getProgramNode(source);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier(
+                'foo',
+                typeAnnotation(
+                  withTrailingConversionComment(
+                    typeAny(),
+                    `ROBLOX TODO: Unhandled node for type: TSTypeReference`,
+                    'UnhandledType'
+                  )
+                )
+              )
+            ),
+          ],
+          []
+        ),
+      ]);
 
-      const luaProgram = handleProgram.handler(source, {}, given);
-
-      expect(luaProgram).toEqual(expected);
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
   });
 });
