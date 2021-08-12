@@ -11,5 +11,10 @@ export default {
 
     'conformance-tests/operators/relational/in/string-key_m4.js',
     'conformance-tests/operators/relational/in/string_m4.js',
+
+    'conformance-tests/complex/react-scheduler-try-catch_m4.js',
+    'conformance-tests/complex/react-create-react-noop-try-catch_m4.ts',
+    'conformance-tests/complex/graphql-type-info-switch-break.ts',
+    'conformance-tests/complex/apollo-client-test-switch-break.ts',
   ],
 };
