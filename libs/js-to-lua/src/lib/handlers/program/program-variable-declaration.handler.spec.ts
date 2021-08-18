@@ -1,28 +1,31 @@
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
+  binaryExpression,
+  blockStatement,
   callExpression,
+  elseClause,
+  functionExpression,
   identifier,
+  ifClause,
+  ifStatement,
+  indexExpression,
   LuaProgram,
   memberExpression,
+  nilLiteral,
   nodeGroup,
   numericLiteral,
+  objectAssign,
+  objectNone,
   program,
+  returnStatement,
   stringLiteral,
+  tableConstructor,
+  tableExpressionKeyField,
+  tableNameKeyField,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  objectAssign,
-  tableConstructor,
-  tableNameKeyField,
-  objectNone,
-  indexExpression,
-  tableExpressionKeyField,
-  binaryExpression,
-  elseClause,
-  functionExpression,
-  ifClause,
-  ifStatement,
-  nilLiteral,
-  returnStatement,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
@@ -416,6 +419,82 @@ describe('Program handler', () => {
           ),
         ]
       ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle object destructuring from a call expression`, () => {
+    const given = getProgramNode(`
+    const {foo, bar} = baz();
+  `);
+
+    const expected: LuaProgram = program([
+      nodeGroup([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(identifier('foo')),
+            variableDeclaratorIdentifier(identifier('bar')),
+          ],
+          []
+        ),
+        blockStatement([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('ref'))],
+            [variableDeclaratorValue(callExpression(identifier('baz'), []))]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo'), identifier('bar')],
+            [
+              memberExpression(identifier('ref'), '.', identifier('foo')),
+              memberExpression(identifier('ref'), '.', identifier('bar')),
+            ]
+          ),
+        ]),
+      ]),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it(`should handle object destructuring from a member expression`, () => {
+    const given = getProgramNode(`
+    const {foo, bar} = baz.fuzz;
+  `);
+
+    const expected: LuaProgram = program([
+      nodeGroup([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(identifier('foo')),
+            variableDeclaratorIdentifier(identifier('bar')),
+          ],
+          []
+        ),
+        blockStatement([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('ref'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(identifier('baz'), '.', identifier('fuzz'))
+              ),
+            ]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo'), identifier('bar')],
+            [
+              memberExpression(identifier('ref'), '.', identifier('foo')),
+              memberExpression(identifier('ref'), '.', identifier('bar')),
+            ]
+          ),
+        ]),
+      ]),
     ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);

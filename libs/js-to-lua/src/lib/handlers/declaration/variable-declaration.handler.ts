@@ -254,10 +254,40 @@ export const createVariableDeclarationHandler = (
           destructured.ids.map((id) => variableDeclaratorIdentifier(id)),
           destructured.values.map((value) => variableDeclaratorValue(value))
         );
+      } else if (declaration.init) {
+        const refIdentifier = identifier('ref');
+        const destructured = objectPatternDestructuringHandler(
+          source,
+          config,
+          refIdentifier,
+          idProperties
+        );
+
+        return nodeGroup([
+          variableDeclaration(
+            destructured.ids.map((id) => variableDeclaratorIdentifier(id)),
+            []
+          ),
+          blockStatement([
+            variableDeclaration(
+              [variableDeclaratorIdentifier(refIdentifier)],
+              [
+                variableDeclaratorValue(
+                  handleExpression(source, config, declaration.init)
+                ),
+              ]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              destructured.ids,
+              destructured.values
+            ),
+          ]),
+        ]);
       } else {
         return withTrailingConversionComment(
           unhandledStatement(),
-          `ROBLOX TODO: Unhandled object destructuring init type: "${declaration.init?.type}"`,
+          `ROBLOX TODO: Unhandled object destructuring init type: "${declaration.init}"`,
           source.slice(declaration.start || 0, declaration.end || 0)
         );
       }
