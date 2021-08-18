@@ -55,6 +55,21 @@ The CLI tool accepts the following input parameters:
     "plugins": ["jsx", "typescript", "classProperties"]
   }
   ```
+- `--babelTransformConfig` - a path to a JSON file containing [Babel Transform Configuration options](https://babeljs.io/docs/en/configuration). This param is optional. In case it's not provided the tool will use the following default configration:
+  ```json
+  {
+    "sourceType": "unambiguous",
+    "plugins": [
+      [
+        "@babel/plugin-syntax-typescript",
+        {
+          "isTSX": true
+        }
+      ]
+    ],
+    "presets": ["@babel/preset-react"]
+  }
+  ```
 
 To show help you can always use `--help` flag.
 
@@ -74,6 +89,14 @@ source-files
   - directory
     - inner-file1.js
     - inner-file2.ts
+```
+
+By default conversion tool uses `@babel/preset-react` and `@babel/plugin-syntax-typescript` to simplify the JSX syntax.
+
+**It is necessary to install the following 3 packages before running the CLI tool:**
+
+```bash
+npm install @babel/plugin-syntax-typescript @babel/preset-react @babel/core
 ```
 
 To convert all the files in `source-files` directory you can run the following command:

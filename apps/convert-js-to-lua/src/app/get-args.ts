@@ -4,6 +4,7 @@ interface Args {
   input: Array<string | number>;
   output: string;
   babelConfig: string;
+  babelTransformConfig: string;
 }
 
 export const getArgs = (): Args => {
@@ -22,6 +23,10 @@ export const getArgs = (): Args => {
       description: 'Babel config file',
       type: 'string',
     })
+    .option('babelTransformConfig', {
+      description: 'Babel transform config file',
+      type: 'string',
+    })
     .help()
     .alias('help', 'h');
 
@@ -29,6 +34,7 @@ export const getArgs = (): Args => {
     input: [__dirname + '/fixtures/**/*sample.ts'],
     output: __dirname + '/output',
     babelConfig: '',
+    babelTransformConfig: '',
   };
 
   return {

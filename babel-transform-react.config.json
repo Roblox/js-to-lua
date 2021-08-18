@@ -1,0 +1,12 @@
+{
+  "sourceType": "unambiguous",
+  "plugins": [
+    [
+      "@babel/plugin-syntax-typescript",
+      {
+        "isTSX": true
+      }
+    ]
+  ],
+  "presets": ["@babel/preset-react"]
+}

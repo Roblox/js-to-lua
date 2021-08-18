@@ -38,8 +38,8 @@ import { isTruthy } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
 import { visit } from '../../utils/visitor';
 
-type DefaultSwitchCase = SwitchCase & { test: null };
-type NotDefaultSwitchCase = SwitchCase & { test: Expression };
+type DefaultSwitchCase = Omit<SwitchCase, 'test'> & { test: null };
+type NotDefaultSwitchCase = Omit<SwitchCase, 'test'> & { test: Expression };
 const isDefaultSwitchCase = (node: SwitchCase): node is DefaultSwitchCase =>
   !isNotDefaultSwitchCase(node);
 const isNotDefaultSwitchCase = (
