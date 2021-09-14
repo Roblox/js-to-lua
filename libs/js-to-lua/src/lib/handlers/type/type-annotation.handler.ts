@@ -11,6 +11,7 @@ import {
   TSType,
   TSTypeAnnotation,
   TSTypeLiteral,
+  TSUnionType,
   TSVoidKeyword,
   TypeAnnotation,
 } from '@babel/types';
@@ -25,6 +26,7 @@ import {
   LuaTypeLiteral,
   LuaTypeNumber,
   LuaTypeString,
+  LuaTypeUnion,
   LuaTypeVoid,
   typeAnnotation,
   typeAny,
@@ -32,6 +34,7 @@ import {
   typeLiteral,
   typeNumber,
   typeString,
+  typeUnion,
   typeVoid,
 } from '@js-to-lua/lua-types';
 import {
@@ -124,6 +127,13 @@ export const createTypeAnnotationHandler = (
       : {}),
   }));
 
+  const handleTsTypeUnion: BaseNodeHandler<
+    LuaTypeUnion,
+    TSUnionType
+  > = createHandler('TSUnionType', (source, config, node) =>
+    typeUnion(node.types.map(handleTsTypes.handler(source, config)))
+  );
+
   const handleTsTypes: BaseNodeHandler<LuaType, TSType> = combineHandlers<
     LuaType,
     TSType
@@ -135,6 +145,7 @@ export const createTypeAnnotationHandler = (
       handleTsVoidKeyword,
       handleTsAnyKeyword,
       handleTsTypeLiteral,
+      handleTsTypeUnion,
       createTsTypeReferenceHandler(
         identifierHandlerFunction,
         forwardHandlerRef(() => handleTsTypes)

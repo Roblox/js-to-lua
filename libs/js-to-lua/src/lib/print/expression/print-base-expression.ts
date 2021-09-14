@@ -6,8 +6,6 @@ export const createPrintBaseExpression = (
   switch (base.type) {
     case 'Identifier':
     case 'CallExpression':
-    case 'LuaBinaryExpression':
-    case 'LogicalExpression':
     case 'FunctionExpression':
     case 'IndexExpression':
     case 'LuaMemberExpression':

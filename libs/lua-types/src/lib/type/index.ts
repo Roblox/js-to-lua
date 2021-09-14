@@ -5,6 +5,7 @@ import { LuaTypeBoolean } from './type-boolean';
 import { LuaTypeLiteral } from './type-literal';
 import { LuaTypeVoid } from './type-void';
 import { LuaTypeReference } from './type-reference';
+import { LuaTypeUnion } from './type-union';
 
 export * from './type-any';
 export * from './type-boolean';
@@ -13,6 +14,7 @@ export * from './type-number';
 export * from './type-property-signature';
 export * from './type-reference';
 export * from './type-string';
+export * from './type-union';
 export * from './type-void';
 
 export type LuaType =
@@ -22,4 +24,5 @@ export type LuaType =
   | LuaTypeBoolean
   | LuaTypeLiteral
   | LuaTypeVoid
-  | LuaTypeReference;
+  | LuaTypeReference
+  | LuaTypeUnion;

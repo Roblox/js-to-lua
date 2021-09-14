@@ -9,6 +9,7 @@ import {
   typePropertySignature,
   typeReference,
   typeString,
+  typeUnion,
   variableDeclaration,
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
@@ -148,6 +149,34 @@ describe('Program handler', () => {
               identifier(
                 'foo',
                 typeAnnotation(typeReference(identifier('TypeReference')))
+              )
+            ),
+          ],
+          []
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle type union', () => {
+      const source = `
+        let foo: number | string | TypeReference;
+      `;
+      const given = getProgramNode(source);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier(
+                'foo',
+                typeAnnotation(
+                  typeUnion([
+                    typeNumber(),
+                    typeString(),
+                    typeReference(identifier('TypeReference')),
+                  ])
+                )
               )
             ),
           ],

@@ -43,6 +43,7 @@ import { createPrintTypeCastExpression } from './expression/print-type-cast-expr
 import { createPrintTypeReference } from './type/print-type-reference';
 import { createPrintIndexExpression } from './expression/print-index-expression';
 import { createPrintMemberExpression } from './expression/print-member-expression';
+import { createPrintTypeUnion } from './type/print-type-union';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -111,6 +112,8 @@ const _printNode = (node: LuaNode): string => {
       return 'boolean';
     case 'LuaTypeVoid':
       return '()';
+    case 'LuaTypeUnion':
+      return createPrintTypeUnion(printNode)(node);
     case 'LuaTypeAliasDeclaration':
       return printTypeAliasDeclaration(node);
     case 'LuaTypeLiteral':
