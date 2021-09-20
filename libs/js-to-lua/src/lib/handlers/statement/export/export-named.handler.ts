@@ -1,4 +1,3 @@
-import { createHandler, HandlerFunction } from '../../../types';
 import {
   Declaration,
   ExportNamedDeclaration,
@@ -12,25 +11,33 @@ import {
   identifier,
   indexExpression,
   isIdentifier,
+  isNodeGroup,
   isVariableDeclaration,
   LuaDeclaration,
   LuaExpression,
   LuaIdentifier,
   LuaLVal,
+  LuaNodeGroup,
   LuaStatement,
   LuaTypeAliasDeclaration,
+  LuaVariableDeclaration,
   memberExpression,
   nodeGroup,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
+import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { createHandler, HandlerFunction } from '../../../types';
 import { defaultStatementHandler } from '../../../utils/default-handlers';
+import { hasSourceTypeExtra } from '../../../utils/with-source-type-extra';
 import { createImportExpressionHandler } from '../import/import-expression.handler';
 import { createImportModuleDeclarationHandler } from '../import/import-module-declaration.handler';
 import { createExportSpecifierHandler } from './export-specifier.handler';
-import { NonEmptyArray } from '@js-to-lua/shared-utils';
 
 export const createExportNamedHandler = (
-  handleDeclaration: HandlerFunction<LuaDeclaration, Declaration>,
+  handleDeclaration: HandlerFunction<
+    LuaDeclaration | LuaNodeGroup,
+    Declaration
+  >,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
 ) => {
@@ -38,14 +45,39 @@ export const createExportNamedHandler = (
     'ExportNamedDeclaration',
     (source, config, node: ExportNamedDeclaration) => {
       if (node.declaration) {
-        const declaration = handleDeclaration(source, config, node.declaration);
-        const declarationIds = getDeclarationId(declaration);
+        let declaration = handleDeclaration(source, config, node.declaration);
+        let declarationIds;
+        let exportedTypes: LuaTypeAliasDeclaration[] = [];
+
+        const isClassDeclaration = (
+          node: LuaDeclaration | LuaNodeGroup
+        ): node is LuaNodeGroup =>
+          isNodeGroup(node) && hasSourceTypeExtra('ClassDeclaration', node);
+
+        if (isClassDeclaration(declaration)) {
+          const [
+            classType,
+            classVariableDeclaration,
+            ...rest
+          ] = declaration.body;
+          exportedTypes = [classType as LuaTypeAliasDeclaration];
+          declaration = {
+            ...declaration,
+            body: [classVariableDeclaration, ...rest],
+          };
+          declarationIds = getDeclarationId(
+            classVariableDeclaration as LuaVariableDeclaration
+          );
+        } else {
+          declarationIds = getDeclarationId(declaration);
+        }
 
         if (node.exportKind === 'type') {
           return exportTypeStatement(declaration as LuaTypeAliasDeclaration);
         }
 
         return nodeGroup([
+          ...exportedTypes.map((t) => exportTypeStatement(t)),
           declaration,
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,

@@ -121,6 +121,7 @@ export interface LuaFunctionDeclaration extends BaseLuaNode {
   params: Array<LuaFunctionParam>;
   body: Array<LuaStatement>;
   returnType?: LuaTypeAnnotation;
+  isLocal: boolean;
 }
 
 export interface LuaFunctionExpression extends BaseLuaNode {

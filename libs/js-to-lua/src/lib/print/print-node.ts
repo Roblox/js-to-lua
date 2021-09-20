@@ -83,7 +83,7 @@ const _printNode = (node: LuaNode): string => {
     case 'VariableDeclaratorValue':
       return printVariableDeclaratorValue(node);
     case 'FunctionDeclaration':
-      return `local ${printFunction(node)}`;
+      return `${node.isLocal ? 'local ' : ''}${printFunction(node)}`;
     case 'FunctionExpression':
       return printFunction(node);
     case 'TableConstructor':

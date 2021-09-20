@@ -13,6 +13,8 @@ import {
   FunctionDeclaration,
   FunctionExpression,
   Statement,
+  ClassPrivateMethod,
+  ClassMethod,
 } from '@babel/types';
 import { applyTo, curry } from 'ramda';
 import { getReturnExpressions } from '../../utils/get-return-expressions';
@@ -28,7 +30,12 @@ export const createFunctionBodyHandler = (
     (
       source: string,
       config: EmptyConfig,
-      node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression
+      node:
+        | FunctionDeclaration
+        | FunctionExpression
+        | ArrowFunctionExpression
+        | ClassMethod
+        | ClassPrivateMethod
     ): LuaStatement[] =>
       node.body.type === 'BlockStatement'
         ? node.body.body.map(handleStatement(source, config))

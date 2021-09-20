@@ -114,7 +114,8 @@ export const functionDeclaration = (
   id: LuaFunctionDeclaration['id'],
   params: LuaFunctionDeclaration['params'] = [],
   body: LuaFunctionDeclaration['body'] = [],
-  returnType: LuaFunctionDeclaration['returnType'] = undefined
+  returnType: LuaFunctionDeclaration['returnType'] = undefined,
+  isLocal: LuaFunctionDeclaration['isLocal'] = true
 ): LuaFunctionDeclaration => {
   if (returnType) {
     return {
@@ -123,6 +124,7 @@ export const functionDeclaration = (
       params,
       body,
       returnType,
+      isLocal,
     };
   }
   return {
@@ -130,6 +132,7 @@ export const functionDeclaration = (
     id,
     params,
     body,
+    isLocal,
   };
 };
 
@@ -384,3 +387,5 @@ export const objectKeys = (): LuaMemberExpression =>
 
 export const objectNone = (): LuaMemberExpression =>
   memberExpression(identifier('Object'), '.', identifier('None'));
+
+export const selfIdentifier = (): LuaIdentifier => identifier('self');

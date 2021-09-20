@@ -37,6 +37,7 @@ import { createTypeAliasDeclarationHandler } from './type-alias-declaration.hand
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
+import { createClassDeclarationHandler } from './class-declaration.handler';
 
 export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -82,6 +83,13 @@ export const createDeclarationHandler = (
       handleIdentifier
     ),
     createImportHandler(handleExpression, handleIdentifier),
+    createClassDeclarationHandler(
+      handleExpression,
+      handleExpressionAsStatement,
+      handleIdentifier,
+      handleStatement,
+      forwardHandlerRef(() => declarationHandler)
+    ),
   ]);
 
   return declarationHandler;

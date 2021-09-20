@@ -103,6 +103,7 @@ import { createFunctionBodyHandler } from './expression/function-body.handler';
 import { createCalleeExpressionHandlerFunction } from './expression/callee-expression.handler';
 import { createNewExpressionHandler } from './expression/new-expression.handler';
 import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
+import { createThisExpressionHandler } from './expression/this-expression.handler';
 
 type MemberExpressionPredicate = (node: MemberExpression) => boolean;
 const isExpectCall = (node: MemberExpression): boolean => {
@@ -344,6 +345,7 @@ export const handleExpression: BaseNodeHandler<
   createMultilineStringLiteralHandler(
     forwardHandlerRef(() => handleExpression)
   ),
+  createThisExpressionHandler(),
   handleBooleanLiteral,
   handleNullLiteral,
   createArrayExpressionHandler(forwardHandlerRef(() => handleExpression)),
