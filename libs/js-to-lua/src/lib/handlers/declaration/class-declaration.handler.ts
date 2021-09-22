@@ -13,9 +13,11 @@ import {
   isClassProperty,
   isIdentifier as isBabelIdentifier,
   isPrivateName,
+  isTSDeclareMethod,
   isTSParameterProperty,
   LVal,
   Statement,
+  TSDeclareMethod,
   TSParameterProperty,
 } from '@babel/types';
 import {
@@ -118,8 +120,19 @@ export const createClassDeclarationHandler = (
 
     const isAnyClassMethod = (
       node: ClassBodyNode
-    ): node is ClassMethod | ClassPrivateMethod =>
-      isClassMethod(node) || isClassPrivateMethod(node);
+    ): node is ClassMethod | ClassPrivateMethod | TSDeclareMethod =>
+      isClassMethod(node) ||
+      isClassPrivateMethod(node) ||
+      isTSDeclareMethod(node);
+
+    const isPublic = (node: {
+      accessibility?: 'public' | 'private' | 'protected' | null;
+    }): boolean => !node.accessibility || node.accessibility === 'public';
+
+    const isPublicClassMethod = (
+      node: ClassBodyNode
+    ): node is ClassMethod | TSDeclareMethod =>
+      (isClassMethod(node) || isTSDeclareMethod(node)) && isPublic(node);
 
     const nonStaticInitializedClassProperties = node.body.body
       .filter(isAnyClassProperty)
@@ -143,10 +156,10 @@ export const createClassDeclarationHandler = (
 
     const publicMethodsAndProperties = [
       ...bodyWithoutConstructor.filter(
-        (n): n is ClassMethod | ClassProperty =>
-          (isClassMethod(n) || isClassProperty(n)) &&
+        (n): n is ClassMethod | TSDeclareMethod | ClassProperty =>
+          (isPublicClassMethod(n) || isClassProperty(n)) &&
           !n.static &&
-          (n.accessibility === 'public' || !n.accessibility)
+          isPublic(n)
       ),
     ];
 
@@ -374,7 +387,9 @@ export const createClassDeclarationHandler = (
           ];
     }
 
-    function handleClassMethod(node: ClassMethod | ClassPrivateMethod) {
+    function handleClassMethod(
+      node: ClassMethod | ClassPrivateMethod | TSDeclareMethod
+    ) {
       if (isPrivateName(node.key)) {
         return withTrailingConversionComment(
           unhandledStatement(),

@@ -7,11 +7,13 @@ import {
   classProperty,
   identifier as babelIdentifier,
   stringLiteral as babelStringLiteral,
+  tsDeclareMethod,
 } from '@babel/types';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
+  expressionStatement,
   functionDeclaration,
   identifier,
   LuaNodeGroup,
@@ -306,6 +308,72 @@ describe('Class Declaration', () => {
                 ]
               ),
               returnStatement(selfIdentifier()),
+            ],
+            undefined,
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert class abstract methods to <ClassId>:<methodName> function', () => {
+      const given: ClassDeclaration = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          {
+            ...tsDeclareMethod([], babelIdentifier('myMethod'), null, []),
+            abstract: true,
+          },
+        ])
+      );
+
+      const expected: LuaNodeGroup = withSourceTypeExtra(
+        nodeGroup([
+          withTrailingConversionComment(
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(typeAny())
+                ),
+              ])
+            ),
+            `ROBLOX TODO: replace 'any' type/ add missing`
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            [
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(selfIdentifier()),
+            ],
+            undefined,
+            false
+          ),
+          functionDeclaration(
+            identifier('BaseClass:myMethod'),
+            [],
+            [
+              expressionStatement(
+                callExpression(identifier('error'), [
+                  stringLiteral('not implemented abstract method'),
+                ])
+              ),
             ],
             undefined,
             false

@@ -2,6 +2,7 @@ import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
+  expressionStatement,
   functionDeclaration,
   identifier,
   LuaProgram,
@@ -269,6 +270,67 @@ describe('Program handler', () => {
                   ]
                 ),
                 returnStatement(selfIdentifier()),
+              ],
+              undefined,
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class abstract methods to <ClassId>:<methodName> function', () => {
+        const given = getProgramNode(`
+        abstract class BaseClass{
+            abstract myMethod();
+        }
+       `);
+
+        const expected: LuaProgram = program([
+          nodeGroup([
+            withTrailingConversionComment(
+              typeAliasDeclaration(
+                identifier('BaseClass'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('myMethod'),
+                    typeAnnotation(typeAny())
+                  ),
+                ])
+              ),
+              `ROBLOX TODO: replace 'any' type/ add missing`
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              [
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(selfIdentifier()),
+              ],
+              undefined,
+              false
+            ),
+            functionDeclaration(
+              identifier('BaseClass:myMethod'),
+              [],
+              [
+                expressionStatement(
+                  callExpression(identifier('error'), [
+                    stringLiteral('not implemented abstract method'),
+                  ])
+                ),
               ],
               undefined,
               false

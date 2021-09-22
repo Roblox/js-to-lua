@@ -15,6 +15,7 @@ import {
   isTSParameterProperty,
   LVal,
   ObjectMethod,
+  TSDeclareMethod,
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
@@ -44,7 +45,8 @@ type FunctionTypes =
   | FunctionDeclaration
   | ObjectMethod
   | ClassMethod
-  | ClassPrivateMethod;
+  | ClassPrivateMethod
+  | TSDeclareMethod;
 
 export const createFunctionParamsHandler = (
   handleIdentifier: HandlerFunction<

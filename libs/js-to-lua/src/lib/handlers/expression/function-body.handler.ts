@@ -1,23 +1,36 @@
 import { EmptyConfig, HandlerFunction } from '../../types';
 import {
+  callExpression,
   expressionStatement,
+  identifier,
   isExpression,
   isNodeGroup,
   LuaExpression,
   LuaStatement,
   returnStatement,
+  stringLiteral,
 } from '@js-to-lua/lua-types';
 import {
   ArrowFunctionExpression,
+  ClassMethod,
+  ClassPrivateMethod,
   Expression,
   FunctionDeclaration,
   FunctionExpression,
+  isTSDeclareMethod,
   Statement,
-  ClassPrivateMethod,
-  ClassMethod,
+  TSDeclareMethod,
 } from '@babel/types';
 import { applyTo, curry } from 'ramda';
 import { getReturnExpressions } from '../../utils/get-return-expressions';
+
+type FunctionTypes =
+  | FunctionDeclaration
+  | FunctionExpression
+  | ArrowFunctionExpression
+  | ClassMethod
+  | ClassPrivateMethod
+  | TSDeclareMethod;
 
 export const createFunctionBodyHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>,
@@ -30,14 +43,21 @@ export const createFunctionBodyHandler = (
     (
       source: string,
       config: EmptyConfig,
-      node:
-        | FunctionDeclaration
-        | FunctionExpression
-        | ArrowFunctionExpression
-        | ClassMethod
-        | ClassPrivateMethod
-    ): LuaStatement[] =>
-      node.body.type === 'BlockStatement'
+      node: FunctionTypes
+    ): LuaStatement[] => {
+      if (isTSDeclareMethod(node)) {
+        return [
+          expressionStatement(
+            callExpression(identifier('error'), [
+              stringLiteral(
+                `not implemented ${node.abstract ? 'abstract ' : ''}method`
+              ),
+            ])
+          ),
+        ];
+      }
+
+      return node.body.type === 'BlockStatement'
         ? node.body.body.map(handleStatement(source, config))
         : applyTo(
             handleExpressionAsStatement(source, config, node.body),
@@ -63,5 +83,6 @@ export const createFunctionBodyHandler = (
                     returnStatement(...returnExpressions),
                   ];
             }
-          )
+          );
+    }
   );
