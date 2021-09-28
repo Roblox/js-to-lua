@@ -6,6 +6,7 @@ import {
   typeBoolean,
   typeLiteral,
   typeNumber,
+  typeOptional,
   typePropertySignature,
   typeReference,
   typeString,
@@ -124,6 +125,51 @@ describe('Program handler', () => {
                     typePropertySignature(
                       identifier('fuzz'),
                       typeAnnotation(typeAny())
+                    ),
+                  ])
+                )
+              )
+            ),
+          ],
+          []
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle type literal with optional properties', () => {
+      const given = getProgramNode(`
+      let foo: {
+        bar?: number,
+        baz?: string,
+        fizz?: boolean,
+        fuzz?: any
+      }
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier(
+                'foo',
+                typeAnnotation(
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('bar'),
+                      typeAnnotation(typeOptional(typeNumber()))
+                    ),
+                    typePropertySignature(
+                      identifier('baz'),
+                      typeAnnotation(typeOptional(typeString()))
+                    ),
+                    typePropertySignature(
+                      identifier('fizz'),
+                      typeAnnotation(typeOptional(typeBoolean()))
+                    ),
+                    typePropertySignature(
+                      identifier('fuzz'),
+                      typeAnnotation(typeOptional(typeAny()))
                     ),
                   ])
                 )

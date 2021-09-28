@@ -1,5 +1,5 @@
 local fizz, fuzz
-local function reduce(ref, ref_)
+local function reduce(ref: Object?, ref_: Array<any>?)
 	if ref == nil then
 		ref = fizz
 	end

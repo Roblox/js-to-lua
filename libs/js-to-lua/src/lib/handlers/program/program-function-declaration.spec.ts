@@ -13,6 +13,12 @@ import {
   numericLiteral,
   program,
   stringLiteral,
+  typeAnnotation,
+  typeAny,
+  typeNumber,
+  typeOptional,
+  typeString,
+  typeUnion,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -26,8 +32,8 @@ describe('Program handler', () => {
   describe('Function Declarations', () => {
     it('should handle function with no params', () => {
       const given = getProgramNode(`
-     function foo() {}
-    `);
+        function foo() {}
+      `);
       const expected: LuaProgram = program([
         functionDeclaration(identifier('foo'), [], []),
       ]);
@@ -39,8 +45,8 @@ describe('Program handler', () => {
 
   it('should handle function with params', () => {
     const given = getProgramNode(`
-   function foo(bar, baz) {}
-  `);
+      function foo(bar, baz) {}
+    `);
     const expected: LuaProgram = program([
       functionDeclaration(
         identifier('foo'),
@@ -53,10 +59,29 @@ describe('Program handler', () => {
     expect(luaProgram).toEqual(expected);
   });
 
+  it('should handle function with optional params', () => {
+    const given = getProgramNode(`
+      function foo(bar?, baz?: string) {}
+    `);
+    const expected: LuaProgram = program([
+      functionDeclaration(
+        identifier('foo'),
+        [
+          identifier('bar', typeAnnotation(typeOptional(typeAny()))),
+          identifier('baz', typeAnnotation(typeOptional(typeString()))),
+        ],
+        []
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+    expect(luaProgram).toEqual(expected);
+  });
+
   it('should handle function with destructured params', () => {
     const given = getProgramNode(`
-   function foo({bar, baz}, [fizz,fuzz]) {}
-  `);
+      function foo({bar, baz}, [fizz,fuzz]) {}
+    `);
     const expected: LuaProgram = program([
       functionDeclaration(
         identifier('foo'),
@@ -101,12 +126,21 @@ describe('Program handler', () => {
 
   it('should handle function with params and default values', () => {
     const given = getProgramNode(`
-   function foo(bar, baz = 'hello') {}
-  `);
+      function foo(bar, baz = 'hello', fizz: string | number = 1) {}
+    `);
     const expected: LuaProgram = program([
       functionDeclaration(
         identifier('foo'),
-        [identifier('bar'), identifier('baz')],
+        [
+          identifier('bar'),
+          identifier('baz', typeAnnotation(typeOptional(typeString()))),
+          identifier(
+            'fizz',
+            typeAnnotation(
+              typeOptional(typeUnion([typeString(), typeNumber()]))
+            )
+          ),
+        ],
         [
           ifStatement(
             ifClause(binaryExpression(identifier('baz'), '==', nilLiteral()), [
@@ -114,6 +148,15 @@ describe('Program handler', () => {
                 AssignmentStatementOperatorEnum.EQ,
                 [identifier('baz')],
                 [stringLiteral('hello')]
+              ),
+            ])
+          ),
+          ifStatement(
+            ifClause(binaryExpression(identifier('fizz'), '==', nilLiteral()), [
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [identifier('fizz')],
+                [numericLiteral(1, '1')]
               ),
             ])
           ),
@@ -127,15 +170,18 @@ describe('Program handler', () => {
 
   it('should handle function with function body', () => {
     const given = getProgramNode(`
-   function foo(bar, baz = 'hello') {
-       let fizz = 'fuzz';
-   }
-  `);
+    function foo(bar, baz = 'hello') {
+      let fizz = 'fuzz';
+    }
+    `);
 
     const expected: LuaProgram = program([
       functionDeclaration(
         identifier('foo'),
-        [identifier('bar'), identifier('baz')],
+        [
+          identifier('bar'),
+          identifier('baz', typeAnnotation(typeOptional(typeString()))),
+        ],
         [
           ifStatement(
             ifClause(binaryExpression(identifier('baz'), '==', nilLiteral()), [

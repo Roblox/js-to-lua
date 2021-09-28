@@ -1,16 +1,20 @@
 import { ObjectExpression } from '@babel/types';
 import {
-  LuaTableConstructor,
-  tableConstructor,
-  tableNameKeyField,
-  identifier,
   booleanLiteral,
+  functionExpression,
+  identifier,
+  LuaTableConstructor,
   numericLiteral,
   stringLiteral,
-  functionExpression,
+  tableConstructor,
   tableExpressionKeyField,
+  tableNameKeyField,
 } from '@js-to-lua/lua-types';
-import { handleObjectExpression } from '../expression-statement.handler';
+import { createObjectExpressionHandler } from './object-expression.handler';
+import {
+  handleExpression,
+  handleObjectField,
+} from '../expression-statement.handler';
 
 const DEFAULT_NODE = {
   leadingComments: null,
@@ -22,6 +26,10 @@ const DEFAULT_NODE = {
 };
 
 const source = '';
+const handleObjectExpression = createObjectExpressionHandler(
+  handleExpression.handler,
+  handleObjectField.handler
+);
 
 describe('Object Expression Handler', () => {
   it(`should return Lua Table Constructor Node with empty elements`, () => {

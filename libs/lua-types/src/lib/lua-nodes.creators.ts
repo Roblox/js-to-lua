@@ -20,7 +20,6 @@ import {
   LuaTableNameKeyField,
   LuaTableNoKeyField,
   LuaTypeAliasDeclaration,
-  LuaTypeAnnotation,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
@@ -32,12 +31,12 @@ import {
   UnhandledElement,
   UnhandledExpression,
   UnhandledStatement,
-  UnhandledTypeAnnotation,
 } from './lua-nodes.types';
 import { BaseLuaNode } from './node.types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { curry } from 'ramda';
 import { commentBlock, LuaComment } from './comment';
+import { LuaTypeAnnotation } from './type';
 
 export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',
@@ -292,13 +291,6 @@ export const elseClause = (body: LuaElseClause['body']): LuaElseClause => ({
   body,
 });
 
-export const typeAnnotation = (
-  typeAnnotation?: LuaTypeAnnotation['typeAnnotation']
-): LuaTypeAnnotation => ({
-  type: 'LuaTypeAnnotation',
-  typeAnnotation,
-});
-
 export const typeAliasDeclaration = (
   id: LuaTypeAliasDeclaration['id'],
   typeAnnotation: LuaTypeAliasDeclaration['typeAnnotation']
@@ -314,10 +306,6 @@ export const unhandledStatement = (): UnhandledStatement => ({
 
 export const unhandledExpression = (): UnhandledExpression => ({
   type: 'UnhandledExpression',
-});
-
-export const unhandledTypeAnnotation = (): UnhandledTypeAnnotation => ({
-  type: 'UnhandledTypeAnnotation',
 });
 
 export const unhandledElement = (): UnhandledElement => ({

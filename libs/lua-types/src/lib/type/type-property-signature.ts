@@ -1,6 +1,6 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaTypeAnnotation } from '../lua-nodes.types';
 import { LuaExpression } from '../expression';
+import { LuaTypeAnnotation } from './type-annotation';
 
 export interface LuaPropertySignature extends BaseLuaNode {
   type: 'LuaPropertySignature';

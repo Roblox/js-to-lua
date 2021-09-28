@@ -2,8 +2,12 @@ import {
   identifier,
   program,
   typeAliasDeclaration,
+  typeAnnotation,
   typeAny,
+  typeLiteral,
   typeNumber,
+  typeOptional,
+  typePropertySignature,
   typeReference,
   typeString,
   typeUnion,
@@ -21,6 +25,42 @@ describe('Program handler', () => {
       `);
       const expected = program([
         typeAliasDeclaration(identifier('foo'), typeAny()),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle type declaration with optional properties', () => {
+      const given = getProgramNode(`
+        type foo = {
+          bar?: string,
+          baz?: number,
+          fizz?: Object,
+          buzz?: any
+        };
+      `);
+      const expected = program([
+        typeAliasDeclaration(
+          identifier('foo'),
+          typeLiteral([
+            typePropertySignature(
+              identifier('bar'),
+              typeAnnotation(typeOptional(typeString()))
+            ),
+            typePropertySignature(
+              identifier('baz'),
+              typeAnnotation(typeOptional(typeNumber()))
+            ),
+            typePropertySignature(
+              identifier('fizz'),
+              typeAnnotation(typeOptional(typeReference(identifier('Object'))))
+            ),
+            typePropertySignature(
+              identifier('buzz'),
+              typeAnnotation(typeOptional(typeAny()))
+            ),
+          ])
+        ),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);

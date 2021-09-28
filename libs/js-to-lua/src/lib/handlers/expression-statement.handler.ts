@@ -16,7 +16,6 @@ import {
   isCallExpression as isBabelCallExpression,
   isIdentifier as isBabelIdentifier,
   isMemberExpression as isBabelMemberExpression,
-  isSpreadElement as isBabelSpreadElement,
   MemberExpression,
   ObjectExpression,
   ObjectMethod,
@@ -48,14 +47,11 @@ import {
   LuaFunctionExpression,
   LuaIdentifier,
   LuaStatement,
-  LuaTableConstructor,
   LuaTableKeyField,
   memberExpression,
   numericLiteral,
-  objectAssign,
   returnStatement,
   stringLiteral,
-  tableConstructor,
   tableExpressionKeyField,
   tableNameKeyField,
   variableDeclaration,
@@ -87,7 +83,7 @@ import { createAssignmentStatementHandlerFunction } from './statement/assignment
 import { createBlockStatementHandler } from './statement/block-statement.handler';
 import { createIdentifierHandler } from './expression/identifier.handler';
 import { createIfStatementHandler } from './statement/if-statement.handler';
-import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
+import { Unpacked } from '@js-to-lua/shared-utils';
 import { createDeclarationHandler } from './declaration/declaration.handler';
 import { createLValHandler } from './l-val.handler';
 import { createThrowStatementHandler } from './statement/throw-statement.handler';
@@ -104,6 +100,7 @@ import { createCalleeExpressionHandlerFunction } from './expression/callee-expre
 import { createNewExpressionHandler } from './expression/new-expression.handler';
 import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
 import { createThisExpressionHandler } from './expression/this-expression.handler';
+import { createObjectExpressionHandler } from './expression/object-expression.handler';
 
 type MemberExpressionPredicate = (node: MemberExpression) => boolean;
 const isExpectCall = (node: MemberExpression): boolean => {
@@ -129,7 +126,6 @@ type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,
   SpreadElement
 >;
-type ObjectExpressionProperty = Unpacked<ObjectExpression['properties']>;
 const isBabelAssignmentPattern = (param: unknown): param is AssignmentPattern =>
   isBabelAssignmentPattern_(param as any);
 
@@ -210,42 +206,6 @@ export const handleCallExpression = createHandler(
       expression.arguments.map(handleExpression.handler(source, config))
     );
   }
-);
-
-const handleObjectExpressionWithSpread = createHandlerFunction(
-  (source, config, expression: ObjectExpression): LuaCallExpression => {
-    const propertiesGroups = expression.properties.reduce(
-      splitBy<ObjectExpressionProperty, SpreadElement>(isBabelSpreadElement),
-      []
-    );
-    const args: LuaExpression[] = propertiesGroups.map((group) => {
-      return Array.isArray(group)
-        ? {
-            type: 'TableConstructor',
-            elements: group.map(handleObjectField.handler(source, config)),
-          }
-        : handleExpression.handler(source, config, group.argument);
-    });
-
-    return callExpression(objectAssign(), [tableConstructor([]), ...args]);
-  }
-);
-
-const handleObjectExpressionWithoutSpread = createHandlerFunction(
-  (source, config, expression: ObjectExpression): LuaTableConstructor => ({
-    type: 'TableConstructor',
-    elements: expression.properties.map(
-      handleObjectField.handler(source, config)
-    ),
-  })
-);
-
-export const handleObjectExpression = createHandler(
-  'ObjectExpression',
-  (source, config, expression: ObjectExpression) =>
-    expression.properties.every((prop) => prop.type !== 'SpreadElement')
-      ? handleObjectExpressionWithoutSpread(source, config, expression)
-      : handleObjectExpressionWithSpread(source, config, expression)
 );
 
 export const handleFunctionExpression: BaseNodeHandler<
@@ -350,7 +310,10 @@ export const handleExpression: BaseNodeHandler<
   handleNullLiteral,
   createArrayExpressionHandler(forwardHandlerRef(() => handleExpression)),
   handleCallExpression,
-  handleObjectExpression,
+  createObjectExpressionHandler(
+    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => handleObjectField)
+  ),
   createIdentifierHandler(forwardHandlerFunctionRef(() => typesHandler)),
   createUnaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
   createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression)),

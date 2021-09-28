@@ -1,7 +1,12 @@
 import { BaseLuaNode } from './node.types';
 import { AssignmentStatement, LuaStatement } from './statement';
 import { LuaExpression, LuaLVal } from './expression';
-import { LuaPropertySignature, LuaType } from './type';
+import {
+  LuaPropertySignature,
+  LuaType,
+  LuaTypeAnnotation,
+  TypeAnnotation,
+} from './type';
 
 export type LuaNode =
   | LuaProgram
@@ -67,10 +72,6 @@ export interface UnhandledExpression extends BaseLuaNode {
   type: 'UnhandledExpression';
 }
 
-export interface UnhandledTypeAnnotation extends BaseLuaNode {
-  type: 'UnhandledTypeAnnotation';
-}
-
 export interface UnhandledElement extends BaseLuaNode {
   type: 'UnhandledElement';
 }
@@ -129,13 +130,6 @@ export interface LuaFunctionExpression extends BaseLuaNode {
   params: Array<LuaFunctionParam>;
   body: Array<LuaStatement>;
   returnType?: LuaTypeAnnotation;
-}
-
-export type TypeAnnotation = LuaTypeAnnotation | UnhandledTypeAnnotation;
-
-export interface LuaTypeAnnotation extends BaseLuaNode {
-  type: 'LuaTypeAnnotation';
-  typeAnnotation?: LuaType;
 }
 
 export interface LuaTypeAliasDeclaration extends BaseLuaNode {

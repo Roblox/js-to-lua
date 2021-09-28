@@ -29,15 +29,18 @@ import {
   LuaMemberExpression,
   LuaNilLiteral,
   LuaNodeGroup,
+  makeOptional,
   nodeGroup,
+  typeAnnotation,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
-import { anyPass } from 'ramda';
+import { anyPass, applyTo } from 'ramda';
 import { createHandlerFunction, EmptyConfig, HandlerFunction } from '../types';
 import {
   defaultStatementHandler,
   defaultUnhandledIdentifierHandler,
 } from '../utils/default-handlers';
+import { inferType } from './type/infer-type';
 
 type FunctionTypes =
   | ArrowFunctionExpression
@@ -65,7 +68,7 @@ export const createFunctionParamsHandler = (
     return defaultUnhandledIdentifierHandler(source, config, node);
   });
 
-  const handler = (
+  return (
     source: string,
     config: EmptyConfig,
     node: FunctionTypes
@@ -80,15 +83,30 @@ export const createFunctionParamsHandler = (
             (isAssignmentPattern(param) &&
               (isObjectPattern(param.left) || isArrayPattern(param.left)))
           ) {
-            return identifier(`ref${'_'.repeat(paramRefIdCount++)}`);
+            return identifier(
+              `ref${'_'.repeat(paramRefIdCount++)}`,
+              isAssignmentPattern(param)
+                ? typeAnnotation(makeOptional(inferType(param.left)))
+                : undefined
+            );
           } else if (isIdentifier(param)) {
             return handleIdentifier(source, config, param) as LuaFunctionParam;
           } else if (isAssignmentPattern(param)) {
-            return handleIdentifier(
-              source,
-              config,
-              param.left as Identifier
-            ) as LuaFunctionParam;
+            return applyTo(
+              handleIdentifier(
+                source,
+                config,
+                param.left as Identifier
+              ) as LuaIdentifier,
+              (id) => ({
+                ...id,
+                typeAnnotation: typeAnnotation(
+                  makeOptional(
+                    id.typeAnnotation?.typeAnnotation || inferType(param.right)
+                  )
+                ),
+              })
+            );
           } else if (isTSParameterProperty(param)) {
             return mapFn({
               params: [param.parameter],
@@ -100,7 +118,6 @@ export const createFunctionParamsHandler = (
         .flat();
     return mapFn(node);
   };
-  return handler;
 };
 
 type ParamsBodyResponse = Array<

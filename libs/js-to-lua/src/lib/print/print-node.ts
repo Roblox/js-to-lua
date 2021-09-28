@@ -44,6 +44,7 @@ import { createPrintTypeReference } from './type/print-type-reference';
 import { createPrintIndexExpression } from './expression/print-index-expression';
 import { createPrintMemberExpression } from './expression/print-member-expression';
 import { createPrintTypeUnion } from './type/print-type-union';
+import { createPrintTypeOptional } from './type/print-type-optional';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -157,6 +158,10 @@ const _printNode = (node: LuaNode): string => {
       return createPrintTypeCastExpression(printNode)(node);
     case 'TypeReference':
       return createPrintTypeReference(printNode)(node);
+    case 'LuaTypeNil':
+      return 'nil';
+    case 'LuaTypeOptional':
+      return createPrintTypeOptional(printNode)(node);
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':

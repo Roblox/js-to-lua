@@ -8,6 +8,9 @@ import {
   ifStatement,
   nilLiteral,
   program,
+  typeAnnotation,
+  typeAny,
+  typeOptional,
 } from '@js-to-lua/lua-types';
 
 import { getProgramNode } from '../program.spec.utils';
@@ -23,7 +26,7 @@ describe('Program handler', () => {
       const expected = program([
         functionDeclaration(
           identifier('func'),
-          [identifier('foo')],
+          [identifier('foo', typeAnnotation(typeOptional(typeAny())))],
           [
             ifStatement(
               ifClause(

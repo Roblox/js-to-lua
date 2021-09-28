@@ -2,6 +2,7 @@ import {
   assignmentPattern as babelAssignmentPattern,
   identifier as babelIdentifier,
   Identifier,
+  memberExpression,
   tsAnyKeyword as babelTsAnyKeyword,
   tsTypeAnnotation as babelTsTypeAnnotation,
 } from '@babel/types';
@@ -14,6 +15,8 @@ import {
   ifStatement,
   LuaIdentifier,
   nilLiteral,
+  unhandledStatement,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   mockNodeWithValue,
@@ -80,6 +83,22 @@ describe('Assignment Pattern Handler', () => {
           [mockNodeWithValue(rightGiven)]
         ),
       ])
+    );
+
+    expect(handleAssignmentPattern(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should return UnhandledStatement `, () => {
+    const leftGiven = memberExpression(
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
+    const rightGiven = babelIdentifier('fizz');
+    const given = babelAssignmentPattern(leftGiven, rightGiven);
+
+    const expected = withTrailingConversionComment(
+      unhandledStatement(),
+      'ROBLOX TODO: Unhandled assignment pattern handling for type: "MemberExpression"'
     );
 
     expect(handleAssignmentPattern(source, {}, given)).toEqual(expected);

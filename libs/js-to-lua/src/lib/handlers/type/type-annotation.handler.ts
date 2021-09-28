@@ -6,11 +6,9 @@ import {
   TSAnyKeyword,
   TSBooleanKeyword,
   TSNumberKeyword,
-  TSPropertySignature,
   TSStringKeyword,
   TSType,
   TSTypeAnnotation,
-  TSTypeLiteral,
   TSUnionType,
   TSVoidKeyword,
   TypeAnnotation,
@@ -18,12 +16,10 @@ import {
 import {
   LuaExpression,
   LuaIdentifier,
-  LuaPropertySignature,
   LuaType,
   LuaTypeAnnotation,
   LuaTypeAny,
   LuaTypeBoolean,
-  LuaTypeLiteral,
   LuaTypeNumber,
   LuaTypeString,
   LuaTypeUnion,
@@ -31,7 +27,6 @@ import {
   typeAnnotation,
   typeAny,
   typeBoolean,
-  typeLiteral,
   typeNumber,
   typeString,
   typeUnion,
@@ -42,12 +37,10 @@ import {
   combineTypeAnnotationHandlers,
 } from '../../utils/combine-handlers';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import {
-  defaultElementHandler,
-  defaultTypeHandler,
-} from '../../utils/default-handlers';
+import { defaultTypeHandler } from '../../utils/default-handlers';
 import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
+import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
 
 export const createTypeAnnotationHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
@@ -102,31 +95,6 @@ export const createTypeAnnotationHandler = (
     TSVoidKeyword
   > = createHandler('TSVoidKeyword', () => typeVoid());
 
-  const handleTsTypeLiteral: BaseNodeHandler<
-    LuaTypeLiteral,
-    TSTypeLiteral
-  > = createHandler('TSTypeLiteral', (source, config, node) =>
-    typeLiteral(
-      node.members.map(
-        combineHandlers(
-          [handleTsPropertySignature],
-          defaultElementHandler
-        ).handler(source, config)
-      )
-    )
-  );
-
-  const handleTsPropertySignature: BaseNodeHandler<
-    LuaPropertySignature,
-    TSPropertySignature
-  > = createHandler('TSPropertySignature', (source, config, node) => ({
-    type: 'LuaPropertySignature',
-    key: expressionHandlerFunction(source, config, node.key),
-    ...(node.typeAnnotation
-      ? { typeAnnotation: typesHandler(source, config, node.typeAnnotation) }
-      : {}),
-  }));
-
   const handleTsTypeUnion: BaseNodeHandler<
     LuaTypeUnion,
     TSUnionType
@@ -144,7 +112,7 @@ export const createTypeAnnotationHandler = (
       handleTsBooleanKeyword,
       handleTsVoidKeyword,
       handleTsAnyKeyword,
-      handleTsTypeLiteral,
+      createTsTypeLiteralHandler(expressionHandlerFunction, typesHandler),
       handleTsTypeUnion,
       createTsTypeReferenceHandler(
         identifierHandlerFunction,
