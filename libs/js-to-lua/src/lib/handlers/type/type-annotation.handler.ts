@@ -41,6 +41,7 @@ import { defaultTypeHandler } from '../../utils/default-handlers';
 import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
+import { createTsArrayTypeHandler } from './ts-array-type.handler';
 
 export const createTypeAnnotationHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
@@ -118,6 +119,7 @@ export const createTypeAnnotationHandler = (
         identifierHandlerFunction,
         forwardHandlerRef(() => handleTsTypes)
       ),
+      createTsArrayTypeHandler(forwardHandlerRef(() => handleTsTypes)),
     ],
     defaultTypeHandler
   );
