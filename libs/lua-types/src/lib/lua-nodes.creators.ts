@@ -19,7 +19,6 @@ import {
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
   LuaTableNoKeyField,
-  LuaTypeAliasDeclaration,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
@@ -289,15 +288,6 @@ export const elseifClause = (
 export const elseClause = (body: LuaElseClause['body']): LuaElseClause => ({
   type: 'ElseClause',
   body,
-});
-
-export const typeAliasDeclaration = (
-  id: LuaTypeAliasDeclaration['id'],
-  typeAnnotation: LuaTypeAliasDeclaration['typeAnnotation']
-): LuaTypeAliasDeclaration => ({
-  type: 'LuaTypeAliasDeclaration',
-  id,
-  typeAnnotation,
 });
 
 export const unhandledStatement = (): UnhandledStatement => ({

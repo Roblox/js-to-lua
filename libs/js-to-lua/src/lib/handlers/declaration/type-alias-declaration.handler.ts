@@ -6,8 +6,10 @@ import {
   LuaNilLiteral,
   LuaType,
   LuaTypeAliasDeclaration,
+  typeAliasDeclaration,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import { createTsTypeParameterHandler } from '../type/ts-type-parameter.handler';
 
 export const createTypeAliasDeclarationHandler = (
   handleIdentifier: HandlerFunction<
@@ -16,8 +18,16 @@ export const createTypeAliasDeclarationHandler = (
   >,
   handleTsTypes: HandlerFunction<LuaType, TSType>
 ): BaseNodeHandler<LuaTypeAliasDeclaration, TSTypeAliasDeclaration> =>
-  createHandler('TSTypeAliasDeclaration', (source, config, node) => ({
-    type: 'LuaTypeAliasDeclaration',
-    id: handleIdentifier(source, config, node.id) as LuaIdentifier,
-    typeAnnotation: handleTsTypes(source, config, node.typeAnnotation),
-  }));
+  createHandler('TSTypeAliasDeclaration', (source, config, node) => {
+    const handleTsTypeParameter = createTsTypeParameterHandler().handler(
+      source,
+      config
+    );
+    return typeAliasDeclaration(
+      handleIdentifier(source, config, node.id) as LuaIdentifier,
+      handleTsTypes(source, config, node.typeAnnotation),
+      node.typeParameters && node.typeParameters.params.length
+        ? node.typeParameters.params.map(handleTsTypeParameter)
+        : undefined
+    );
+  });

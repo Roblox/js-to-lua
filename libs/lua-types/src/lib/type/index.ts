@@ -9,6 +9,7 @@ export * from './type-property-signature';
 export * from './type-reference';
 export * from './type-string';
 export * from './type-union';
+export * from './type-intersection';
 export * from './type-void';
 
 export * from './type';

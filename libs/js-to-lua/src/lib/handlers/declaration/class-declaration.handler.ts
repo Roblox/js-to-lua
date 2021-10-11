@@ -182,7 +182,7 @@ export const createClassDeclarationHandler = (
 
     const publicTypes: LuaPropertySignature[] = [
       ...constructorPublicTsParameters.map((n) => {
-        let id;
+        let id: LuaIdentifier;
         if (isBabelIdentifier(n.parameter)) {
           id = handleIdentifier(source, config, n.parameter);
         } else {

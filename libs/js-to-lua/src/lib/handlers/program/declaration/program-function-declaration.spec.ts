@@ -23,8 +23,8 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from './program.spec.utils';
-import { handleProgram } from './program.handler';
+import { getProgramNode } from '../program.spec.utils';
+import { handleProgram } from '../program.handler';
 
 const source = '';
 

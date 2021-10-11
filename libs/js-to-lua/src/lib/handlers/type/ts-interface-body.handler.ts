@@ -8,13 +8,13 @@ import {
 import {
   Expression,
   Noop,
+  TSInterfaceBody,
   TSTypeAnnotation,
-  TSTypeLiteral,
   TypeAnnotation,
 } from '@babel/types';
 import { createTsTypeElementHandler } from './ts-type-element.handler';
 
-export const createTsTypeLiteralHandler = (
+export const createTsInterfaceBodyHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
   typesHandlerFunction: HandlerFunction<
     LuaTypeAnnotation,
@@ -28,9 +28,9 @@ export const createTsTypeLiteralHandler = (
 
   const handleTsTypeLiteral: BaseNodeHandler<
     LuaTypeLiteral,
-    TSTypeLiteral
-  > = createHandler('TSTypeLiteral', (source, config, node) =>
-    typeLiteral(node.members.map(typeElementHandler.handler(source, config)))
+    TSInterfaceBody
+  > = createHandler('TSInterfaceBody', (source, config, node) =>
+    typeLiteral(node.body.map(typeElementHandler.handler(source, config)))
   );
 
   return handleTsTypeLiteral;

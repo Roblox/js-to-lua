@@ -1,5 +1,5 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaTypeAliasDeclaration } from '../lua-nodes.types';
+import { LuaTypeAliasDeclaration } from '../declaration';
 
 export interface ExportTypeStatement extends BaseLuaNode {
   type: 'ExportTypeStatement';

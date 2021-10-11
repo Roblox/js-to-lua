@@ -1,6 +1,6 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaIdentifier } from '../lua-nodes.types';
-import { LuaType } from './index';
+import { LuaType } from './type';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
 
 export interface LuaTypeReference extends BaseLuaNode {

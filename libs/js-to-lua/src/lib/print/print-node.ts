@@ -18,13 +18,11 @@ import {
   LuaNode,
   LuaNodeGroup,
   LuaProgram,
-  LuaPropertySignature,
   LuaReturnStatement,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
   LuaTableNoKeyField,
-  LuaTypeAliasDeclaration,
   LuaTypeLiteral,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
@@ -45,6 +43,9 @@ import { createPrintIndexExpression } from './expression/print-index-expression'
 import { createPrintMemberExpression } from './expression/print-member-expression';
 import { createPrintTypeUnion } from './type/print-type-union';
 import { createPrintTypeOptional } from './type/print-type-optional';
+import { createPrintTypeIntersection } from './type/print-type-intersection';
+import { createPrintTypeAliasDeclaration } from './declaration/print-type-declaration';
+import { createPrintPropertySignature } from './declaration/print-property-signature';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -115,12 +116,14 @@ const _printNode = (node: LuaNode): string => {
       return '()';
     case 'LuaTypeUnion':
       return createPrintTypeUnion(printNode)(node);
+    case 'LuaTypeIntersection':
+      return createPrintTypeIntersection(printNode)(node);
     case 'LuaTypeAliasDeclaration':
-      return printTypeAliasDeclaration(node);
+      return createPrintTypeAliasDeclaration(printNode)(node);
     case 'LuaTypeLiteral':
       return printTypeLiteral(node);
     case 'LuaPropertySignature':
-      return printPropertySignature(node);
+      return createPrintPropertySignature(printNode)(node);
     case 'LuaBinaryExpression':
     case 'LogicalExpression':
       return `${useParenthesis(node.left, checkPrecedence(node))} ${
@@ -294,20 +297,10 @@ function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
   }${body}${node.body.length ? '\n' : ''}end`;
 }
 
-function printTypeAliasDeclaration(node: LuaTypeAliasDeclaration) {
-  return `type ${printNode(node.id)} = ${printNode(node.typeAnnotation)}`;
-}
-
 function printTypeLiteral(node: LuaTypeLiteral) {
   return `{ ${node.members.map((member) => printNode(member)).join(', ')}${
     node.members.length ? ' ' : ''
   }}`;
-}
-
-function printPropertySignature(node: LuaPropertySignature) {
-  return `${printNode(node.key)}${
-    node.typeAnnotation ? printNode(node.typeAnnotation) : ''
-  }`;
 }
 
 function printIfStatement(node: LuaIfStatement): string {

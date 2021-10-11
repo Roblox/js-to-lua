@@ -1,5 +1,5 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaType } from './index';
+import { LuaType } from './type';
 
 export interface LuaTypeUnion extends BaseLuaNode {
   type: 'LuaTypeUnion';

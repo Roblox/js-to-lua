@@ -12,8 +12,8 @@ import {
   typeString,
   typeUnion,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from './program.spec.utils';
-import { handleProgram } from './program.handler';
+import { getProgramNode } from '../program.spec.utils';
+import { handleProgram } from '../program.handler';
 
 const source = '';
 
@@ -78,6 +78,28 @@ describe('Program handler', () => {
             typeString(),
             typeReference(identifier('TypeReference')),
           ])
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle type alias declaration with generic params', () => {
+      const given = getProgramNode(`
+        type Foo<T> = {
+          bar: number;
+        }
+      `);
+      const expected = program([
+        typeAliasDeclaration(
+          identifier('Foo'),
+          typeLiteral([
+            typePropertySignature(
+              identifier('bar'),
+              typeAnnotation(typeNumber())
+            ),
+          ]),
+          [typeReference(identifier('T'))]
         ),
       ]);
 

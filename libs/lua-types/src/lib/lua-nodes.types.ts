@@ -132,12 +132,6 @@ export interface LuaFunctionExpression extends BaseLuaNode {
   returnType?: LuaTypeAnnotation;
 }
 
-export interface LuaTypeAliasDeclaration extends BaseLuaNode {
-  type: 'LuaTypeAliasDeclaration';
-  id: LuaIdentifier;
-  typeAnnotation: LuaType | LuaMemberExpression;
-}
-
 export type LuaBinaryExpressionOperator =
   | '+'
   | '-'

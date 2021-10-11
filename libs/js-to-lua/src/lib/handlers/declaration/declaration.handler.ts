@@ -38,6 +38,7 @@ import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import { createClassDeclarationHandler } from './class-declaration.handler';
+import { createTsInterfaceHandler } from './ts-interface-declaration.handler';
 
 export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -53,10 +54,14 @@ export const createDeclarationHandler = (
   >,
   handleTsTypes: BaseNodeHandler<LuaType, TSType>
 ): BaseNodeHandler<LuaNodeGroup | LuaDeclaration, Declaration> => {
+  const { typesHandler } = createTypeAnnotationHandler(
+    handleExpression,
+    handleIdentifier
+  );
+
   const declarationHandler: BaseNodeHandler<
     LuaNodeGroup | LuaDeclaration,
-    Declaration,
-    EmptyConfig
+    Declaration
   > = combineStatementHandlers<LuaDeclaration | LuaNodeGroup, Declaration>([
     createVariableDeclarationHandler(
       handleExpression,
@@ -75,6 +80,12 @@ export const createDeclarationHandler = (
     ),
     createTypeAliasDeclarationHandler(
       handleIdentifier,
+      forwardHandlerRef(() => handleTsTypes)
+    ),
+    createTsInterfaceHandler(
+      handleIdentifier,
+      handleExpression,
+      typesHandler,
       forwardHandlerRef(() => handleTsTypes)
     ),
     createExportHandler(
