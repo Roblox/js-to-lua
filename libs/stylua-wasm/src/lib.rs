@@ -1,6 +1,6 @@
 mod utils;
 
-use stylua_lib::{Config, IndentType, LineEndings, QuoteStyle, Range};
+use stylua_lib::{Config, IndentType, LineEndings, QuoteStyle, Range, OutputVerification};
 use utils::{set_panic_hook, Configuration};
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
@@ -54,7 +54,7 @@ pub fn format_code(code: &str, configuration: Option<Configuration>) -> Result<S
     set_panic_hook();
     let config = get_stylua_config(configuration.unwrap_or_default())?;
 
-    stylua_lib::format_code(code, config, None).map_err(|error| JsValue::from(error.to_string()))
+    stylua_lib::format_code(code, config, None, OutputVerification::None).map_err(|error| JsValue::from(error.to_string()))
 }
 
 #[wasm_bindgen]
@@ -67,6 +67,6 @@ pub fn format_code_in_range(
     set_panic_hook();
     let config = get_stylua_config(configuration.unwrap_or_default())?;
 
-    stylua_lib::format_code(code, config, Some(Range::from_values(start, end)))
+    stylua_lib::format_code(code, config, Some(Range::from_values(start, end)), OutputVerification::None)
         .map_err(|error| JsValue::from(error.to_string()))
 }

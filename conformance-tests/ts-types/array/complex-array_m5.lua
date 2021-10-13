@@ -1,4 +1,1 @@
-local foo: Array<Array<{
-	foo: string,
-	bar: Array<Array<string>>,
-}>> = {}
+local foo: Array<Array<{ foo: string, bar: Array<Array<string>> }>> = {}

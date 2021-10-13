@@ -1,7 +1,4 @@
-type BaseClass = {
-	initializedProperty: any,
-	notInitializedProperty: any,
-} --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type BaseClass = { initializedProperty: any, notInitializedProperty: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
 local BaseClass = {}
 BaseClass.__index = BaseClass
 BaseClass.staticProperty = false
@@ -10,10 +7,7 @@ function BaseClass.new()
 	self.initializedProperty = true
 	return self
 end
-type MyClass = {
-	initializedProperty: any,
-	notInitializedProperty: any,
-} --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type MyClass = { initializedProperty: any, notInitializedProperty: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 MyClass.staticProperty = false

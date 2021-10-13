@@ -1,2 +1,2 @@
 local bar = "bar"
-local foo = bar :: any :: string
+local foo = (bar :: any) :: string
