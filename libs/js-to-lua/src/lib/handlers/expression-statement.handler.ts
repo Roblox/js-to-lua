@@ -101,6 +101,8 @@ import { createNewExpressionHandler } from './expression/new-expression.handler'
 import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
 import { createThisExpressionHandler } from './expression/this-expression.handler';
 import { createObjectExpressionHandler } from './expression/object-expression.handler';
+import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expression.handler';
+import { createTaggedTemplateExpressionHandler } from './expression/tagged-template-expression.handler';
 
 type MemberExpressionPredicate = (node: MemberExpression) => boolean;
 const isExpectCall = (node: MemberExpression): boolean => {
@@ -337,6 +339,13 @@ export const handleExpression: BaseNodeHandler<
   createTsAsExpressionHandler(
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleTsTypes)
+  ),
+  createTsNonNullExpressionHandler(forwardHandlerRef(() => handleExpression)),
+  createTaggedTemplateExpressionHandler(
+    forwardHandlerRef(() => handleExpression),
+    createMultilineStringLiteralHandler(
+      forwardHandlerRef(() => handleExpression)
+    ).handler
   ),
 ]);
 
