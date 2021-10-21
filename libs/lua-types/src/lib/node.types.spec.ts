@@ -10,13 +10,9 @@ import {
   stringLiteral,
 } from './literals';
 import { isAnyNodeType, isNodeType } from './node.types';
-import { LuaIdentifier, LuaNode } from './lua-nodes.types';
-import {
-  callExpression,
-  functionExpression,
-  identifier,
-} from './lua-nodes.creators';
-import { isIdentifier } from './lua-nodes.checks';
+import { LuaNode } from './lua-nodes.types';
+import { LuaIdentifier, isIdentifier, identifier } from './expression';
+import { callExpression, functionExpression } from './lua-nodes.creators';
 
 import { LuaStringLiteral } from './literals';
 

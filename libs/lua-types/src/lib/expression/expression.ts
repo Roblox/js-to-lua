@@ -1,13 +1,16 @@
-import { isLiteral, LuaLiteral } from '../literals';
+import {
+  isLiteral,
+  isTableConstructor,
+  LuaLiteral,
+  LuaTableConstructor,
+} from '../literals';
 import {
   LuaBinaryExpression,
   LuaCallExpression,
   LuaFunctionExpression,
-  LuaIdentifier,
   LuaIndexExpression,
   LuaLogicalExpression,
   LuaMemberExpression,
-  LuaTableConstructor,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
@@ -23,17 +26,16 @@ import {
   isBinaryExpression,
   isCallExpression,
   isFunctionExpression,
-  isIdentifier,
   isIndexExpression,
   isLogicalExpression,
   isMemberExpression,
-  isTableConstructor,
   isUnaryDeleteExpression,
   isUnaryExpression,
   isUnaryNegation,
   isUnaryVoidExpression,
   isUnhandledExpression,
 } from '../lua-nodes.checks';
+import { isIdentifier, LuaIdentifier } from './identifier';
 
 export type LuaExpression =
   | LuaLiteral

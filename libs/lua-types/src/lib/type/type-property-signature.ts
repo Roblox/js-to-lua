@@ -2,7 +2,7 @@ import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaTypeAnnotation } from './type-annotation';
 import { LuaTypeString } from './type-string';
 import { LuaTypeNumber } from './type-number';
-import { LuaIdentifier } from '../lua-nodes.types';
+import { LuaIdentifier } from '../expression';
 
 export interface LuaPropertySignature extends BaseLuaNode {
   type: 'LuaPropertySignature';

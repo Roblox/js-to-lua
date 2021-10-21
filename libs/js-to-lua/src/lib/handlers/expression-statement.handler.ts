@@ -1,9 +1,4 @@
-import {
-  BaseNodeHandler,
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../types';
+import { BaseNodeHandler, createHandler } from '../types';
 import {
   ArrowFunctionExpression,
   AssignmentPattern,
@@ -53,7 +48,7 @@ import {
   returnStatement,
   stringLiteral,
   tableExpressionKeyField,
-  tableNameKeyField,
+  tableKeyField,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -385,7 +380,10 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
-  handleTsTypes
+  handleTsTypes,
+  forwardHandlerRef(() => handleObjectPropertyIdentifier),
+  forwardHandlerRef(() => handleObjectKeyExpression),
+  forwardHandlerRef(() => handleObjectPropertyValue)
 );
 
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
@@ -416,7 +414,7 @@ export const handleObjectValueFunctionExpression: BaseNodeHandler<
   );
 });
 
-const handleObjectPropertyValue: BaseNodeHandler<
+export const handleObjectPropertyValue: BaseNodeHandler<
   LuaExpression,
   Expression | PatternLike
 > = combineExpressionsHandlers([
@@ -424,10 +422,10 @@ const handleObjectPropertyValue: BaseNodeHandler<
   handleExpression,
 ]);
 
-const handleObjectKeyExpression: HandlerFunction<
+export const handleObjectKeyExpression: BaseNodeHandler<
   LuaExpression,
   Expression
-> = createHandlerFunction((source, config, key: Expression) =>
+> = createHandler([], (source, config, key: Expression) =>
   key.type === 'StringLiteral'
     ? handleExpression.handler(source, config, key)
     : callExpression(
@@ -439,10 +437,10 @@ const handleObjectKeyExpression: HandlerFunction<
       )
 );
 
-export const handleObjectPropertyIdentifier = createHandlerFunction<
+export const handleObjectPropertyIdentifier = createHandler<
   LuaExpression,
   Identifier
->((source, config, node) => {
+>([], (source, config, node) => {
   const identifierResult = handleIdentifier.handler(source, config, node);
 
   if (typeof identifierResult?.extras?.originalIdentifierName === 'string') {
@@ -454,16 +452,6 @@ export const handleObjectPropertyIdentifier = createHandlerFunction<
     : defaultExpressionHandler(source, config, node);
 });
 
-function tableKeyField(
-  computed: boolean,
-  key: LuaExpression,
-  value: LuaExpression
-) {
-  return computed || !isIdentifier(key)
-    ? tableExpressionKeyField(key, value)
-    : tableNameKeyField(key, value);
-}
-
 export const handleObjectProperty: BaseNodeHandler<
   LuaTableKeyField,
   ObjectProperty
@@ -474,12 +462,12 @@ export const handleObjectProperty: BaseNodeHandler<
       case 'Identifier':
         return tableKeyField(
           computed,
-          handleObjectPropertyIdentifier(source, config, key),
+          handleObjectPropertyIdentifier.handler(source, config, key),
           handleObjectPropertyValue.handler(source, config, value)
         );
       default:
         return tableExpressionKeyField(
-          handleObjectKeyExpression(source, config, key),
+          handleObjectKeyExpression.handler(source, config, key),
           handleObjectPropertyValue.handler(source, config, value)
         );
     }
@@ -506,7 +494,7 @@ export const handleObjectMethod: BaseNodeHandler<
       case 'Identifier':
         return tableKeyField(
           computed,
-          handleObjectPropertyIdentifier(source, config, key),
+          handleObjectPropertyIdentifier.handler(source, config, key),
           functionExpression(
             params,
             [
@@ -522,7 +510,7 @@ export const handleObjectMethod: BaseNodeHandler<
         );
       default:
         return tableExpressionKeyField(
-          handleObjectKeyExpression(source, config, node.key),
+          handleObjectKeyExpression.handler(source, config, node.key),
           functionExpression(
             params,
             [

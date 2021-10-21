@@ -2,13 +2,12 @@ import { isBooleanLiteral } from './literals';
 import {
   isBinaryExpression,
   isCallExpression,
-  isIdentifier,
   isMemberExpression,
   isUnaryNegation,
 } from './lua-nodes.checks';
 import { booleanMethod, withExtras } from './lua-nodes.creators';
-import { LuaIdentifier, LuaMemberExpression } from './lua-nodes.types';
-import { LuaExpression } from './expression';
+import { LuaMemberExpression } from './lua-nodes.types';
+import { LuaExpression, LuaIdentifier, isIdentifier } from './expression';
 
 export const booleanInferableExpression = withExtras({
   isBooleanInferable: true,

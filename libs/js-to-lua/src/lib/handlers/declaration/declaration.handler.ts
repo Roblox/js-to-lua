@@ -4,9 +4,11 @@ import {
   Expression,
   FunctionDeclaration,
   FunctionExpression,
+  Identifier,
   LVal,
   ObjectMethod,
   ObjectProperty,
+  PatternLike,
   Statement,
   TSType,
 } from '@babel/types';
@@ -39,6 +41,7 @@ import { createVariableDeclarationHandler } from './variable-declaration.handler
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import { createClassDeclarationHandler } from './class-declaration.handler';
 import { createTsInterfaceHandler } from './ts-interface-declaration.handler';
+import { createTsEnumHandler } from './ts-enum-declaration.handler';
 
 export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -52,7 +55,19 @@ export const createDeclarationHandler = (
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
   >,
-  handleTsTypes: BaseNodeHandler<LuaType, TSType>
+  handleTsTypes: BaseNodeHandler<LuaType, TSType>,
+  objectPropertyIdentifierHandlerFunction: HandlerFunction<
+    LuaExpression,
+    Identifier
+  >,
+  objectKeyExpressionHandlerFunction: HandlerFunction<
+    LuaExpression,
+    Expression
+  >,
+  objectPropertyValueHandlerFunction: HandlerFunction<
+    LuaExpression,
+    Expression | PatternLike
+  >
 ): BaseNodeHandler<LuaNodeGroup | LuaDeclaration, Declaration> => {
   const { typesHandler } = createTypeAnnotationHandler(
     handleExpression,
@@ -87,6 +102,12 @@ export const createDeclarationHandler = (
       handleExpression,
       typesHandler,
       forwardHandlerRef(() => handleTsTypes)
+    ),
+    createTsEnumHandler(
+      handleIdentifier,
+      objectPropertyIdentifierHandlerFunction,
+      objectKeyExpressionHandlerFunction,
+      objectPropertyValueHandlerFunction
     ),
     createExportHandler(
       forwardHandlerRef(() => declarationHandler),

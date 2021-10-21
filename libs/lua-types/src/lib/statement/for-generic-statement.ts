@@ -1,7 +1,6 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaIdentifier } from '../lua-nodes.types';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
-import { LuaExpression } from '../expression';
+import { LuaExpression, LuaIdentifier } from '../expression';
 import { LuaStatement } from './statement';
 
 export interface ForGenericStatement extends BaseLuaNode {

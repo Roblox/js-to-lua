@@ -5,29 +5,24 @@ import {
   LuaElseifClause,
   LuaFunctionDeclaration,
   LuaFunctionExpression,
-  LuaIdentifier,
   LuaIfClause,
   LuaIndexExpression,
   LuaLogicalExpression,
   LuaMemberExpression,
   LuaProgram,
   LuaReturnStatement,
-  LuaTableConstructor,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
   LuaVariableDeclaration,
   UnhandledExpression,
+  UnhandledStatement,
 } from './lua-nodes.types';
 import { isNodeType } from './node.types';
 
 export const isProgram = isNodeType<LuaProgram>('Program');
 
-export const isTableConstructor = isNodeType<LuaTableConstructor>(
-  'TableConstructor'
-);
-export const isIdentifier = isNodeType<LuaIdentifier>('Identifier');
 export const isCallExpression = isNodeType<LuaCallExpression>('CallExpression');
 export const isBinaryExpression = isNodeType<LuaBinaryExpression>(
   'LuaBinaryExpression'
@@ -76,4 +71,8 @@ export const isVariableDeclaration = isNodeType<LuaVariableDeclaration>(
 
 export const isUnhandledExpression = isNodeType<UnhandledExpression>(
   'UnhandledExpression'
+);
+
+export const isUnhandledStatement = isNodeType<UnhandledStatement>(
+  'UnhandledStatement'
 );

@@ -6,7 +6,6 @@ import {
   LuaExpressionStatement,
   LuaFunctionDeclaration,
   LuaFunctionExpression,
-  LuaIdentifier,
   LuaIfClause,
   LuaIfStatement,
   LuaIndexExpression,
@@ -15,10 +14,6 @@ import {
   LuaNode,
   LuaProgram,
   LuaReturnStatement,
-  LuaTableConstructor,
-  LuaTableExpressionKeyField,
-  LuaTableNameKeyField,
-  LuaTableNoKeyField,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
@@ -35,7 +30,7 @@ import { BaseLuaNode } from './node.types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { curry } from 'ramda';
 import { commentBlock, LuaComment } from './comment';
-import { LuaTypeAnnotation } from './type';
+import { LuaIdentifier, identifier } from './expression';
 
 export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',
@@ -134,38 +129,6 @@ export const functionDeclaration = (
   };
 };
 
-export const tableConstructor = (
-  elements: LuaTableConstructor['elements'] = []
-): LuaTableConstructor => ({
-  type: 'TableConstructor',
-  elements,
-});
-
-export const tableNameKeyField = (
-  key: LuaTableNameKeyField['key'],
-  value: LuaTableNameKeyField['value']
-): LuaTableNameKeyField => ({
-  type: 'TableNameKeyField',
-  key,
-  value,
-});
-
-export const tableExpressionKeyField = (
-  key: LuaTableExpressionKeyField['key'],
-  value: LuaTableExpressionKeyField['value']
-): LuaTableExpressionKeyField => ({
-  type: 'TableExpressionKeyField',
-  key,
-  value,
-});
-
-export const tableNoKeyField = (
-  value: LuaTableNoKeyField['value']
-): LuaTableNoKeyField => ({
-  type: 'TableNoKeyField',
-  value,
-});
-
 export const callExpression = (
   callee: LuaCallExpression['callee'],
   args: LuaCallExpression['arguments']
@@ -173,15 +136,6 @@ export const callExpression = (
   type: 'CallExpression',
   callee,
   arguments: args,
-});
-
-export const identifier = (
-  name: string,
-  typeAnnotation?: LuaTypeAnnotation
-): LuaIdentifier => ({
-  type: 'Identifier',
-  name,
-  ...(typeAnnotation ? { typeAnnotation } : {}),
 });
 
 export const unaryExpression = (

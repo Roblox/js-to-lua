@@ -10,13 +10,17 @@ import {
   exportTypeStatement,
   identifier,
   indexExpression,
+  isAnyNodeType,
   isIdentifier,
+  isLuaDeclaration,
   isNodeGroup,
+  isTypeAliasDeclaration,
   isVariableDeclaration,
   LuaDeclaration,
   LuaExpression,
   LuaIdentifier,
   LuaLVal,
+  LuaNode,
   LuaNodeGroup,
   LuaStatement,
   LuaTypeAliasDeclaration,
@@ -25,7 +29,7 @@ import {
   nodeGroup,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
-import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { applyTo } from 'ramda';
 import { createHandler, HandlerFunction } from '../../../types';
 import { defaultStatementHandler } from '../../../utils/default-handlers';
 import { hasSourceTypeExtra } from '../../../utils/with-source-type-extra';
@@ -46,7 +50,7 @@ export const createExportNamedHandler = (
     (source, config, node: ExportNamedDeclaration) => {
       if (node.declaration) {
         let declaration = handleDeclaration(source, config, node.declaration);
-        let declarationIds;
+        let declarationIds: Array<LuaLVal | LuaTypeAliasDeclaration>;
         let exportedTypes: LuaTypeAliasDeclaration[] = [];
 
         const isClassDeclaration = (
@@ -72,22 +76,40 @@ export const createExportNamedHandler = (
           declarationIds = getDeclarationId(declaration);
         }
 
-        if (node.exportKind === 'type') {
-          return exportTypeStatement(declaration as LuaTypeAliasDeclaration);
+        if (isTypeAliasDeclaration(declaration)) {
+          return exportTypeStatement(declaration);
         }
+
+        const filterDeclarationIds = (d: typeof declaration) => {
+          if (isNodeGroup(d)) {
+            return d.body.filter(
+              (bodyElement) =>
+                !(declarationIds as Array<LuaNode>).includes(bodyElement)
+            );
+          } else {
+            return [d].filter(
+              (element) => !(declarationIds as Array<LuaNode>).includes(element)
+            );
+          }
+        };
 
         return nodeGroup([
           ...exportedTypes.map((t) => exportTypeStatement(t)),
-          declaration,
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            declarationIds.map((id) =>
-              isIdentifier(id)
-                ? memberExpression(identifier('exports'), '.', id)
-                : indexExpression(identifier('exports'), id)
-            ),
-            declarationIds
-          ),
+          ...applyTo(declaration, filterDeclarationIds),
+          ...declarationIds.map((id) => {
+            if (isTypeAliasDeclaration(id)) {
+              return exportTypeStatement(id);
+            }
+            return assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                isIdentifier(id)
+                  ? memberExpression(identifier('exports'), '.', id)
+                  : indexExpression(identifier('exports'), id),
+              ],
+              [id]
+            );
+          }),
         ]);
       }
 
@@ -137,16 +159,25 @@ export const createExportNamedHandler = (
 };
 
 const getDeclarationId = (
-  declaration: LuaDeclaration
-): NonEmptyArray<LuaLVal> => {
+  declaration: LuaDeclaration | LuaNodeGroup
+): Array<LuaLVal | LuaTypeAliasDeclaration> => {
   switch (declaration.type) {
     case 'FunctionDeclaration':
-    case 'LuaTypeAliasDeclaration':
       return [declaration.id];
+    case 'LuaTypeAliasDeclaration':
+      return [declaration];
     case 'VariableDeclaration':
-      return declaration.identifiers.map(
-        ({ value }) => value
-      ) as NonEmptyArray<LuaLVal>;
+      return declaration.identifiers.map(({ value }) => value);
+    case 'NodeGroup':
+      return declaration.body
+        .filter(
+          isAnyNodeType<LuaDeclaration | LuaNodeGroup>([
+            isLuaDeclaration,
+            isTypeAliasDeclaration,
+          ])
+        )
+        .map((node) => getDeclarationId(node))
+        .flat();
     case 'UnhandledStatement':
       return [
         {

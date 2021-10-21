@@ -7,6 +7,8 @@ import {
   LuaTypeAnnotation,
   TypeAnnotation,
 } from './type';
+import { LuaTableField } from './literals';
+import { LuaIdentifier } from './expression';
 
 export type LuaNode =
   | LuaProgram
@@ -33,37 +35,6 @@ export interface LuaCallExpression extends BaseLuaNode {
   arguments: LuaExpression[];
 }
 
-export interface LuaTableNoKeyField extends BaseLuaNode {
-  type: 'TableNoKeyField';
-  value: LuaExpression;
-}
-
-export interface LuaTableExpressionKeyField extends BaseLuaNode {
-  type: 'TableExpressionKeyField';
-  key: LuaExpression;
-  value: LuaExpression;
-}
-
-export interface LuaTableNameKeyField extends BaseLuaNode {
-  type: 'TableNameKeyField';
-  key: LuaIdentifier;
-  value: LuaExpression;
-}
-
-export type LuaTableKeyField =
-  | LuaTableNameKeyField
-  | LuaTableExpressionKeyField;
-
-export type LuaTableField =
-  | LuaTableNoKeyField
-  | LuaTableNameKeyField
-  | LuaTableExpressionKeyField;
-
-export interface LuaTableConstructor extends BaseLuaNode {
-  type: 'TableConstructor';
-  elements: LuaTableField[];
-}
-
 export interface UnhandledStatement extends BaseLuaNode {
   type: 'UnhandledStatement';
 }
@@ -79,12 +50,6 @@ export interface UnhandledElement extends BaseLuaNode {
 export interface LuaProgram extends BaseLuaNode {
   type: 'Program';
   body: LuaStatement[];
-}
-
-export interface LuaIdentifier extends BaseLuaNode {
-  type: 'Identifier';
-  name: string;
-  typeAnnotation?: LuaTypeAnnotation;
 }
 
 export interface LuaVariableDeclaration extends BaseLuaNode {

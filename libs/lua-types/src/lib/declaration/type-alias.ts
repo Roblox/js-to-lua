@@ -1,6 +1,7 @@
-import { LuaIdentifier, LuaMemberExpression } from '../lua-nodes.types';
+import { LuaMemberExpression } from '../lua-nodes.types';
 import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaType, LuaTypeReference } from '../type';
+import { LuaIdentifier } from '../expression';
 
 export interface LuaTypeAliasDeclaration extends BaseLuaNode {
   type: 'LuaTypeAliasDeclaration';

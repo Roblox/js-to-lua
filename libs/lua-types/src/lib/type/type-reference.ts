@@ -1,5 +1,5 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaIdentifier } from '../lua-nodes.types';
+import { LuaIdentifier } from '../expression';
 import { LuaType } from './type';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
 
