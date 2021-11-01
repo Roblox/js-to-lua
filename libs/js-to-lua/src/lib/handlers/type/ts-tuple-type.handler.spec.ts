@@ -55,4 +55,30 @@ describe('TSTupleType handler', () => {
 
     expect(tsTupleTypeHandler(source, {}, given)).toEqual(expected);
   });
+
+  it('should handle TSTupleType with a duplicate type param', () => {
+    const given = tsTupleType([
+      tsNumberKeyword(),
+      tsNumberKeyword(),
+      tsStringKeyword(),
+      tsTypeReference(babelIdentifier('Foo')),
+      tsStringKeyword(),
+      tsStringKeyword(),
+      tsNumberKeyword(),
+      tsTypeReference(babelIdentifier('Foo')),
+      tsTypeReference(babelIdentifier('Bar')),
+      tsTypeReference(babelIdentifier('Foo')),
+      tsTypeReference(babelIdentifier('Foo')),
+    ]);
+    const expected = typeReference(identifier('Array'), [
+      typeUnion([
+        mockNodeWithValue(tsNumberKeyword()),
+        mockNodeWithValue(tsStringKeyword()),
+        mockNodeWithValue(tsTypeReference(babelIdentifier('Foo'))),
+        mockNodeWithValue(tsTypeReference(babelIdentifier('Bar'))),
+      ]),
+    ]);
+
+    expect(tsTupleTypeHandler(source, {}, given)).toEqual(expected);
+  });
 });
