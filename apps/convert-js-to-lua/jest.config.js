@@ -10,4 +10,5 @@ module.exports = {
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/apps/convert-js-to-lua',
   testPathIgnorePatterns: ['/node_modules', 'conformance-tests'],
+  testEnvironment: 'node',
 };

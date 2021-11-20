@@ -14,28 +14,21 @@
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
+        "cacheableOperations": ["build", "lint", "test", "e2e"],
+        "parallel": 1
       }
     }
   },
-  "projects": {
-    "playground": {
-      "tags": []
-    },
-    "js-to-lua": {
-      "tags": []
-    },
-    "convert-js-to-lua": {
-      "tags": []
-    },
-    "lua-types": {
-      "tags": []
-    },
-    "stylua-wasm": {
-      "tags": []
-    },
-    "shared-utils": {
-      "tags": []
-    }
-  }
+  "targetDependencies": {
+    "build": [
+      {
+        "target": "build",
+        "projects": "dependencies"
+      }
+    ]
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/node"
+  },
+  "defaultProject": "convert-js-to-lua"
 }

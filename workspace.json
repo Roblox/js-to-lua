@@ -1,81 +1,6 @@
 {
   "version": 2,
-  "cli": {
-    "defaultCollection": "@nrwl/node"
-  },
-  "defaultProject": "convert-js-to-lua",
   "projects": {
-    "playground": {
-      "root": "apps/playground",
-      "sourceRoot": "apps/playground/src",
-      "projectType": "application",
-      "targets": {
-        "build": {
-          "executor": "@nrwl/node:build",
-          "outputs": ["{options.outputPath}"],
-          "options": {
-            "outputPath": "dist/apps/playground",
-            "main": "apps/playground/src/main.ts",
-            "tsConfig": "apps/playground/tsconfig.app.json",
-            "assets": ["apps/playground/src/assets"]
-          },
-          "configurations": {
-            "production": {
-              "optimization": true,
-              "extractLicenses": true,
-              "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/playground/src/environments/environment.ts",
-                  "with": "apps/playground/src/environments/environment.prod.ts"
-                }
-              ]
-            }
-          }
-        },
-        "serve": {
-          "executor": "@nrwl/node:execute",
-          "options": {
-            "buildTarget": "playground:build"
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["apps/playground/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/apps/playground"],
-          "options": {
-            "jestConfig": "apps/playground/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
-    "js-to-lua": {
-      "root": "libs/js-to-lua",
-      "sourceRoot": "libs/js-to-lua/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/js-to-lua/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/js-to-lua"],
-          "options": {
-            "jestConfig": "libs/js-to-lua/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
     "convert-js-to-lua": {
       "root": "apps/convert-js-to-lua",
       "sourceRoot": "apps/convert-js-to-lua/src",
@@ -117,7 +42,8 @@
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["apps/convert-js-to-lua/**/*.ts"]
-          }
+          },
+          "outputs": ["{options.outputFile}"]
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -147,7 +73,31 @@
             "command": "node tools/scripts/verify-conformance-tests.js"
           }
         }
-      }
+      },
+      "tags": []
+    },
+    "js-to-lua": {
+      "root": "libs/js-to-lua",
+      "sourceRoot": "libs/js-to-lua/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/js-to-lua/**/*.ts"]
+          },
+          "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/js-to-lua"],
+          "options": {
+            "jestConfig": "libs/js-to-lua/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
     },
     "lua-types": {
       "root": "libs/lua-types",
@@ -158,7 +108,8 @@
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["libs/lua-types/**/*.ts"]
-          }
+          },
+          "outputs": ["{options.outputFile}"]
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -168,13 +119,60 @@
             "passWithNoTests": true
           }
         }
-      }
+      },
+      "tags": []
     },
-    "stylua-wasm": {
-      "root": "libs/stylua-wasm",
-      "sourceRoot": "libs/stylua-wasm/src",
-      "projectType": "library",
-      "targets": {}
+    "playground": {
+      "root": "apps/playground",
+      "sourceRoot": "apps/playground/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/playground",
+            "main": "apps/playground/src/main.ts",
+            "tsConfig": "apps/playground/tsconfig.app.json",
+            "assets": ["apps/playground/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/playground/src/environments/environment.ts",
+                  "with": "apps/playground/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "playground:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/playground/**/*.ts"]
+          },
+          "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/playground"],
+          "options": {
+            "jestConfig": "apps/playground/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
     },
     "shared-utils": {
       "root": "libs/shared-utils",
@@ -185,7 +183,8 @@
           "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["libs/shared-utils/**/*.ts"]
-          }
+          },
+          "outputs": ["{options.outputFile}"]
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -195,7 +194,15 @@
             "passWithNoTests": true
           }
         }
-      }
+      },
+      "tags": []
+    },
+    "stylua-wasm": {
+      "root": "libs/stylua-wasm",
+      "sourceRoot": "libs/stylua-wasm/src",
+      "projectType": "library",
+      "targets": {},
+      "tags": []
     }
   }
 }

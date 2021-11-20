@@ -13,4 +13,5 @@ module.exports = {
     '**/conformance-tests/**/__tests__/**/*.[jt]s?(x)',
     '**/conformance-tests/**/?(*.)+(spec|test).[jt]s?(x)',
   ],
+  testEnvironment: 'node',
 };
