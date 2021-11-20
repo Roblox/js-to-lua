@@ -17,7 +17,7 @@ export default {
     'conformance-tests/complex/graphql-type-info-switch-break.ts',
     'conformance-tests/complex/apollo-client-test-switch-break.ts',
 
-    // ---- Milestone 4 ----
+    // ---- Milestone 5 ----
     'conformance-tests/statements/for-loops/simple/single-for-loop_m5.js',
     'conformance-tests/statements/for-loops/simple/single-for-loop-modifying_m5.js',
     'conformance-tests/statements/for-loops/simple/nested-for-loops_m5.js',

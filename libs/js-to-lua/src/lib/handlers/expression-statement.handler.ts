@@ -1,3 +1,4 @@
+import { createForStatementHandler } from './statement/for-statement.handler';
 import { BaseNodeHandler, createHandler } from '../types';
 import {
   ArrowFunctionExpression,
@@ -542,6 +543,12 @@ export const handleStatement: BaseNodeHandler<LuaStatement> = combineStatementHa
     handleExpressionStatement,
     handleDeclaration,
     createBlockStatementHandler(forwardHandlerRef(() => handleStatement)),
+    createForStatementHandler(
+      forwardHandlerRef(() => handleStatement),
+      forwardHandlerRef(() => handleExpressionAsStatement),
+      handleExpression,
+      handleDeclaration
+    ),
     createReturnStatementHandler(
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleExpressionAsStatement)

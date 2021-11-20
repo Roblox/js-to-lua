@@ -35,6 +35,7 @@ import { calculateEqualsForDelimiter } from './utils';
 import { createPrintAssignmentStatement } from './statements/print-assignment-statement';
 import { createPrintExportTypeStatement } from './statements/print-export-type-statement';
 import { createPrintForGenericStatement } from './statements/print-for-generic-statement';
+import { createPrintWhileStatement } from './statements/print-while-statement';
 import { createPrintRepeatStatement } from './statements/print-repeat-statement';
 import { anyPass } from 'ramda';
 import { createPrintTypeCastExpression } from './expression/print-type-cast-expression';
@@ -64,6 +65,8 @@ const _printNode = (node: LuaNode): string => {
       return printBlockStatement(node);
     case 'ReturnStatement':
       return printReturnStatement(node);
+    case 'WhileStatement':
+      return createPrintWhileStatement(printNode, _printComments)(node);
     case 'NumericLiteral':
       return printNumeric(node);
     case 'StringLiteral':

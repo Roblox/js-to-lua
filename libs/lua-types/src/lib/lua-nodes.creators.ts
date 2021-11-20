@@ -30,7 +30,7 @@ import { BaseLuaNode } from './node.types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { curry } from 'ramda';
 import { commentBlock, LuaComment } from './comment';
-import { LuaIdentifier, identifier } from './expression';
+import { identifier, LuaIdentifier } from './expression';
 
 export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',

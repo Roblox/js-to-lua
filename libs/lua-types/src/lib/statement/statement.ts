@@ -1,3 +1,4 @@
+import { WhileStatement } from './while-statement';
 import {
   AssignmentStatement,
   BreakStatement,
@@ -29,4 +30,5 @@ export type LuaStatement =
   | ForGenericStatement
   | BreakStatement
   | RepeatStatement
+  | WhileStatement
   | UnhandledStatement;
