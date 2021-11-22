@@ -37,7 +37,9 @@ local observerOptions = {
 									break_ = true
 									break
 								end
-								expect(stripSymbols(result.data.allPeople)).toEqual(dataTwo.allPeople)
+								expect(stripSymbols(result.data.allPeople)).toEqual(
+									dataTwo.allPeople
+								)
 								resolve()
 								break_ = true
 								break

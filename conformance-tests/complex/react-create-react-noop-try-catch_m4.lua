@@ -2,7 +2,11 @@ local function noopAct()
 	do --[[ ROBLOX COMMENT: try-catch block conversion ]]
 		local ok, result, hasReturned = xpcall(function()
 			local thenable = batchedUpdates(scope)
-			if typeof(thenable) == "object" and thenable ~= nil and typeof(thenable.then_) == "function" then
+			if
+				typeof(thenable) == "object"
+				and thenable ~= nil
+				and typeof(thenable.then_) == "function"
+			then
 				return {
 					then_ = function(self, resolve: any, reject: any)
 						thenable:then_(function()
