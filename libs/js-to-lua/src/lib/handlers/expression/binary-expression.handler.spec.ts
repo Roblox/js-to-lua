@@ -3,6 +3,8 @@ import {
   identifier as babelIdentifier,
   numericLiteral as babelNumericLiteral,
   stringLiteral as babelStringLiteral,
+  templateLiteral as babelTemplateLiteral,
+  templateElement as babelTemplateElement,
 } from '@babel/types';
 import {
   arrayIndexOf,
@@ -13,8 +15,10 @@ import {
   LuaBinaryExpression,
   LuaCallExpression,
   memberExpression,
+  multilineStringLiteral,
   numericLiteral,
   objectKeys,
+  stringInferableExpression,
   stringLiteral,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
@@ -223,6 +227,51 @@ describe('Binary Expression Handler', () => {
       binaryExpression(stringLiteral('foo'), '..', stringLiteral('bar')),
       '..',
       stringLiteral('fizz')
+    );
+
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle add operator with multiple template literals`, () => {
+    const given = babelBinaryExpression(
+      '+',
+      babelBinaryExpression(
+        '+',
+        babelTemplateLiteral([babelTemplateElement({ raw: 'a string' })], []),
+        babelTemplateLiteral(
+          [babelTemplateElement({ raw: 'a multiline\nstring' })],
+          []
+        )
+      ),
+      babelTemplateLiteral(
+        [
+          babelTemplateElement({ raw: 'with expression ' }),
+          babelTemplateElement({ raw: '' }, true),
+        ],
+        [babelIdentifier('foo')]
+      )
+    );
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      binaryExpression(
+        stringLiteral('a string'),
+        '..',
+        multilineStringLiteral('a multiline\nstring')
+      ),
+      '..',
+      stringInferableExpression(
+        callExpression(
+          memberExpression(
+            stringLiteral('with expression %s'),
+            ':',
+            identifier('format')
+          ),
+          [identifier('foo')]
+        )
+      )
     );
 
     expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);

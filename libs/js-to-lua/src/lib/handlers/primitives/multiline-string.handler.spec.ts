@@ -12,6 +12,7 @@ import {
   LuaMultilineStringLiteral,
   memberExpression,
   multilineStringLiteral,
+  stringInferableExpression,
 } from '@js-to-lua/lua-types';
 import { createMultilineStringLiteralHandler } from './multiline-string.handler';
 import {
@@ -99,17 +100,19 @@ describe('Multiline String Handler', () => {
       ]
     );
 
-    const expected = callExpression(
-      memberExpression(
-        multilineStringLiteral('foo: %s\nbar: %s\nbaz: %s\n'),
-        ':',
-        identifier('format')
-      ),
-      [
-        mockNodeWithValue(babelIdentifier('foo')),
-        mockNodeWithValue(babelStringLiteral('bar')),
-        mockNodeWithValue(babelNumericLiteral(1)),
-      ]
+    const expected = stringInferableExpression(
+      callExpression(
+        memberExpression(
+          multilineStringLiteral('foo: %s\nbar: %s\nbaz: %s\n'),
+          ':',
+          identifier('format')
+        ),
+        [
+          mockNodeWithValue(babelIdentifier('foo')),
+          mockNodeWithValue(babelStringLiteral('bar')),
+          mockNodeWithValue(babelNumericLiteral(1)),
+        ]
+      )
     );
 
     expect(handleMultilineStringLiteral.handler(source, {}, given)).toEqual(

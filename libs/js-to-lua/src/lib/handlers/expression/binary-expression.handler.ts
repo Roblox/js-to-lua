@@ -2,6 +2,7 @@ import {
   BinaryExpression,
   Expression,
   isStringLiteral as isBabelStringLiteral,
+  isTemplateLiteral as isBabelTemplateLiteral,
 } from '@babel/types';
 import {
   arrayIndexOf,
@@ -50,7 +51,9 @@ export const createBinaryExpressionHandler = (
         ) => {
           if (
             isBabelStringLiteral(node.left) ||
-            isBabelStringLiteral(node.right)
+            isBabelStringLiteral(node.right) ||
+            isBabelTemplateLiteral(node.left) ||
+            isBabelTemplateLiteral(node.right)
           ) {
             return binaryExpression(
               handleOperandAsString(source, config, node.left as Expression),

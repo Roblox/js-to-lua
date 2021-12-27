@@ -14,6 +14,7 @@ import {
   withTrailingConversionComment,
   memberExpression,
   bit32Identifier,
+  multilineStringLiteral,
 } from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 
@@ -188,6 +189,40 @@ describe('Program handler', () => {
             stringLiteral('foo'),
             '..',
             callExpression(identifier('tostring'), [booleanLiteral(true)])
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, {}, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it(`should handle add operator with multiple template literals`, () => {
+      const given = getProgramNode(`
+      \`a string\` + 
+      \`a multiline
+string\` +
+      \`with expression \${foo}\`
+
+    `);
+      const expected = program([
+        expressionStatement(
+          binaryExpression(
+            binaryExpression(
+              stringLiteral('a string'),
+              '..',
+              multilineStringLiteral('a multiline\nstring')
+            ),
+            '..',
+            callExpression(
+              memberExpression(
+                stringLiteral('with expression %s'),
+                ':',
+                identifier('format')
+              ),
+              [identifier('foo')]
+            )
           )
         ),
       ]);

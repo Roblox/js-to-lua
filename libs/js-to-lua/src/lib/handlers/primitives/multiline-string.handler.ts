@@ -9,6 +9,7 @@ import {
   LuaStringLiteral,
   memberExpression,
   multilineStringLiteral,
+  stringInferableExpression,
   stringLiteral,
 } from '@js-to-lua/lua-types';
 
@@ -22,9 +23,11 @@ export const createMultilineStringLiteralHandler = (
     const handleExpression = expressionHandlerFunction(source, config);
 
     return literal.expressions.length
-      ? callExpression(
-          memberExpression(getLiteral(literal), ':', identifier('format')),
-          literal.expressions.map(handleExpression)
+      ? stringInferableExpression(
+          callExpression(
+            memberExpression(getLiteral(literal), ':', identifier('format')),
+            literal.expressions.map(handleExpression)
+          )
         )
       : getLiteral(literal);
   });
