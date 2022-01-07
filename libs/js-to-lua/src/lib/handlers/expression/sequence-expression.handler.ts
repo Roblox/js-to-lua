@@ -10,7 +10,12 @@ import {
   nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import { Expression, SequenceExpression } from '@babel/types';
+import {
+  Expression,
+  isUpdateExpression,
+  SequenceExpression,
+  UpdateExpression,
+} from '@babel/types';
 import { dropLast, takeLast } from 'ramda';
 import { getReturnExpressions } from '../../utils/get-return-expressions';
 
@@ -18,6 +23,10 @@ export const createSequenceExpressionHandler = (
   expressionHandlerAsStatementFunction: HandlerFunction<
     LuaExpression | LuaStatement,
     Expression
+  >,
+  updateExpressionHandlerAsStatementFunction: HandlerFunction<
+    LuaStatement,
+    UpdateExpression
   >
 ) =>
   createHandler<LuaExpression, SequenceExpression>(
@@ -27,7 +36,19 @@ export const createSequenceExpressionHandler = (
         source,
         config
       );
-      const expressions = node.expressions.map(handleExpression);
+      const handleUpdateExpressionAsStatement =
+        updateExpressionHandlerAsStatementFunction(source, config);
+
+      const last = node.expressions.pop();
+      const expressions = [
+        ...node.expressions.map((exp) =>
+          isUpdateExpression(exp)
+            ? handleUpdateExpressionAsStatement(exp)
+            : handleExpression(exp)
+        ),
+        ...(last ? [handleExpression(last)] : []),
+      ];
+
       return callExpression(
         functionExpression(
           [],
@@ -49,6 +70,10 @@ export const createSequenceExpressionAsStatementHandler = (
   expressionHandlerAsStatementFunction: HandlerFunction<
     LuaExpression | LuaStatement,
     Expression
+  >,
+  updateExpressionHandlerAsStatementFunction: HandlerFunction<
+    LuaStatement,
+    UpdateExpression
   >
 ) =>
   createHandler<LuaNodeGroup, SequenceExpression>(
@@ -58,7 +83,18 @@ export const createSequenceExpressionAsStatementHandler = (
         source,
         config
       );
-      const expressions = node.expressions.map(handleExpressionAsStatement);
+      const handleUpdateExpressionAsStatement =
+        updateExpressionHandlerAsStatementFunction(source, config);
+
+      const last = node.expressions.pop();
+      const expressions = [
+        ...node.expressions.map((exp) =>
+          isUpdateExpression(exp)
+            ? handleUpdateExpressionAsStatement(exp)
+            : handleExpressionAsStatement(exp)
+        ),
+        ...(last ? [handleExpressionAsStatement(last)] : []),
+      ];
       return nodeGroup([...expressions]);
     }
   );

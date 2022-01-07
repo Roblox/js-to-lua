@@ -5,15 +5,7 @@ while
 do
 	foo(i)
 	if i == 3 then
-		(function()
-			local result = i
-			i += 1
-			return result
-		end)()
-	end
-	(function()
-		local result = i
 		i += 1
-		return result
-	end)()
+	end
+	i += 1
 end

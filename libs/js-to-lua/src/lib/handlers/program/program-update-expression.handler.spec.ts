@@ -20,25 +20,107 @@ const source = '';
 
 describe('Program handler', () => {
   describe('Update expression', () => {
-    it('should handle prefix increment operator', () => {
+    it('should handle prefix increment operator as expression statement', () => {
       const given = getProgramNode(`
      ++foo;
     `);
       const expected: LuaProgram = program([
         expressionStatement(
-          callExpression(
-            functionExpression(
-              [],
-              [
-                assignmentStatement(
-                  AssignmentStatementOperatorEnum.ADD,
-                  [identifier('foo')],
-                  [numericLiteral(1)]
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.ADD,
+            [identifier('foo')],
+            [numericLiteral(1)]
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, {}, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle suffix increment operator as expression statement', () => {
+      const given = getProgramNode(`
+       foo++;
+      `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.ADD,
+            [identifier('foo')],
+            [numericLiteral(1)]
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, {}, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle prefix decrement operator as expression statement', () => {
+      const given = getProgramNode(`
+       --foo;
+      `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.SUB,
+            [identifier('foo')],
+            [numericLiteral(1)]
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, {}, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle suffix decrement operator as expression statement', () => {
+      const given = getProgramNode(`
+         foo--;
+        `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.SUB,
+            [identifier('foo')],
+            [numericLiteral(1)]
+          )
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, {}, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle prefix increment operator', () => {
+      const given = getProgramNode(`
+     a = ++foo;
+    `);
+      const expected: LuaProgram = program([
+        expressionStatement(
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [
+              callExpression(
+                functionExpression(
+                  [],
+                  [
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.ADD,
+                      [identifier('foo')],
+                      [numericLiteral(1)]
+                    ),
+                    returnStatement(identifier('foo')),
+                  ]
                 ),
-                returnStatement(identifier('foo')),
-              ]
-            ),
-            []
+                []
+              ),
+            ]
           )
         ),
       ]);
@@ -50,27 +132,33 @@ describe('Program handler', () => {
 
     it('should handle suffix increment operator', () => {
       const given = getProgramNode(`
-       foo++;
+       a = foo++;
       `);
       const expected: LuaProgram = program([
         expressionStatement(
-          callExpression(
-            functionExpression(
-              [],
-              [
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(identifier('result'))],
-                  [variableDeclaratorValue(identifier('foo'))]
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [
+              callExpression(
+                functionExpression(
+                  [],
+                  [
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(identifier('result'))],
+                      [variableDeclaratorValue(identifier('foo'))]
+                    ),
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.ADD,
+                      [identifier('foo')],
+                      [numericLiteral(1)]
+                    ),
+                    returnStatement(identifier('result')),
+                  ]
                 ),
-                assignmentStatement(
-                  AssignmentStatementOperatorEnum.ADD,
-                  [identifier('foo')],
-                  [numericLiteral(1)]
-                ),
-                returnStatement(identifier('result')),
-              ]
-            ),
-            []
+                []
+              ),
+            ]
           )
         ),
       ]);
@@ -82,23 +170,29 @@ describe('Program handler', () => {
 
     it('should handle prefix decrement operator', () => {
       const given = getProgramNode(`
-       --foo;
+       a = --foo;
       `);
       const expected: LuaProgram = program([
         expressionStatement(
-          callExpression(
-            functionExpression(
-              [],
-              [
-                assignmentStatement(
-                  AssignmentStatementOperatorEnum.SUB,
-                  [identifier('foo')],
-                  [numericLiteral(1)]
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [
+              callExpression(
+                functionExpression(
+                  [],
+                  [
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.SUB,
+                      [identifier('foo')],
+                      [numericLiteral(1)]
+                    ),
+                    returnStatement(identifier('foo')),
+                  ]
                 ),
-                returnStatement(identifier('foo')),
-              ]
-            ),
-            []
+                []
+              ),
+            ]
           )
         ),
       ]);
@@ -110,27 +204,33 @@ describe('Program handler', () => {
 
     it('should handle suffix decrement operator', () => {
       const given = getProgramNode(`
-         foo--;
+         a = foo--;
         `);
       const expected: LuaProgram = program([
         expressionStatement(
-          callExpression(
-            functionExpression(
-              [],
-              [
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(identifier('result'))],
-                  [variableDeclaratorValue(identifier('foo'))]
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [
+              callExpression(
+                functionExpression(
+                  [],
+                  [
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(identifier('result'))],
+                      [variableDeclaratorValue(identifier('foo'))]
+                    ),
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.SUB,
+                      [identifier('foo')],
+                      [numericLiteral(1)]
+                    ),
+                    returnStatement(identifier('result')),
+                  ]
                 ),
-                assignmentStatement(
-                  AssignmentStatementOperatorEnum.SUB,
-                  [identifier('foo')],
-                  [numericLiteral(1)]
-                ),
-                returnStatement(identifier('result')),
-              ]
-            ),
-            []
+                []
+              ),
+            ]
           )
         ),
       ]);

@@ -95,29 +95,10 @@ describe('Program handler', () => {
                     functionExpression(
                       [],
                       [
-                        expressionStatement(
-                          callExpression(
-                            functionExpression(
-                              [],
-                              [
-                                variableDeclaration(
-                                  [
-                                    variableDeclaratorIdentifier(
-                                      identifier('result')
-                                    ),
-                                  ],
-                                  [variableDeclaratorValue(identifier('a'))]
-                                ),
-                                assignmentStatement(
-                                  AssignmentStatementOperatorEnum.ADD,
-                                  [identifier('a')],
-                                  [numericLiteral(1)]
-                                ),
-                                returnStatement(identifier('result')),
-                              ]
-                            ),
-                            []
-                          )
+                        assignmentStatement(
+                          AssignmentStatementOperatorEnum.ADD,
+                          [identifier('a')],
+                          [numericLiteral(1)]
                         ),
                         assignmentStatement(
                           AssignmentStatementOperatorEnum.EQ,
@@ -214,29 +195,10 @@ describe('Program handler', () => {
                 functionExpression(
                   [],
                   [
-                    expressionStatement(
-                      callExpression(
-                        functionExpression(
-                          [],
-                          [
-                            variableDeclaration(
-                              [
-                                variableDeclaratorIdentifier(
-                                  identifier('result')
-                                ),
-                              ],
-                              [variableDeclaratorValue(identifier('a'))]
-                            ),
-                            assignmentStatement(
-                              AssignmentStatementOperatorEnum.ADD,
-                              [identifier('a')],
-                              [numericLiteral(1)]
-                            ),
-                            returnStatement(identifier('result')),
-                          ]
-                        ),
-                        []
-                      )
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.ADD,
+                      [identifier('a')],
+                      [numericLiteral(1)]
                     ),
                     assignmentStatement(
                       AssignmentStatementOperatorEnum.EQ,
@@ -341,25 +303,10 @@ describe('Program handler', () => {
           identifier('foo'),
           [],
           [
-            expressionStatement(
-              callExpression(
-                functionExpression(
-                  [],
-                  [
-                    variableDeclaration(
-                      [variableDeclaratorIdentifier(identifier('result'))],
-                      [variableDeclaratorValue(identifier('a'))]
-                    ),
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.ADD,
-                      [identifier('a')],
-                      [numericLiteral(1)]
-                    ),
-                    returnStatement(identifier('result')),
-                  ]
-                ),
-                []
-              )
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.ADD,
+              [identifier('a')],
+              [numericLiteral(1)]
             ),
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,

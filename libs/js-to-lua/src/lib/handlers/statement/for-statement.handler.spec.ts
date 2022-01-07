@@ -23,6 +23,7 @@ describe('For Statement Handler', () => {
   const handleForStatement = createForStatementHandler(
     mockNodeWithValueHandler,
     mockNodeWithValueHandler,
+    mockNodeWithValueHandler,
     { handler: mockNodeWithValueHandler, type: [] },
     { handler: mockNodeWithValueHandler, type: ['VariableDeclaration'] }
   );

@@ -39,8 +39,10 @@ describe('Sequence Expression Handler', () => {
           ),
         ],
         mockNodeWithValueHandler
-      ).handler
+      ).handler,
+      mockNodeWithValueHandler
     );
+
     it('should handle sequence expression', () => {
       const given = babelSequenceExpression([
         babelAssignmentExpression(
@@ -97,9 +99,11 @@ describe('Sequence Expression Handler', () => {
   });
 
   describe('as statement', () => {
-    const handleSequenceExpressionAsStatement = createSequenceExpressionAsStatementHandler(
-      mockNodeWithValueHandler
-    );
+    const handleSequenceExpressionAsStatement =
+      createSequenceExpressionAsStatementHandler(
+        mockNodeWithValueHandler,
+        mockNodeWithValueHandler
+      );
     it('should handle sequence expression', () => {
       const given = babelSequenceExpression([
         babelAssignmentExpression(

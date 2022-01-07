@@ -17,7 +17,9 @@ import {
   Expression,
   ForStatement as BabelForStatement,
   isBlockStatement,
+  isUpdateExpression,
   Statement,
+  UpdateExpression,
 } from '@babel/types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 
@@ -26,6 +28,10 @@ export const createForStatementHandler = (
   handleExpressionAsStatement: HandlerFunction<
     LuaExpression | LuaStatement,
     Expression
+  >,
+  handleUpdateExpressionAsStatement: HandlerFunction<
+    LuaStatement,
+    UpdateExpression
   >,
   expressionHandler: BaseNodeHandler<LuaExpression, Expression>,
   variableDeclarationHandler: BaseNodeHandler<
@@ -40,14 +46,18 @@ export const createForStatementHandler = (
     ).handler;
 
     const handleStatementFn = handleStatement(source, config);
-    const body = (isBlockStatement(node.body)
-      ? node.body.body
-      : [node.body]
+    const body = (
+      isBlockStatement(node.body) ? node.body.body : [node.body]
     ).map(handleStatementFn);
 
-    const updateStatements = (node.update
-      ? [handleExpressionAsStatement(source, config, node.update)]
-      : []
+    const updateStatements = (
+      node.update
+        ? [
+            isUpdateExpression(node.update)
+              ? handleUpdateExpressionAsStatement(source, config, node.update)
+              : handleExpressionAsStatement(source, config, node.update),
+          ]
+        : []
     ).map((someNode) =>
       isExpression(someNode) ? expressionStatement(someNode) : someNode
     );

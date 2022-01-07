@@ -15,16 +15,8 @@ do
 		if i == j then
 			j *= 2
 		end
-		bar(i, j);
-		(function()
-			local result = j
-			j += 1
-			return result
-		end)()
+		bar(i, j)
+		j += 1
 	end
-	(function()
-		local result = i
-		i += 1
-		return result
-	end)()
+	i += 1
 end

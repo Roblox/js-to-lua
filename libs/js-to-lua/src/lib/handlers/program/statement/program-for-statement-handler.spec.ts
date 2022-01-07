@@ -7,12 +7,10 @@ import {
   booleanLiteral,
   callExpression,
   expressionStatement,
-  functionExpression,
   identifier,
   nodeGroup,
   numericLiteral,
   program,
-  returnStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -45,25 +43,10 @@ describe('Program handler', () => {
               expressionStatement(
                 callExpression(identifier('foo'), [identifier('i')])
               ),
-              expressionStatement(
-                callExpression(
-                  functionExpression(
-                    [],
-                    [
-                      variableDeclaration(
-                        [variableDeclaratorIdentifier(identifier('result'))],
-                        [variableDeclaratorValue(identifier('i'))]
-                      ),
-                      assignmentStatement(
-                        AssignmentStatementOperatorEnum.ADD,
-                        [identifier('i')],
-                        [numericLiteral(1)]
-                      ),
-                      returnStatement(identifier('result')),
-                    ]
-                  ),
-                  []
-                )
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.ADD,
+                [identifier('i')],
+                [numericLiteral(1)]
               ),
             ]
           ),
@@ -90,25 +73,10 @@ describe('Program handler', () => {
             expressionStatement(
               callExpression(identifier('foo'), [identifier('i')])
             ),
-            expressionStatement(
-              callExpression(
-                functionExpression(
-                  [],
-                  [
-                    variableDeclaration(
-                      [variableDeclaratorIdentifier(identifier('result'))],
-                      [variableDeclaratorValue(identifier('i'))]
-                    ),
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.ADD,
-                      [identifier('i')],
-                      [numericLiteral(1)]
-                    ),
-                    returnStatement(identifier('result')),
-                  ]
-                ),
-                []
-              )
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.ADD,
+              [identifier('i')],
+              [numericLiteral(1)]
             ),
           ]
         ),
@@ -134,25 +102,10 @@ describe('Program handler', () => {
             expressionStatement(
               callExpression(identifier('foo'), [identifier('i')])
             ),
-            expressionStatement(
-              callExpression(
-                functionExpression(
-                  [],
-                  [
-                    variableDeclaration(
-                      [variableDeclaratorIdentifier(identifier('result'))],
-                      [variableDeclaratorValue(identifier('i'))]
-                    ),
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.ADD,
-                      [identifier('i')],
-                      [numericLiteral(1)]
-                    ),
-                    returnStatement(identifier('result')),
-                  ]
-                ),
-                []
-              )
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.ADD,
+              [identifier('i')],
+              [numericLiteral(1)]
             ),
           ]),
         ]),
@@ -229,25 +182,10 @@ describe('Program handler', () => {
               expressionStatement(
                 callExpression(identifier('foo'), [identifier('i')])
               ),
-              expressionStatement(
-                callExpression(
-                  functionExpression(
-                    [],
-                    [
-                      variableDeclaration(
-                        [variableDeclaratorIdentifier(identifier('result'))],
-                        [variableDeclaratorValue(identifier('i'))]
-                      ),
-                      assignmentStatement(
-                        AssignmentStatementOperatorEnum.ADD,
-                        [identifier('i')],
-                        [numericLiteral(1)]
-                      ),
-                      returnStatement(identifier('result')),
-                    ]
-                  ),
-                  []
-                )
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.ADD,
+                [identifier('i')],
+                [numericLiteral(1)]
               ),
             ]
           ),
