@@ -2,6 +2,7 @@ import {
   booleanLiteral as babelBooleanLiteral,
   identifier as babelIdentifier,
   numericLiteral as babelNumericLiteral,
+  stringLiteral as babelStringLiteral,
   unaryExpression as babelUnaryExpression,
   UnaryExpression,
 } from '@babel/types';
@@ -12,6 +13,7 @@ import {
   callExpression,
   identifier,
   LuaCallExpression,
+  LuaIdentifier,
   LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
@@ -100,6 +102,54 @@ describe('Unary Expression Handler', () => {
     const expected: LuaUnaryVoidExpression = unaryVoidExpression(
       identifier('foo')
     );
+
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle void operator with string literals`, () => {
+    const given: UnaryExpression = babelUnaryExpression(
+      'void',
+      babelStringLiteral('foo'),
+      true
+    );
+
+    const handleUnaryExpression = createUnaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaIdentifier = identifier('nil');
+
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle void operator with numeric literals`, () => {
+    const given: UnaryExpression = babelUnaryExpression(
+      'void',
+      babelNumericLiteral(0),
+      true
+    );
+
+    const handleUnaryExpression = createUnaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaIdentifier = identifier('nil');
+
+    expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle void operator with boolean literals`, () => {
+    const given: UnaryExpression = babelUnaryExpression(
+      'void',
+      babelBooleanLiteral(false),
+      true
+    );
+
+    const handleUnaryExpression = createUnaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaIdentifier = identifier('nil');
 
     expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);
   });

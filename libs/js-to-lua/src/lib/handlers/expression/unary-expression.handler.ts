@@ -1,4 +1,9 @@
-import { Expression, UnaryExpression } from '@babel/types';
+import {
+  Expression,
+  UnaryExpression,
+  isLiteral,
+  isTemplateLiteral,
+} from '@babel/types';
 import {
   bit32Identifier,
   callExpression,
@@ -50,9 +55,7 @@ export const createUnaryExpressionHandler = (
           handleExpression(source, config, node.argument)
         );
       case 'void':
-        return unaryVoidExpression(
-          handleExpression(source, config, node.argument)
-        );
+        return handleUnaryVoidExpression(source, node);
       case '!':
         return handleUnaryNegationExpression(source, node);
       case 'delete':
@@ -78,5 +81,11 @@ export const createUnaryExpressionHandler = (
       return unaryNegationExpression(
         expressionAsBooleanHandler(source, config, node.argument)
       );
+    }
+
+    function handleUnaryVoidExpression(source: string, node: UnaryExpression) {
+      return isLiteral(node.argument) && !isTemplateLiteral(node.argument)
+        ? identifier('nil')
+        : unaryVoidExpression(handleExpression(source, config, node.argument));
     }
   });

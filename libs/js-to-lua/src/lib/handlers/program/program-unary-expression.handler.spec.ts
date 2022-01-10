@@ -73,6 +73,42 @@ describe('Unary Expression Handler', () => {
     expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
+  it(`should handle void operator with string literals`, () => {
+    const given = getProgramNode(`
+    void "foo"
+  `);
+
+    const expected: LuaProgram = program([
+      expressionStatement(identifier('nil')),
+    ]);
+
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle void operator with numeric literals`, () => {
+    const given = getProgramNode(`
+    void 0
+  `);
+
+    const expected: LuaProgram = program([
+      expressionStatement(identifier('nil')),
+    ]);
+
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle void operator with boolean literals`, () => {
+    const given = getProgramNode(`
+    void false
+  `);
+
+    const expected: LuaProgram = program([
+      expressionStatement(identifier('nil')),
+    ]);
+
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+  });
+
   it(`should handle negation operator`, () => {
     const given = getProgramNode(`!foo`);
 
