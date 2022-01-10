@@ -27,11 +27,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('foo')],
               [identifier('bar')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -44,7 +44,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (nodeGroup([
+            nodeGroup([
               assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,
                 [identifier('bar')],
@@ -55,7 +55,7 @@ describe('Program handler', () => {
                 [identifier('foo')],
                 [identifier('bar')]
               ),
-            ]) as unknown) as LuaExpression
+            ]) as unknown as LuaExpression
           ),
         ]);
 
@@ -68,11 +68,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -86,7 +86,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [
                 indexExpression(
@@ -95,14 +95,14 @@ describe('Program handler', () => {
                 ),
               ],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -117,11 +117,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.ADD,
               [identifier('foo')],
               [identifier('bar')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -134,7 +134,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (nodeGroup([
+            nodeGroup([
               assignmentStatement(
                 AssignmentStatementOperatorEnum.ADD,
                 [identifier('bar')],
@@ -145,7 +145,7 @@ describe('Program handler', () => {
                 [identifier('foo')],
                 [identifier('bar')]
               ),
-            ]) as unknown) as LuaExpression
+            ]) as unknown as LuaExpression
           ),
         ]);
 
@@ -158,11 +158,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.ADD,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -176,7 +176,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.ADD,
               [
                 indexExpression(
@@ -185,14 +185,14 @@ describe('Program handler', () => {
                 ),
               ],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.ADD,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -205,11 +205,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.CONCAT,
               [identifier('foo')],
               [stringLiteral('bar')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -222,7 +222,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (nodeGroup([
+            nodeGroup([
               assignmentStatement(
                 AssignmentStatementOperatorEnum.CONCAT,
                 [identifier('bar')],
@@ -233,7 +233,7 @@ describe('Program handler', () => {
                 [identifier('foo')],
                 [identifier('bar')]
               ),
-            ]) as unknown) as LuaExpression
+            ]) as unknown as LuaExpression
           ),
         ]);
 
@@ -246,11 +246,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.CONCAT,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [stringLiteral('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -264,7 +264,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.CONCAT,
               [
                 indexExpression(
@@ -273,14 +273,14 @@ describe('Program handler', () => {
                 ),
               ],
               [stringLiteral('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.CONCAT,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [stringLiteral('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -295,11 +295,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.SUB,
               [identifier('foo')],
               [identifier('bar')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -312,7 +312,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (nodeGroup([
+            nodeGroup([
               assignmentStatement(
                 AssignmentStatementOperatorEnum.SUB,
                 [identifier('bar')],
@@ -323,7 +323,7 @@ describe('Program handler', () => {
                 [identifier('foo')],
                 [identifier('bar')]
               ),
-            ]) as unknown) as LuaExpression
+            ]) as unknown as LuaExpression
           ),
         ]);
 
@@ -336,11 +336,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.SUB,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -354,7 +354,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.SUB,
               [
                 indexExpression(
@@ -363,14 +363,14 @@ describe('Program handler', () => {
                 ),
               ],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.SUB,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -385,11 +385,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.MUL,
               [identifier('foo')],
               [identifier('bar')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -402,7 +402,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (nodeGroup([
+            nodeGroup([
               assignmentStatement(
                 AssignmentStatementOperatorEnum.MUL,
                 [identifier('bar')],
@@ -413,7 +413,7 @@ describe('Program handler', () => {
                 [identifier('foo')],
                 [identifier('bar')]
               ),
-            ]) as unknown) as LuaExpression
+            ]) as unknown as LuaExpression
           ),
         ]);
 
@@ -426,11 +426,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.MUL,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -444,7 +444,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.MUL,
               [
                 indexExpression(
@@ -453,14 +453,14 @@ describe('Program handler', () => {
                 ),
               ],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.MUL,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -475,11 +475,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.DIV,
               [identifier('foo')],
               [identifier('bar')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -492,7 +492,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (nodeGroup([
+            nodeGroup([
               assignmentStatement(
                 AssignmentStatementOperatorEnum.DIV,
                 [identifier('bar')],
@@ -503,7 +503,7 @@ describe('Program handler', () => {
                 [identifier('foo')],
                 [identifier('bar')]
               ),
-            ]) as unknown) as LuaExpression
+            ]) as unknown as LuaExpression
           ),
         ]);
 
@@ -516,11 +516,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.DIV,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -534,7 +534,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.DIV,
               [
                 indexExpression(
@@ -543,14 +543,14 @@ describe('Program handler', () => {
                 ),
               ],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.DIV,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -565,11 +565,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.REMAINDER,
               [identifier('foo')],
               [identifier('bar')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -582,7 +582,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (nodeGroup([
+            nodeGroup([
               assignmentStatement(
                 AssignmentStatementOperatorEnum.REMAINDER,
                 [identifier('bar')],
@@ -593,7 +593,7 @@ describe('Program handler', () => {
                 [identifier('foo')],
                 [identifier('bar')]
               ),
-            ]) as unknown) as LuaExpression
+            ]) as unknown as LuaExpression
           ),
         ]);
 
@@ -606,11 +606,11 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.REMAINDER,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -624,7 +624,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.REMAINDER,
               [
                 indexExpression(
@@ -633,14 +633,14 @@ describe('Program handler', () => {
                 ),
               ],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.REMAINDER,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [identifier('baz')]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -655,7 +655,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('foo')],
               [
@@ -664,7 +664,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -677,7 +677,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [
@@ -690,7 +690,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -704,7 +704,7 @@ describe('Program handler', () => {
         `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [
                 indexExpression(
@@ -727,10 +727,10 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [
@@ -743,7 +743,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -758,7 +758,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('foo')],
               [
@@ -767,7 +767,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -780,7 +780,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [
@@ -793,7 +793,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -807,7 +807,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [
                 indexExpression(
@@ -830,10 +830,10 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [
@@ -846,7 +846,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -861,7 +861,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('foo')],
               [
@@ -870,7 +870,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -883,7 +883,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [
@@ -896,7 +896,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -910,7 +910,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [
                 indexExpression(
@@ -933,10 +933,10 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [
@@ -949,7 +949,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -964,7 +964,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('foo')],
               [
@@ -977,7 +977,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -990,7 +990,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [
@@ -1003,7 +1003,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -1017,7 +1017,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [
                 indexExpression(
@@ -1040,10 +1040,10 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [
@@ -1056,7 +1056,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -1071,7 +1071,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('foo')],
               [
@@ -1084,7 +1084,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -1097,7 +1097,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [
@@ -1110,7 +1110,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -1124,7 +1124,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [
                 indexExpression(
@@ -1147,10 +1147,10 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [
@@ -1163,7 +1163,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -1178,7 +1178,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('foo')],
               [
@@ -1191,7 +1191,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -1204,7 +1204,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [memberExpression(identifier('foo'), '.', identifier('bar'))],
               [
@@ -1217,7 +1217,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -1231,7 +1231,7 @@ describe('Program handler', () => {
       `);
         const expected = program([
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [
                 indexExpression(
@@ -1254,10 +1254,10 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
           expressionStatement(
-            (assignmentStatement(
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [indexExpression(identifier('foo'), stringLiteral('bar'))],
               [
@@ -1270,7 +1270,7 @@ describe('Program handler', () => {
                   'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
                 ),
               ]
-            ) as unknown) as LuaExpression
+            ) as unknown as LuaExpression
           ),
         ]);
 
@@ -1286,7 +1286,7 @@ describe('Program handler', () => {
 
     const expected = program([
       expressionStatement(
-        (nodeGroup([
+        nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo'), identifier('bar')],
@@ -1298,7 +1298,7 @@ describe('Program handler', () => {
               ]),
             ]
           ),
-        ]) as unknown) as LuaExpression
+        ]) as unknown as LuaExpression
       ),
     ]);
 
@@ -1312,7 +1312,7 @@ describe('Program handler', () => {
 
     const expected = program([
       expressionStatement(
-        (nodeGroup([
+        nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -1339,7 +1339,7 @@ describe('Program handler', () => {
               ]),
             ]
           ),
-        ]) as unknown) as LuaExpression
+        ]) as unknown as LuaExpression
       ),
     ]);
 
@@ -1353,7 +1353,7 @@ describe('Program handler', () => {
 
     const expected = program([
       expressionStatement(
-        (nodeGroup([
+        nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -1377,7 +1377,7 @@ describe('Program handler', () => {
               ]),
             ]
           ),
-        ]) as unknown) as LuaExpression
+        ]) as unknown as LuaExpression
       ),
     ]);
 
@@ -1391,14 +1391,14 @@ describe('Program handler', () => {
 
     const expected = program([
       expressionStatement(
-        (assignmentStatement(
+        assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo'), identifier('bar')],
           [
             memberExpression(identifier('baz'), '.', identifier('foo')),
             memberExpression(identifier('baz'), '.', identifier('bar')),
           ]
-        ) as unknown) as LuaExpression
+        ) as unknown as LuaExpression
       ),
     ]);
 
@@ -1412,14 +1412,14 @@ describe('Program handler', () => {
 
     const expected = program([
       expressionStatement(
-        (assignmentStatement(
+        assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('fun'), identifier('bat')],
           [
             memberExpression(identifier('baz'), '.', identifier('foo')),
             memberExpression(identifier('baz'), '.', identifier('bar')),
           ]
-        ) as unknown) as LuaExpression
+        ) as unknown as LuaExpression
       ),
     ]);
 
@@ -1433,7 +1433,7 @@ describe('Program handler', () => {
 
     const expected = program([
       expressionStatement(
-        (assignmentStatement(
+        assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('bar'), identifier('baz')],
           [
@@ -1448,7 +1448,7 @@ describe('Program handler', () => {
               identifier('baz')
             ),
           ]
-        ) as unknown) as LuaExpression
+        ) as unknown as LuaExpression
       ),
     ]);
 

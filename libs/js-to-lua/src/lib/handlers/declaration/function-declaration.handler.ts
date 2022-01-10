@@ -28,13 +28,14 @@ export const createFunctionDeclarationHandler = (
   handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
 ): BaseNodeHandler<LuaFunctionDeclaration, FunctionDeclaration> =>
   createHandler('FunctionDeclaration', (source, config, node) => {
-    const convertToFunctionDeclaration = createConvertToFunctionDeclarationHandler(
-      handleStatement,
-      handleExpression,
-      handleExpressionAsStatement,
-      handleIdentifier,
-      handleDeclaration
-    );
+    const convertToFunctionDeclaration =
+      createConvertToFunctionDeclarationHandler(
+        handleStatement,
+        handleExpression,
+        handleExpressionAsStatement,
+        handleIdentifier,
+        handleDeclaration
+      );
     return convertToFunctionDeclaration(
       source,
       config,

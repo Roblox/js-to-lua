@@ -30,9 +30,8 @@ export const createMemberExpressionHandler = (
   LuaIndexExpression | LuaMemberExpression,
   MemberExpression
 > => {
-  const handleBinaryExpression = createBinaryExpressionHandler(
-    handleExpression
-  );
+  const handleBinaryExpression =
+    createBinaryExpressionHandler(handleExpression);
   const handleIndex = createHandlerFunction(
     (
       source,

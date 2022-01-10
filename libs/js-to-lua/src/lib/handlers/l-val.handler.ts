@@ -24,15 +24,13 @@ export const createLValHandler = (
   >,
   handleExpression: HandlerFunction<LuaExpression, Expression>
 ): BaseNodeHandler<LuaLVal, LVal> => {
-  const defaultLValHandler: HandlerFunction<
-    LuaLVal,
-    LVal
-  > = createHandlerFunction((source, config, node) => {
-    return defaultUnhandledIdentifierHandler(source, config, node);
-  });
+  const defaultLValHandler: HandlerFunction<LuaLVal, LVal> =
+    createHandlerFunction((source, config, node) => {
+      return defaultUnhandledIdentifierHandler(source, config, node);
+    });
 
-  const handleMemberExpression = createMemberExpressionHandler(handleExpression)
-    .handler;
+  const handleMemberExpression =
+    createMemberExpressionHandler(handleExpression).handler;
 
   return combineHandlers<LuaLVal, LVal>(
     [

@@ -26,12 +26,10 @@ export const createTsInterfaceBodyHandler = (
     typesHandlerFunction
   );
 
-  const handleTsTypeLiteral: BaseNodeHandler<
-    LuaTypeLiteral,
-    TSInterfaceBody
-  > = createHandler('TSInterfaceBody', (source, config, node) =>
-    typeLiteral(node.body.map(typeElementHandler.handler(source, config)))
-  );
+  const handleTsTypeLiteral: BaseNodeHandler<LuaTypeLiteral, TSInterfaceBody> =
+    createHandler('TSInterfaceBody', (source, config, node) =>
+      typeLiteral(node.body.map(typeElementHandler.handler(source, config)))
+    );
 
   return handleTsTypeLiteral;
 };

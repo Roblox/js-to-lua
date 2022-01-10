@@ -41,143 +41,143 @@ interface DestructuredGroup {
   group: NotIdentifier | Identifier[];
 }
 
-export const createArrayPatternDestructuringHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
-) => (
-  source: string,
-  config: EmptyConfig,
-  elements: PatternLike[],
-  init: LuaExpression
-): DestructuredArrayPattern[] => {
-  return handleArrayPatternDestructuring(elements, init);
-
-  function handleArrayPatternDestructuring(
+export const createArrayPatternDestructuringHandler =
+  (handleExpression: HandlerFunction<LuaExpression, Expression>) =>
+  (
+    source: string,
+    config: EmptyConfig,
     elements: PatternLike[],
     init: LuaExpression
-  ): DestructuredArrayPattern[] {
-    return elements
-      .reduce(
-        splitBy<PatternLike, NotIdentifier>(
-          (node): node is NotIdentifier => !isBabelIdentifier(node)
-        ),
-        []
-      )
-      .reduce((result, group) => {
-        const startIndex = (last(result)?.endIndex || 0) + 1;
-        const groupLength = Array.isArray(group) ? group.length : 1;
-        return [
-          ...result,
-          {
-            group,
-            startIndex,
-            endIndex: startIndex + groupLength - 1,
-          },
-        ];
-      }, Array<DestructuredGroup>())
-      .map(({ group, startIndex, endIndex }) =>
-        Array.isArray(group)
-          ? handleIdentifier(group, startIndex, endIndex)
-          : handleNotIdentifier(group, startIndex, endIndex)
-      )
-      .flat();
+  ): DestructuredArrayPattern[] => {
+    return handleArrayPatternDestructuring(elements, init);
 
-    function handleIdentifier(
-      group: Identifier[],
-      startIndex: number,
-      endIndex: number
-    ): DestructuredArrayPattern {
-      return {
-        ids: group,
-        values: [
-          callExpression(identifier('table.unpack'), [
-            init,
-            numericLiteral(startIndex),
-            numericLiteral(endIndex),
-          ]),
-        ],
-      };
-    }
-
-    function handleNotIdentifier(
-      el: NotIdentifier,
-      startIndex: number,
-      endIndex: number
+    function handleArrayPatternDestructuring(
+      elements: PatternLike[],
+      init: LuaExpression
     ): DestructuredArrayPattern[] {
-      if (isBabelRestElement(el)) {
-        return [
-          {
-            ids: [el.argument],
-            values: [
-              callExpression(identifier('table.pack'), [
-                callExpression(identifier('table.unpack'), [
-                  init,
-                  numericLiteral(startIndex),
+      return elements
+        .reduce(
+          splitBy<PatternLike, NotIdentifier>(
+            (node): node is NotIdentifier => !isBabelIdentifier(node)
+          ),
+          []
+        )
+        .reduce((result, group) => {
+          const startIndex = (last(result)?.endIndex || 0) + 1;
+          const groupLength = Array.isArray(group) ? group.length : 1;
+          return [
+            ...result,
+            {
+              group,
+              startIndex,
+              endIndex: startIndex + groupLength - 1,
+            },
+          ];
+        }, Array<DestructuredGroup>())
+        .map(({ group, startIndex, endIndex }) =>
+          Array.isArray(group)
+            ? handleIdentifier(group, startIndex, endIndex)
+            : handleNotIdentifier(group, startIndex, endIndex)
+        )
+        .flat();
+
+      function handleIdentifier(
+        group: Identifier[],
+        startIndex: number,
+        endIndex: number
+      ): DestructuredArrayPattern {
+        return {
+          ids: group,
+          values: [
+            callExpression(identifier('table.unpack'), [
+              init,
+              numericLiteral(startIndex),
+              numericLiteral(endIndex),
+            ]),
+          ],
+        };
+      }
+
+      function handleNotIdentifier(
+        el: NotIdentifier,
+        startIndex: number,
+        endIndex: number
+      ): DestructuredArrayPattern[] {
+        if (isBabelRestElement(el)) {
+          return [
+            {
+              ids: [el.argument],
+              values: [
+                callExpression(identifier('table.pack'), [
+                  callExpression(identifier('table.unpack'), [
+                    init,
+                    numericLiteral(startIndex),
+                  ]),
                 ]),
-              ]),
-            ],
-          },
-        ];
-      } else if (isBabelArrayPattern(el)) {
-        return handleArrayPatternDestructuring(
-          el.elements.filter(isTruthy),
-          callExpression(identifier('table.unpack'), [
-            init,
-            numericLiteral(startIndex),
-            numericLiteral(endIndex),
-          ])
-        );
-      } else if (isBabelAssignmentPattern(el) && isBabelIdentifier(el.left)) {
-        return [
-          {
-            ids: [el.left],
-            values: [
-              callExpression(
-                functionExpression(
-                  [],
-                  [
-                    variableDeclaration(
-                      [variableDeclaratorIdentifier(identifier('element'))],
-                      [
-                        variableDeclaratorValue(
-                          callExpression(identifier('table.unpack'), [
-                            init,
-                            numericLiteral(startIndex),
-                            numericLiteral(endIndex),
-                          ])
-                        ),
-                      ]
-                    ),
-                    ifStatement(
-                      ifClause(
-                        binaryExpression(
-                          identifier('element'),
-                          '==',
-                          nilLiteral()
-                        ),
+              ],
+            },
+          ];
+        } else if (isBabelArrayPattern(el)) {
+          return handleArrayPatternDestructuring(
+            el.elements.filter(isTruthy),
+            callExpression(identifier('table.unpack'), [
+              init,
+              numericLiteral(startIndex),
+              numericLiteral(endIndex),
+            ])
+          );
+        } else if (isBabelAssignmentPattern(el) && isBabelIdentifier(el.left)) {
+          return [
+            {
+              ids: [el.left],
+              values: [
+                callExpression(
+                  functionExpression(
+                    [],
+                    [
+                      variableDeclaration(
+                        [variableDeclaratorIdentifier(identifier('element'))],
                         [
-                          returnStatement(
-                            handleExpression(source, config, el.right)
+                          variableDeclaratorValue(
+                            callExpression(identifier('table.unpack'), [
+                              init,
+                              numericLiteral(startIndex),
+                              numericLiteral(endIndex),
+                            ])
                           ),
                         ]
                       ),
-                      undefined,
-                      elseClause([returnStatement(identifier('element'))])
-                    ),
-                  ]
+                      ifStatement(
+                        ifClause(
+                          binaryExpression(
+                            identifier('element'),
+                            '==',
+                            nilLiteral()
+                          ),
+                          [
+                            returnStatement(
+                              handleExpression(source, config, el.right)
+                            ),
+                          ]
+                        ),
+                        undefined,
+                        elseClause([returnStatement(identifier('element'))])
+                      ),
+                    ]
+                  ),
+                  []
                 ),
-                []
-              ),
-            ],
-          },
-        ];
+              ],
+            },
+          ];
+        }
+        // should never reach this code because `hasUnhandledArrayDestructuringParam` check is called before
+        throw new Error(
+          `Unhandled node for type ${el.type} when destructuring an Array Pattern`
+        );
       }
-      // should never reach this code because `hasUnhandledArrayDestructuringParam` check is called before
-      throw new Error(
-        `Unhandled node for type ${el.type} when destructuring an Array Pattern`
-      );
     }
-  }
-};
+  };
 export function hasUnhandledArrayDestructuringParam(
   elements: PatternLike[]
 ): boolean {

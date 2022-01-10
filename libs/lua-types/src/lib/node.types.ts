@@ -11,9 +11,10 @@ export interface BaseLuaNode {
 
 type NodeTypeCheck<T extends LuaNode> = (node: LuaNode) => node is T;
 
-export const isNodeType = <T extends LuaNode>(
-  type: T['type']
-): NodeTypeCheck<T> => (node: LuaNode): node is T => node.type === type;
+export const isNodeType =
+  <T extends LuaNode>(type: T['type']): NodeTypeCheck<T> =>
+  (node: LuaNode): node is T =>
+    node.type === type;
 
 export const isAnyNodeType = <T extends LuaNode>(
   isNodeTypeChecks: Array<NodeTypeCheck<T>>

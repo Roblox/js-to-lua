@@ -25,20 +25,17 @@ export const createIfStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>
 ): BaseNodeHandler<LuaIfStatement, IfStatement> =>
   createHandler('IfStatement', (source, config, node) => {
-    const expressionAsBooleanHandler = createExpressionAsBooleanHandler(
-      handleExpression
-    );
+    const expressionAsBooleanHandler =
+      createExpressionAsBooleanHandler(handleExpression);
 
     const alternates = node.alternate
       ? handleAlternate(source, config, node.alternate)
       : [];
 
-    const alternateElseifClauses: LuaElseifClause[] = alternates.filter(
-      isElseifClause
-    );
-    const alternateElseClause: LuaElseClause | undefined = alternates.find(
-      isElseClause
-    );
+    const alternateElseifClauses: LuaElseifClause[] =
+      alternates.filter(isElseifClause);
+    const alternateElseClause: LuaElseClause | undefined =
+      alternates.find(isElseClause);
 
     return ifStatement(
       ifClause(

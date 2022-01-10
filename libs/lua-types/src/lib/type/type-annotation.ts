@@ -14,19 +14,18 @@ export const typeAnnotation = (
   typeAnnotation,
 });
 
-export const isTypeAnnotation = isNodeType<LuaTypeAnnotation>(
-  'LuaTypeAnnotation'
-);
+export const isTypeAnnotation =
+  isNodeType<LuaTypeAnnotation>('LuaTypeAnnotation');
 
-export const makeOptionalAnnotation = (optional: boolean) => (
-  annotation: LuaTypeAnnotation
-): LuaTypeAnnotation =>
-  optional
-    ? {
-        ...annotation,
-        typeAnnotation: makeOptional(annotation.typeAnnotation),
-      }
-    : annotation;
+export const makeOptionalAnnotation =
+  (optional: boolean) =>
+  (annotation: LuaTypeAnnotation): LuaTypeAnnotation =>
+    optional
+      ? {
+          ...annotation,
+          typeAnnotation: makeOptional(annotation.typeAnnotation),
+        }
+      : annotation;
 
 export interface UnhandledTypeAnnotation extends BaseLuaNode {
   type: 'UnhandledTypeAnnotation';

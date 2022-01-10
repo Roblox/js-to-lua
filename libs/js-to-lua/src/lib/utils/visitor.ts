@@ -54,7 +54,7 @@ export const visit = <R extends LuaNode, V extends LuaNode>(
 };
 
 function replaceNodeInParent(newNode: LuaNode, parent: LuaNode, path: string) {
-  const parent_ = (parent as unknown) as Record<string, unknown>;
+  const parent_ = parent as unknown as Record<string, unknown>;
   const keyPath = path.split('.').map((v) => (isNaN(+v) ? v : +v));
   const pathLens = lensPath(keyPath);
   const replaceNode = set(pathLens);

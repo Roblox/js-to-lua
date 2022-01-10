@@ -38,16 +38,14 @@ export const createArrayExpressionHandler = (
     tableNoKeyField(handleExpression(source, config, expression))
   );
 
-  const handleSpreadExpression: HandlerFunction<
-    LuaExpression,
-    SpreadElement
-  > = createHandlerFunction((source, config, spreadElement: SpreadElement) =>
-    spreadElement.argument.type === 'ArrayExpression'
-      ? handleExpression(source, config, spreadElement.argument)
-      : callExpression(arraySpread(), [
-          handleExpression(source, config, spreadElement.argument),
-        ])
-  );
+  const handleSpreadExpression: HandlerFunction<LuaExpression, SpreadElement> =
+    createHandlerFunction((source, config, spreadElement: SpreadElement) =>
+      spreadElement.argument.type === 'ArrayExpression'
+        ? handleExpression(source, config, spreadElement.argument)
+        : callExpression(arraySpread(), [
+            handleExpression(source, config, spreadElement.argument),
+          ])
+    );
 
   const handleArrayExpressionWithSpread: HandlerFunction<
     LuaCallExpression,

@@ -27,27 +27,22 @@ export const isCallExpression = isNodeType<LuaCallExpression>('CallExpression');
 export const isBinaryExpression = isNodeType<LuaBinaryExpression>(
   'LuaBinaryExpression'
 );
-export const isLogicalExpression = isNodeType<LuaLogicalExpression>(
-  'LogicalExpression'
-);
-export const isFunctionExpression = isNodeType<LuaFunctionExpression>(
-  'FunctionExpression'
-);
-export const isReturnStatement = isNodeType<LuaReturnStatement>(
-  'ReturnStatement'
-);
-export const isUnaryExpression = isNodeType<LuaUnaryExpression>(
-  'LuaUnaryExpression'
-);
+export const isLogicalExpression =
+  isNodeType<LuaLogicalExpression>('LogicalExpression');
+export const isFunctionExpression =
+  isNodeType<LuaFunctionExpression>('FunctionExpression');
+export const isReturnStatement =
+  isNodeType<LuaReturnStatement>('ReturnStatement');
+export const isUnaryExpression =
+  isNodeType<LuaUnaryExpression>('LuaUnaryExpression');
 export const isUnaryVoidExpression = isNodeType<LuaUnaryVoidExpression>(
   'LuaUnaryVoidExpression'
 );
 export const isUnaryNegation = isNodeType<LuaUnaryNegationExpression>(
   'LuaUnaryNegationExpression'
 );
-export const isIndexExpression = isNodeType<LuaIndexExpression>(
-  'IndexExpression'
-);
+export const isIndexExpression =
+  isNodeType<LuaIndexExpression>('IndexExpression');
 export const isMemberExpression = isNodeType<LuaMemberExpression>(
   'LuaMemberExpression'
 );
@@ -73,6 +68,5 @@ export const isUnhandledExpression = isNodeType<UnhandledExpression>(
   'UnhandledExpression'
 );
 
-export const isUnhandledStatement = isNodeType<UnhandledStatement>(
-  'UnhandledStatement'
-);
+export const isUnhandledStatement =
+  isNodeType<UnhandledStatement>('UnhandledStatement');

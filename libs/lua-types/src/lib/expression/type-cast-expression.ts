@@ -17,6 +17,5 @@ export const typeCastExpression = (
   typeAnnotation,
 });
 
-export const isTypeCastExpression = isNodeType<TypeCastExpression>(
-  'TypeCastExpression'
-);
+export const isTypeCastExpression =
+  isNodeType<TypeCastExpression>('TypeCastExpression');

@@ -81,18 +81,20 @@ export const createVariableDeclarationHandler = (
   VariableDeclaration
 > =>
   createHandler('VariableDeclaration', (source, config, declaration) => {
-    const lValHandler = createLValHandler(handleIdentifier, handleExpression)
-      .handler;
-
-    const objectPatternDestructuringHandler = createObjectPatternDestructuringHandler(
-      handleExpression,
-      lValHandler,
-      handleObjectField
-    );
-
-    const arrayPatternDestructuringHandler = createArrayPatternDestructuringHandler(
+    const lValHandler = createLValHandler(
+      handleIdentifier,
       handleExpression
-    );
+    ).handler;
+
+    const objectPatternDestructuringHandler =
+      createObjectPatternDestructuringHandler(
+        handleExpression,
+        lValHandler,
+        handleObjectField
+      );
+
+    const arrayPatternDestructuringHandler =
+      createArrayPatternDestructuringHandler(handleExpression);
 
     const handleVariableDeclarator: BaseNodeHandler<
       LuaVariableDeclarator,
@@ -107,13 +109,14 @@ export const createVariableDeclarationHandler = (
       }
     );
 
-    const convertToFunctionDeclaration = createConvertToFunctionDeclarationHandler(
-      handleStatement,
-      handleExpression,
-      handleExpressionAsStatement,
-      handleIdentifier,
-      handleDeclaration
-    );
+    const convertToFunctionDeclaration =
+      createConvertToFunctionDeclarationHandler(
+        handleStatement,
+        handleExpression,
+        handleExpressionAsStatement,
+        handleIdentifier,
+        handleDeclaration
+      );
 
     const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
       LuaFunctionDeclaration | UnhandledStatement,

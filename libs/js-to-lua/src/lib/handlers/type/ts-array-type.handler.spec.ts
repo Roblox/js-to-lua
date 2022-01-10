@@ -11,8 +11,9 @@ import {
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
 
 describe('TSArrayType handler', () => {
-  const tsArrayTypeHandler = createTsArrayTypeHandler(mockNodeWithValueHandler)
-    .handler;
+  const tsArrayTypeHandler = createTsArrayTypeHandler(
+    mockNodeWithValueHandler
+  ).handler;
 
   const source = '';
 

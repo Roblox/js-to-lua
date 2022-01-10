@@ -39,9 +39,8 @@ export const createIdentifierHandler = (
   Identifier
 > =>
   createHandler('Identifier', (source, config, node) => {
-    const withOriginalIdentifierNameExtras = createWithOriginalIdentifierNameExtras(
-      node.name
-    );
+    const withOriginalIdentifierNameExtras =
+      createWithOriginalIdentifierNameExtras(node.name);
     switch (node.name) {
       case 'undefined':
         return nilLiteral();

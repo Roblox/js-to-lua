@@ -13,6 +13,5 @@ export const tableNoKeyField = (
   value,
 });
 
-export const isTableNoKeyField = isNodeType<LuaTableNoKeyField>(
-  'TableNoKeyField'
-);
+export const isTableNoKeyField =
+  isNodeType<LuaTableNoKeyField>('TableNoKeyField');

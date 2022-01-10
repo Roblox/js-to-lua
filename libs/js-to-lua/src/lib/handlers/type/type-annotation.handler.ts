@@ -48,10 +48,10 @@ export const createTypeAnnotationHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>
 ) => {
-  const handleNoop: BaseNodeHandler<
-    LuaTypeAnnotation,
-    Noop
-  > = createHandler('Noop', () => typeAnnotation());
+  const handleNoop: BaseNodeHandler<LuaTypeAnnotation, Noop> = createHandler(
+    'Noop',
+    () => typeAnnotation()
+  );
 
   const handleTsTypeAnnotation: BaseNodeHandler<
     LuaTypeAnnotation,
@@ -72,37 +72,27 @@ export const createTypeAnnotationHandler = (
     TypeAnnotation | TSTypeAnnotation | Noop
   >([handleTsTypeAnnotation, handleFlowTypeAnnotation, handleNoop]).handler;
 
-  const handleTsAnyKeyword: BaseNodeHandler<
-    LuaTypeAny,
-    TSAnyKeyword
-  > = createHandler('TSAnyKeyword', () => typeAny());
+  const handleTsAnyKeyword: BaseNodeHandler<LuaTypeAny, TSAnyKeyword> =
+    createHandler('TSAnyKeyword', () => typeAny());
 
-  const handleTsStringKeyword: BaseNodeHandler<
-    LuaTypeString,
-    TSStringKeyword
-  > = createHandler('TSStringKeyword', () => typeString());
+  const handleTsStringKeyword: BaseNodeHandler<LuaTypeString, TSStringKeyword> =
+    createHandler('TSStringKeyword', () => typeString());
 
-  const handleTsNumberKeyword: BaseNodeHandler<
-    LuaTypeNumber,
-    TSNumberKeyword
-  > = createHandler('TSNumberKeyword', () => typeNumber());
+  const handleTsNumberKeyword: BaseNodeHandler<LuaTypeNumber, TSNumberKeyword> =
+    createHandler('TSNumberKeyword', () => typeNumber());
 
   const handleTsBooleanKeyword: BaseNodeHandler<
     LuaTypeBoolean,
     TSBooleanKeyword
   > = createHandler('TSBooleanKeyword', () => typeBoolean());
 
-  const handleTsVoidKeyword: BaseNodeHandler<
-    LuaTypeVoid,
-    TSVoidKeyword
-  > = createHandler('TSVoidKeyword', () => typeVoid());
+  const handleTsVoidKeyword: BaseNodeHandler<LuaTypeVoid, TSVoidKeyword> =
+    createHandler('TSVoidKeyword', () => typeVoid());
 
-  const handleTsTypeUnion: BaseNodeHandler<
-    LuaTypeUnion,
-    TSUnionType
-  > = createHandler('TSUnionType', (source, config, node) =>
-    typeUnion(node.types.map(handleTsTypes.handler(source, config)))
-  );
+  const handleTsTypeUnion: BaseNodeHandler<LuaTypeUnion, TSUnionType> =
+    createHandler('TSUnionType', (source, config, node) =>
+      typeUnion(node.types.map(handleTsTypes.handler(source, config)))
+    );
 
   const handleTsTypes: BaseNodeHandler<LuaType, TSType> = combineHandlers<
     LuaType,

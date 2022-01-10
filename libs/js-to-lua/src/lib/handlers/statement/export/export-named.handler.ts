@@ -59,11 +59,8 @@ export const createExportNamedHandler = (
           isNodeGroup(node) && hasSourceTypeExtra('ClassDeclaration', node);
 
         if (isClassDeclaration(declaration)) {
-          const [
-            classType,
-            classVariableDeclaration,
-            ...rest
-          ] = declaration.body;
+          const [classType, classVariableDeclaration, ...rest] =
+            declaration.body;
           exportedTypes = [classType as LuaTypeAliasDeclaration];
           declaration = {
             ...declaration,
@@ -122,9 +119,11 @@ export const createExportNamedHandler = (
             source,
             config
           );
-          const handleImportModuleDeclaration = createImportModuleDeclarationHandler(
-            importExpressionHandler
-          )(source, config);
+          const handleImportModuleDeclaration =
+            createImportModuleDeclarationHandler(importExpressionHandler)(
+              source,
+              config
+            );
           const needsSeparateModuleDeclaration =
             node.specifiers.length > 1 || node.exportKind === 'type';
 

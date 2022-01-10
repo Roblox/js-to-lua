@@ -13,8 +13,9 @@ import {
 import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
 
 describe('TSTupleType handler', () => {
-  const tsTupleTypeHandler = createTsTupleTypeHandler(mockNodeWithValueHandler)
-    .handler;
+  const tsTupleTypeHandler = createTsTupleTypeHandler(
+    mockNodeWithValueHandler
+  ).handler;
 
   const source = '';
 

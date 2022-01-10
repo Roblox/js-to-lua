@@ -20,6 +20,5 @@ export const tableConstructor = (
   elements,
 });
 
-export const isTableConstructor = isNodeType<LuaTableConstructor>(
-  'TableConstructor'
-);
+export const isTableConstructor =
+  isNodeType<LuaTableConstructor>('TableConstructor');

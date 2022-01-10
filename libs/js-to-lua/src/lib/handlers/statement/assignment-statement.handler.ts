@@ -146,15 +146,15 @@ export const createAssignmentStatementHandlerFunction = (
         return defaultExpressionHandler(source, config, node);
       }
 
-      const objectPatternDestructuringHandler = createObjectPatternDestructuringHandler(
-        handleExpression,
-        handleLVal,
-        handleObjectField
-      );
+      const objectPatternDestructuringHandler =
+        createObjectPatternDestructuringHandler(
+          handleExpression,
+          handleLVal,
+          handleObjectField
+        );
 
-      const arrayPatternDestructuringHandler = createArrayPatternDestructuringHandler(
-        handleExpression
-      );
+      const arrayPatternDestructuringHandler =
+        createArrayPatternDestructuringHandler(handleExpression);
 
       if (isBabelObjectPattern(node.left)) {
         return operator === AssignmentStatementOperatorEnum.EQ
@@ -243,9 +243,8 @@ export const createAssignmentStatementHandlerFunction = (
           rightAssignmentStatement
         );
 
-        const isRightStringInferable = returnExpressions.every(
-          isStringInferable
-        );
+        const isRightStringInferable =
+          returnExpressions.every(isStringInferable);
 
         return isRightStringInferable &&
           operator === AssignmentStatementOperatorEnum.ADD

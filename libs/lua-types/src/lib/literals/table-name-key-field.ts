@@ -16,6 +16,5 @@ export const tableNameKeyField = (
   value,
 });
 
-export const isTableNameKeyField = isNodeType<LuaTableNameKeyField>(
-  'TableNameKeyField'
-);
+export const isTableNameKeyField =
+  isNodeType<LuaTableNameKeyField>('TableNameKeyField');

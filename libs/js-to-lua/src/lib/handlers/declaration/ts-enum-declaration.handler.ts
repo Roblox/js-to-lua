@@ -152,28 +152,26 @@ export const createTsEnumHandler = (
     BabelExpression | PatternLike
   >
 ) => {
-  const handleEnumMember: BaseNodeHandler<
-    LuaTableKeyField,
-    TSEnumMember
-  > = createHandler('TSEnumMember', (source, config, { id, initializer }) => {
-    switch (id.type) {
-      case 'Identifier':
-        return tableKeyField(
-          false,
-          objectPropertyIdentifierHandlerFunction(source, config, id),
-          initializer != null
-            ? objectPropertyValueHandlerFunction(source, config, initializer)
-            : nilLiteral()
-        );
-      default:
-        return tableExpressionKeyField(
-          objectKeyExpressionHandlerFunction(source, config, id),
-          initializer != null
-            ? objectPropertyValueHandlerFunction(source, config, initializer)
-            : nilLiteral()
-        );
-    }
-  });
+  const handleEnumMember: BaseNodeHandler<LuaTableKeyField, TSEnumMember> =
+    createHandler('TSEnumMember', (source, config, { id, initializer }) => {
+      switch (id.type) {
+        case 'Identifier':
+          return tableKeyField(
+            false,
+            objectPropertyIdentifierHandlerFunction(source, config, id),
+            initializer != null
+              ? objectPropertyValueHandlerFunction(source, config, initializer)
+              : nilLiteral()
+          );
+        default:
+          return tableExpressionKeyField(
+            objectKeyExpressionHandlerFunction(source, config, id),
+            initializer != null
+              ? objectPropertyValueHandlerFunction(source, config, initializer)
+              : nilLiteral()
+          );
+      }
+    });
   const handleEnumMembersTable = createHandlerFunction(
     (source, config, declaration: TSEnumDeclaration) => {
       return tableConstructor(

@@ -20,9 +20,11 @@ export const createImportDeclarationHandler = (
       const importExpressionHandler = createImportExpressionHandler();
       const handleImportExpression = importExpressionHandler(source, config);
 
-      const handleImportModuleDeclaration = createImportModuleDeclarationHandler(
-        importExpressionHandler
-      )(source, config);
+      const handleImportModuleDeclaration =
+        createImportModuleDeclarationHandler(importExpressionHandler)(
+          source,
+          config
+        );
 
       if (!node.specifiers.length) {
         return handleImportExpression(node.source);

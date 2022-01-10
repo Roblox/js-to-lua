@@ -15,17 +15,15 @@ import {
 import { pipe } from 'ramda';
 import { visit } from '../../utils/visitor';
 
-export const handleProgram: BaseNodeHandler<
-  LuaProgram,
-  Program
-> = createHandler('Program', (source, config, program) => {
-  const body = Array.isArray(program.body) ? program.body : [program.body];
+export const handleProgram: BaseNodeHandler<LuaProgram, Program> =
+  createHandler('Program', (source, config, program) => {
+    const body = Array.isArray(program.body) ? program.body : [program.body];
 
-  return postProcess({
-    type: 'Program',
-    body: body.map(handleStatement.handler(source, config)),
+    return postProcess({
+      type: 'Program',
+      body: body.map(handleStatement.handler(source, config)),
+    });
   });
-});
 
 const postProcess = (program: LuaProgram): LuaProgram => {
   return pipe(gatherExtras, addExports, addImports, removeExtras)(program);

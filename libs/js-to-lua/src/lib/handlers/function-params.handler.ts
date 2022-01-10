@@ -61,12 +61,10 @@ export const createFunctionParamsHandler = (
   config: EmptyConfig,
   node: FunctionTypes
 ) => LuaIdentifier[]) => {
-  const defaultFunctionParamHandler: HandlerFunction<
-    LuaFunctionParam,
-    LVal
-  > = createHandlerFunction((source, config, node) => {
-    return defaultUnhandledIdentifierHandler(source, config, node);
-  });
+  const defaultFunctionParamHandler: HandlerFunction<LuaFunctionParam, LVal> =
+    createHandlerFunction((source, config, node) => {
+      return defaultUnhandledIdentifierHandler(source, config, node);
+    });
 
   return (
     source: string,

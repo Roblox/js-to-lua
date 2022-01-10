@@ -33,9 +33,8 @@ export const createUnaryExpressionHandler = (
   UnaryExpression
 > =>
   createHandler('UnaryExpression', (source, config, node: UnaryExpression) => {
-    const expressionAsBooleanHandler = createExpressionAsBooleanHandler(
-      handleExpression
-    );
+    const expressionAsBooleanHandler =
+      createExpressionAsBooleanHandler(handleExpression);
     switch (node.operator) {
       case 'typeof':
         return callExpression(identifier('typeof'), [

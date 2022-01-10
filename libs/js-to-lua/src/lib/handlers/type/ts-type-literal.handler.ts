@@ -26,12 +26,10 @@ export const createTsTypeLiteralHandler = (
     typesHandlerFunction
   );
 
-  const handleTsTypeLiteral: BaseNodeHandler<
-    LuaTypeLiteral,
-    TSTypeLiteral
-  > = createHandler('TSTypeLiteral', (source, config, node) =>
-    typeLiteral(node.members.map(typeElementHandler.handler(source, config)))
-  );
+  const handleTsTypeLiteral: BaseNodeHandler<LuaTypeLiteral, TSTypeLiteral> =
+    createHandler('TSTypeLiteral', (source, config, node) =>
+      typeLiteral(node.members.map(typeElementHandler.handler(source, config)))
+    );
 
   return handleTsTypeLiteral;
 };
