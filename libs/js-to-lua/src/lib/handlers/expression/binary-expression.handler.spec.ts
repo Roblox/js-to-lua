@@ -7,6 +7,7 @@ import {
   templateElement as babelTemplateElement,
 } from '@babel/types';
 import {
+  arrayIdentifier,
   arrayIndexOf,
   binaryExpression,
   bit32Identifier,
@@ -17,6 +18,7 @@ import {
   memberExpression,
   multilineStringLiteral,
   numericLiteral,
+  objectIdentifier,
   objectKeys,
   stringInferableExpression,
   stringLiteral,
@@ -368,10 +370,10 @@ describe('Binary Expression Handler', () => {
 
     const expected: LuaBinaryExpression = binaryExpression(
       callExpression(
-        memberExpression(identifier('Array'), '.', identifier('indexOf')),
+        memberExpression(arrayIdentifier(), '.', identifier('indexOf')),
         [
           callExpression(
-            memberExpression(identifier('Object'), '.', identifier('keys')),
+            memberExpression(objectIdentifier(), '.', identifier('keys')),
             [identifier('bar')]
           ),
           callExpression(identifier('tostring'), [identifier('foo')]),

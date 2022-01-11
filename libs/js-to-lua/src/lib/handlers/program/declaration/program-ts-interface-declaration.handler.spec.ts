@@ -1,6 +1,8 @@
 import { getProgramNode } from '../program.spec.utils';
 import {
+  callExpression,
   identifier,
+  memberExpression,
   program,
   typeAliasDeclaration,
   typeAnnotation,
@@ -12,6 +14,10 @@ import {
   typePropertySignature,
   typeReference,
   typeString,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 
@@ -50,6 +56,32 @@ describe('Program handler', () => {
         }
       `);
       const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        typeAliasDeclaration(
+          identifier('Object'),
+          typeReference(identifier('LuauPolyfill.Object')),
+          []
+        ),
         typeAliasDeclaration(
           identifier('Foo'),
           typeLiteral([

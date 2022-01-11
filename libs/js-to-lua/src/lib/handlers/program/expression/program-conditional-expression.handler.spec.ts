@@ -1,7 +1,6 @@
 import {
   binaryExpression,
   booleanLiteral,
-  booleanMethod,
   callExpression,
   elseClause,
   functionExpression,
@@ -10,6 +9,7 @@ import {
   ifStatement,
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
+  memberExpression,
   nilLiteral,
   numericLiteral,
   program,
@@ -21,8 +21,8 @@ import {
   variableDeclaratorValue,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Conditional Expression Handler', () => {
@@ -32,6 +32,39 @@ describe('Program handler', () => {
     `;
       const given = getProgramNode(source);
       const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Boolean'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Boolean')
+              )
+            ),
+          ]
+        ),
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -42,9 +75,14 @@ describe('Program handler', () => {
                   [
                     ifStatement(
                       ifClause(
-                        callExpression(booleanMethod('toJSBoolean'), [
-                          identifier('a'),
-                        ]),
+                        callExpression(
+                          memberExpression(
+                            identifier('Boolean'),
+                            '.',
+                            identifier('toJSBoolean')
+                          ),
+                          [identifier('a')]
+                        ),
                         [returnStatement(identifier('b'))]
                       ),
                       [],
@@ -136,6 +174,39 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
       const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Boolean'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Boolean')
+              )
+            ),
+          ]
+        ),
         variableDeclaration(
           [
             variableDeclaratorIdentifier(identifier('foo0')),
@@ -150,9 +221,14 @@ describe('Program handler', () => {
                   [
                     ifStatement(
                       ifClause(
-                        callExpression(booleanMethod('toJSBoolean'), [
-                          identifier('a'),
-                        ]),
+                        callExpression(
+                          memberExpression(
+                            identifier('Boolean'),
+                            '.',
+                            identifier('toJSBoolean')
+                          ),
+                          [identifier('a')]
+                        ),
                         [returnStatement(booleanLiteral(false))]
                       ),
                       [],
@@ -170,9 +246,14 @@ describe('Program handler', () => {
                   [
                     ifStatement(
                       ifClause(
-                        callExpression(booleanMethod('toJSBoolean'), [
-                          identifier('a'),
-                        ]),
+                        callExpression(
+                          memberExpression(
+                            identifier('Boolean'),
+                            '.',
+                            identifier('toJSBoolean')
+                          ),
+                          [identifier('a')]
+                        ),
                         [returnStatement(nilLiteral())]
                       ),
                       [],
@@ -190,9 +271,14 @@ describe('Program handler', () => {
                   [
                     ifStatement(
                       ifClause(
-                        callExpression(booleanMethod('toJSBoolean'), [
-                          identifier('a'),
-                        ]),
+                        callExpression(
+                          memberExpression(
+                            identifier('Boolean'),
+                            '.',
+                            identifier('toJSBoolean')
+                          ),
+                          [identifier('a')]
+                        ),
                         [returnStatement(nilLiteral())]
                       ),
                       [],
@@ -223,6 +309,39 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
       const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Boolean'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Boolean')
+              )
+            ),
+          ]
+        ),
         variableDeclaration(
           [
             variableDeclaratorIdentifier(identifier('foo0')),
@@ -240,9 +359,14 @@ describe('Program handler', () => {
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    identifier('a'),
-                  ]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [identifier('a')]
+                  ),
                   numericLiteral(0, '0')
                 ),
                 identifier('c')
@@ -253,9 +377,14 @@ describe('Program handler', () => {
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    identifier('a'),
-                  ]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [identifier('a')]
+                  ),
                   numericLiteral(1, '1')
                 ),
                 identifier('c')
@@ -266,9 +395,14 @@ describe('Program handler', () => {
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    identifier('a'),
-                  ]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [identifier('a')]
+                  ),
                   stringLiteral('')
                 ),
                 identifier('c')
@@ -279,9 +413,14 @@ describe('Program handler', () => {
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    identifier('a'),
-                  ]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [identifier('a')]
+                  ),
                   stringLiteral('abc')
                 ),
                 identifier('c')
@@ -292,9 +431,14 @@ describe('Program handler', () => {
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    identifier('a'),
-                  ]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [identifier('a')]
+                  ),
                   booleanLiteral(true)
                 ),
                 identifier('c')
@@ -305,9 +449,14 @@ describe('Program handler', () => {
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    identifier('a'),
-                  ]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [identifier('a')]
+                  ),
                   tableConstructor()
                 ),
                 identifier('c')
@@ -318,9 +467,14 @@ describe('Program handler', () => {
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    identifier('a'),
-                  ]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [identifier('a')]
+                  ),
                   tableConstructor()
                 ),
                 identifier('c')
@@ -331,9 +485,14 @@ describe('Program handler', () => {
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    identifier('a'),
-                  ]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [identifier('a')]
+                  ),
                   binaryExpression(numericLiteral(0), '/', numericLiteral(0))
                 ),
                 identifier('c')

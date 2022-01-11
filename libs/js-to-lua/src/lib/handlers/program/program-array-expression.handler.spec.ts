@@ -1,19 +1,22 @@
-import { getProgramNode } from './program.spec.utils';
 import {
-  arrayConcat,
-  arraySpread,
   booleanLiteral,
   callExpression,
   expressionStatement,
   identifier,
   LuaProgram,
+  memberExpression,
   numericLiteral,
   program,
   stringLiteral,
   tableConstructor,
   tableNoKeyField,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
+import { getProgramNode } from './program.spec.utils';
 
 const source = '';
 
@@ -92,18 +95,54 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Array'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Array')
+              )
+            ),
+          ]
+        ),
         expressionStatement(
-          callExpression(arrayConcat(), [
-            tableConstructor(),
-            tableConstructor([
-              tableNoKeyField(numericLiteral(1, '1')),
-              tableNoKeyField(numericLiteral(2, '2')),
-            ]),
-            tableConstructor([
-              tableNoKeyField(numericLiteral(3, '3')),
-              tableNoKeyField(numericLiteral(4, '4')),
-            ]),
-          ])
+          callExpression(
+            memberExpression(identifier('Array'), '.', identifier('concat')),
+            [
+              tableConstructor(),
+              tableConstructor([
+                tableNoKeyField(numericLiteral(1, '1')),
+                tableNoKeyField(numericLiteral(2, '2')),
+              ]),
+              tableConstructor([
+                tableNoKeyField(numericLiteral(3, '3')),
+                tableNoKeyField(numericLiteral(4, '4')),
+              ]),
+            ]
+          )
         ),
       ]);
 
@@ -122,19 +161,68 @@ describe('Program handler', () => {
         ])
       `);
     const expected: LuaProgram = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Array'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Array')
+            )
+          ),
+        ]
+      ),
       expressionStatement(
-        callExpression(arrayConcat(), [
-          tableConstructor(),
-          callExpression(arrayConcat(), [
+        callExpression(
+          memberExpression(identifier('Array'), '.', identifier('concat')),
+          [
             tableConstructor(),
-            tableConstructor([
-              tableNoKeyField(numericLiteral(1, '1')),
-              tableNoKeyField(numericLiteral(2, '2')),
-            ]),
-            callExpression(arraySpread(), [identifier('fizz')]),
-          ]),
-          callExpression(arraySpread(), [identifier('baz')]),
-        ])
+            callExpression(
+              memberExpression(identifier('Array'), '.', identifier('concat')),
+              [
+                tableConstructor(),
+                tableConstructor([
+                  tableNoKeyField(numericLiteral(1, '1')),
+                  tableNoKeyField(numericLiteral(2, '2')),
+                ]),
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('spread')
+                  ),
+                  [identifier('fizz')]
+                ),
+              ]
+            ),
+            callExpression(
+              memberExpression(identifier('Array'), '.', identifier('spread')),
+              [identifier('baz')]
+            ),
+          ]
+        )
       ),
     ]);
 
@@ -152,19 +240,68 @@ describe('Program handler', () => {
         ])
       `);
     const expected: LuaProgram = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Array'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Array')
+            )
+          ),
+        ]
+      ),
       expressionStatement(
-        callExpression(arrayConcat(), [
-          tableConstructor(),
-          callExpression(arrayConcat(), [
+        callExpression(
+          memberExpression(identifier('Array'), '.', identifier('concat')),
+          [
             tableConstructor(),
-            tableConstructor([
-              tableNoKeyField(numericLiteral(1, '1')),
-              tableNoKeyField(numericLiteral(2, '2')),
-            ]),
-            callExpression(arraySpread(), [stringLiteral('fizz')]),
-          ]),
-          callExpression(arraySpread(), [stringLiteral('baz')]),
-        ])
+            callExpression(
+              memberExpression(identifier('Array'), '.', identifier('concat')),
+              [
+                tableConstructor(),
+                tableConstructor([
+                  tableNoKeyField(numericLiteral(1, '1')),
+                  tableNoKeyField(numericLiteral(2, '2')),
+                ]),
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('spread')
+                  ),
+                  [stringLiteral('fizz')]
+                ),
+              ]
+            ),
+            callExpression(
+              memberExpression(identifier('Array'), '.', identifier('spread')),
+              [stringLiteral('baz')]
+            ),
+          ]
+        )
       ),
     ]);
 

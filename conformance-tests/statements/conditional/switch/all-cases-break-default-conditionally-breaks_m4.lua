@@ -1,3 +1,6 @@
+local Packages --[[ ROBLOX comment: must define Packages module ]]
+local LuauPolyfill = require(Packages.LuauPolyfill)
+local Boolean = LuauPolyfill.Boolean
 local a, b, breakFast = 0
 repeat --[[ ROBLOX comment: switch statement conversion ]]
 	local entered_, break_ = false, false

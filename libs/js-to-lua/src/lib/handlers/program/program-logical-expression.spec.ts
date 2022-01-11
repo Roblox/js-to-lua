@@ -1,8 +1,6 @@
-import { getProgramNode } from './program.spec.utils';
 import {
   binaryExpression,
   booleanLiteral,
-  booleanMethod,
   callExpression,
   elseClause,
   expressionStatement,
@@ -13,14 +11,20 @@ import {
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
   LuaProgram,
+  memberExpression,
   nilLiteral,
   numericLiteral,
   program,
   returnStatement,
   stringLiteral,
   tableConstructor,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
+import { getProgramNode } from './program.spec.utils';
 
 const source = '';
 
@@ -30,12 +34,52 @@ describe('Program handler', () => {
       const given = getProgramNode('foo || bar;');
 
       const expected: LuaProgram = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Boolean'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Boolean')
+              )
+            ),
+          ]
+        ),
         expressionStatement(
           logicalExpression(
             LuaLogicalExpressionOperatorEnum.OR,
             logicalExpression(
               LuaLogicalExpressionOperatorEnum.AND,
-              callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
+              callExpression(
+                memberExpression(
+                  identifier('Boolean'),
+                  '.',
+                  identifier('toJSBoolean')
+                ),
+                [identifier('foo')]
+              ),
               identifier('foo')
             ),
             identifier('bar')
@@ -53,6 +97,39 @@ describe('Program handler', () => {
         const given = getProgramNode('foo && bar;');
 
         const expected: LuaProgram = program([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('LuauPolyfill')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Boolean'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('LuauPolyfill'),
+                  '.',
+                  identifier('Boolean')
+                )
+              ),
+            ]
+          ),
           expressionStatement(
             callExpression(
               functionExpression(
@@ -60,9 +137,14 @@ describe('Program handler', () => {
                 [
                   ifStatement(
                     ifClause(
-                      callExpression(booleanMethod('toJSBoolean'), [
-                        identifier('foo'),
-                      ]),
+                      callExpression(
+                        memberExpression(
+                          identifier('Boolean'),
+                          '.',
+                          identifier('toJSBoolean')
+                        ),
+                        [identifier('foo')]
+                      ),
                       [returnStatement(identifier('bar'))]
                     ),
                     [],
@@ -103,6 +185,39 @@ describe('Program handler', () => {
           const given = getProgramNode(code);
 
           const expected: LuaProgram = program([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Boolean'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Boolean')
+                  )
+                ),
+              ]
+            ),
             expressionStatement(
               callExpression(
                 functionExpression(
@@ -110,9 +225,14 @@ describe('Program handler', () => {
                   [
                     ifStatement(
                       ifClause(
-                        callExpression(booleanMethod('toJSBoolean'), [
-                          leftExpected,
-                        ]),
+                        callExpression(
+                          memberExpression(
+                            identifier('Boolean'),
+                            '.',
+                            identifier('toJSBoolean')
+                          ),
+                          [leftExpected]
+                        ),
                         [returnStatement(rightExpected)]
                       ),
                       [],
@@ -183,12 +303,52 @@ describe('Program handler', () => {
           const given = getProgramNode(code);
 
           const expected: LuaProgram = program([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Boolean'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Boolean')
+                  )
+                ),
+              ]
+            ),
             expressionStatement(
               logicalExpression(
                 LuaLogicalExpressionOperatorEnum.OR,
                 logicalExpression(
                   LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(booleanMethod('toJSBoolean'), [leftExpected]),
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
+                    ),
+                    [leftExpected]
+                  ),
                   rightExpected
                 ),
                 leftExpected

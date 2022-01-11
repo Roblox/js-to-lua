@@ -15,8 +15,6 @@ import {
   nilLiteral,
   nodeGroup,
   numericLiteral,
-  objectAssign,
-  objectNone,
   program,
   returnStatement,
   stringLiteral,
@@ -26,9 +24,10 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 const source = '';
 
@@ -535,6 +534,39 @@ describe('Program handler', () => {
   `);
 
     const expected: LuaProgram = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Object'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Object')
+            )
+          ),
+        ]
+      ),
       variableDeclaration(
         [
           variableDeclaratorIdentifier(identifier('foo')),
@@ -545,13 +577,23 @@ describe('Program handler', () => {
             memberExpression(identifier('baz'), '.', identifier('foo'))
           ),
           variableDeclaratorValue(
-            callExpression(objectAssign(), [
-              tableConstructor(),
-              identifier('baz'),
-              tableConstructor([
-                tableNameKeyField(identifier('foo'), objectNone()),
-              ]),
-            ])
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                identifier('baz'),
+                tableConstructor([
+                  tableNameKeyField(
+                    identifier('foo'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                ]),
+              ]
+            )
           ),
         ]
       ),
@@ -603,6 +645,39 @@ describe('Program handler', () => {
   `);
 
     const expected: LuaProgram = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Object'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Object')
+            )
+          ),
+        ]
+      ),
       variableDeclaration(
         [
           variableDeclaratorIdentifier(identifier('a')),
@@ -625,16 +700,47 @@ describe('Program handler', () => {
             memberExpression(identifier('foo'), '.', identifier('method1'))
           ),
           variableDeclaratorValue(
-            callExpression(objectAssign(), [
-              tableConstructor(),
-              identifier('foo'),
-              tableConstructor([
-                tableNameKeyField(identifier('a'), objectNone()),
-                tableNameKeyField(identifier('b'), objectNone()),
-                tableExpressionKeyField(stringLiteral('foo-bar'), objectNone()),
-                tableNameKeyField(identifier('method1'), objectNone()),
-              ]),
-            ])
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                identifier('foo'),
+                tableConstructor([
+                  tableNameKeyField(
+                    identifier('a'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                  tableNameKeyField(
+                    identifier('b'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                  tableExpressionKeyField(
+                    stringLiteral('foo-bar'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                  tableNameKeyField(
+                    identifier('method1'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                ]),
+              ]
+            )
           ),
         ]
       ),
@@ -651,6 +757,39 @@ describe('Program handler', () => {
   `);
 
     const expected: LuaProgram = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Object'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Object')
+            )
+          ),
+        ]
+      ),
       variableDeclaration(
         [
           variableDeclaratorIdentifier(identifier('a')),
@@ -677,17 +816,55 @@ describe('Program handler', () => {
             indexExpression(identifier('foo'), identifier('bar'))
           ),
           variableDeclaratorValue(
-            callExpression(objectAssign(), [
-              tableConstructor(),
-              identifier('foo'),
-              tableConstructor([
-                tableNameKeyField(identifier('a'), objectNone()),
-                tableNameKeyField(identifier('b'), objectNone()),
-                tableExpressionKeyField(stringLiteral('foo-bar'), objectNone()),
-                tableNameKeyField(identifier('method1'), objectNone()),
-                tableExpressionKeyField(identifier('bar'), objectNone()),
-              ]),
-            ])
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                identifier('foo'),
+                tableConstructor([
+                  tableNameKeyField(
+                    identifier('a'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                  tableNameKeyField(
+                    identifier('b'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                  tableExpressionKeyField(
+                    stringLiteral('foo-bar'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                  tableNameKeyField(
+                    identifier('method1'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                  tableExpressionKeyField(
+                    identifier('bar'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                ]),
+              ]
+            )
           ),
         ]
       ),

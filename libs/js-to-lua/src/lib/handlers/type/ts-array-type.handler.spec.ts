@@ -8,6 +8,7 @@ import {
   mockNodeWithValue,
   mockNodeWithValueHandler,
 } from '../../testUtils/mock-node';
+import { withPolyfillTypeExtra } from '../../utils/with-polyfill-type-extra';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
 
 describe('TSArrayType handler', () => {
@@ -19,9 +20,11 @@ describe('TSArrayType handler', () => {
 
   it('should handle TSArrayType with a type param', () => {
     const given = tsArrayType(tsTypeReference(babelIdentifier('Test')));
-    const expected = typeReference(identifier('Array'), [
-      mockNodeWithValue(tsTypeReference(babelIdentifier('Test'))),
-    ]);
+    const expected = withPolyfillTypeExtra('Array', ['T'])(
+      typeReference(identifier('Array'), [
+        mockNodeWithValue(tsTypeReference(babelIdentifier('Test'))),
+      ])
+    );
 
     expect(tsArrayTypeHandler(source, {}, given)).toEqual(expected);
   });

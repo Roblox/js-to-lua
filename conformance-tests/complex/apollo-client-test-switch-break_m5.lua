@@ -1,3 +1,7 @@
+local Packages --[[ ROBLOX comment: must define Packages module ]]
+local LuauPolyfill = require(Packages.LuauPolyfill)
+local Boolean = LuauPolyfill.Boolean
+local Error = LuauPolyfill.Error
 local observerOptions = {
 	next = function(self, result: any)
 		do --[[ ROBLOX COMMENT: try-catch block conversion ]]
@@ -13,12 +17,14 @@ local observerOptions = {
 						if condition_ == v then
 							if v == 0 then
 								entered_ = true
-								if not result.data.allPeople then
+								if not Boolean.toJSBoolean((result.data :: any).allPeople) then
 									reject("Should have data by this point")
 									break_ = true
 									break
 								end
-								expect(stripSymbols(result.data.allPeople)).toEqual(data.allPeople)
+								expect(stripSymbols((result.data :: any).allPeople)).toEqual(
+									data.allPeople
+								)
 								setTimeout(function()
 									observable:refetch():then_(function()
 										reject("Expected error value on first refetch.")

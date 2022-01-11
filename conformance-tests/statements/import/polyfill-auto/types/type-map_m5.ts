@@ -1,0 +1,1 @@
+let foo: Map<string, boolean>

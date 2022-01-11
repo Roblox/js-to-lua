@@ -13,6 +13,10 @@ import {
 } from '@babel/types';
 import { combineHandlers } from '../../utils/combine-handlers';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import {
+  requiresTypePolyfill,
+  withPolyfillTypeExtra,
+} from '../../utils/with-polyfill-type-extra';
 
 export const createTsTypeReferenceHandler = (
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>,
@@ -28,9 +32,16 @@ export const createTsTypeReferenceHandler = (
 
       const handleType = tsTypeHandlerFunction(source, config);
       const handleTypeName = typeNameHandler(source, config);
+      const id = handleTypeName(node.typeName);
+
+      const polyfillType = requiresTypePolyfill.find(
+        (type) => type.name === id.name
+      );
 
       return typeReference(
-        handleTypeName(node.typeName),
+        polyfillType
+          ? withPolyfillTypeExtra(polyfillType.name, polyfillType.generics)(id)
+          : id,
         (node.typeParameters &&
           node.typeParameters.params.length &&
           (node.typeParameters.params.map(

@@ -1,16 +1,19 @@
 import {
   callExpression,
-  booleanMethod,
   elseClause,
   elseifClause,
   identifier,
   ifClause,
   ifStatement,
+  memberExpression,
   program,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 const source = '';
 
@@ -21,9 +24,49 @@ describe('If statement Handler', () => {
       `);
 
     const expected = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Boolean'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Boolean')
+            )
+          ),
+        ]
+      ),
       ifStatement(
         ifClause(
-          callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
+          callExpression(
+            memberExpression(
+              identifier('Boolean'),
+              '.',
+              identifier('toJSBoolean')
+            ),
+            [identifier('foo')]
+          ),
           []
         )
       ),
@@ -39,9 +82,49 @@ describe('If statement Handler', () => {
       `);
 
     const expected = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Boolean'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Boolean')
+            )
+          ),
+        ]
+      ),
       ifStatement(
         ifClause(
-          callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
+          callExpression(
+            memberExpression(
+              identifier('Boolean'),
+              '.',
+              identifier('toJSBoolean')
+            ),
+            [identifier('foo')]
+          ),
           []
         ),
         [],
@@ -58,14 +141,61 @@ describe('If statement Handler', () => {
       `);
 
     const expected = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Boolean'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Boolean')
+            )
+          ),
+        ]
+      ),
       ifStatement(
         ifClause(
-          callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
+          callExpression(
+            memberExpression(
+              identifier('Boolean'),
+              '.',
+              identifier('toJSBoolean')
+            ),
+            [identifier('foo')]
+          ),
           []
         ),
         [
           elseifClause(
-            callExpression(booleanMethod('toJSBoolean'), [identifier('bar')]),
+            callExpression(
+              memberExpression(
+                identifier('Boolean'),
+                '.',
+                identifier('toJSBoolean')
+              ),
+              [identifier('bar')]
+            ),
             []
           ),
         ]
@@ -81,14 +211,61 @@ describe('If statement Handler', () => {
       `);
 
     const expected = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Boolean'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Boolean')
+            )
+          ),
+        ]
+      ),
       ifStatement(
         ifClause(
-          callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
+          callExpression(
+            memberExpression(
+              identifier('Boolean'),
+              '.',
+              identifier('toJSBoolean')
+            ),
+            [identifier('foo')]
+          ),
           []
         ),
         [
           elseifClause(
-            callExpression(booleanMethod('toJSBoolean'), [identifier('bar')]),
+            callExpression(
+              memberExpression(
+                identifier('Boolean'),
+                '.',
+                identifier('toJSBoolean')
+              ),
+              [identifier('bar')]
+            ),
             []
           ),
         ],

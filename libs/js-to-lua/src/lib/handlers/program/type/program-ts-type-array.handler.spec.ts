@@ -1,9 +1,15 @@
 import {
+  callExpression,
   identifier,
+  memberExpression,
   program,
   typeAliasDeclaration,
   typeNumber,
   typeReference,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
@@ -17,6 +23,32 @@ describe('Program handler', () => {
         type NumberArray = number[];
       `);
       const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        typeAliasDeclaration(
+          identifier('Array'),
+          typeReference(identifier('LuauPolyfill.Array<T>')),
+          [typeReference(identifier('T'))]
+        ),
         typeAliasDeclaration(
           identifier('NumberArray'),
           typeReference(identifier('Array'), [typeNumber()])
@@ -31,6 +63,32 @@ describe('Program handler', () => {
         type NumberArray = number[][];
       `);
       const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        typeAliasDeclaration(
+          identifier('Array'),
+          typeReference(identifier('LuauPolyfill.Array<T>')),
+          [typeReference(identifier('T'))]
+        ),
         typeAliasDeclaration(
           identifier('NumberArray'),
           typeReference(identifier('Array'), [

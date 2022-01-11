@@ -15,7 +15,6 @@ export default {
     'conformance-tests/complex/react-scheduler-try-catch_m4.js',
     'conformance-tests/complex/react-create-react-noop-try-catch_m4.ts',
     'conformance-tests/complex/graphql-type-info-switch-break.ts',
-    'conformance-tests/complex/apollo-client-test-switch-break.ts',
 
     // ---- Milestone 5 ----
     'conformance-tests/statements/for-loops/simple/single-for-loop_m5.js',

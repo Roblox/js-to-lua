@@ -1,3 +1,6 @@
+local Packages --[[ ROBLOX comment: must define Packages module ]]
+local LuauPolyfill = require(Packages.LuauPolyfill)
+local Boolean = LuauPolyfill.Boolean
 local d = (a + b) * c
 local e = a + b * c
 local f = a + b * c

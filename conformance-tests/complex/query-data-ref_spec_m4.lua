@@ -1,3 +1,6 @@
+local Packages --[[ ROBLOX comment: must define Packages module ]]
+local LuauPolyfill = require(Packages.LuauPolyfill)
+local Boolean = LuauPolyfill.Boolean
 local function getCurrent(queryDataRef)
 	local context = {}
 	local queryData = Boolean.toJSBoolean(queryDataRef.current) and queryDataRef.current

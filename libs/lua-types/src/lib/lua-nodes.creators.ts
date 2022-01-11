@@ -298,26 +298,61 @@ export const withExtras = curry(
   })
 );
 
+export type PolyfillID =
+  | 'Array'
+  | 'Boolean'
+  | 'Map'
+  | 'Number'
+  | 'Object'
+  | 'Set'
+  | 'String'
+  | 'Symbol'
+  | 'WeakMap'
+  | 'clearTimeout'
+  | 'console'
+  | 'setTimeout';
+
+export const isPolyfillID = (
+  id: string,
+  validPolyfills: PolyfillID[]
+): id is PolyfillID => validPolyfills.includes(id as PolyfillID);
+
+export const withPolyfillExtra = (polyfillIdentifier: PolyfillID) =>
+  withExtras({
+    needsPackages: true,
+    [`polyfill.${polyfillIdentifier}`]: true,
+  });
+
+export const hasPolyfillExtra = (
+  polyfillIdentifier: PolyfillID,
+  node: LuaNode
+) => node.extras?.sourceType === `polyfill.${polyfillIdentifier}`;
+
 type BooleanMethod = 'toJSBoolean';
-export const booleanIdentifier = (): LuaIdentifier => identifier('Boolean');
+export const booleanIdentifier = (): LuaIdentifier =>
+  withPolyfillExtra('Boolean')(identifier('Boolean'));
 export const booleanMethod = (methodName: BooleanMethod): LuaMemberExpression =>
   memberExpression(booleanIdentifier(), '.', identifier(methodName));
 
 export const bit32Identifier = (): LuaIdentifier => identifier('bit32');
 
+export const arrayIdentifier = (): LuaIdentifier =>
+  withPolyfillExtra('Array')(identifier('Array'));
 export const arrayConcat = (): LuaMemberExpression =>
-  memberExpression(identifier('Array'), '.', identifier('concat'));
+  memberExpression(arrayIdentifier(), '.', identifier('concat'));
 export const arraySpread = (): LuaMemberExpression =>
-  memberExpression(identifier('Array'), '.', identifier('spread'));
+  memberExpression(arrayIdentifier(), '.', identifier('spread'));
 export const arrayIndexOf = (): LuaMemberExpression =>
-  memberExpression(identifier('Array'), '.', identifier('indexOf'));
+  memberExpression(arrayIdentifier(), '.', identifier('indexOf'));
 
+export const objectIdentifier = (): LuaIdentifier =>
+  withPolyfillExtra('Object')(identifier('Object'));
 export const objectAssign = (): LuaMemberExpression =>
-  memberExpression(identifier('Object'), '.', identifier('assign'));
+  memberExpression(objectIdentifier(), '.', identifier('assign'));
 export const objectKeys = (): LuaMemberExpression =>
-  memberExpression(identifier('Object'), '.', identifier('keys'));
+  memberExpression(objectIdentifier(), '.', identifier('keys'));
 
 export const objectNone = (): LuaMemberExpression =>
-  memberExpression(identifier('Object'), '.', identifier('None'));
+  memberExpression(objectIdentifier(), '.', identifier('None'));
 
 export const selfIdentifier = (): LuaIdentifier => identifier('self');

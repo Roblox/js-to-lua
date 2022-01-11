@@ -1,21 +1,22 @@
-import { handleProgram } from './program.handler';
 import {
-  LuaProgram,
   binaryExpression,
-  stringLiteral,
-  expressionStatement,
-  program,
-  identifier,
-  callExpression,
-  numericLiteral,
-  booleanLiteral,
-  arrayIndexOf,
-  objectKeys,
-  withTrailingConversionComment,
-  memberExpression,
   bit32Identifier,
+  booleanLiteral,
+  callExpression,
+  expressionStatement,
+  identifier,
+  LuaProgram,
+  memberExpression,
   multilineStringLiteral,
+  numericLiteral,
+  program,
+  stringLiteral,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
+import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
 
 const source = '';
@@ -303,12 +304,67 @@ string\` +
      'foo' in bar
     `);
       const expected: LuaProgram = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Array'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Array')
+              )
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Object'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Object')
+              )
+            ),
+          ]
+        ),
         expressionStatement(
           binaryExpression(
-            callExpression(arrayIndexOf(), [
-              callExpression(objectKeys(), [identifier('bar')]),
-              stringLiteral('foo'),
-            ]),
+            callExpression(
+              memberExpression(identifier('Array'), '.', identifier('indexOf')),
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Object'),
+                    '.',
+                    identifier('keys')
+                  ),
+                  [identifier('bar')]
+                ),
+                stringLiteral('foo'),
+              ]
+            ),
             '~=',
             numericLiteral(-1)
           )
@@ -325,12 +381,67 @@ string\` +
      foo in bar
     `);
       const expected: LuaProgram = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Array'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Array')
+              )
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Object'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Object')
+              )
+            ),
+          ]
+        ),
         expressionStatement(
           binaryExpression(
-            callExpression(arrayIndexOf(), [
-              callExpression(objectKeys(), [identifier('bar')]),
-              callExpression(identifier('tostring'), [identifier('foo')]),
-            ]),
+            callExpression(
+              memberExpression(identifier('Array'), '.', identifier('indexOf')),
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Object'),
+                    '.',
+                    identifier('keys')
+                  ),
+                  [identifier('bar')]
+                ),
+                callExpression(identifier('tostring'), [identifier('foo')]),
+              ]
+            ),
             '~=',
             numericLiteral(-1)
           )

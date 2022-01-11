@@ -1,7 +1,6 @@
 import {
   bit32Identifier,
   booleanLiteral,
-  booleanMethod,
   callExpression,
   expressionStatement,
   identifier,
@@ -13,6 +12,9 @@ import {
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
@@ -113,9 +115,49 @@ describe('Unary Expression Handler', () => {
     const given = getProgramNode(`!foo`);
 
     const expected: LuaProgram = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Boolean'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Boolean')
+            )
+          ),
+        ]
+      ),
       expressionStatement(
         unaryNegationExpression(
-          callExpression(booleanMethod('toJSBoolean'), [identifier('foo')])
+          callExpression(
+            memberExpression(
+              identifier('Boolean'),
+              '.',
+              identifier('toJSBoolean')
+            ),
+            [identifier('foo')]
+          )
         )
       ),
     ]);
