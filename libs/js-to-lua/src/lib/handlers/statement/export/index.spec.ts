@@ -33,6 +33,7 @@ import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
 import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import { createIdentifierHandler } from '../../expression/identifier.handler';
 import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
+import { createLValHandler } from '../../l-val.handler';
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression),
@@ -41,6 +42,11 @@ const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
 
 const handleIdentifier = createIdentifierHandler(
   forwardHandlerFunctionRef(() => typesHandler)
+);
+
+const handleLVal = createLValHandler(
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleExpression)
 );
 
 const handleDeclaration = createDeclarationHandler(
@@ -52,7 +58,8 @@ const handleDeclaration = createDeclarationHandler(
   handleTsTypes,
   forwardHandlerRef(() => handleObjectPropertyIdentifier),
   forwardHandlerRef(() => handleObjectKeyExpression),
-  forwardHandlerRef(() => handleObjectPropertyValue)
+  forwardHandlerRef(() => handleObjectPropertyValue),
+  forwardHandlerRef(() => handleLVal)
 );
 
 const { handler } = createExportHandler(

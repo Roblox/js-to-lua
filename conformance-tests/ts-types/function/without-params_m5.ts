@@ -1,0 +1,1 @@
+type Fn = () => void

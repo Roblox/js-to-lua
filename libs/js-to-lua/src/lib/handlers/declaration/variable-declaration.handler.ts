@@ -115,7 +115,8 @@ export const createVariableDeclarationHandler = (
         handleExpression,
         handleExpressionAsStatement,
         handleIdentifier,
-        handleDeclaration
+        handleDeclaration,
+        lValHandler
       );
 
     const convertVariableFunctionToFunctionDeclaration: HandlerFunction<

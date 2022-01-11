@@ -47,6 +47,7 @@ import { createPrintTypeOptional } from './type/print-type-optional';
 import { createPrintTypeIntersection } from './type/print-type-intersection';
 import { createPrintTypeAliasDeclaration } from './declaration/print-type-declaration';
 import { createPrintPropertySignature } from './declaration/print-property-signature';
+import { createPrintTypeFunction } from './type/print-type-function';
 
 export const printNode = (node: LuaNode): string => {
   const nodeStr = _printNode(node);
@@ -125,6 +126,8 @@ const _printNode = (node: LuaNode): string => {
       return createPrintTypeAliasDeclaration(printNode)(node);
     case 'LuaTypeLiteral':
       return printTypeLiteral(node);
+    case 'LuaTypeFunction':
+      return createPrintTypeFunction(printNode)(node);
     case 'LuaPropertySignature':
       return createPrintPropertySignature(printNode)(node);
     case 'LuaBinaryExpression':

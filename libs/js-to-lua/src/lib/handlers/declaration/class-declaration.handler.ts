@@ -19,6 +19,7 @@ import {
   Statement,
   TSDeclareMethod,
   TSParameterProperty,
+  TSType,
 } from '@babel/types';
 import {
   assignmentStatement,
@@ -34,6 +35,7 @@ import {
   LuaNodeGroup,
   LuaPropertySignature,
   LuaStatement,
+  LuaType,
   memberExpression,
   nodeGroup,
   returnStatement,
@@ -69,7 +71,12 @@ export const createClassDeclarationHandler = (
   >,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
+  handleDeclaration: HandlerFunction<
+    LuaNodeGroup | LuaDeclaration,
+    Declaration
+  >,
+  handleLVal: HandlerFunction<LuaLVal, LVal>,
+  typesHandlerFunction: HandlerFunction<LuaType, TSType>
 ): BaseNodeHandler<LuaNodeGroup, ClassDeclaration> =>
   createHandler('ClassDeclaration', (source, config, node) => {
     const withSourceTypeExtra = createWithSourceTypeExtra(node.type);
@@ -80,11 +87,15 @@ export const createClassDeclarationHandler = (
       handleIdentifier
     );
 
-    const functionParamsHandler = createFunctionParamsHandler(handleIdentifier);
+    const functionParamsHandler = createFunctionParamsHandler(
+      handleIdentifier,
+      typesHandlerFunction
+    );
 
     const handleParamsBody = createFunctionParamsBodyHandler(
       handleDeclaration,
-      handleAssignmentPattern
+      handleAssignmentPattern,
+      handleLVal
     );
 
     const functionBodyHandler = createFunctionBodyHandler(

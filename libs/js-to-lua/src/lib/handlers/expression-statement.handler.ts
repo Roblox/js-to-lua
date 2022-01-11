@@ -213,7 +213,8 @@ export const handleFunctionExpression: BaseNodeHandler<
 > = createHandler('FunctionExpression', (source, config, node) => {
   const handleParamsBody = createFunctionParamsBodyHandler(
     forwardHandlerRef(() => handleDeclaration),
-    handleAssignmentPattern
+    handleAssignmentPattern,
+    handleLVal
   );
 
   return functionExpression(
@@ -238,7 +239,8 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
   )(source, config);
   const handleParamsBody = createFunctionParamsBodyHandler(
     forwardHandlerRef(() => handleDeclaration),
-    handleAssignmentPattern
+    handleAssignmentPattern,
+    handleLVal
   );
   return functionExpression(
     functionParamsHandler(source, config, node),
@@ -370,7 +372,8 @@ const handleIdentifier = createIdentifierHandler(
 );
 
 const functionParamsHandler = createFunctionParamsHandler(
-  forwardHandlerRef(() => handleIdentifier)
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerFunctionRef(() => typesHandler)
 );
 
 export const handleExpressionAsStatement: BaseNodeHandler<
@@ -400,7 +403,8 @@ const handleDeclaration = createDeclarationHandler(
   handleTsTypes,
   forwardHandlerRef(() => handleObjectPropertyIdentifier),
   forwardHandlerRef(() => handleObjectKeyExpression),
-  forwardHandlerRef(() => handleObjectPropertyValue)
+  forwardHandlerRef(() => handleObjectPropertyValue),
+  handleLVal
 );
 
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
@@ -498,7 +502,8 @@ export const handleObjectMethod: BaseNodeHandler<
   const { key, computed } = node;
   const handleParamsBody = createFunctionParamsBodyHandler(
     forwardHandlerRef(() => handleDeclaration),
-    handleAssignmentPattern
+    handleAssignmentPattern,
+    handleLVal
   );
 
   const params = [
@@ -574,7 +579,8 @@ export const handleStatement: BaseNodeHandler<LuaStatement> =
     createThrowStatementHandler(forwardHandlerRef(() => handleExpression)),
     createTryStatementHandler(
       forwardHandlerRef(() => handleStatement),
-      forwardHandlerRef(() => handleIdentifier)
+      forwardHandlerRef(() => handleIdentifier),
+      forwardHandlerFunctionRef(() => typesHandler)
     ),
     createSwitchStatementHandler(
       forwardHandlerRef(() => handleStatement),

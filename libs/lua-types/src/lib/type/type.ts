@@ -9,6 +9,7 @@ import { LuaTypeUnion } from './type-union';
 import { LuaTypeNil } from './type-nil';
 import { LuaTypeOptional } from './type-optional';
 import { LuaTypeIntersection } from './type-intersection';
+import { LuaTypeFunction } from './type-function';
 
 export type LuaType =
   | LuaTypeAny
@@ -21,4 +22,5 @@ export type LuaType =
   | LuaTypeVoid
   | LuaTypeReference
   | LuaTypeUnion
-  | LuaTypeIntersection;
+  | LuaTypeIntersection
+  | LuaTypeFunction;

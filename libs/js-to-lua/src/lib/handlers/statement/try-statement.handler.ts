@@ -11,6 +11,7 @@ import {
   LuaCallExpression,
   LuaIdentifier,
   LuaStatement,
+  LuaType,
   returnStatement,
   unaryNegationExpression,
   variableDeclaration,
@@ -23,6 +24,7 @@ import {
   Statement,
   TryStatement,
   FunctionDeclaration,
+  TSType,
 } from '@babel/types';
 import { pipe } from 'ramda';
 import { isTruthy } from '@js-to-lua/shared-utils';
@@ -30,7 +32,8 @@ import { createFunctionParamsHandler } from '../function-params.handler';
 
 export const createTryStatementHandler = (
   statementHandlerFunction: HandlerFunction<LuaStatement, Statement>,
-  identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>
+  identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>,
+  typesHandlerFunction: HandlerFunction<LuaType, TSType>
 ): BaseNodeHandler<LuaStatement, TryStatement> =>
   createHandler('TryStatement', (source, config, node) => {
     const handleStatement = statementHandlerFunction(source, config);
@@ -45,7 +48,8 @@ export const createTryStatementHandler = (
           : result
     );
     const functionParamsHandler = createFunctionParamsHandler(
-      identifierHandlerFunction
+      identifierHandlerFunction,
+      typesHandlerFunction
     );
 
     const executeTryCatchDeclaration = (expression: LuaCallExpression) =>

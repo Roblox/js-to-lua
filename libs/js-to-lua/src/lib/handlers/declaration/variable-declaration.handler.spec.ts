@@ -49,6 +49,7 @@ import {
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
+import { createLValHandler } from '../l-val.handler';
 
 const source = '';
 
@@ -58,6 +59,12 @@ const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
 );
 
 const handleIdentifier = createIdentifierHandler(typesHandler);
+
+const handleLVal = createLValHandler(
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleExpression)
+);
+
 const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleExpressionAsStatement),
@@ -67,7 +74,8 @@ const handleDeclaration = createDeclarationHandler(
   handleTsTypes,
   forwardHandlerRef(() => handleObjectPropertyIdentifier),
   forwardHandlerRef(() => handleObjectKeyExpression),
-  forwardHandlerRef(() => handleObjectPropertyValue)
+  forwardHandlerRef(() => handleObjectPropertyValue),
+  forwardHandlerRef(() => handleLVal)
 );
 
 const handleVariableDeclaration = createVariableDeclarationHandler(

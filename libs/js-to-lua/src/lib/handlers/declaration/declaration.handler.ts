@@ -67,7 +67,8 @@ export const createDeclarationHandler = (
   objectPropertyValueHandlerFunction: HandlerFunction<
     LuaExpression,
     Expression | PatternLike
-  >
+  >,
+  handleLVal: HandlerFunction<LuaLVal, LVal>
 ): BaseNodeHandler<LuaNodeGroup | LuaDeclaration, Declaration> => {
   const { typesHandler } = createTypeAnnotationHandler(
     handleExpression,
@@ -91,7 +92,8 @@ export const createDeclarationHandler = (
       handleStatement,
       handleExpression,
       handleExpressionAsStatement,
-      forwardHandlerRef(() => declarationHandler)
+      forwardHandlerRef(() => declarationHandler),
+      handleLVal
     ),
     createTypeAliasDeclarationHandler(
       handleIdentifier,
@@ -120,7 +122,9 @@ export const createDeclarationHandler = (
       handleExpressionAsStatement,
       handleIdentifier,
       handleStatement,
-      forwardHandlerRef(() => declarationHandler)
+      forwardHandlerRef(() => declarationHandler),
+      handleLVal,
+      forwardHandlerRef(() => handleTsTypes)
     ),
   ]);
 
@@ -135,7 +139,11 @@ export function createConvertToFunctionDeclarationHandler(
     Expression
   >,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,
-  handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
+  handleDeclaration: HandlerFunction<
+    LuaNodeGroup | LuaDeclaration,
+    Declaration
+  >,
+  handleLVal: HandlerFunction<LuaLVal, LVal>
 ) {
   const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
     handleExpression,
@@ -145,7 +153,10 @@ export function createConvertToFunctionDeclarationHandler(
     handleExpression,
     handleIdentifier
   );
-  const functionParamsHandler = createFunctionParamsHandler(handleIdentifier);
+  const functionParamsHandler = createFunctionParamsHandler(
+    handleIdentifier,
+    typesHandler
+  );
 
   return function (
     source: string,
@@ -159,7 +170,8 @@ export function createConvertToFunctionDeclarationHandler(
     )(source, config);
     const handleParamsBody = createFunctionParamsBodyHandler(
       handleDeclaration,
-      handleAssignmentPattern
+      handleAssignmentPattern,
+      handleLVal
     );
 
     return functionDeclaration(

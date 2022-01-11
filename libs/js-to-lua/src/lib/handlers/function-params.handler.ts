@@ -12,10 +12,14 @@ import {
   isAssignmentPattern,
   isIdentifier,
   isObjectPattern,
+  isRestElement,
   isTSParameterProperty,
   LVal,
+  Noop,
   ObjectMethod,
   TSDeclareMethod,
+  TSTypeAnnotation,
+  TypeAnnotation,
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
@@ -26,20 +30,25 @@ import {
   LuaDeclaration,
   LuaFunctionParam,
   LuaIdentifier,
+  LuaLVal,
   LuaMemberExpression,
   LuaNilLiteral,
   LuaNodeGroup,
+  LuaTypeAnnotation,
   makeOptional,
   nodeGroup,
+  tableConstructor,
+  tableNoKeyField,
   typeAnnotation,
   UnhandledStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { anyPass, applyTo } from 'ramda';
-import { createHandlerFunction, EmptyConfig, HandlerFunction } from '../types';
-import {
-  defaultStatementHandler,
-  defaultUnhandledIdentifierHandler,
-} from '../utils/default-handlers';
+import { EmptyConfig, HandlerFunction } from '../types';
+import { defaultStatementHandler } from '../utils/default-handlers';
+import { createRestElementHandler } from './rest-element.handler';
 import { inferType } from './type/infer-type';
 
 type FunctionTypes =
@@ -55,17 +64,17 @@ export const createFunctionParamsHandler = (
   handleIdentifier: HandlerFunction<
     LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression,
     Identifier
+  >,
+  typesHandlerFunction: HandlerFunction<
+    LuaTypeAnnotation,
+    TypeAnnotation | TSTypeAnnotation | Noop
   >
 ): ((
   source: string,
   config: EmptyConfig,
   node: FunctionTypes
 ) => LuaIdentifier[]) => {
-  const defaultFunctionParamHandler: HandlerFunction<LuaFunctionParam, LVal> =
-    createHandlerFunction((source, config, node) => {
-      return defaultUnhandledIdentifierHandler(source, config, node);
-    });
-
+  const restHandler = createRestElementHandler(typesHandlerFunction);
   return (
     source: string,
     config: EmptyConfig,
@@ -110,7 +119,7 @@ export const createFunctionParamsHandler = (
               params: [param.parameter],
             } as FunctionTypes);
           } else {
-            return defaultFunctionParamHandler(source, config, param);
+            return restHandler(source, config, param);
           }
         })
         .flat();
@@ -130,7 +139,8 @@ export const createFunctionParamsBodyHandler = (
   handleAssignmentPattern: HandlerFunction<
     AssignmentStatement,
     AssignmentPattern
-  >
+  >,
+  handleLVal: HandlerFunction<LuaLVal, LVal>
 ): ((
   source: string,
   config: EmptyConfig,
@@ -155,6 +165,7 @@ export const createFunctionParamsBodyHandler = (
             isObjectPattern,
             isArrayPattern,
             isTSParameterProperty,
+            isRestElement,
           ])(param, undefined)
         )
         .map((param) => {
@@ -209,6 +220,19 @@ export const createFunctionParamsBodyHandler = (
             return mapFn({
               params: [param.parameter],
             } as FunctionTypes);
+          } else if (isRestElement(param)) {
+            return variableDeclaration(
+              [
+                variableDeclaratorIdentifier(
+                  handleLVal(source, config, param.argument)
+                ),
+              ],
+              [
+                variableDeclaratorValue(
+                  tableConstructor([tableNoKeyField(identifier('...'))])
+                ),
+              ]
+            );
           } else {
             return defaultStatementHandler(source, config, param);
           }
