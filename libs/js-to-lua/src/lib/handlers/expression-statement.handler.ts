@@ -99,6 +99,7 @@ import { createThisExpressionHandler } from './expression/this-expression.handle
 import { createObjectExpressionHandler } from './expression/object-expression.handler';
 import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expression.handler';
 import { createTaggedTemplateExpressionHandler } from './expression/tagged-template-expression.handler';
+import { createAwaitExpressionHandler } from './expression/await-expression.handler';
 
 type MemberExpressionPredicate = (node: MemberExpression) => boolean;
 const isExpectCall = (node: MemberExpression): boolean => {
@@ -360,6 +361,7 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
         forwardHandlerRef(() => handleExpression)
       ).handler
     ),
+    createAwaitExpressionHandler(forwardHandlerRef(() => handleExpression)),
   ]);
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
