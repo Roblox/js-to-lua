@@ -23,6 +23,9 @@ import {
   LuaStatement,
   LuaTableKeyField,
   LuaType,
+  nodeGroup,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, EmptyConfig, HandlerFunction } from '../../types';
 import { combineStatementHandlers } from '../../utils/combine-handlers';
@@ -163,7 +166,7 @@ export function createConvertToFunctionDeclarationHandler(
     config: EmptyConfig,
     node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
     id: LuaIdentifier
-  ): LuaFunctionDeclaration {
+  ): LuaFunctionDeclaration | LuaNodeGroup {
     const handleFunctionBody = createFunctionBodyHandler(
       handleStatement,
       handleExpressionAsStatement
@@ -174,13 +177,32 @@ export function createConvertToFunctionDeclarationHandler(
       handleLVal
     );
 
-    return functionDeclaration(
-      id,
-      functionParamsHandler(source, config, node),
-      [...handleParamsBody(source, config, node), ...handleFunctionBody(node)],
-      node.returnType
-        ? typesHandler(source, config, node.returnType)
-        : undefined
-    );
+    return id.typeAnnotation
+      ? nodeGroup([
+          variableDeclaration([variableDeclaratorIdentifier(id)], []),
+          functionDeclaration(
+            { ...id, typeAnnotation: undefined },
+            functionParamsHandler(source, config, node),
+            [
+              ...handleParamsBody(source, config, node),
+              ...handleFunctionBody(node),
+            ],
+            node.returnType
+              ? typesHandler(source, config, node.returnType)
+              : undefined,
+            false
+          ),
+        ])
+      : functionDeclaration(
+          id,
+          functionParamsHandler(source, config, node),
+          [
+            ...handleParamsBody(source, config, node),
+            ...handleFunctionBody(node),
+          ],
+          node.returnType
+            ? typesHandler(source, config, node.returnType)
+            : undefined
+        );
   };
 }

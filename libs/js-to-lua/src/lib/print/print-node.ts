@@ -289,7 +289,9 @@ function printCalleeExpression(callee: LuaExpression): string {
 }
 
 function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
-  const name = isFunctionDeclaration(node) ? ` ${printNode(node.id)}` : '';
+  const name = isFunctionDeclaration(node)
+    ? ` ${printNode({ ...node.id, typeAnnotation: undefined })}`
+    : '';
   const parameters = node.params
     .map((parameter) => printNode(parameter))
     .join(', ');

@@ -11,12 +11,14 @@ import {
   LuaProgram,
   memberExpression,
   nilLiteral,
+  nodeGroup,
   numericLiteral,
   program,
   stringLiteral,
   typeAnnotation,
   typeAny,
   typeOptional,
+  typeReference,
   typeString,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -202,6 +204,31 @@ describe('Program handler', () => {
         ),
       ]);
 
+      const luaProgram = handleProgram.handler(source, {}, given);
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle function typed', () => {
+      const given = getProgramNode(`
+        const foo: FooFunction = function () {}
+      `);
+
+      const expected: LuaProgram = program([
+        nodeGroup([
+          variableDeclaration(
+            [
+              variableDeclaratorIdentifier(
+                identifier(
+                  'foo',
+                  typeAnnotation(typeReference(identifier('FooFunction')))
+                )
+              ),
+            ],
+            []
+          ),
+          functionDeclaration(identifier('foo'), [], [], undefined, false),
+        ]),
+      ]);
       const luaProgram = handleProgram.handler(source, {}, given);
       expect(luaProgram).toEqual(expected);
     });
