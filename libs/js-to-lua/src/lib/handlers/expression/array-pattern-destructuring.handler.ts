@@ -189,7 +189,7 @@ export function hasUnhandledArrayDestructuringParam(
           isBabelRestElement,
           isBabelArrayPattern,
           isHandledAssignmentPattern,
-        ])(el, undefined)
+        ])(el)
     ) ||
     elements
       .filter((el): el is ArrayPattern => isBabelArrayPattern(el))

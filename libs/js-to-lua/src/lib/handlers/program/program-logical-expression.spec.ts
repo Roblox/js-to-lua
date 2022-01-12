@@ -18,6 +18,8 @@ import {
   returnStatement,
   stringLiteral,
   tableConstructor,
+  typeAnnotation,
+  typeBoolean,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -30,66 +32,116 @@ const source = '';
 
 describe('Program handler', () => {
   describe('Logical expression', () => {
-    it('should handle || operator', () => {
-      const given = getProgramNode('foo || bar;');
+    describe('should handle || operator', () => {
+      it('with 2 identifiers', () => {
+        const given = getProgramNode('foo || bar;');
 
-      const expected: LuaProgram = program([
-        withTrailingConversionComment(
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('Packages'))],
-            []
+        const expected: LuaProgram = program([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
           ),
-          'ROBLOX comment: must define Packages module'
-        ),
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-          [
-            variableDeclaratorValue(
-              callExpression(identifier('require'), [
-                memberExpression(
-                  identifier('Packages'),
-                  '.',
-                  identifier('LuauPolyfill')
-                ),
-              ])
-            ),
-          ]
-        ),
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('Boolean'))],
-          [
-            variableDeclaratorValue(
-              memberExpression(
-                identifier('LuauPolyfill'),
-                '.',
-                identifier('Boolean')
-              )
-            ),
-          ]
-        ),
-        expressionStatement(
-          logicalExpression(
-            LuaLogicalExpressionOperatorEnum.OR,
-            logicalExpression(
-              LuaLogicalExpressionOperatorEnum.AND,
-              callExpression(
-                memberExpression(
-                  identifier('Boolean'),
-                  '.',
-                  identifier('toJSBoolean')
-                ),
-                [identifier('foo')]
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('LuauPolyfill')
+                  ),
+                ])
               ),
-              identifier('foo')
-            ),
-            identifier('bar')
-          )
-        ),
-      ]);
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Boolean'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('LuauPolyfill'),
+                  '.',
+                  identifier('Boolean')
+                )
+              ),
+            ]
+          ),
+          expressionStatement(
+            logicalExpression(
+              LuaLogicalExpressionOperatorEnum.OR,
+              logicalExpression(
+                LuaLogicalExpressionOperatorEnum.AND,
+                callExpression(
+                  memberExpression(
+                    identifier('Boolean'),
+                    '.',
+                    identifier('toJSBoolean')
+                  ),
+                  [identifier('foo')]
+                ),
+                identifier('foo')
+              ),
+              identifier('bar')
+            )
+          ),
+        ]);
 
-      const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = handleProgram.handler(source, {}, given);
 
-      expect(luaProgram).toEqual(expected);
+        expect(luaProgram).toEqual(expected);
+      });
+
+      it('with multiple boolean inferable expressions', () => {
+        const given = getProgramNode(`
+          let fizz: boolean =
+            foo === 1 ||
+            bar === 2 ||
+            baz === 3
+        `);
+
+        const expected = program([
+          variableDeclaration(
+            [
+              variableDeclaratorIdentifier(
+                identifier('fizz', typeAnnotation(typeBoolean()))
+              ),
+            ],
+            [
+              variableDeclaratorValue(
+                logicalExpression(
+                  LuaLogicalExpressionOperatorEnum.OR,
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.OR,
+                    binaryExpression(
+                      identifier('foo'),
+                      '==',
+                      numericLiteral(1, '1')
+                    ),
+                    binaryExpression(
+                      identifier('bar'),
+                      '==',
+                      numericLiteral(2, '2')
+                    )
+                  ),
+                  binaryExpression(
+                    identifier('baz'),
+                    '==',
+                    numericLiteral(3, '3')
+                  )
+                )
+              ),
+            ]
+          ),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+
+        expect(luaProgram).toEqual(expected);
+      });
     });
 
     describe(`should handle && operator`, () => {
@@ -360,6 +412,54 @@ describe('Program handler', () => {
 
           expect(luaProgram).toEqual(expected);
         });
+      });
+
+      it('with multiple boolean inferable expressions', () => {
+        const given = getProgramNode(`
+          let fizz: boolean =
+            foo === 1 &&
+            bar === 2 &&
+            baz === 3
+        `);
+
+        const expected = program([
+          variableDeclaration(
+            [
+              variableDeclaratorIdentifier(
+                identifier('fizz', typeAnnotation(typeBoolean()))
+              ),
+            ],
+            [
+              variableDeclaratorValue(
+                logicalExpression(
+                  LuaLogicalExpressionOperatorEnum.AND,
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.AND,
+                    binaryExpression(
+                      identifier('foo'),
+                      '==',
+                      numericLiteral(1, '1')
+                    ),
+                    binaryExpression(
+                      identifier('bar'),
+                      '==',
+                      numericLiteral(2, '2')
+                    )
+                  ),
+                  binaryExpression(
+                    identifier('baz'),
+                    '==',
+                    numericLiteral(3, '3')
+                  )
+                )
+              ),
+            ]
+          ),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+
+        expect(luaProgram).toEqual(expected);
       });
     });
   });

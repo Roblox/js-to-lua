@@ -9,10 +9,12 @@ import {
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
 import {
+  booleanInferableExpression,
   booleanMethod,
   callExpression,
   elseClause,
   functionExpression,
+  identifier,
   ifClause,
   ifStatement,
   logicalExpression,
@@ -28,30 +30,61 @@ import {
 const source = '';
 
 describe('Logical Expression Handler', () => {
-  it(`should handle || operator`, () => {
-    const leftGiven = babelIdentifier('foo');
-    const rightGiven = babelIdentifier('bar');
-    const given = babelLogicalExpression('||', leftGiven, rightGiven);
+  describe(`should handle || operator`, () => {
+    it('with 2 identifiers', () => {
+      const leftGiven = babelIdentifier('foo');
+      const rightGiven = babelIdentifier('bar');
+      const given = babelLogicalExpression('||', leftGiven, rightGiven);
 
-    const handleLogicalExpression = createLogicalExpressionHandler(
-      mockNodeWithValueHandler
-    );
+      const handleLogicalExpression = createLogicalExpressionHandler(
+        mockNodeWithValueHandler
+      );
 
-    const expected = logicalExpression(
-      LuaLogicalExpressionOperatorEnum.OR,
-      logicalExpression(
-        LuaLogicalExpressionOperatorEnum.AND,
-        callExpression(booleanMethod('toJSBoolean'), [
-          mockNodeWithValue(leftGiven),
-        ]),
-        mockNodeWithValue(leftGiven)
-      ),
-      mockNodeWithValue(rightGiven)
-    );
+      const expected = logicalExpression(
+        LuaLogicalExpressionOperatorEnum.OR,
+        logicalExpression(
+          LuaLogicalExpressionOperatorEnum.AND,
+          callExpression(booleanMethod('toJSBoolean'), [
+            mockNodeWithValue(leftGiven),
+          ]),
+          mockNodeWithValue(leftGiven)
+        ),
+        mockNodeWithValue(rightGiven)
+      );
 
-    expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
-      expected
-    );
+      expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
+    });
+
+    it('with boolean inferable expressions', () => {
+      const leftGiven = babelIdentifier('foo');
+      const rightGiven = babelIdentifier('bar');
+      const given = babelLogicalExpression('||', leftGiven, rightGiven);
+
+      const handleLogicalExpression = createLogicalExpressionHandler(
+        jest
+          .fn()
+          .mockImplementationOnce(() =>
+            booleanInferableExpression(identifier('foo'))
+          )
+          .mockImplementationOnce(() =>
+            booleanInferableExpression(identifier('bar'))
+          )
+      );
+
+      const expected = booleanInferableExpression(
+        logicalExpression(
+          LuaLogicalExpressionOperatorEnum.OR,
+          booleanInferableExpression(identifier('foo')),
+          booleanInferableExpression(identifier('bar'))
+        )
+      );
+
+      expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
+    });
   });
 
   describe(`should handle && operator`, () => {
@@ -160,6 +193,35 @@ describe('Logical Expression Handler', () => {
             mockNodeWithValue(rightGiven)
           ),
           mockNodeWithValue(leftGiven)
+        );
+
+        expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
+      });
+
+      it('with boolean inferable expressions', () => {
+        const leftGiven = babelIdentifier('foo');
+        const rightGiven = babelIdentifier('bar');
+        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+
+        const handleLogicalExpression = createLogicalExpressionHandler(
+          jest
+            .fn()
+            .mockImplementationOnce(() =>
+              booleanInferableExpression(identifier('foo'))
+            )
+            .mockImplementationOnce(() =>
+              booleanInferableExpression(identifier('bar'))
+            )
+        );
+
+        const expected = booleanInferableExpression(
+          logicalExpression(
+            LuaLogicalExpressionOperatorEnum.AND,
+            booleanInferableExpression(identifier('foo')),
+            booleanInferableExpression(identifier('bar'))
+          )
         );
 
         expect(handleLogicalExpression.handler(source, {}, given)).toEqual(

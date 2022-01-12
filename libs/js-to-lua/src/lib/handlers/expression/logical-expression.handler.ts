@@ -1,12 +1,20 @@
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import { Expression, LogicalExpression } from '@babel/types';
 import {
+  Expression,
+  isIdentifier as isBabelIdentifier,
+  isMemberExpression as isBabelMemberExpression,
+  LogicalExpression,
+} from '@babel/types';
+import {
+  booleanInferableExpression,
   booleanMethod,
   callExpression,
   elseClause,
   functionExpression,
+  identifier,
   ifClause,
   ifStatement,
+  isBooleanInferable,
   logicalExpression,
   LuaCallExpression,
   LuaExpression,
@@ -14,9 +22,13 @@ import {
   LuaLogicalExpressionOperatorEnum,
   returnStatement,
   UnhandledStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { defaultStatementHandler } from '../../utils/default-handlers';
 import { isLuaTruthy } from '../../utils/is-lua-truthy';
+import { applyTo } from 'ramda';
 
 export const createLogicalExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
@@ -29,13 +41,55 @@ export const createLogicalExpressionHandler = (
       case '||': {
         const leftExpression = handleExpression(source, config, node.left);
         const rightExpression = handleExpression(source, config, node.right);
+
+        const isLeftExpressionBooleanInferable =
+          isBooleanInferable(leftExpression);
+        const isRightExpressionBooleanInferable =
+          isBooleanInferable(rightExpression);
+
+        if (isLeftExpressionBooleanInferable) {
+          return applyTo(
+            logicalExpression(
+              LuaLogicalExpressionOperatorEnum.OR,
+              leftExpression,
+              rightExpression
+            ),
+            (expression) =>
+              isRightExpressionBooleanInferable
+                ? booleanInferableExpression(expression)
+                : expression
+          );
+        }
+
         return logicalExpression(
           LuaLogicalExpressionOperatorEnum.OR,
-          logicalExpression(
-            LuaLogicalExpressionOperatorEnum.AND,
-            callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
-            leftExpression
-          ),
+          isBabelIdentifier(node.left) || isBabelMemberExpression(node.left)
+            ? logicalExpression(
+                LuaLogicalExpressionOperatorEnum.AND,
+                callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
+                leftExpression
+              )
+            : callExpression(
+                functionExpression(
+                  [],
+                  [
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(identifier('ref'))],
+                      [variableDeclaratorValue(leftExpression)]
+                    ),
+                    returnStatement(
+                      logicalExpression(
+                        LuaLogicalExpressionOperatorEnum.AND,
+                        callExpression(booleanMethod('toJSBoolean'), [
+                          identifier('ref'),
+                        ]),
+                        identifier('ref')
+                      )
+                    ),
+                  ]
+                ),
+                []
+              ),
           rightExpression
         );
       }
@@ -44,6 +98,25 @@ export const createLogicalExpressionHandler = (
 
         const leftExpression = handleExpression(source, config, node.left);
         const rightExpression = handleExpression(source, config, node.right);
+
+        const isLeftExpressionBooleanInferable =
+          isBooleanInferable(leftExpression);
+        const isRightExpressionBooleanInferable =
+          isBooleanInferable(rightExpression);
+
+        if (isLeftExpressionBooleanInferable) {
+          return applyTo(
+            logicalExpression(
+              LuaLogicalExpressionOperatorEnum.AND,
+              leftExpression,
+              rightExpression
+            ),
+            (expression) =>
+              isRightExpressionBooleanInferable
+                ? booleanInferableExpression(expression)
+                : expression
+          );
+        }
         return isRightExpressionTruthy
           ? logicalExpression(
               LuaLogicalExpressionOperatorEnum.OR,
@@ -57,18 +130,36 @@ export const createLogicalExpressionHandler = (
           : callExpression(
               functionExpression(
                 [],
-                [
-                  ifStatement(
-                    ifClause(
-                      callExpression(booleanMethod('toJSBoolean'), [
-                        leftExpression,
-                      ]),
-                      [returnStatement(rightExpression)]
-                    ),
-                    [],
-                    elseClause([returnStatement(leftExpression)])
-                  ),
-                ]
+                isBabelIdentifier(node.left) ||
+                  isBabelMemberExpression(node.left)
+                  ? [
+                      ifStatement(
+                        ifClause(
+                          callExpression(booleanMethod('toJSBoolean'), [
+                            leftExpression,
+                          ]),
+                          [returnStatement(rightExpression)]
+                        ),
+                        [],
+                        elseClause([returnStatement(leftExpression)])
+                      ),
+                    ]
+                  : [
+                      variableDeclaration(
+                        [variableDeclaratorIdentifier(identifier('ref'))],
+                        [variableDeclaratorValue(leftExpression)]
+                      ),
+                      ifStatement(
+                        ifClause(
+                          callExpression(booleanMethod('toJSBoolean'), [
+                            identifier('ref'),
+                          ]),
+                          [returnStatement(rightExpression)]
+                        ),
+                        [],
+                        elseClause([returnStatement(identifier('ref'))])
+                      ),
+                    ]
               ),
               []
             );

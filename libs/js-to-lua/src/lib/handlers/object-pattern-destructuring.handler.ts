@@ -163,8 +163,7 @@ export function hasUnhandledObjectDestructuringParam(
     properties.some(
       (el) =>
         !anyPass([isIdentifier, isObjectPattern, isHandledAssignmentPattern])(
-          el.value,
-          undefined
+          el.value
         )
     ) ||
     properties
