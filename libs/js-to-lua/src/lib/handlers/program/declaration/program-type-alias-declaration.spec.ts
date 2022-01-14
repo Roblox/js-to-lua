@@ -137,5 +137,38 @@ describe('Program handler', () => {
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
+
+    it('should handle type alias declaration with generic params on both sides', () => {
+      const given = getProgramNode(`
+        type Foo<T> = Bar<T>
+      `);
+      const expected = program([
+        typeAliasDeclaration(
+          identifier('Foo'),
+          typeReference(identifier('Bar'), [typeReference(identifier('T'))]),
+          [typeReference(identifier('T'))]
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle type alias declaration with generic params and multiple params on right side', () => {
+      const given = getProgramNode(`
+        type Foo<T> = Record<string, T>
+      `);
+      const expected = program([
+        typeAliasDeclaration(
+          identifier('Foo'),
+          typeReference(identifier('Record'), [
+            typeString(),
+            typeReference(identifier('T')),
+          ]),
+          [typeReference(identifier('T'))]
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
   });
 });
