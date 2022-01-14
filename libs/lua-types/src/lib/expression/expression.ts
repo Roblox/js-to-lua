@@ -11,7 +11,6 @@ import {
   LuaIndexExpression,
   LuaLogicalExpression,
   LuaMemberExpression,
-  LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
@@ -29,7 +28,6 @@ import {
   isIndexExpression,
   isLogicalExpression,
   isMemberExpression,
-  isUnaryDeleteExpression,
   isUnaryExpression,
   isUnaryNegation,
   isUnaryVoidExpression,
@@ -50,7 +48,6 @@ export type LuaExpression =
   | LuaUnaryNegationExpression
   | LuaIndexExpression
   | LuaMemberExpression
-  | LuaUnaryDeleteExpression
   | TypeCastExpression
   | UnhandledExpression;
 
@@ -67,7 +64,6 @@ export const isExpression = isAnyNodeType<LuaExpression>([
   isUnaryNegation,
   isIndexExpression,
   isMemberExpression,
-  isUnaryDeleteExpression,
   isTypeCastExpression,
   isUnhandledExpression,
 ]);

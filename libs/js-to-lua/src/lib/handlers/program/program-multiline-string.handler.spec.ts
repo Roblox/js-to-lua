@@ -1,6 +1,7 @@
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   callExpression,
-  expressionStatement,
   identifier,
   memberExpression,
   multilineStringLiteral,
@@ -17,10 +18,14 @@ describe('Program handler', () => {
   describe('Multiline String', () => {
     it('should handle multiline string expression without leading new line', () => {
       const given = getProgramNode(`
-      \`foo\nbar\nbaz\n\`;
-    `);
+        fizz = \`foo\nbar\nbaz\n\`;
+      `);
       const expected = program([
-        expressionStatement(multilineStringLiteral('foo\nbar\nbaz\n')),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('fizz')],
+          [multilineStringLiteral('foo\nbar\nbaz\n')]
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -30,10 +35,14 @@ describe('Program handler', () => {
 
     it('should handle multiline string expression with leading new line', () => {
       const given = getProgramNode(`
-      \`\nfoo\nbar\nbaz\n\`;
-    `);
+        fizz = \`\nfoo\nbar\nbaz\n\`;
+      `);
       const expected = program([
-        expressionStatement(multilineStringLiteral('\n\nfoo\nbar\nbaz\n')),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('fizz')],
+          [multilineStringLiteral('\n\nfoo\nbar\nbaz\n')]
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -43,18 +52,22 @@ describe('Program handler', () => {
 
     it('should handle multiline string expression with interpolated expression', () => {
       const given = getProgramNode(`
-      \`foo: \${foo}\nbar: \${"bar"}\nbaz: \${1}\n\`
-    `);
+        fizz = \`foo: \${foo}\nbar: \${"bar"}\nbaz: \${1}\n\`
+      `);
       const expected = program([
-        expressionStatement(
-          callExpression(
-            memberExpression(
-              multilineStringLiteral('foo: %s\nbar: %s\nbaz: %s\n'),
-              ':',
-              identifier('format')
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('fizz')],
+          [
+            callExpression(
+              memberExpression(
+                multilineStringLiteral('foo: %s\nbar: %s\nbaz: %s\n'),
+                ':',
+                identifier('format')
+              ),
+              [identifier('foo'), stringLiteral('bar'), numericLiteral(1, '1')]
             ),
-            [identifier('foo'), stringLiteral('bar'), numericLiteral(1, '1')]
-          )
+          ]
         ),
       ]);
 

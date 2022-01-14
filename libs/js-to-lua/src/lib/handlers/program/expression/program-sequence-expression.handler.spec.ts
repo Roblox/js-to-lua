@@ -14,9 +14,11 @@ import {
   returnStatement,
   tableConstructor,
   tableNameKeyField,
+  unhandledStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 
 describe('Program handler', () => {
@@ -294,8 +296,8 @@ describe('Program handler', () => {
 
     it('should handle sequence expression in arrow function shorthand return syntax - with updateExpressions', () => {
       const source = `
-      const foo = () => (a++, b = ++a, a)
-    `;
+        const foo = () => (a++, b = ++a, a)
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -307,6 +309,50 @@ describe('Program handler', () => {
               AssignmentStatementOperatorEnum.ADD,
               [identifier('a')],
               [numericLiteral(1)]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('b')],
+              [
+                callExpression(
+                  functionExpression(
+                    [],
+                    [
+                      assignmentStatement(
+                        AssignmentStatementOperatorEnum.ADD,
+                        [identifier('a')],
+                        [numericLiteral(1)]
+                      ),
+                      returnStatement(identifier('a')),
+                    ]
+                  ),
+                  []
+                ),
+              ]
+            ),
+            returnStatement(identifier('a')),
+          ]
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should not ignore parts of sequence expression which are not valid in Luau', () => {
+      const source = `
+        const foo = () => (a, b = ++a, a)
+      `;
+      const given = getProgramNode(source);
+
+      const expected = program([
+        functionDeclaration(
+          identifier('foo'),
+          [],
+          [
+            withTrailingConversionComment(
+              unhandledStatement(),
+              `ROBLOX TODO: Lua doesn't support 'Identifier' as a standalone type`,
+              'a, b = ++a, a'
             ),
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,

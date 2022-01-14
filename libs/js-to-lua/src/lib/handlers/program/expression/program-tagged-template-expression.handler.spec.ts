@@ -5,7 +5,7 @@ import {
   identifier,
   multilineStringLiteral,
   program,
-  unhandledExpression,
+  unhandledStatement,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
@@ -47,17 +47,15 @@ describe('Program handler', () => {
       const given = getProgramNode(source);
 
       const expected = program([
-        expressionStatement(
-          withTrailingConversionComment(
-            unhandledExpression(),
-            `ROBLOX TODO: Unhandled node for type: TaggedTemplateExpression`,
-            dedent`
+        withTrailingConversionComment(
+          unhandledStatement(),
+          `ROBLOX TODO: Unhandled node for type: TaggedTemplateExpression`,
+          dedent`
               gql\`
                 foo
                 \${bar}
                 baz
               \``
-          )
         ),
       ]);
 

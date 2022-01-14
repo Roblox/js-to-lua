@@ -145,8 +145,6 @@ const _printNode = (node: LuaNode): string => {
       return `${printNode(node.argument)} and nil or nil`;
     case 'LuaUnaryNegationExpression':
       return `not ${useParenthesis(node.argument, checkPrecedence(node))}`;
-    case 'LuaUnaryDeleteExpression':
-      return `${printNode(node.argument)} = nil`;
     case 'IndexExpression':
       return createPrintIndexExpression(printNode)(node);
     case 'LuaMemberExpression':

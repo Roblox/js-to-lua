@@ -2,7 +2,6 @@ import { defaultStatementHandler } from '../../utils/default-handlers';
 import { combineHandlers } from '../../utils/combine-handlers';
 import {
   booleanLiteral,
-  expressionStatement,
   isExpression,
   LuaDeclaration,
   LuaExpression,
@@ -22,6 +21,7 @@ import {
   UpdateExpression,
 } from '@babel/types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import { createExpressionStatement } from '../../utils/create-expression-statement';
 
 export const createForStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>,
@@ -59,7 +59,9 @@ export const createForStatementHandler = (
           ]
         : []
     ).map((someNode) =>
-      isExpression(someNode) ? expressionStatement(someNode) : someNode
+      isExpression(someNode)
+        ? createExpressionStatement(source, node.update!, someNode)
+        : someNode
     );
 
     const testExpression = node.test

@@ -1,10 +1,10 @@
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   booleanLiteral,
   callExpression,
-  expressionStatement,
   functionExpression,
   identifier,
-  LuaProgram,
   memberExpression,
   numericLiteral,
   program,
@@ -26,10 +26,14 @@ describe('Program handler', () => {
   describe('Object expression', () => {
     it('should return empty Lua Table Constructor', () => {
       const given = getProgramNode(`
-        ({})
+        foo = {}
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(tableConstructor([])),
+      const expected = program([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [tableConstructor()]
+        ),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
@@ -37,19 +41,23 @@ describe('Program handler', () => {
 
     it(`should return Lua Table Constructor Node with TableNameKeyField elements`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           foo: true,
           bar: 1,
           baz: 'abc'
-        })
+        }
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableNameKeyField(identifier('foo'), booleanLiteral(true)),
-            tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
-            tableNameKeyField(identifier('baz'), stringLiteral('abc')),
-          ])
+      const expected = program([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            tableConstructor([
+              tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+              tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+              tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+            ]),
+          ]
         ),
       ]);
 
@@ -58,19 +66,23 @@ describe('Program handler', () => {
 
     it(`should return Lua Table Constructor Node with TableNameKeyField elements when shorthand JS notation is used`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           foo,
           bar,
           baz,
-        })
+        }
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableNameKeyField(identifier('foo'), identifier('foo')),
-            tableNameKeyField(identifier('bar'), identifier('bar')),
-            tableNameKeyField(identifier('baz'), identifier('baz')),
-          ])
+      const expected = program([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            tableConstructor([
+              tableNameKeyField(identifier('foo'), identifier('foo')),
+              tableNameKeyField(identifier('bar'), identifier('bar')),
+              tableNameKeyField(identifier('baz'), identifier('baz')),
+            ]),
+          ]
         ),
       ]);
 
@@ -79,22 +91,32 @@ describe('Program handler', () => {
 
     it(`should return Lua Table Constructor Node with TableExpressionKeyField elements`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           "foo": true,
           'bar': 1,
           ['baz']: 'abc'
-        })
+        }
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableExpressionKeyField(stringLiteral('foo'), booleanLiteral(true)),
-            tableExpressionKeyField(
-              stringLiteral('bar'),
-              numericLiteral(1, '1')
-            ),
-            tableExpressionKeyField(stringLiteral('baz'), stringLiteral('abc')),
-          ])
+      const expected = program([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            tableConstructor([
+              tableExpressionKeyField(
+                stringLiteral('foo'),
+                booleanLiteral(true)
+              ),
+              tableExpressionKeyField(
+                stringLiteral('bar'),
+                numericLiteral(1, '1')
+              ),
+              tableExpressionKeyField(
+                stringLiteral('baz'),
+                stringLiteral('abc')
+              ),
+            ]),
+          ]
         ),
       ]);
 
@@ -103,7 +125,7 @@ describe('Program handler', () => {
 
     it(`should handle object of objects`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           foo0: {
             foo1: true
           },
@@ -113,30 +135,34 @@ describe('Program handler', () => {
           baz0: {
             baz1: 'abc'
           },
-        })
+        }
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableNameKeyField(
-              identifier('foo0'),
-              tableConstructor([
-                tableNameKeyField(identifier('foo1'), booleanLiteral(true)),
-              ])
-            ),
-            tableNameKeyField(
-              identifier('bar0'),
-              tableConstructor([
-                tableNameKeyField(identifier('bar1'), numericLiteral(1, '1')),
-              ])
-            ),
-            tableNameKeyField(
-              identifier('baz0'),
-              tableConstructor([
-                tableNameKeyField(identifier('baz1'), stringLiteral('abc')),
-              ])
-            ),
-          ])
+      const expected = program([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            tableConstructor([
+              tableNameKeyField(
+                identifier('foo0'),
+                tableConstructor([
+                  tableNameKeyField(identifier('foo1'), booleanLiteral(true)),
+                ])
+              ),
+              tableNameKeyField(
+                identifier('bar0'),
+                tableConstructor([
+                  tableNameKeyField(identifier('bar1'), numericLiteral(1, '1')),
+                ])
+              ),
+              tableNameKeyField(
+                identifier('baz0'),
+                tableConstructor([
+                  tableNameKeyField(identifier('baz1'), stringLiteral('abc')),
+                ])
+              ),
+            ]),
+          ]
         ),
       ]);
 
@@ -145,27 +171,31 @@ describe('Program handler', () => {
 
     it(`should handle methods in objects`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           method1: function(){
 
           },
           method2: function(name){
 
           }
-        })
+        }
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableNameKeyField(
-              identifier('method1'),
-              functionExpression([identifier('self')])
-            ),
-            tableNameKeyField(
-              identifier('method2'),
-              functionExpression([identifier('self'), identifier('name')])
-            ),
-          ])
+      const expected = program([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            tableConstructor([
+              tableNameKeyField(
+                identifier('method1'),
+                functionExpression([identifier('self')])
+              ),
+              tableNameKeyField(
+                identifier('method2'),
+                functionExpression([identifier('self'), identifier('name')])
+              ),
+            ]),
+          ]
         ),
       ]);
 
@@ -174,29 +204,33 @@ describe('Program handler', () => {
 
     it(`should handle deeply nested objects`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           foo: {
             bar: {
               baz: {}
             }
           }
-        })
+        }
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableNameKeyField(
-              identifier('foo'),
-              tableConstructor([
-                tableNameKeyField(
-                  identifier('bar'),
-                  tableConstructor([
-                    tableNameKeyField(identifier('baz'), tableConstructor()),
-                  ])
-                ),
-              ])
-            ),
-          ])
+      const expected = program([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            tableConstructor([
+              tableNameKeyField(
+                identifier('foo'),
+                tableConstructor([
+                  tableNameKeyField(
+                    identifier('bar'),
+                    tableConstructor([
+                      tableNameKeyField(identifier('baz'), tableConstructor()),
+                    ])
+                  ),
+                ])
+              ),
+            ]),
+          ]
         ),
       ]);
 
@@ -205,13 +239,13 @@ describe('Program handler', () => {
 
     it(`should return Lua Table Constructor Node with spread elements`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           foo: true,
           bar: 1,
           ...{baz: 'abc'},
-        })
+        }
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -245,20 +279,24 @@ describe('Program handler', () => {
             ),
           ]
         ),
-        expressionStatement(
-          callExpression(
-            memberExpression(identifier('Object'), '.', identifier('assign')),
-            [
-              tableConstructor(),
-              tableConstructor([
-                tableNameKeyField(identifier('foo'), booleanLiteral(true)),
-                tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
-              ]),
-              tableConstructor([
-                tableNameKeyField(identifier('baz'), stringLiteral('abc')),
-              ]),
-            ]
-          )
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                tableConstructor([
+                  tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+                  tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+                ]),
+                tableConstructor([
+                  tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+                ]),
+              ]
+            ),
+          ]
         ),
       ]);
 
@@ -267,15 +305,15 @@ describe('Program handler', () => {
 
     it(`should return Lua Table Constructor Node with multiple spread elements`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           ...{
             foo: true,
             bar: 1,
           },
           ...{baz: 'abc'},
-        })
+        }
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -309,20 +347,24 @@ describe('Program handler', () => {
             ),
           ]
         ),
-        expressionStatement(
-          callExpression(
-            memberExpression(identifier('Object'), '.', identifier('assign')),
-            [
-              tableConstructor(),
-              tableConstructor([
-                tableNameKeyField(identifier('foo'), booleanLiteral(true)),
-                tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
-              ]),
-              tableConstructor([
-                tableNameKeyField(identifier('baz'), stringLiteral('abc')),
-              ]),
-            ]
-          )
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                tableConstructor([
+                  tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+                  tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+                ]),
+                tableConstructor([
+                  tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+                ]),
+              ]
+            ),
+          ]
         ),
       ]);
 
@@ -331,15 +373,15 @@ describe('Program handler', () => {
 
     it(`should return Lua Table Constructor Node with multiple spread elements`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           ...{
             foo: true,
             bar: 1,
           },
           ...{baz: 'abc'},
-        })
+        }
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -373,20 +415,24 @@ describe('Program handler', () => {
             ),
           ]
         ),
-        expressionStatement(
-          callExpression(
-            memberExpression(identifier('Object'), '.', identifier('assign')),
-            [
-              tableConstructor(),
-              tableConstructor([
-                tableNameKeyField(identifier('foo'), booleanLiteral(true)),
-                tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
-              ]),
-              tableConstructor([
-                tableNameKeyField(identifier('baz'), stringLiteral('abc')),
-              ]),
-            ]
-          )
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                tableConstructor([
+                  tableNameKeyField(identifier('foo'), booleanLiteral(true)),
+                  tableNameKeyField(identifier('bar'), numericLiteral(1, '1')),
+                ]),
+                tableConstructor([
+                  tableNameKeyField(identifier('baz'), stringLiteral('abc')),
+                ]),
+              ]
+            ),
+          ]
         ),
       ]);
 
@@ -395,15 +441,15 @@ describe('Program handler', () => {
 
     it(`should return Lua Table Constructor Node with nested spread elements`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           ...{
             foo: true,
             bar: 1,
             ...{baz: 'abc'},
           },
-        })
+        }
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -437,33 +483,43 @@ describe('Program handler', () => {
             ),
           ]
         ),
-        expressionStatement(
-          callExpression(
-            memberExpression(identifier('Object'), '.', identifier('assign')),
-            [
-              tableConstructor(),
-              callExpression(
-                memberExpression(
-                  identifier('Object'),
-                  '.',
-                  identifier('assign')
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                callExpression(
+                  memberExpression(
+                    identifier('Object'),
+                    '.',
+                    identifier('assign')
+                  ),
+                  [
+                    tableConstructor(),
+                    tableConstructor([
+                      tableNameKeyField(
+                        identifier('foo'),
+                        booleanLiteral(true)
+                      ),
+                      tableNameKeyField(
+                        identifier('bar'),
+                        numericLiteral(1, '1')
+                      ),
+                    ]),
+                    tableConstructor([
+                      tableNameKeyField(
+                        identifier('baz'),
+                        stringLiteral('abc')
+                      ),
+                    ]),
+                  ]
                 ),
-                [
-                  tableConstructor(),
-                  tableConstructor([
-                    tableNameKeyField(identifier('foo'), booleanLiteral(true)),
-                    tableNameKeyField(
-                      identifier('bar'),
-                      numericLiteral(1, '1')
-                    ),
-                  ]),
-                  tableConstructor([
-                    tableNameKeyField(identifier('baz'), stringLiteral('abc')),
-                  ]),
-                ]
-              ),
-            ]
-          )
+              ]
+            ),
+          ]
         ),
       ]);
 
@@ -472,16 +528,16 @@ describe('Program handler', () => {
 
     it(`should return Lua Table Constructor Node with spread identifiers`, () => {
       const given = getProgramNode(`
-        ({
+        foo = {
           ...{
             foo: true,
             bar: 1,
             ...fizz
           },
           ...baz
-        })
+        }
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -515,32 +571,39 @@ describe('Program handler', () => {
             ),
           ]
         ),
-        expressionStatement(
-          callExpression(
-            memberExpression(identifier('Object'), '.', identifier('assign')),
-            [
-              tableConstructor(),
-              callExpression(
-                memberExpression(
-                  identifier('Object'),
-                  '.',
-                  identifier('assign')
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                callExpression(
+                  memberExpression(
+                    identifier('Object'),
+                    '.',
+                    identifier('assign')
+                  ),
+                  [
+                    tableConstructor(),
+                    tableConstructor([
+                      tableNameKeyField(
+                        identifier('foo'),
+                        booleanLiteral(true)
+                      ),
+                      tableNameKeyField(
+                        identifier('bar'),
+                        numericLiteral(1, '1')
+                      ),
+                    ]),
+                    identifier('fizz'),
+                  ]
                 ),
-                [
-                  tableConstructor(),
-                  tableConstructor([
-                    tableNameKeyField(identifier('foo'), booleanLiteral(true)),
-                    tableNameKeyField(
-                      identifier('bar'),
-                      numericLiteral(1, '1')
-                    ),
-                  ]),
-                  identifier('fizz'),
-                ]
-              ),
-              identifier('baz'),
-            ]
-          )
+                identifier('baz'),
+              ]
+            ),
+          ]
         ),
       ]);
 

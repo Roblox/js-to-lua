@@ -7,6 +7,8 @@ import {
   UnaryExpression,
 } from '@babel/types';
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   bit32Identifier,
   booleanLiteral,
   booleanMethod,
@@ -14,13 +16,12 @@ import {
   identifier,
   LuaCallExpression,
   LuaIdentifier,
-  LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
   memberExpression,
+  nilLiteral,
   numericLiteral,
-  unaryDeleteExpression,
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
@@ -221,8 +222,10 @@ describe('Unary Expression Handler', () => {
       forwardHandlerRef(() => handleExpression)
     );
 
-    const expected: LuaUnaryDeleteExpression = unaryDeleteExpression(
-      identifier('foo')
+    const expected = assignmentStatement(
+      AssignmentStatementOperatorEnum.EQ,
+      [identifier('foo')],
+      [nilLiteral()]
     );
 
     expect(handleUnaryExpression.handler(source, {}, given)).toEqual(expected);

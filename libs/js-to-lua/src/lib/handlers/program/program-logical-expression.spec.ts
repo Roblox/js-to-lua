@@ -1,4 +1,6 @@
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   binaryExpression,
   booleanLiteral,
   callExpression,
@@ -34,7 +36,7 @@ describe('Program handler', () => {
   describe('Logical expression', () => {
     describe('should handle || operator', () => {
       it('with 2 identifiers', () => {
-        const given = getProgramNode('foo || bar;');
+        const given = getProgramNode('const fizz = foo || bar;');
 
         const expected: LuaProgram = program([
           withTrailingConversionComment(
@@ -70,23 +72,28 @@ describe('Program handler', () => {
               ),
             ]
           ),
-          expressionStatement(
-            logicalExpression(
-              LuaLogicalExpressionOperatorEnum.OR,
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.AND,
-                callExpression(
-                  memberExpression(
-                    identifier('Boolean'),
-                    '.',
-                    identifier('toJSBoolean')
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [
+              variableDeclaratorValue(
+                logicalExpression(
+                  LuaLogicalExpressionOperatorEnum.OR,
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.AND,
+                    callExpression(
+                      memberExpression(
+                        identifier('Boolean'),
+                        '.',
+                        identifier('toJSBoolean')
+                      ),
+                      [identifier('foo')]
+                    ),
+                    identifier('foo')
                   ),
-                  [identifier('foo')]
-                ),
-                identifier('foo')
+                  identifier('bar')
+                )
               ),
-              identifier('bar')
-            )
+            ]
           ),
         ]);
 
@@ -305,42 +312,42 @@ describe('Program handler', () => {
 
       const truthyValues = [
         {
-          code: 'foo && 0',
+          code: 'bar = foo && 0',
           leftExpected: identifier('foo'),
           rightExpected: numericLiteral(0, '0'),
         },
         {
-          code: 'foo && 1',
+          code: 'bar = foo && 1',
           leftExpected: identifier('foo'),
           rightExpected: numericLiteral(1, '1'),
         },
         {
-          code: 'foo && ""',
+          code: 'bar = foo && ""',
           leftExpected: identifier('foo'),
           rightExpected: stringLiteral(''),
         },
         {
-          code: 'foo && "abc"',
+          code: 'bar = foo && "abc"',
           leftExpected: identifier('foo'),
           rightExpected: stringLiteral('abc'),
         },
         {
-          code: 'foo && true',
+          code: 'bar = foo && true',
           leftExpected: identifier('foo'),
           rightExpected: booleanLiteral(true),
         },
         {
-          code: 'foo && {}',
+          code: 'bar = foo && {}',
           leftExpected: identifier('foo'),
           rightExpected: tableConstructor([]),
         },
         {
-          code: 'foo && []',
+          code: 'bar = foo && []',
           leftExpected: identifier('foo'),
           rightExpected: tableConstructor([]),
         },
         {
-          code: 'foo && NaN',
+          code: 'bar = foo && NaN',
           leftExpected: identifier('foo'),
           rightExpected: binaryExpression(
             numericLiteral(0),
@@ -388,23 +395,27 @@ describe('Program handler', () => {
                 ),
               ]
             ),
-            expressionStatement(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('bar')],
+              [
                 logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
-                  callExpression(
-                    memberExpression(
-                      identifier('Boolean'),
-                      '.',
-                      identifier('toJSBoolean')
+                  LuaLogicalExpressionOperatorEnum.OR,
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.AND,
+                    callExpression(
+                      memberExpression(
+                        identifier('Boolean'),
+                        '.',
+                        identifier('toJSBoolean')
+                      ),
+                      [leftExpected]
                     ),
-                    [leftExpected]
+                    rightExpected
                   ),
-                  rightExpected
+                  leftExpected
                 ),
-                leftExpected
-              )
+              ]
             ),
           ]);
 

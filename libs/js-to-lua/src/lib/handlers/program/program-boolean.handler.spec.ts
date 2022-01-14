@@ -1,4 +1,10 @@
-import { LuaProgram } from '@js-to-lua/lua-types';
+import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
+  booleanLiteral,
+  identifier,
+  program,
+} from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
@@ -8,45 +14,21 @@ describe('Program handler', () => {
   describe('Boolean', () => {
     it('should handle boolean expressions', () => {
       const given = getProgramNode(`
-      true
-      false
-
-      true;
-      false;
-    `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'BooleanLiteral',
-              value: true,
-            },
-          },
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'BooleanLiteral',
-              value: false,
-            },
-          },
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'BooleanLiteral',
-              value: true,
-            },
-          },
-          {
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'BooleanLiteral',
-              value: false,
-            },
-          },
-        ],
-      };
+        foo = true
+        foo = false
+      `);
+      const expected = program([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [booleanLiteral(true)]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [booleanLiteral(false)]
+        ),
+      ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
 

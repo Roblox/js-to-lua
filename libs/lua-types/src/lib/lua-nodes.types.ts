@@ -1,6 +1,6 @@
 import { BaseLuaNode } from './node.types';
-import { AssignmentStatement, LuaStatement } from './statement';
-import { LuaExpression, LuaLVal } from './expression';
+import { LuaNodeGroup, LuaStatement } from './statement';
+import { LuaExpression, LuaIdentifier, LuaLVal } from './expression';
 import {
   LuaPropertySignature,
   LuaType,
@@ -8,7 +8,6 @@ import {
   TypeAnnotation,
 } from './type';
 import { LuaTableField } from './literals';
-import { LuaIdentifier } from './expression';
 
 export type LuaNode =
   | LuaProgram
@@ -26,7 +25,7 @@ export type LuaNode =
 
 export interface LuaExpressionStatement extends BaseLuaNode {
   type: 'ExpressionStatement';
-  expression: LuaExpression | AssignmentStatement;
+  expression: LuaCallExpression | LuaNodeGroup;
 }
 
 export interface LuaCallExpression extends BaseLuaNode {
@@ -161,10 +160,6 @@ export interface LuaMemberExpression extends BaseLuaNode {
   indexer: '.' | ':';
   base: LuaExpression;
   identifier: LuaIdentifier;
-}
-export interface LuaUnaryDeleteExpression extends BaseLuaNode {
-  type: 'LuaUnaryDeleteExpression';
-  argument: LuaExpression;
 }
 
 export interface LuaIfStatement extends BaseLuaNode {

@@ -1,4 +1,18 @@
-import { LuaProgram } from '@js-to-lua/lua-types';
+import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
+  blockStatement,
+  booleanLiteral,
+  identifier,
+  numericLiteral,
+  program,
+  stringLiteral,
+  tableConstructor,
+  tableNoKeyField,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+} from '@js-to-lua/lua-types';
 import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
 
@@ -11,15 +25,7 @@ describe('Program handler', () => {
       {
       }
     `);
-      const expected: LuaProgram = {
-        type: 'Program',
-        body: [
-          {
-            type: 'BlockStatement',
-            body: [],
-          },
-        ],
-      };
+      const expected = program([blockStatement([])]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -35,86 +41,26 @@ describe('Program handler', () => {
     }
   `);
 
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'BlockStatement',
-          body: [
-            {
-              type: 'VariableDeclaration',
-              identifiers: [
-                {
-                  type: 'VariableDeclaratorIdentifier',
-                  value: {
-                    type: 'Identifier',
-                    name: 'name',
-                  },
-                },
-              ],
-              values: [
-                {
-                  type: 'VariableDeclaratorValue',
-                  value: {
-                    type: 'StringLiteral',
-                    value: 'wole',
-                  },
-                },
-              ],
-            },
-            {
-              type: 'VariableDeclaration',
-              identifiers: [
-                {
-                  type: 'VariableDeclaratorIdentifier',
-                  value: {
-                    type: 'Identifier',
-                    name: 'arr',
-                  },
-                },
-              ],
-              values: [
-                {
-                  type: 'VariableDeclaratorValue',
-                  value: {
-                    type: 'TableConstructor',
-                    elements: [
-                      {
-                        type: 'TableNoKeyField',
-                        value: {
-                          type: 'NumericLiteral',
-                          value: 1,
-                          extra: {
-                            raw: '1',
-                          },
-                        },
-                      },
-                      {
-                        type: 'TableNoKeyField',
-                        value: {
-                          type: 'NumericLiteral',
-                          value: 2,
-                          extra: {
-                            raw: '2',
-                          },
-                        },
-                      },
-                      {
-                        type: 'TableNoKeyField',
-                        value: {
-                          type: 'BooleanLiteral',
-                          value: true,
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    };
+    const expected = program([
+      blockStatement([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('name'))],
+          [variableDeclaratorValue(stringLiteral('wole'))]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('arr'))],
+          [
+            variableDeclaratorValue(
+              tableConstructor([
+                tableNoKeyField(numericLiteral(1, '1')),
+                tableNoKeyField(numericLiteral(2, '2')),
+                tableNoKeyField(booleanLiteral(true)),
+              ])
+            ),
+          ]
+        ),
+      ]),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -126,64 +72,31 @@ describe('Program handler', () => {
     {
       const name = "wole";
       {
-        "roblox"
-        1
+        foo = "roblox"
+        foo = 1
       }
     }
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'BlockStatement',
-          body: [
-            {
-              type: 'VariableDeclaration',
-              identifiers: [
-                {
-                  type: 'VariableDeclaratorIdentifier',
-                  value: {
-                    type: 'Identifier',
-                    name: 'name',
-                  },
-                },
-              ],
-              values: [
-                {
-                  type: 'VariableDeclaratorValue',
-                  value: {
-                    type: 'StringLiteral',
-                    value: 'wole',
-                  },
-                },
-              ],
-            },
-            {
-              type: 'BlockStatement',
-              body: [
-                {
-                  type: 'ExpressionStatement',
-                  expression: {
-                    type: 'StringLiteral',
-                    value: 'roblox',
-                  },
-                },
-                {
-                  type: 'ExpressionStatement',
-                  expression: {
-                    type: 'NumericLiteral',
-                    value: 1,
-                    extra: {
-                      raw: '1',
-                    },
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    };
+    const expected = program([
+      blockStatement([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('name'))],
+          [variableDeclaratorValue(stringLiteral('wole'))]
+        ),
+        blockStatement([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [stringLiteral('roblox')]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [numericLiteral(1, '1')]
+          ),
+        ]),
+      ]),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -195,80 +108,41 @@ describe('Program handler', () => {
     {
       const name = "wole";
       {
-        "roblox"
-        1
+        foo = "roblox"
+        foo = 1
         {
-          "roblox"
+          foo = "roblox"
         }
       }
     }
   `);
-    const expected: LuaProgram = {
-      type: 'Program',
-      body: [
-        {
-          type: 'BlockStatement',
-          body: [
-            {
-              type: 'VariableDeclaration',
-              identifiers: [
-                {
-                  type: 'VariableDeclaratorIdentifier',
-                  value: {
-                    type: 'Identifier',
-                    name: 'name',
-                  },
-                },
-              ],
-              values: [
-                {
-                  type: 'VariableDeclaratorValue',
-                  value: {
-                    type: 'StringLiteral',
-                    value: 'wole',
-                  },
-                },
-              ],
-            },
-            {
-              type: 'BlockStatement',
-              body: [
-                {
-                  type: 'ExpressionStatement',
-                  expression: {
-                    type: 'StringLiteral',
-                    value: 'roblox',
-                  },
-                },
-                {
-                  type: 'ExpressionStatement',
-                  expression: {
-                    type: 'NumericLiteral',
-                    value: 1,
-                    extra: {
-                      raw: '1',
-                    },
-                  },
-                },
-
-                {
-                  type: 'BlockStatement',
-                  body: [
-                    {
-                      type: 'ExpressionStatement',
-                      expression: {
-                        type: 'StringLiteral',
-                        value: 'roblox',
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    };
+    const expected = program([
+      blockStatement([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('name'))],
+          [variableDeclaratorValue(stringLiteral('wole'))]
+        ),
+        blockStatement([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [stringLiteral('roblox')]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [numericLiteral(1, '1')]
+          ),
+          blockStatement([
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [stringLiteral('roblox')]
+            ),
+          ]),
+        ]),
+      ]),
+    ]);
 
     const luaProgram = handleProgram.handler(source, {}, given);
 

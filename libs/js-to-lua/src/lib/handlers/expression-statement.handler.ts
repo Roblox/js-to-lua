@@ -33,13 +33,12 @@ import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
-  expressionStatement,
   functionExpression,
   identifier,
+  isExpression,
   isIdentifier,
   LuaCallExpression,
   LuaExpression,
-  LuaExpressionStatement,
   LuaFunctionExpression,
   LuaIdentifier,
   LuaStatement,
@@ -72,7 +71,10 @@ import { createUnaryExpressionHandler } from './expression/unary-expression.hand
 import { createBinaryExpressionHandler } from './expression/binary-expression.handler';
 import { handleBigIntLiteral } from './primitives/big-int.handler';
 import { createLogicalExpressionHandler } from './expression/logical-expression.handler';
-import { defaultExpressionHandler } from '../utils/default-handlers';
+import {
+  defaultExpressionHandler,
+  defaultStatementHandler,
+} from '../utils/default-handlers';
 import { createAssignmentPatternHandlerFunction } from './statement/assignment-pattern.handler';
 import { createAssignmentExpressionHandlerFunction } from './statement/assignment-expression.handler';
 import { createAssignmentStatementHandlerFunction } from './statement/assignment-statement.handler';
@@ -100,6 +102,7 @@ import { createObjectExpressionHandler } from './expression/object-expression.ha
 import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expression.handler';
 import { createTaggedTemplateExpressionHandler } from './expression/tagged-template-expression.handler';
 import { createAwaitExpressionHandler } from './expression/await-expression.handler';
+import { createExpressionStatement } from '../utils/create-expression-statement';
 
 type MemberExpressionPredicate = (node: MemberExpression) => boolean;
 const isExpectCall = (node: MemberExpression): boolean => {
@@ -135,9 +138,9 @@ const handleLVal = createLValHandler(
 
 export const handleExpressionStatement = createHandler(
   'ExpressionStatement',
-  (source, config, statement: ExpressionStatement): LuaExpressionStatement =>
-    expressionStatement(
-      combineExpressionsHandlers([
+  (source, config, statement: ExpressionStatement): LuaStatement => {
+    const expression = combineHandlers(
+      [
         createAssignmentStatementHandlerFunction(
           forwardHandlerRef(() => handleExpression),
           handleLVal,
@@ -148,8 +151,15 @@ export const handleExpressionStatement = createHandler(
         ),
         handleUpdateExpressionAsStatement,
         handleExpressionAsStatement,
-      ]).handler(source, config, statement.expression)
-    )
+      ],
+      defaultExpressionHandler
+    ).handler(source, config, statement.expression);
+
+    const babelExpression = statement.expression;
+    return isExpression(expression)
+      ? createExpressionStatement(source, babelExpression, expression)
+      : expression;
+  }
 );
 
 export const handleCallExpression = createHandler(
@@ -346,6 +356,7 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
       forwardHandlerRef(() => handleExpression)
     ),
     createSequenceExpressionHandler(
+      forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleExpressionAsStatement),
       forwardHandlerRef(() => handleUpdateExpressionAsStatement)
     ),
@@ -381,20 +392,23 @@ const functionParamsHandler = createFunctionParamsHandler(
 export const handleExpressionAsStatement: BaseNodeHandler<
   LuaExpression | LuaStatement,
   Expression
-> = combineExpressionsHandlers([
-  createAssignmentStatementHandlerFunction(
-    forwardHandlerRef(() => handleExpression),
-    handleLVal,
-    forwardHandlerRef(() => handleObjectField),
-    createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
-      .handler
-  ),
-  createSequenceExpressionAsStatementHandler(
-    forwardHandlerRef(() => handleExpressionAsStatement),
-    forwardHandlerRef(() => handleUpdateExpressionAsStatement)
-  ),
-  handleExpression,
-]);
+> = combineHandlers<LuaExpression | LuaStatement, Expression>(
+  [
+    createAssignmentStatementHandlerFunction(
+      forwardHandlerRef(() => handleExpression),
+      handleLVal,
+      forwardHandlerRef(() => handleObjectField),
+      createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
+        .handler
+    ),
+    createSequenceExpressionAsStatementHandler(
+      forwardHandlerRef(() => handleExpressionAsStatement),
+      forwardHandlerRef(() => handleUpdateExpressionAsStatement)
+    ),
+    handleExpression,
+  ],
+  defaultStatementHandler
+);
 
 const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),

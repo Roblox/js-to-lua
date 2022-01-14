@@ -11,7 +11,6 @@ import {
   LuaMemberExpression,
   LuaProgram,
   LuaReturnStatement,
-  LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
@@ -45,9 +44,6 @@ export const isIndexExpression =
   isNodeType<LuaIndexExpression>('IndexExpression');
 export const isMemberExpression = isNodeType<LuaMemberExpression>(
   'LuaMemberExpression'
-);
-export const isUnaryDeleteExpression = isNodeType<LuaUnaryDeleteExpression>(
-  'LuaUnaryDeleteExpression'
 );
 
 export const isIfClause = isNodeType<LuaIfClause>('IfClause');

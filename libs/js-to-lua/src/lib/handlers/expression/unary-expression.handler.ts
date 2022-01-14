@@ -1,21 +1,22 @@
 import {
   Expression,
-  UnaryExpression,
   isLiteral,
   isTemplateLiteral,
+  UnaryExpression,
 } from '@babel/types';
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   bit32Identifier,
   callExpression,
   identifier,
   LuaCallExpression,
   LuaExpression,
-  LuaUnaryDeleteExpression,
   LuaUnaryExpression,
   LuaUnaryNegationExpression,
   LuaUnaryVoidExpression,
   memberExpression,
-  unaryDeleteExpression,
+  nilLiteral,
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
@@ -32,7 +33,6 @@ export const createUnaryExpressionHandler = (
   | LuaUnaryExpression
   | LuaUnaryVoidExpression
   | LuaUnaryNegationExpression
-  | LuaUnaryDeleteExpression
   | LuaCallExpression
   | UnhandledStatement,
   UnaryExpression
@@ -59,8 +59,10 @@ export const createUnaryExpressionHandler = (
       case '!':
         return handleUnaryNegationExpression(source, node);
       case 'delete':
-        return unaryDeleteExpression(
-          handleExpression(source, config, node.argument)
+        return assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [handleExpression(source, config, node.argument)],
+          [nilLiteral()]
         );
       case '~':
         return withTrailingConversionComment(

@@ -40,6 +40,7 @@ describe('Sequence Expression Handler', () => {
         ],
         mockNodeWithValueHandler
       ).handler,
+      mockNodeWithValueHandler,
       mockNodeWithValueHandler
     );
 

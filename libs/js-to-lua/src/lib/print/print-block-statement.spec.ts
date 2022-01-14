@@ -1,8 +1,8 @@
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   blockStatement,
-  expressionStatement,
   identifier,
-  LuaBlockStatement,
   numericLiteral,
   stringLiteral,
   variableDeclaration,
@@ -14,7 +14,7 @@ import dedent from '../testUtils/dedent';
 
 describe('Print Block Statement', () => {
   it(`should print Block Statement Node with body`, () => {
-    const given: LuaBlockStatement = blockStatement([]);
+    const given = blockStatement([]);
     const expected = dedent`
     do
     end`;
@@ -23,29 +23,45 @@ describe('Print Block Statement', () => {
   });
 
   it(`should print Block Statement Node with expressions`, () => {
-    const given: LuaBlockStatement = blockStatement([
-      expressionStatement(stringLiteral('hello')),
-      expressionStatement(numericLiteral(1, '1')),
+    const given = blockStatement([
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [identifier('foo')],
+        [stringLiteral('hello')]
+      ),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [identifier('foo')],
+        [numericLiteral(1, '1')]
+      ),
     ]);
 
     const expected = dedent`
     do
-      "hello";
-      1;
+      foo = "hello"
+      foo = 1
     end`;
 
     expect(printBlockStatement(given)).toEqual(expected);
   });
 
   it(`should print nested block statements`, () => {
-    const given: LuaBlockStatement = blockStatement([
+    const given = blockStatement([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('name'))],
         [variableDeclaratorValue(stringLiteral('wole'))]
       ),
       blockStatement([
-        expressionStatement(stringLiteral('roblox')),
-        expressionStatement(numericLiteral(1, '1')),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [stringLiteral('roblox')]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [numericLiteral(1, '1')]
+        ),
       ]),
     ]);
 
@@ -53,8 +69,8 @@ describe('Print Block Statement', () => {
     do
       local name = "wole"
       do
-      "roblox";
-      1;
+      foo = "roblox"
+      foo = 1
     end
     end`;
 
@@ -62,25 +78,39 @@ describe('Print Block Statement', () => {
   });
 
   it(`should print deeply nested block statements`, () => {
-    const given: LuaBlockStatement = blockStatement([
+    const given = blockStatement([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('name'))],
         [variableDeclaratorValue(stringLiteral('wole'))]
       ),
       blockStatement([
-        expressionStatement(stringLiteral('roblox')),
-        expressionStatement(numericLiteral(1, '1')),
-        blockStatement([expressionStatement(numericLiteral(1, '1'))]),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [stringLiteral('roblox')]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [numericLiteral(1, '1')]
+        ),
+        blockStatement([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [numericLiteral(1, '1')]
+          ),
+        ]),
       ]),
     ]);
     const expected = dedent`
     do
       local name = "wole"
       do
-      "roblox";
-      1;
+      foo = "roblox"
+      foo = 1
       do
-      1;
+      foo = 1
     end
     end
     end`;

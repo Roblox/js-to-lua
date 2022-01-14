@@ -1,7 +1,6 @@
 import {
   booleanLiteral,
   callExpression,
-  expressionStatement,
   identifier,
   LuaProgram,
   memberExpression,
@@ -24,10 +23,13 @@ describe('Program handler', () => {
   describe('Array expression', () => {
     it('should return empty Lua Table Constructor', () => {
       const given = getProgramNode(`
-        ([])
+        const foo = []
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(tableConstructor([])),
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [variableDeclaratorValue(tableConstructor([]))]
+        ),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
@@ -35,15 +37,20 @@ describe('Program handler', () => {
 
     it('should return Lua Table Constructor Node with TableNoKeyField elements', () => {
       const given = getProgramNode(`
-        ([1, true, 'string'])
+        const foo = [1, true, 'string']
       `);
-      const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableNoKeyField(numericLiteral(1, '1')),
-            tableNoKeyField(booleanLiteral(true)),
-            tableNoKeyField(stringLiteral('string')),
-          ])
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [
+            variableDeclaratorValue(
+              tableConstructor([
+                tableNoKeyField(numericLiteral(1, '1')),
+                tableNoKeyField(booleanLiteral(true)),
+                tableNoKeyField(stringLiteral('string')),
+              ])
+            ),
+          ]
         ),
       ]);
 
@@ -52,15 +59,20 @@ describe('Program handler', () => {
 
     it(`should handle array of arrays`, () => {
       const given = getProgramNode(`
-        ([[], []])
+        const foo = [[], []]
       `);
 
       const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableNoKeyField(tableConstructor()),
-            tableNoKeyField(tableConstructor()),
-          ])
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [
+            variableDeclaratorValue(
+              tableConstructor([
+                tableNoKeyField(tableConstructor()),
+                tableNoKeyField(tableConstructor()),
+              ])
+            ),
+          ]
         ),
       ]);
 
@@ -69,20 +81,25 @@ describe('Program handler', () => {
 
     it(`should handle deeply nested arrays`, () => {
       const given = getProgramNode(`
-        ([[[[]]]])
+        const foo =[[[[]]]]
       `);
 
       const expected: LuaProgram = program([
-        expressionStatement(
-          tableConstructor([
-            tableNoKeyField(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [
+            variableDeclaratorValue(
               tableConstructor([
                 tableNoKeyField(
-                  tableConstructor([tableNoKeyField(tableConstructor())])
+                  tableConstructor([
+                    tableNoKeyField(
+                      tableConstructor([tableNoKeyField(tableConstructor())])
+                    ),
+                  ])
                 ),
               ])
             ),
-          ])
+          ]
         ),
       ]);
 
@@ -91,7 +108,7 @@ describe('Program handler', () => {
 
     it(`should handle spread arrays`, () => {
       const given = getProgramNode(`
-        ([1, 2, ...[3,4]])
+        const foo = [1, 2, ...[3,4]]
       `);
 
       const expected: LuaProgram = program([
@@ -128,21 +145,30 @@ describe('Program handler', () => {
             ),
           ]
         ),
-        expressionStatement(
-          callExpression(
-            memberExpression(identifier('Array'), '.', identifier('concat')),
-            [
-              tableConstructor(),
-              tableConstructor([
-                tableNoKeyField(numericLiteral(1, '1')),
-                tableNoKeyField(numericLiteral(2, '2')),
-              ]),
-              tableConstructor([
-                tableNoKeyField(numericLiteral(3, '3')),
-                tableNoKeyField(numericLiteral(4, '4')),
-              ]),
-            ]
-          )
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [
+            variableDeclaratorValue(
+              callExpression(
+                memberExpression(
+                  identifier('Array'),
+                  '.',
+                  identifier('concat')
+                ),
+                [
+                  tableConstructor(),
+                  tableConstructor([
+                    tableNoKeyField(numericLiteral(1, '1')),
+                    tableNoKeyField(numericLiteral(2, '2')),
+                  ]),
+                  tableConstructor([
+                    tableNoKeyField(numericLiteral(3, '3')),
+                    tableNoKeyField(numericLiteral(4, '4')),
+                  ]),
+                ]
+              )
+            ),
+          ]
         ),
       ]);
 
@@ -152,13 +178,13 @@ describe('Program handler', () => {
 
   it(`should return Lua Table Constructor Node with spread identifiers`, () => {
     const given = getProgramNode(`
-        ([
+        const foo = [
           ...[
             1, 2,
             ...fizz
           ],
           ...baz
-        ])
+        ]
       `);
     const expected: LuaProgram = program([
       withTrailingConversionComment(
@@ -194,35 +220,48 @@ describe('Program handler', () => {
           ),
         ]
       ),
-      expressionStatement(
-        callExpression(
-          memberExpression(identifier('Array'), '.', identifier('concat')),
-          [
-            tableConstructor(),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('foo'))],
+        [
+          variableDeclaratorValue(
             callExpression(
               memberExpression(identifier('Array'), '.', identifier('concat')),
               [
                 tableConstructor(),
-                tableConstructor([
-                  tableNoKeyField(numericLiteral(1, '1')),
-                  tableNoKeyField(numericLiteral(2, '2')),
-                ]),
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('concat')
+                  ),
+                  [
+                    tableConstructor(),
+                    tableConstructor([
+                      tableNoKeyField(numericLiteral(1, '1')),
+                      tableNoKeyField(numericLiteral(2, '2')),
+                    ]),
+                    callExpression(
+                      memberExpression(
+                        identifier('Array'),
+                        '.',
+                        identifier('spread')
+                      ),
+                      [identifier('fizz')]
+                    ),
+                  ]
+                ),
                 callExpression(
                   memberExpression(
                     identifier('Array'),
                     '.',
                     identifier('spread')
                   ),
-                  [identifier('fizz')]
+                  [identifier('baz')]
                 ),
               ]
-            ),
-            callExpression(
-              memberExpression(identifier('Array'), '.', identifier('spread')),
-              [identifier('baz')]
-            ),
-          ]
-        )
+            )
+          ),
+        ]
       ),
     ]);
 
@@ -231,13 +270,13 @@ describe('Program handler', () => {
 
   it(`should return Lua Table Constructor Node with spread strings`, () => {
     const given = getProgramNode(`
-        ([
+        const foo = [
           ...[
             1, 2,
             ...'fizz'
           ],
           ...'baz'
-        ])
+        ]
       `);
     const expected: LuaProgram = program([
       withTrailingConversionComment(
@@ -273,35 +312,48 @@ describe('Program handler', () => {
           ),
         ]
       ),
-      expressionStatement(
-        callExpression(
-          memberExpression(identifier('Array'), '.', identifier('concat')),
-          [
-            tableConstructor(),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('foo'))],
+        [
+          variableDeclaratorValue(
             callExpression(
               memberExpression(identifier('Array'), '.', identifier('concat')),
               [
                 tableConstructor(),
-                tableConstructor([
-                  tableNoKeyField(numericLiteral(1, '1')),
-                  tableNoKeyField(numericLiteral(2, '2')),
-                ]),
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('concat')
+                  ),
+                  [
+                    tableConstructor(),
+                    tableConstructor([
+                      tableNoKeyField(numericLiteral(1, '1')),
+                      tableNoKeyField(numericLiteral(2, '2')),
+                    ]),
+                    callExpression(
+                      memberExpression(
+                        identifier('Array'),
+                        '.',
+                        identifier('spread')
+                      ),
+                      [stringLiteral('fizz')]
+                    ),
+                  ]
+                ),
                 callExpression(
                   memberExpression(
                     identifier('Array'),
                     '.',
                     identifier('spread')
                   ),
-                  [stringLiteral('fizz')]
+                  [stringLiteral('baz')]
                 ),
               ]
-            ),
-            callExpression(
-              memberExpression(identifier('Array'), '.', identifier('spread')),
-              [stringLiteral('baz')]
-            ),
-          ]
-        )
+            )
+          ),
+        ]
       ),
     ]);
 

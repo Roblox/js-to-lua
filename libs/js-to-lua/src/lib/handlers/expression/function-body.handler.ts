@@ -23,6 +23,7 @@ import {
 } from '@babel/types';
 import { applyTo, curry } from 'ramda';
 import { getReturnExpressions } from '../../utils/get-return-expressions';
+import { createExpressionStatement } from '../../utils/create-expression-statement';
 
 type FunctionTypes =
   | FunctionDeclaration
@@ -57,11 +58,15 @@ export const createFunctionBodyHandler = (
         ];
       }
 
-      return node.body.type === 'BlockStatement'
-        ? node.body.body.map(handleStatement(source, config))
+      const nodeBody = node.body;
+      return nodeBody.type === 'BlockStatement'
+        ? nodeBody.body.map(handleStatement(source, config))
         : applyTo(
-            handleExpressionAsStatement(source, config, node.body),
-            (expression) => {
+            {
+              expression: handleExpressionAsStatement(source, config, nodeBody),
+              babelExpression: nodeBody,
+            },
+            ({ expression, babelExpression }) => {
               const returnExpressions = getReturnExpressions(expression);
               return returnExpressions.every((e) => e === expression)
                 ? [returnStatement(...returnExpressions)]
@@ -76,7 +81,11 @@ export const createFunctionBodyHandler = (
                       (expressions: Array<LuaExpression | LuaStatement>) =>
                         expressions.map((expression) =>
                           isExpression(expression)
-                            ? expressionStatement(expression)
+                            ? createExpressionStatement(
+                                source,
+                                babelExpression,
+                                expression
+                              )
                             : expression
                         )
                     ),

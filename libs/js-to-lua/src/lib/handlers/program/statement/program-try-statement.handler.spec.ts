@@ -4,7 +4,6 @@ import {
   blockStatement,
   booleanLiteral,
   callExpression,
-  expressionStatement,
   functionDeclaration,
   functionExpression,
   identifier,
@@ -48,28 +47,24 @@ describe('Program handler', () => {
                     functionExpression(
                       [],
                       [
-                        expressionStatement(
-                          assignmentStatement(
-                            AssignmentStatementOperatorEnum.EQ,
-                            [identifier('a')],
-                            [stringLiteral('foo')]
-                          )
+                        assignmentStatement(
+                          AssignmentStatementOperatorEnum.EQ,
+                          [identifier('a')],
+                          [stringLiteral('foo')]
                         ),
                       ]
                     ),
                     functionExpression(
                       [identifier('error_')],
                       [
-                        expressionStatement(
-                          assignmentStatement(
-                            AssignmentStatementOperatorEnum.EQ,
-                            [identifier('b')],
-                            [
-                              callExpression(identifier('tostring'), [
-                                identifier('error_'),
-                              ]),
-                            ]
-                          )
+                        assignmentStatement(
+                          AssignmentStatementOperatorEnum.EQ,
+                          [identifier('b')],
+                          [
+                            callExpression(identifier('tostring'), [
+                              identifier('error_'),
+                            ]),
+                          ]
                         ),
                       ]
                     ),
@@ -113,12 +108,10 @@ describe('Program handler', () => {
                     functionExpression(
                       [],
                       [
-                        expressionStatement(
-                          assignmentStatement(
-                            AssignmentStatementOperatorEnum.EQ,
-                            [identifier('a')],
-                            [stringLiteral('foo')]
-                          )
+                        assignmentStatement(
+                          AssignmentStatementOperatorEnum.EQ,
+                          [identifier('a')],
+                          [stringLiteral('foo')]
                         ),
                       ]
                     ),
@@ -127,12 +120,10 @@ describe('Program handler', () => {
               ]
             ),
             blockStatement([
-              expressionStatement(
-                assignmentStatement(
-                  AssignmentStatementOperatorEnum.EQ,
-                  [identifier('b')],
-                  [stringLiteral('bar')]
-                )
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [identifier('b')],
+                [stringLiteral('bar')]
               ),
             ]),
             ifStatement(
@@ -182,12 +173,10 @@ describe('Program handler', () => {
                         functionExpression(
                           [],
                           [
-                            expressionStatement(
-                              assignmentStatement(
-                                AssignmentStatementOperatorEnum.EQ,
-                                [identifier('a')],
-                                [stringLiteral('foo')]
-                              )
+                            assignmentStatement(
+                              AssignmentStatementOperatorEnum.EQ,
+                              [identifier('a')],
+                              [stringLiteral('foo')]
                             ),
                           ]
                         ),
@@ -256,16 +245,14 @@ describe('Program handler', () => {
                         functionExpression(
                           [identifier('error_')],
                           [
-                            expressionStatement(
-                              assignmentStatement(
-                                AssignmentStatementOperatorEnum.EQ,
-                                [identifier('b')],
-                                [
-                                  callExpression(identifier('tostring'), [
-                                    identifier('error_'),
-                                  ]),
-                                ]
-                              )
+                            assignmentStatement(
+                              AssignmentStatementOperatorEnum.EQ,
+                              [identifier('b')],
+                              [
+                                callExpression(identifier('tostring'), [
+                                  identifier('error_'),
+                                ]),
+                              ]
                             ),
                           ]
                         ),
@@ -274,12 +261,10 @@ describe('Program handler', () => {
                   ]
                 ),
                 blockStatement([
-                  expressionStatement(
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('c')],
-                      [stringLiteral('baz')]
-                    )
+                  assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
+                    [identifier('c')],
+                    [stringLiteral('baz')]
                   ),
                 ]),
                 ifStatement(
@@ -337,16 +322,14 @@ describe('Program handler', () => {
                         functionExpression(
                           [identifier('error_')],
                           [
-                            expressionStatement(
-                              assignmentStatement(
-                                AssignmentStatementOperatorEnum.EQ,
-                                [identifier('b')],
-                                [
-                                  callExpression(identifier('tostring'), [
-                                    identifier('error_'),
-                                  ]),
-                                ]
-                              )
+                            assignmentStatement(
+                              AssignmentStatementOperatorEnum.EQ,
+                              [identifier('b')],
+                              [
+                                callExpression(identifier('tostring'), [
+                                  identifier('error_'),
+                                ]),
+                              ]
                             ),
                           ]
                         ),

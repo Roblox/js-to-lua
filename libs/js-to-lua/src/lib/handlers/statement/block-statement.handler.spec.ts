@@ -1,333 +1,179 @@
-import { BlockStatement } from '@babel/types';
-import { LuaBlockStatement } from '@js-to-lua/lua-types';
+import {
+  assignmentExpression,
+  blockStatement as babelBlockStatement,
+  BlockStatement,
+  expressionStatement,
+  identifier as babelIdentifier,
+  numericLiteral as babelNumericLiteral,
+  stringLiteral as babelStringLiteral,
+  variableDeclaration as babelVariableDeclaration,
+  variableDeclarator as babelVariableDeclarator,
+} from '@babel/types';
+import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
+  blockStatement,
+  identifier,
+  LuaBlockStatement,
+  numericLiteral,
+  stringLiteral,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+} from '@js-to-lua/lua-types';
 import { handleStatement } from '../expression-statement.handler';
-
-const DEFAULT_NODE = {
-  leadingComments: null,
-  innerComments: null,
-  trailingComments: null,
-  start: null,
-  end: null,
-  loc: null,
-};
 
 const source = '';
 
 describe('Block Statement Handler', () => {
   it(`should return Empty Lua Block Node with empty body`, () => {
-    const given: BlockStatement = {
-      ...DEFAULT_NODE,
-      type: 'BlockStatement',
-      body: [],
-      directives: [],
-    };
-    const expected: LuaBlockStatement = {
-      type: 'BlockStatement',
-      body: [],
-    };
+    const given = babelBlockStatement([]);
+    const expected = blockStatement([]);
 
     expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return Lua Block Constructor Node with expressions`, () => {
-    const given: BlockStatement = {
-      ...DEFAULT_NODE,
-      type: 'BlockStatement',
-      body: [
-        {
-          ...DEFAULT_NODE,
-          type: 'ExpressionStatement',
-          expression: {
-            ...DEFAULT_NODE,
-            type: 'StringLiteral',
-            value: 'hello',
-          },
-        },
-        {
-          ...DEFAULT_NODE,
-          type: 'ExpressionStatement',
-          expression: {
-            ...DEFAULT_NODE,
-            type: 'NumericLiteral',
-            extra: {
-              raw: '1',
-            },
-            value: 1,
-          },
-        },
-      ],
-      directives: [],
-    };
-    const expected: LuaBlockStatement = {
-      type: 'BlockStatement',
-      body: [
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'StringLiteral',
-            value: 'hello',
-          },
-        },
-        {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'NumericLiteral',
-            extra: {
-              raw: '1',
-            },
-            value: 1,
-          },
-        },
-      ],
-    };
+    const given: BlockStatement = babelBlockStatement([
+      expressionStatement(
+        assignmentExpression(
+          '=',
+          babelIdentifier('foo'),
+          babelStringLiteral('hello')
+        )
+      ),
+      expressionStatement(
+        assignmentExpression(
+          '=',
+          babelIdentifier('foo'),
+          babelNumericLiteral(1)
+        )
+      ),
+    ]);
+    const expected: LuaBlockStatement = blockStatement([
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [identifier('foo')],
+        [stringLiteral('hello')]
+      ),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [identifier('foo')],
+        [numericLiteral(1)]
+      ),
+    ]);
 
     expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle nested block statements`, () => {
-    const given: BlockStatement = {
-      ...DEFAULT_NODE,
-      type: 'BlockStatement',
-      body: [
-        {
-          ...DEFAULT_NODE,
-          type: 'VariableDeclaration',
-          declarations: [
-            {
-              ...DEFAULT_NODE,
-              type: 'VariableDeclarator',
-              id: {
-                ...DEFAULT_NODE,
-                type: 'Identifier',
-                name: 'name',
-              },
-              init: {
-                ...DEFAULT_NODE,
-                type: 'StringLiteral',
-                value: 'wole',
-              },
-            },
-          ],
-          kind: 'const',
-        },
-        {
-          ...DEFAULT_NODE,
-          type: 'BlockStatement',
-          body: [
-            {
-              ...DEFAULT_NODE,
-              type: 'ExpressionStatement',
-              expression: {
-                ...DEFAULT_NODE,
-                type: 'StringLiteral',
-                value: 'roblox',
-              },
-            },
-            {
-              ...DEFAULT_NODE,
-              type: 'ExpressionStatement',
-              expression: {
-                ...DEFAULT_NODE,
-                type: 'NumericLiteral',
-                extra: {
-                  raw: '1',
-                },
-                value: 1,
-              },
-            },
-          ],
-          directives: [],
-        },
-      ],
-      directives: [],
-    };
+    const given = babelBlockStatement([
+      babelVariableDeclaration('let', [
+        babelVariableDeclarator(
+          babelIdentifier('name'),
+          babelStringLiteral('wole')
+        ),
+      ]),
+      babelBlockStatement([
+        expressionStatement(
+          assignmentExpression(
+            '=',
+            babelIdentifier('foo'),
+            babelStringLiteral('roblox')
+          )
+        ),
+        expressionStatement(
+          assignmentExpression(
+            '=',
+            babelIdentifier('foo'),
+            babelNumericLiteral(1)
+          )
+        ),
+      ]),
+    ]);
 
-    const expected: LuaBlockStatement = {
-      type: 'BlockStatement',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'name',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'wole',
-              },
-            },
-          ],
-        },
-        {
-          type: 'BlockStatement',
-          body: [
-            {
-              type: 'ExpressionStatement',
-              expression: {
-                type: 'StringLiteral',
-                value: 'roblox',
-              },
-            },
-            {
-              type: 'ExpressionStatement',
-              expression: {
-                type: 'NumericLiteral',
-                value: 1,
-                extra: {
-                  raw: '1',
-                },
-              },
-            },
-          ],
-        },
-      ],
-    };
+    const expected = blockStatement([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('name'))],
+        [variableDeclaratorValue(stringLiteral('wole'))]
+      ),
+      blockStatement([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [stringLiteral('roblox')]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [numericLiteral(1)]
+        ),
+      ]),
+    ]);
 
     expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle deeply nested block statements`, () => {
-    const given: BlockStatement = {
-      ...DEFAULT_NODE,
-      type: 'BlockStatement',
-      body: [
-        {
-          ...DEFAULT_NODE,
-          type: 'VariableDeclaration',
-          declarations: [
-            {
-              ...DEFAULT_NODE,
-              type: 'VariableDeclarator',
-              id: {
-                ...DEFAULT_NODE,
-                type: 'Identifier',
-                name: 'name',
-              },
-              init: {
-                ...DEFAULT_NODE,
-                type: 'StringLiteral',
-                value: 'wole',
-              },
-            },
-          ],
-          kind: 'const',
-        },
-        {
-          ...DEFAULT_NODE,
-          type: 'BlockStatement',
-          body: [
-            {
-              ...DEFAULT_NODE,
-              type: 'ExpressionStatement',
-              expression: {
-                ...DEFAULT_NODE,
-                type: 'StringLiteral',
-                value: 'roblox',
-              },
-            },
-            {
-              ...DEFAULT_NODE,
-              type: 'ExpressionStatement',
-              expression: {
-                ...DEFAULT_NODE,
-                type: 'NumericLiteral',
-                extra: {
-                  raw: '1',
-                },
-                value: 1,
-              },
-            },
-            {
-              ...DEFAULT_NODE,
-              type: 'BlockStatement',
-              body: [
-                {
-                  ...DEFAULT_NODE,
-                  type: 'ExpressionStatement',
-                  expression: {
-                    ...DEFAULT_NODE,
-                    type: 'StringLiteral',
-                    value: 'roblox',
-                  },
-                },
-              ],
-              directives: [],
-            },
-          ],
-          directives: [],
-        },
-      ],
-      directives: [],
-    };
+    const given = babelBlockStatement([
+      babelVariableDeclaration('let', [
+        babelVariableDeclarator(
+          babelIdentifier('name'),
+          babelStringLiteral('wole')
+        ),
+      ]),
+      babelBlockStatement([
+        expressionStatement(
+          assignmentExpression(
+            '=',
+            babelIdentifier('foo'),
+            babelStringLiteral('roblox')
+          )
+        ),
+        expressionStatement(
+          assignmentExpression(
+            '=',
+            babelIdentifier('foo'),
+            babelNumericLiteral(1)
+          )
+        ),
+        babelBlockStatement([
+          expressionStatement(
+            assignmentExpression(
+              '=',
+              babelIdentifier('foo'),
+              babelStringLiteral('nested roblox')
+            )
+          ),
+        ]),
+      ]),
+    ]);
 
-    const expected: LuaBlockStatement = {
-      type: 'BlockStatement',
-      body: [
-        {
-          type: 'VariableDeclaration',
-          identifiers: [
-            {
-              type: 'VariableDeclaratorIdentifier',
-              value: {
-                type: 'Identifier',
-                name: 'name',
-              },
-            },
-          ],
-          values: [
-            {
-              type: 'VariableDeclaratorValue',
-              value: {
-                type: 'StringLiteral',
-                value: 'wole',
-              },
-            },
-          ],
-        },
-        {
-          type: 'BlockStatement',
-          body: [
-            {
-              type: 'ExpressionStatement',
-              expression: {
-                type: 'StringLiteral',
-                value: 'roblox',
-              },
-            },
-            {
-              type: 'ExpressionStatement',
-              expression: {
-                type: 'NumericLiteral',
-                value: 1,
-                extra: {
-                  raw: '1',
-                },
-              },
-            },
-            {
-              type: 'BlockStatement',
-              body: [
-                {
-                  type: 'ExpressionStatement',
-                  expression: {
-                    type: 'StringLiteral',
-                    value: 'roblox',
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    };
+    const expected: LuaBlockStatement = blockStatement([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('name'))],
+        [variableDeclaratorValue(stringLiteral('wole'))]
+      ),
+      blockStatement([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [stringLiteral('roblox')]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [numericLiteral(1)]
+        ),
+        blockStatement([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [stringLiteral('nested roblox')]
+          ),
+        ]),
+      ]),
+    ]);
 
     expect(handleStatement.handler(source, {}, given)).toEqual(expected);
   });
