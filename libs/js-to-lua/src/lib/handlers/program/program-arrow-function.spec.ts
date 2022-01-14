@@ -17,9 +17,15 @@ import {
   program,
   returnStatement,
   stringLiteral,
+  tableConstructor,
+  tableNameKeyField,
+  tableNoKeyField,
   typeAnnotation,
   typeAny,
+  typeLiteral,
+  typeNumber,
   typeOptional,
+  typePropertySignature,
   typeReference,
   typeString,
   variableDeclaration,
@@ -263,6 +269,191 @@ describe('Program handler', () => {
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle function with destructured object and typed', () => {
+      const given = getProgramNode(`
+        const reduce = ({ foo, bar }: Record<string, any>) => {
+          return [foo, bar];
+        }
+      `);
+
+      const expected: LuaProgram = program([
+        functionDeclaration(
+          identifier('reduce'),
+          [
+            identifier(
+              'ref',
+              typeAnnotation(
+                typeReference(identifier('Record'), [typeString(), typeAny()])
+              )
+            ),
+          ],
+          [
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('foo')),
+                variableDeclaratorIdentifier(identifier('bar')),
+              ],
+              [
+                variableDeclaratorValue(
+                  memberExpression(identifier('ref'), '.', identifier('foo'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(identifier('ref'), '.', identifier('bar'))
+                ),
+              ]
+            ),
+            returnStatement(
+              tableConstructor([
+                tableNoKeyField(identifier('foo')),
+                tableNoKeyField(identifier('bar')),
+              ])
+            ),
+          ]
+        ),
+      ]);
+      const luaProgram = handleProgram.handler(source, {}, given);
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle function with destructured array and typed', () => {
+      const given = getProgramNode(`
+        const reduce = ([foo, bar]: [string, string]) => {
+          return { foo, bar };
+        }
+      `);
+
+      const expected: LuaProgram = program([
+        functionDeclaration(
+          identifier('reduce'),
+          [
+            identifier(
+              'ref',
+              typeAnnotation(typeReference(identifier('Array'), [typeString()]))
+            ),
+          ],
+          [
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('foo')),
+                variableDeclaratorIdentifier(identifier('bar')),
+              ],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('table.unpack'), [
+                    identifier('ref'),
+                    numericLiteral(1),
+                    numericLiteral(2),
+                  ])
+                ),
+              ]
+            ),
+            returnStatement(
+              tableConstructor([
+                tableNameKeyField(identifier('foo'), identifier('foo')),
+                tableNameKeyField(identifier('bar'), identifier('bar')),
+              ])
+            ),
+          ]
+        ),
+      ]);
+      const luaProgram = handleProgram.handler(source, {}, given);
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle function with destructured object/array, typed and with default params', () => {
+      const given = getProgramNode(`
+        const reduce = ({ foo }: { foo: string } = fizz, [bar]: [number] = fuzz) => {
+          return [foo, bar];
+        }
+      `);
+
+      const expected: LuaProgram = program([
+        functionDeclaration(
+          identifier('reduce'),
+          [
+            identifier(
+              'ref',
+              typeAnnotation(
+                typeOptional(
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('foo'),
+                      typeAnnotation(typeString())
+                    ),
+                  ])
+                )
+              )
+            ),
+            identifier(
+              'ref_',
+              typeAnnotation(
+                typeOptional(typeReference(identifier('Array'), [typeNumber()]))
+              )
+            ),
+          ],
+          [
+            nodeGroup([
+              ifStatement(
+                ifClause(
+                  binaryExpression(identifier('ref'), '==', nilLiteral()),
+                  [
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
+                      [identifier('ref')],
+                      [identifier('fizz')]
+                    ),
+                  ]
+                )
+              ),
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('foo'))],
+                [
+                  variableDeclaratorValue(
+                    memberExpression(identifier('ref'), '.', identifier('foo'))
+                  ),
+                ]
+              ),
+            ]),
+            nodeGroup([
+              ifStatement(
+                ifClause(
+                  binaryExpression(identifier('ref_'), '==', nilLiteral()),
+                  [
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
+                      [identifier('ref_')],
+                      [identifier('fuzz')]
+                    ),
+                  ]
+                )
+              ),
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('bar'))],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('table.unpack'), [
+                      identifier('ref_'),
+                      numericLiteral(1),
+                      numericLiteral(1),
+                    ])
+                  ),
+                ]
+              ),
+            ]),
+            returnStatement(
+              tableConstructor([
+                tableNoKeyField(identifier('foo')),
+                tableNoKeyField(identifier('bar')),
+              ])
+            ),
+          ]
+        ),
+      ]);
+      const luaProgram = handleProgram.handler(source, {}, given);
+
       expect(luaProgram).toEqual(expected);
     });
   });

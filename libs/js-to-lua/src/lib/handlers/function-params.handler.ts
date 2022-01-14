@@ -1,4 +1,5 @@
 import {
+  ArrayPattern,
   ArrowFunctionExpression,
   AssignmentPattern,
   ClassMethod,
@@ -17,6 +18,7 @@ import {
   LVal,
   Noop,
   ObjectMethod,
+  ObjectPattern,
   TSDeclareMethod,
   TSTypeAnnotation,
   TypeAnnotation,
@@ -36,6 +38,7 @@ import {
   LuaNodeGroup,
   LuaTypeAnnotation,
   makeOptional,
+  makeOptionalAnnotation,
   nodeGroup,
   tableConstructor,
   tableNoKeyField,
@@ -80,6 +83,22 @@ export const createFunctionParamsHandler = (
     config: EmptyConfig,
     node: FunctionTypes
   ): LuaIdentifier[] => {
+    const handleAssignmentPatternTypeAnnotation = ({
+      left,
+    }: AssignmentPattern): LuaTypeAnnotation =>
+      makeOptionalAnnotation(true)(
+        left.type === 'MemberExpression' || !left.typeAnnotation
+          ? typeAnnotation(inferType(left))
+          : typesHandlerFunction(source, config, left.typeAnnotation)
+      );
+
+    const handleArrayOrObjectPatternTypeAnnotation = ({
+      typeAnnotation,
+    }: ArrayPattern | ObjectPattern): LuaTypeAnnotation | undefined =>
+      typeAnnotation
+        ? typesHandlerFunction(source, config, typeAnnotation)
+        : undefined;
+
     let paramRefIdCount = 0;
     const mapFn = (node: FunctionTypes): LuaIdentifier[] =>
       node.params
@@ -93,8 +112,8 @@ export const createFunctionParamsHandler = (
             return identifier(
               `ref${'_'.repeat(paramRefIdCount++)}`,
               isAssignmentPattern(param)
-                ? typeAnnotation(makeOptional(inferType(param.left)))
-                : undefined
+                ? handleAssignmentPatternTypeAnnotation(param)
+                : handleArrayOrObjectPatternTypeAnnotation(param)
             );
           } else if (isIdentifier(param)) {
             return handleIdentifier(source, config, param) as LuaFunctionParam;

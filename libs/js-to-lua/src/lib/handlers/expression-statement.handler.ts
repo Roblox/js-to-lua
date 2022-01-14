@@ -122,7 +122,7 @@ const isNestedExpectCall = (node: MemberExpression): boolean => {
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
   string | MemberExpressionPredicate
-> = ['React', isExpectCall, isNestedExpectCall];
+> = ['React', 'Object', 'Array', isExpectCall, isNestedExpectCall];
 
 type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,
