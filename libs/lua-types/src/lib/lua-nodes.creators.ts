@@ -1,3 +1,7 @@
+import { isTruthy } from '@js-to-lua/shared-utils';
+import { curry } from 'ramda';
+import { commentBlock, LuaComment } from './comment';
+import { identifier, LuaIdentifier } from './expression';
 import {
   LuaBinaryExpression,
   LuaCallExpression,
@@ -26,10 +30,7 @@ import {
   UnhandledStatement,
 } from './lua-nodes.types';
 import { BaseLuaNode } from './node.types';
-import { isTruthy } from '@js-to-lua/shared-utils';
-import { curry } from 'ramda';
-import { commentBlock, LuaComment } from './comment';
-import { identifier, LuaIdentifier } from './expression';
+import { nodeGroup } from './statement';
 
 export const program = (body: LuaProgram['body'] = []): LuaProgram => ({
   type: 'Program',
@@ -84,7 +85,7 @@ export const variableDeclarator = (
 
 export const functionExpression = (
   params: LuaFunctionExpression['params'] = [],
-  body: LuaFunctionExpression['body'] = [],
+  body: LuaFunctionExpression['body'] = nodeGroup([]),
   returnType: LuaFunctionExpression['returnType'] = undefined
 ): LuaFunctionExpression => {
   if (returnType) {
@@ -105,7 +106,7 @@ export const functionExpression = (
 export const functionDeclaration = (
   id: LuaFunctionDeclaration['id'],
   params: LuaFunctionDeclaration['params'] = [],
-  body: LuaFunctionDeclaration['body'] = [],
+  body: LuaFunctionDeclaration['body'] = nodeGroup([]),
   returnType: LuaFunctionDeclaration['returnType'] = undefined,
   isLocal: LuaFunctionDeclaration['isLocal'] = true
 ): LuaFunctionDeclaration => {
@@ -248,6 +249,13 @@ export const unhandledElement = (): UnhandledElement => ({
   type: 'UnhandledElement',
 });
 
+const trimValueAndWrapWithSpaces = (comment: LuaComment): LuaComment => {
+  return {
+    ...comment,
+    value: ` ${comment.value.trim()} `,
+  };
+};
+
 export const withTrailingConversionComment = <N extends BaseLuaNode>(
   node: N,
   ...conversionComments: string[]
@@ -255,12 +263,23 @@ export const withTrailingConversionComment = <N extends BaseLuaNode>(
   const trailingComments = Array<LuaComment>().concat(
     ...[
       node.trailingComments,
-      conversionComments.filter(isTruthy).map(commentBlock),
+      conversionComments
+        .filter(isTruthy)
+        .map((comment) =>
+          trimValueAndWrapWithSpaces(
+            commentBlock(comment, 'SameLineTrailingComment')
+          )
+        ),
     ].filter(isTruthy)
   );
+
   return {
     ...node,
-    ...(trailingComments.length ? { trailingComments: trailingComments } : {}),
+    ...(trailingComments.length
+      ? {
+          trailingComments: trailingComments,
+        }
+      : {}),
   };
 };
 
@@ -271,7 +290,13 @@ export const withInnerConversionComment = <N extends BaseLuaNode>(
   const innerComments = Array<LuaComment>().concat(
     ...[
       node.innerComments,
-      conversionComments.filter(isTruthy).map(commentBlock),
+      conversionComments
+        .filter(isTruthy)
+        .map((comment) =>
+          trimValueAndWrapWithSpaces(
+            commentBlock(comment, 'SameLineInnerComment')
+          )
+        ),
     ].filter(isTruthy)
   );
   return {

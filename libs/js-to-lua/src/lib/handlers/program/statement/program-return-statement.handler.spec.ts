@@ -20,7 +20,11 @@ describe('Program handler', () => {
         }
       `);
       const expected = program([
-        functionDeclaration(identifier('func'), [], [returnStatement()]),
+        functionDeclaration(
+          identifier('func'),
+          [],
+          nodeGroup([nodeGroup([returnStatement()])])
+        ),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
@@ -36,7 +40,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('func'),
           [],
-          [returnStatement(identifier('foo'))]
+          nodeGroup([nodeGroup([returnStatement(identifier('foo'))])])
         ),
       ]);
 
@@ -53,16 +57,18 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('func'),
           [],
-          [
+          nodeGroup([
             nodeGroup([
-              assignmentStatement(
-                AssignmentStatementOperatorEnum.EQ,
-                [identifier('foo')],
-                [identifier('bar')]
-              ),
-              returnStatement(identifier('foo')),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [identifier('foo')],
+                  [identifier('bar')]
+                ),
+                returnStatement(identifier('foo')),
+              ]),
             ]),
-          ]
+          ])
         ),
       ]);
 

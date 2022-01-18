@@ -7,6 +7,7 @@ import {
   LuaExpression,
   LuaLVal,
   LuaTableKeyField,
+  nodeGroup,
   returnStatement,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
@@ -45,10 +46,10 @@ export const createAssignmentExpressionHandlerFunction = (
       return callExpression(
         functionExpression(
           [],
-          [
+          nodeGroup([
             assignmentStatement,
             returnStatement(...getReturnExpressions(assignmentStatement)),
-          ]
+          ])
         ),
         []
       );

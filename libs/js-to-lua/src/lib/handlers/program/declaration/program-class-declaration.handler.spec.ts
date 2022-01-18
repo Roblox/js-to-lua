@@ -64,7 +64,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`BaseClass.new`),
               [],
-              [
+              nodeGroup([
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
                   [
@@ -77,7 +77,7 @@ describe('Program handler', () => {
                   ]
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
@@ -104,7 +104,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier('BaseClass.new'),
               [],
-              [
+              nodeGroup([
                 variableDeclaration(
                   [variableDeclaratorIdentifier(identifier('self'))],
                   [
@@ -117,7 +117,7 @@ describe('Program handler', () => {
                   ]
                 ),
                 returnStatement(identifier('self')),
-              ],
+              ]),
               undefined,
               false
             ),
@@ -152,7 +152,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`BaseClass.new`),
               [],
-              [
+              nodeGroup([
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
                   [
@@ -165,14 +165,14 @@ describe('Program handler', () => {
                   ]
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
             functionDeclaration(
               identifier('BaseClass:myMethod'),
               [],
-              [],
+              nodeGroup([]),
               undefined,
               false
             ),
@@ -199,7 +199,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`BaseClass.new`),
               [],
-              [
+              nodeGroup([
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
                   [
@@ -212,14 +212,14 @@ describe('Program handler', () => {
                   ]
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
             functionDeclaration(
               identifier('BaseClass.myStaticMethod'),
               [],
-              [],
+              nodeGroup([]),
               undefined,
               false
             ),
@@ -257,7 +257,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`BaseClass.new`),
               [],
-              [
+              nodeGroup([
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
                   [
@@ -270,7 +270,7 @@ describe('Program handler', () => {
                   ]
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
@@ -305,7 +305,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`BaseClass.new`),
               [],
-              [
+              nodeGroup([
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
                   [
@@ -318,20 +318,20 @@ describe('Program handler', () => {
                   ]
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
             functionDeclaration(
               identifier('BaseClass:myMethod'),
               [],
-              [
+              nodeGroup([
                 expressionStatement(
                   callExpression(identifier('error'), [
                     stringLiteral('not implemented abstract method'),
                   ])
                 ),
-              ],
+              ]),
               undefined,
               false
             ),
@@ -387,7 +387,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`SubClass.new`),
               [],
-              [
+              nodeGroup([
                 withTrailingConversionComment(
                   variableDeclaration(
                     [variableDeclaratorIdentifier(selfIdentifier())],
@@ -403,7 +403,7 @@ describe('Program handler', () => {
                   `ROBLOX TODO: super constructor may be used`
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
@@ -430,7 +430,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier('SubClass.new'),
               [],
-              [
+              nodeGroup([
                 withTrailingConversionComment(
                   variableDeclaration(
                     [variableDeclaratorIdentifier(identifier('self'))],
@@ -446,7 +446,7 @@ describe('Program handler', () => {
                   `ROBLOX TODO: super constructor may be used`
                 ),
                 returnStatement(identifier('self')),
-              ],
+              ]),
               undefined,
               false
             ),
@@ -481,7 +481,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`SubClass.new`),
               [],
-              [
+              nodeGroup([
                 withTrailingConversionComment(
                   variableDeclaration(
                     [variableDeclaratorIdentifier(selfIdentifier())],
@@ -497,14 +497,14 @@ describe('Program handler', () => {
                   `ROBLOX TODO: super constructor may be used`
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
             functionDeclaration(
               identifier('SubClass:myMethod'),
               [],
-              [],
+              nodeGroup([]),
               undefined,
               false
             ),
@@ -530,7 +530,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`SubClass.new`),
               [],
-              [
+              nodeGroup([
                 withTrailingConversionComment(
                   variableDeclaration(
                     [variableDeclaratorIdentifier(selfIdentifier())],
@@ -546,14 +546,14 @@ describe('Program handler', () => {
                   `ROBLOX TODO: super constructor may be used`
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
             functionDeclaration(
               identifier('SubClass.myStaticMethod'),
               [],
-              [],
+              nodeGroup([]),
               undefined,
               false
             ),
@@ -591,7 +591,7 @@ describe('Program handler', () => {
             functionDeclaration(
               identifier(`SubClass.new`),
               [],
-              [
+              nodeGroup([
                 withTrailingConversionComment(
                   variableDeclaration(
                     [variableDeclaratorIdentifier(selfIdentifier())],
@@ -607,7 +607,7 @@ describe('Program handler', () => {
                   `ROBLOX TODO: super constructor may be used`
                 ),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),

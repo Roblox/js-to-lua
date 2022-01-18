@@ -1,13 +1,13 @@
+import { LuaExpression, LuaIdentifier, LuaLVal } from './expression';
+import { LuaTableField } from './literals';
 import { BaseLuaNode } from './node.types';
 import { LuaNodeGroup, LuaStatement } from './statement';
-import { LuaExpression, LuaIdentifier, LuaLVal } from './expression';
 import {
   LuaPropertySignature,
   LuaType,
   LuaTypeAnnotation,
   TypeAnnotation,
 } from './type';
-import { LuaTableField } from './literals';
 
 export type LuaNode =
   | LuaProgram
@@ -84,7 +84,7 @@ export interface LuaFunctionDeclaration extends BaseLuaNode {
   type: 'FunctionDeclaration';
   id: LuaIdentifier;
   params: Array<LuaFunctionParam>;
-  body: Array<LuaStatement>;
+  body: LuaNodeGroup<LuaStatement>;
   returnType?: LuaTypeAnnotation;
   isLocal: boolean;
 }
@@ -92,7 +92,7 @@ export interface LuaFunctionDeclaration extends BaseLuaNode {
 export interface LuaFunctionExpression extends BaseLuaNode {
   type: 'FunctionExpression';
   params: Array<LuaFunctionParam>;
-  body: Array<LuaStatement>;
+  body: LuaNodeGroup<LuaStatement | LuaExpression>;
   returnType?: LuaTypeAnnotation;
 }
 
@@ -172,18 +172,18 @@ export interface LuaIfStatement extends BaseLuaNode {
 export interface LuaIfClause extends BaseLuaNode {
   type: 'IfClause';
   condition: LuaExpression;
-  body: LuaNode[];
+  body: LuaNodeGroup<LuaNode>;
 }
 
 export interface LuaElseifClause extends BaseLuaNode {
   type: 'ElseifClause';
   condition: LuaExpression;
-  body: LuaNode[];
+  body: LuaNodeGroup<LuaNode>;
 }
 
 export interface LuaElseClause extends BaseLuaNode {
   type: 'ElseClause';
-  body: LuaNode[];
+  body: LuaNodeGroup<LuaNode>;
 }
 
 export type LuaClause = LuaIfClause | LuaElseifClause | LuaElseClause;

@@ -27,14 +27,14 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   assignmentStatement(
                     AssignmentStatementOperatorEnum.EQ,
                     [identifier('foo')],
                     [identifier('bar')]
                   ),
                   returnStatement(identifier('foo')),
-                ]
+                ])
               ),
               []
             ),
@@ -55,7 +55,7 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   assignmentStatement(
                     AssignmentStatementOperatorEnum.EQ,
                     [
@@ -70,7 +70,7 @@ describe('Program handler', () => {
                   returnStatement(
                     memberExpression(identifier('foo'), '.', identifier('bar'))
                   ),
-                ]
+                ])
               ),
               []
             ),
@@ -91,7 +91,7 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   nodeGroup([
                     assignmentStatement(
                       AssignmentStatementOperatorEnum.EQ,
@@ -105,7 +105,7 @@ describe('Program handler', () => {
                     ),
                   ]),
                   returnStatement(identifier('foo')),
-                ]
+                ])
               ),
               []
             ),
@@ -126,7 +126,7 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   nodeGroup([
                     assignmentStatement(
                       AssignmentStatementOperatorEnum.EQ,
@@ -160,7 +160,7 @@ describe('Program handler', () => {
                   returnStatement(
                     memberExpression(identifier('foo'), '.', identifier('bar'))
                   ),
-                ]
+                ])
               ),
               []
             ),

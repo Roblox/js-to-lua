@@ -47,6 +47,7 @@ describe('Visitor', () => {
       'Program',
       'FunctionDeclaration',
       'Identifier',
+      'NodeGroup',
       'VariableDeclaration',
       'VariableDeclaratorIdentifier',
       'Identifier',

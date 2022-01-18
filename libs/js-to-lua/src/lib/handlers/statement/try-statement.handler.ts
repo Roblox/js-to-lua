@@ -1,4 +1,10 @@
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  FunctionDeclaration,
+  Identifier,
+  Statement,
+  TryStatement,
+  TSType,
+} from '@babel/types';
 import {
   blockStatement,
   booleanLiteral,
@@ -12,6 +18,7 @@ import {
   LuaIdentifier,
   LuaStatement,
   LuaType,
+  nodeGroup,
   returnStatement,
   unaryNegationExpression,
   variableDeclaration,
@@ -19,15 +26,9 @@ import {
   variableDeclaratorValue,
   withInnerConversionComment,
 } from '@js-to-lua/lua-types';
-import {
-  Identifier,
-  Statement,
-  TryStatement,
-  FunctionDeclaration,
-  TSType,
-} from '@babel/types';
-import { pipe } from 'ramda';
 import { isTruthy } from '@js-to-lua/shared-utils';
+import { pipe } from 'ramda';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import { createFunctionParamsHandler } from '../function-params.handler';
 
 export const createTryStatementHandler = (
@@ -74,7 +75,7 @@ export const createTryStatementHandler = (
                 callExpression(identifier('xpcall'), [
                   functionExpression(
                     [],
-                    node.block.body.map(handleTryCatchStatement)
+                    nodeGroup(node.block.body.map(handleTryCatchStatement))
                   ),
                   functionExpression(
                     node.handler.param
@@ -82,33 +83,45 @@ export const createTryStatementHandler = (
                           params: [node.handler.param],
                         } as FunctionDeclaration)
                       : [],
-                    (node.handler.body.body || []).map(handleTryCatchStatement)
+                    nodeGroup(
+                      (node.handler.body.body || []).map(
+                        handleTryCatchStatement
+                      )
+                    )
                   ),
                 ])
               ),
               ...finalizerStatements,
               ifStatement(
-                ifClause(identifier('hasReturned'), [
-                  returnStatement(identifier('result')),
-                ])
+                ifClause(
+                  identifier('hasReturned'),
+                  nodeGroup([returnStatement(identifier('result'))])
+                )
               ),
             ]
           : [
               executeTryCatchDeclaration(
                 callExpression(identifier('pcall'), [
-                  functionExpression([], node.block.body.map(handleStatement)), // body
+                  functionExpression(
+                    [],
+                    nodeGroup(node.block.body.map(handleStatement))
+                  ), // body
                 ])
               ),
               ...finalizerStatements,
               ifStatement(
-                ifClause(identifier('hasReturned'), [
-                  returnStatement(identifier('result')),
-                ])
+                ifClause(
+                  identifier('hasReturned'),
+                  nodeGroup([returnStatement(identifier('result'))])
+                )
               ),
               ifStatement(
-                ifClause(unaryNegationExpression(identifier('ok')), [
-                  callExpression(identifier('error'), [identifier('result')]),
-                ])
+                ifClause(
+                  unaryNegationExpression(identifier('ok')),
+                  nodeGroup([
+                    callExpression(identifier('error'), [identifier('result')]),
+                  ])
+                )
               ),
             ]),
       ]),

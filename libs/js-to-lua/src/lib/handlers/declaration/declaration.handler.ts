@@ -30,7 +30,7 @@ import {
 import { BaseNodeHandler, EmptyConfig, HandlerFunction } from '../../types';
 import { combineStatementHandlers } from '../../utils/combine-handlers';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
-import { createFunctionDeclarationHandler } from './function-declaration.handler';
+import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
@@ -38,13 +38,13 @@ import {
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment-pattern.handler';
 import { createExportHandler } from '../statement/export';
 import { createImportHandler } from '../statement/import';
-import { createTypeAliasDeclarationHandler } from './type-alias-declaration.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
-import { createVariableDeclarationHandler } from './variable-declaration.handler';
-import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import { createClassDeclarationHandler } from './class-declaration.handler';
-import { createTsInterfaceHandler } from './ts-interface-declaration.handler';
+import { createFunctionDeclarationHandler } from './function-declaration.handler';
 import { createTsEnumHandler } from './ts-enum-declaration.handler';
+import { createTsInterfaceHandler } from './ts-interface-declaration.handler';
+import { createTypeAliasDeclarationHandler } from './type-alias-declaration.handler';
+import { createVariableDeclarationHandler } from './variable-declaration.handler';
 
 export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -183,10 +183,10 @@ export function createConvertToFunctionDeclarationHandler(
           functionDeclaration(
             { ...id, typeAnnotation: undefined },
             functionParamsHandler(source, config, node),
-            [
+            nodeGroup([
               ...handleParamsBody(source, config, node),
               ...handleFunctionBody(node),
-            ],
+            ]),
             node.returnType
               ? typesHandler(source, config, node.returnType)
               : undefined,
@@ -196,10 +196,10 @@ export function createConvertToFunctionDeclarationHandler(
       : functionDeclaration(
           id,
           functionParamsHandler(source, config, node),
-          [
+          nodeGroup([
             ...handleParamsBody(source, config, node),
             ...handleFunctionBody(node),
-          ],
+          ]),
           node.returnType
             ? typesHandler(source, config, node.returnType)
             : undefined

@@ -1,10 +1,11 @@
-import { LuaNode, LuaTypeAliasDeclaration } from '@js-to-lua/lua-types';
+import { LuaTypeAliasDeclaration } from '@js-to-lua/lua-types';
+import { PrintNode } from '../print-node';
 
 export const createPrintTypeAliasDeclaration =
-  (printNode: (node: LuaNode) => string) => (node: LuaTypeAliasDeclaration) => {
+  (printNode: PrintNode) => (node: LuaTypeAliasDeclaration) => {
     const typeParameters =
       node.typeParameters && node.typeParameters.length
-        ? `<${node.typeParameters.map(printNode).join(', ')}>`
+        ? `<${node.typeParameters.map((n) => printNode(n)).join(', ')}>`
         : '';
 
     return `type ${printNode(node.id)}${typeParameters} = ${printNode(

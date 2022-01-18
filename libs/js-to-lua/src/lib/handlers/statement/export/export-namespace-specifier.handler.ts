@@ -1,5 +1,4 @@
-import { createHandler, HandlerFunction } from '../../../types';
-import { ExportNamespaceSpecifier, Expression, Identifier } from '@babel/types';
+import { ExportNamespaceSpecifier, Expression } from '@babel/types';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -7,14 +6,13 @@ import {
   indexExpression,
   isIdentifier,
   LuaExpression,
-  LuaIdentifier,
   memberExpression,
 } from '@js-to-lua/lua-types';
+import { createHandler, HandlerFunction } from '../../../types';
 import { defaultStatementHandler } from '../../../utils/default-handlers';
 
 export const createExportNamespaceSpecifierHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>,
   moduleIdentifier: LuaExpression | null
 ) =>
   createHandler(

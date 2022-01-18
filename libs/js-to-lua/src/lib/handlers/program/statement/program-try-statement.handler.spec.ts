@@ -9,6 +9,7 @@ import {
   identifier,
   ifClause,
   ifStatement,
+  nodeGroup,
   program,
   returnStatement,
   stringLiteral,
@@ -46,17 +47,17 @@ describe('Program handler', () => {
                   callExpression(identifier('xpcall'), [
                     functionExpression(
                       [],
-                      [
+                      nodeGroup([
                         assignmentStatement(
                           AssignmentStatementOperatorEnum.EQ,
                           [identifier('a')],
                           [stringLiteral('foo')]
                         ),
-                      ]
+                      ])
                     ),
                     functionExpression(
                       [identifier('error_')],
-                      [
+                      nodeGroup([
                         assignmentStatement(
                           AssignmentStatementOperatorEnum.EQ,
                           [identifier('b')],
@@ -66,16 +67,17 @@ describe('Program handler', () => {
                             ]),
                           ]
                         ),
-                      ]
+                      ])
                     ),
                   ])
                 ),
               ]
             ),
             ifStatement(
-              ifClause(identifier('hasReturned'), [
-                returnStatement(identifier('result')),
-              ])
+              ifClause(
+                identifier('hasReturned'),
+                nodeGroup([returnStatement(identifier('result'))])
+              )
             ),
           ]),
           'ROBLOX COMMENT: try-catch block conversion'
@@ -107,13 +109,13 @@ describe('Program handler', () => {
                   callExpression(identifier('pcall'), [
                     functionExpression(
                       [],
-                      [
+                      nodeGroup([
                         assignmentStatement(
                           AssignmentStatementOperatorEnum.EQ,
                           [identifier('a')],
                           [stringLiteral('foo')]
                         ),
-                      ]
+                      ])
                     ),
                   ])
                 ),
@@ -127,14 +129,18 @@ describe('Program handler', () => {
               ),
             ]),
             ifStatement(
-              ifClause(identifier('hasReturned'), [
-                returnStatement(identifier('result')),
-              ])
+              ifClause(
+                identifier('hasReturned'),
+                nodeGroup([returnStatement(identifier('result'))])
+              )
             ),
             ifStatement(
-              ifClause(unaryNegationExpression(identifier('ok')), [
-                callExpression(identifier('error'), [identifier('result')]),
-              ])
+              ifClause(
+                unaryNegationExpression(identifier('ok')),
+                nodeGroup([
+                  callExpression(identifier('error'), [identifier('result')]),
+                ])
+              )
             ),
           ]),
           'ROBLOX COMMENT: try-finally block conversion'
@@ -158,47 +164,55 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [
-            withInnerConversionComment(
-              blockStatement([
-                variableDeclaration(
-                  [
-                    variableDeclaratorIdentifier(identifier('ok')),
-                    variableDeclaratorIdentifier(identifier('result')),
-                    variableDeclaratorIdentifier(identifier('hasReturned')),
-                  ],
-                  [
-                    variableDeclaratorValue(
-                      callExpression(identifier('pcall'), [
-                        functionExpression(
-                          [],
-                          [
-                            assignmentStatement(
-                              AssignmentStatementOperatorEnum.EQ,
-                              [identifier('a')],
-                              [stringLiteral('foo')]
-                            ),
-                          ]
-                        ),
+          nodeGroup([
+            nodeGroup([
+              withInnerConversionComment(
+                blockStatement([
+                  variableDeclaration(
+                    [
+                      variableDeclaratorIdentifier(identifier('ok')),
+                      variableDeclaratorIdentifier(identifier('result')),
+                      variableDeclaratorIdentifier(identifier('hasReturned')),
+                    ],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('pcall'), [
+                          functionExpression(
+                            [],
+                            nodeGroup([
+                              assignmentStatement(
+                                AssignmentStatementOperatorEnum.EQ,
+                                [identifier('a')],
+                                [stringLiteral('foo')]
+                              ),
+                            ])
+                          ),
+                        ])
+                      ),
+                    ]
+                  ),
+                  blockStatement([returnStatement(stringLiteral('bar'))]),
+                  ifStatement(
+                    ifClause(
+                      identifier('hasReturned'),
+                      nodeGroup([returnStatement(identifier('result'))])
+                    )
+                  ),
+                  ifStatement(
+                    ifClause(
+                      unaryNegationExpression(identifier('ok')),
+                      nodeGroup([
+                        callExpression(identifier('error'), [
+                          identifier('result'),
+                        ]),
                       ])
-                    ),
-                  ]
-                ),
-                blockStatement([returnStatement(stringLiteral('bar'))]),
-                ifStatement(
-                  ifClause(identifier('hasReturned'), [
-                    returnStatement(identifier('result')),
-                  ])
-                ),
-                ifStatement(
-                  ifClause(unaryNegationExpression(identifier('ok')), [
-                    callExpression(identifier('error'), [identifier('result')]),
-                  ])
-                ),
-              ]),
-              'ROBLOX COMMENT: try-finally block conversion'
-            ),
-          ]
+                    )
+                  ),
+                ]),
+                'ROBLOX COMMENT: try-finally block conversion'
+              ),
+            ]),
+          ])
         ),
       ]);
 
@@ -221,61 +235,64 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [
-            withInnerConversionComment(
-              blockStatement([
-                variableDeclaration(
-                  [
-                    variableDeclaratorIdentifier(identifier('ok')),
-                    variableDeclaratorIdentifier(identifier('result')),
-                    variableDeclaratorIdentifier(identifier('hasReturned')),
-                  ],
-                  [
-                    variableDeclaratorValue(
-                      callExpression(identifier('xpcall'), [
-                        functionExpression(
-                          [],
-                          [
-                            returnStatement(
-                              stringLiteral('foo'),
-                              booleanLiteral(true)
-                            ),
-                          ]
-                        ),
-                        functionExpression(
-                          [identifier('error_')],
-                          [
-                            assignmentStatement(
-                              AssignmentStatementOperatorEnum.EQ,
-                              [identifier('b')],
-                              [
-                                callExpression(identifier('tostring'), [
-                                  identifier('error_'),
-                                ]),
-                              ]
-                            ),
-                          ]
-                        ),
-                      ])
-                    ),
-                  ]
-                ),
+          nodeGroup([
+            nodeGroup([
+              withInnerConversionComment(
                 blockStatement([
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.EQ,
-                    [identifier('c')],
-                    [stringLiteral('baz')]
+                  variableDeclaration(
+                    [
+                      variableDeclaratorIdentifier(identifier('ok')),
+                      variableDeclaratorIdentifier(identifier('result')),
+                      variableDeclaratorIdentifier(identifier('hasReturned')),
+                    ],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('xpcall'), [
+                          functionExpression(
+                            [],
+                            nodeGroup([
+                              returnStatement(
+                                stringLiteral('foo'),
+                                booleanLiteral(true)
+                              ),
+                            ])
+                          ),
+                          functionExpression(
+                            [identifier('error_')],
+                            nodeGroup([
+                              assignmentStatement(
+                                AssignmentStatementOperatorEnum.EQ,
+                                [identifier('b')],
+                                [
+                                  callExpression(identifier('tostring'), [
+                                    identifier('error_'),
+                                  ]),
+                                ]
+                              ),
+                            ])
+                          ),
+                        ])
+                      ),
+                    ]
+                  ),
+                  blockStatement([
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
+                      [identifier('c')],
+                      [stringLiteral('baz')]
+                    ),
+                  ]),
+                  ifStatement(
+                    ifClause(
+                      identifier('hasReturned'),
+                      nodeGroup([returnStatement(identifier('result'))])
+                    )
                   ),
                 ]),
-                ifStatement(
-                  ifClause(identifier('hasReturned'), [
-                    returnStatement(identifier('result')),
-                  ])
-                ),
-              ]),
-              'ROBLOX COMMENT: try-catch-finally block conversion'
-            ),
-          ]
+                'ROBLOX COMMENT: try-catch-finally block conversion'
+              ),
+            ]),
+          ])
         ),
       ]);
 
@@ -298,55 +315,58 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [
-            withInnerConversionComment(
-              blockStatement([
-                variableDeclaration(
-                  [
-                    variableDeclaratorIdentifier(identifier('ok')),
-                    variableDeclaratorIdentifier(identifier('result')),
-                    variableDeclaratorIdentifier(identifier('hasReturned')),
-                  ],
-                  [
-                    variableDeclaratorValue(
-                      callExpression(identifier('xpcall'), [
-                        functionExpression(
-                          [],
-                          [
-                            returnStatement(
-                              stringLiteral('foo'),
-                              booleanLiteral(true)
-                            ),
-                          ]
-                        ),
-                        functionExpression(
-                          [identifier('error_')],
-                          [
-                            assignmentStatement(
-                              AssignmentStatementOperatorEnum.EQ,
-                              [identifier('b')],
-                              [
-                                callExpression(identifier('tostring'), [
-                                  identifier('error_'),
-                                ]),
-                              ]
-                            ),
-                          ]
-                        ),
-                      ])
-                    ),
-                  ]
-                ),
-                blockStatement([returnStatement(stringLiteral('baz'))]),
-                ifStatement(
-                  ifClause(identifier('hasReturned'), [
-                    returnStatement(identifier('result')),
-                  ])
-                ),
-              ]),
-              'ROBLOX COMMENT: try-catch-finally block conversion'
-            ),
-          ]
+          nodeGroup([
+            nodeGroup([
+              withInnerConversionComment(
+                blockStatement([
+                  variableDeclaration(
+                    [
+                      variableDeclaratorIdentifier(identifier('ok')),
+                      variableDeclaratorIdentifier(identifier('result')),
+                      variableDeclaratorIdentifier(identifier('hasReturned')),
+                    ],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('xpcall'), [
+                          functionExpression(
+                            [],
+                            nodeGroup([
+                              returnStatement(
+                                stringLiteral('foo'),
+                                booleanLiteral(true)
+                              ),
+                            ])
+                          ),
+                          functionExpression(
+                            [identifier('error_')],
+                            nodeGroup([
+                              assignmentStatement(
+                                AssignmentStatementOperatorEnum.EQ,
+                                [identifier('b')],
+                                [
+                                  callExpression(identifier('tostring'), [
+                                    identifier('error_'),
+                                  ]),
+                                ]
+                              ),
+                            ])
+                          ),
+                        ])
+                      ),
+                    ]
+                  ),
+                  blockStatement([returnStatement(stringLiteral('baz'))]),
+                  ifStatement(
+                    ifClause(
+                      identifier('hasReturned'),
+                      nodeGroup([returnStatement(identifier('result'))])
+                    )
+                  ),
+                ]),
+                'ROBLOX COMMENT: try-catch-finally block conversion'
+              ),
+            ]),
+          ])
         ),
       ]);
 
@@ -369,50 +389,53 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [
-            withInnerConversionComment(
-              blockStatement([
-                variableDeclaration(
-                  [
-                    variableDeclaratorIdentifier(identifier('ok')),
-                    variableDeclaratorIdentifier(identifier('result')),
-                    variableDeclaratorIdentifier(identifier('hasReturned')),
-                  ],
-                  [
-                    variableDeclaratorValue(
-                      callExpression(identifier('xpcall'), [
-                        functionExpression(
-                          [],
-                          [
-                            returnStatement(
-                              stringLiteral('foo'),
-                              booleanLiteral(true)
-                            ),
-                          ]
-                        ),
-                        functionExpression(
-                          [],
-                          [
-                            returnStatement(
-                              stringLiteral('bar'),
-                              booleanLiteral(true)
-                            ),
-                          ]
-                        ),
-                      ])
-                    ),
-                  ]
-                ),
-                blockStatement([returnStatement(stringLiteral('baz'))]),
-                ifStatement(
-                  ifClause(identifier('hasReturned'), [
-                    returnStatement(identifier('result')),
-                  ])
-                ),
-              ]),
-              'ROBLOX COMMENT: try-catch-finally block conversion'
-            ),
-          ]
+          nodeGroup([
+            nodeGroup([
+              withInnerConversionComment(
+                blockStatement([
+                  variableDeclaration(
+                    [
+                      variableDeclaratorIdentifier(identifier('ok')),
+                      variableDeclaratorIdentifier(identifier('result')),
+                      variableDeclaratorIdentifier(identifier('hasReturned')),
+                    ],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('xpcall'), [
+                          functionExpression(
+                            [],
+                            nodeGroup([
+                              returnStatement(
+                                stringLiteral('foo'),
+                                booleanLiteral(true)
+                              ),
+                            ])
+                          ),
+                          functionExpression(
+                            [],
+                            nodeGroup([
+                              returnStatement(
+                                stringLiteral('bar'),
+                                booleanLiteral(true)
+                              ),
+                            ])
+                          ),
+                        ])
+                      ),
+                    ]
+                  ),
+                  blockStatement([returnStatement(stringLiteral('baz'))]),
+                  ifStatement(
+                    ifClause(
+                      identifier('hasReturned'),
+                      nodeGroup([returnStatement(identifier('result'))])
+                    )
+                  ),
+                ]),
+                'ROBLOX COMMENT: try-catch-finally block conversion'
+              ),
+            ]),
+          ])
         ),
       ]);
 

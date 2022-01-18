@@ -346,7 +346,7 @@ export const createClassDeclarationHandler = (
             functionDeclaration(
               identifier(`${(classNodeIdentifier as LuaIdentifier).name}.new`),
               [...functionParamsHandler(source, config, constructorMethod)],
-              [
+              nodeGroup([
                 node.superClass
                   ? withTrailingConversionComment(
                       defaultSelfDeclaration,
@@ -374,7 +374,7 @@ export const createClassDeclarationHandler = (
                 ),
                 ...functionBodyHandler(source, config, constructorMethod),
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
@@ -383,7 +383,7 @@ export const createClassDeclarationHandler = (
             functionDeclaration(
               identifier(`${(classNodeIdentifier as LuaIdentifier).name}.new`),
               [],
-              [
+              nodeGroup([
                 node.superClass
                   ? withTrailingConversionComment(
                       defaultSelfDeclaration,
@@ -391,7 +391,7 @@ export const createClassDeclarationHandler = (
                     )
                   : defaultSelfDeclaration,
                 returnStatement(selfIdentifier()),
-              ],
+              ]),
               undefined,
               false
             ),
@@ -418,10 +418,10 @@ export const createClassDeclarationHandler = (
               }${id.name}`
             ),
             [...functionParamsHandler(source, config, node)],
-            [
+            nodeGroup([
               ...handleParamsBody(source, config, node),
               ...functionBodyHandler(source, config, node),
-            ],
+            ]),
             undefined,
             false
           )

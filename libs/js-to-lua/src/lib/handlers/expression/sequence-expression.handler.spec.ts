@@ -67,7 +67,7 @@ describe('Sequence Expression Handler', () => {
       const expected = callExpression(
         functionExpression(
           [],
-          [
+          nodeGroup([
             mockNodeWithValue(
               babelAssignmentExpression(
                 '=',
@@ -88,7 +88,7 @@ describe('Sequence Expression Handler', () => {
             ),
             mockNodeWithValue(babelCallExpression(babelIdentifier('bar'), [])),
             returnStatement(identifier('a')),
-          ]
+          ])
         ),
         []
       );

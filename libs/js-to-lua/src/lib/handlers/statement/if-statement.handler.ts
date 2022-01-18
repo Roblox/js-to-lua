@@ -19,12 +19,15 @@ import {
   HandlerFunction,
 } from '../../types';
 import { createExpressionAsBooleanHandler } from '../handle-as-boolean';
+import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
 
 export const createIfStatementHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleStatement: HandlerFunction<LuaStatement, Statement>
-): BaseNodeHandler<LuaIfStatement, IfStatement> =>
-  createHandler('IfStatement', (source, config, node) => {
+): BaseNodeHandler<LuaIfStatement, IfStatement> => {
+  const handleConsequent = createInnerBodyStatementHandler(handleStatement);
+
+  return createHandler('IfStatement', (source, config, node) => {
     const expressionAsBooleanHandler =
       createExpressionAsBooleanHandler(handleExpression);
 
@@ -64,15 +67,5 @@ export const createIfStatementHandler = (
       }
       return [elseClause(handleConsequent(source, config, node))];
     }
-
-    function handleConsequent(
-      source: string,
-      config: EmptyConfig,
-      node: Statement
-    ) {
-      const handleStatement_ = handleStatement(source, config);
-      return node.type === 'BlockStatement'
-        ? node.body.map(handleStatement_)
-        : [handleStatement(source, config, node)];
-    }
   });
+};

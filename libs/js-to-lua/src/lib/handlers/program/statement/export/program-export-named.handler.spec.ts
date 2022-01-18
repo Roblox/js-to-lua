@@ -64,7 +64,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         nodeGroup([
-          functionDeclaration(identifier('foo'), [], []),
+          functionDeclaration(identifier('foo'), [], nodeGroup([])),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
@@ -88,7 +88,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         nodeGroup([
-          functionDeclaration(identifier('foo'), [], []),
+          functionDeclaration(identifier('foo'), [], nodeGroup([])),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
@@ -124,7 +124,7 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        functionDeclaration(identifier('foo'), [], []),
+        functionDeclaration(identifier('foo'), [], nodeGroup([])),
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('bar'))],
           [variableDeclaratorValue(numericLiteral(10, '10'))]
@@ -159,7 +159,7 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        functionDeclaration(identifier('foo'), [], []),
+        functionDeclaration(identifier('foo'), [], nodeGroup([])),
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('bar'))],
           [variableDeclaratorValue(numericLiteral(10, '10'))]
@@ -193,7 +193,7 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        functionDeclaration(identifier('foo'), [], []),
+        functionDeclaration(identifier('foo'), [], nodeGroup([])),
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,

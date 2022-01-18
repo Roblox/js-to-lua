@@ -20,9 +20,5 @@ export const createExportSpecifierHandler = (
       handleIdentifier,
       moduleIdentifier
     ),
-    createExportNamespaceSpecifierHandler(
-      handleExpression,
-      handleIdentifier,
-      moduleIdentifier
-    ),
+    createExportNamespaceSpecifierHandler(handleExpression, moduleIdentifier),
   ]);

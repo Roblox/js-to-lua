@@ -1,11 +1,8 @@
-import {
-  isIdentifier,
-  LuaNode,
-  LuaPropertySignature,
-} from '@js-to-lua/lua-types';
+import { isIdentifier, LuaPropertySignature } from '@js-to-lua/lua-types';
+import { PrintNode } from '../print-node';
 
 export const createPrintPropertySignature =
-  (printNode: (node: LuaNode) => string) => (node: LuaPropertySignature) => {
+  (printNode: PrintNode) => (node: LuaPropertySignature) => {
     const keyString = isIdentifier(node.key)
       ? printNode(node.key)
       : `[${printNode(node.key)}]`;

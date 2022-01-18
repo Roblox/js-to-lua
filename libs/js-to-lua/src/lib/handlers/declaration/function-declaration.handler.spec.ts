@@ -8,6 +8,7 @@ import {
   functionDeclaration,
   identifier,
   LuaFunctionDeclaration,
+  nodeGroup,
 } from '@js-to-lua/lua-types';
 import { handleStatement } from '../expression-statement.handler';
 
@@ -23,7 +24,7 @@ describe('Function Declaration', () => {
     const expected: LuaFunctionDeclaration = functionDeclaration(
       identifier('foo'),
       [identifier('bar'), identifier('baz')],
-      []
+      nodeGroup([])
     );
 
     expect(handleStatement.handler(source, {}, given)).toEqual(expected);

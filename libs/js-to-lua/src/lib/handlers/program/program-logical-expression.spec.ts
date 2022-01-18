@@ -15,6 +15,7 @@ import {
   LuaProgram,
   memberExpression,
   nilLiteral,
+  nodeGroup,
   numericLiteral,
   program,
   returnStatement,
@@ -193,7 +194,7 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   ifStatement(
                     ifClause(
                       callExpression(
@@ -204,12 +205,12 @@ describe('Program handler', () => {
                         ),
                         [identifier('foo')]
                       ),
-                      [returnStatement(identifier('bar'))]
+                      nodeGroup([returnStatement(identifier('bar'))])
                     ),
                     [],
-                    elseClause([returnStatement(identifier('foo'))])
+                    elseClause(nodeGroup([returnStatement(identifier('foo'))]))
                   ),
-                ]
+                ])
               ),
               []
             )
@@ -281,7 +282,7 @@ describe('Program handler', () => {
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         callExpression(
@@ -292,12 +293,12 @@ describe('Program handler', () => {
                           ),
                           [leftExpected]
                         ),
-                        [returnStatement(rightExpected)]
+                        nodeGroup([returnStatement(rightExpected)])
                       ),
                       [],
-                      elseClause([returnStatement(leftExpected)])
+                      elseClause(nodeGroup([returnStatement(leftExpected)]))
                     ),
-                  ]
+                  ])
                 ),
                 []
               )

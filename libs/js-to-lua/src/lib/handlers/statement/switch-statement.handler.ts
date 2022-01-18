@@ -131,43 +131,50 @@ export const createSwitchStatementHandler = (
               ifStatement(
                 ifClause(
                   binaryExpression(conditionId, '==', vId),
-                  applyTo(notDefaultCases, ([firstCase, ...restCases]) => [
-                    ifStatement(
-                      ifClause(binaryExpression(vId, '==', firstCase.test), [
-                        assignmentStatement(
-                          AssignmentStatementOperatorEnum.EQ,
-                          [enteredId],
-                          [trueLiteral]
-                        ),
-                        ...firstCase.consequent,
-                      ])
-                    ),
-                    ...restCases.map((c) =>
+                  nodeGroup(
+                    applyTo(notDefaultCases, ([firstCase, ...restCases]) => [
                       ifStatement(
                         ifClause(
-                          logicalExpression(
-                            LuaLogicalExpressionOperatorEnum.OR,
-                            binaryExpression(vId, '==', c.test),
-                            enteredId
-                          ),
-                          [
+                          binaryExpression(vId, '==', firstCase.test),
+                          nodeGroup([
                             assignmentStatement(
                               AssignmentStatementOperatorEnum.EQ,
                               [enteredId],
                               [trueLiteral]
                             ),
-                            ...c.consequent,
-                          ]
+                            ...firstCase.consequent,
+                          ])
                         )
-                      )
-                    ),
-                  ])
+                      ),
+                      ...restCases.map((c) =>
+                        ifStatement(
+                          ifClause(
+                            logicalExpression(
+                              LuaLogicalExpressionOperatorEnum.OR,
+                              binaryExpression(vId, '==', c.test),
+                              enteredId
+                            ),
+                            nodeGroup([
+                              assignmentStatement(
+                                AssignmentStatementOperatorEnum.EQ,
+                                [enteredId],
+                                [trueLiteral]
+                              ),
+                              ...c.consequent,
+                            ])
+                          )
+                        )
+                      ),
+                    ])
+                  )
                 )
               ),
             ]
           ),
           ...defaultCases.map((c) =>
-            ifStatement(ifClause(unaryNegationExpression(breakId), c))
+            ifStatement(
+              ifClause(unaryNegationExpression(breakId), nodeGroup(c))
+            )
           ),
         ]),
         'ROBLOX comment: switch statement conversion'

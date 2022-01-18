@@ -23,6 +23,7 @@ import {
   logicalExpression,
   LuaExpression,
   LuaLogicalExpressionOperatorEnum,
+  nodeGroup,
   returnStatement,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
@@ -55,20 +56,24 @@ describe('Conditional Expression Handler', () => {
     const expected = callExpression(
       functionExpression(
         [],
-        [
+        nodeGroup([
           ifStatement(
             ifClause(
               callExpression(booleanMethod('toJSBoolean'), [
                 mockNodeWithValue(babelIdentifier('a')),
               ]),
-              [returnStatement(mockNodeWithValue(babelIdentifier('b')))]
+              nodeGroup([
+                returnStatement(mockNodeWithValue(babelIdentifier('b'))),
+              ])
             ),
             [],
-            elseClause([
-              returnStatement(mockNodeWithValue(babelIdentifier('c'))),
-            ])
+            elseClause(
+              nodeGroup([
+                returnStatement(mockNodeWithValue(babelIdentifier('c'))),
+              ])
+            )
           ),
-        ]
+        ])
       ),
       []
     );
@@ -134,13 +139,16 @@ describe('Conditional Expression Handler', () => {
         const expected = callExpression(
           functionExpression(
             [],
-            [
+            nodeGroup([
               ifStatement(
-                ifClause(coerced, [returnStatement(identifier('b'))]),
+                ifClause(
+                  coerced,
+                  nodeGroup([returnStatement(identifier('b'))])
+                ),
                 [],
-                elseClause([returnStatement(identifier('c'))])
+                elseClause(nodeGroup([returnStatement(identifier('c'))]))
               ),
-            ]
+            ])
           ),
           []
         );
@@ -170,20 +178,22 @@ describe('Conditional Expression Handler', () => {
       const expected = callExpression(
         functionExpression(
           [],
-          [
+          nodeGroup([
             ifStatement(
               ifClause(
                 callExpression(booleanMethod('toJSBoolean'), [
                   mockNodeWithValue(babelIdentifier('a')),
                 ]),
-                [returnStatement(mockNodeWithValue(consequentGiven))]
+                nodeGroup([returnStatement(mockNodeWithValue(consequentGiven))])
               ),
               [],
-              elseClause([
-                returnStatement(mockNodeWithValue(babelIdentifier('c'))),
-              ])
+              elseClause(
+                nodeGroup([
+                  returnStatement(mockNodeWithValue(babelIdentifier('c'))),
+                ])
+              )
             ),
-          ]
+          ])
         ),
         []
       );

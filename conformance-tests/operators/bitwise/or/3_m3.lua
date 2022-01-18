@@ -1,3 +1,3 @@
-local a = 5
-local c = -5
-local foo = bit32.bor(a, c) --[[ ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1] ]]
+local a = 5 -- 00000000000000000000000000000101
+local c = -5 -- 11111111111111111111111111111011
+local foo = bit32.bor(a, c) --[[ ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1] ]] -- -1

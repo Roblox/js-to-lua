@@ -6,6 +6,7 @@ import {
   ifClause,
   ifStatement,
   memberExpression,
+  nodeGroup,
   program,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -67,7 +68,7 @@ describe('If statement Handler', () => {
             ),
             [identifier('foo')]
           ),
-          []
+          nodeGroup([])
         )
       ),
     ]);
@@ -125,10 +126,10 @@ describe('If statement Handler', () => {
             ),
             [identifier('foo')]
           ),
-          []
+          nodeGroup([])
         ),
         [],
-        elseClause([])
+        elseClause(nodeGroup([]))
       ),
     ]);
 
@@ -184,7 +185,7 @@ describe('If statement Handler', () => {
             ),
             [identifier('foo')]
           ),
-          []
+          nodeGroup([])
         ),
         [
           elseifClause(
@@ -196,7 +197,7 @@ describe('If statement Handler', () => {
               ),
               [identifier('bar')]
             ),
-            []
+            nodeGroup([])
           ),
         ]
       ),
@@ -254,7 +255,7 @@ describe('If statement Handler', () => {
             ),
             [identifier('foo')]
           ),
-          []
+          nodeGroup([])
         ),
         [
           elseifClause(
@@ -266,10 +267,10 @@ describe('If statement Handler', () => {
               ),
               [identifier('bar')]
             ),
-            []
+            nodeGroup([])
           ),
         ],
-        elseClause([])
+        elseClause(nodeGroup([]))
       ),
     ]);
 

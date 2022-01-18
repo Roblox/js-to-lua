@@ -2,6 +2,7 @@ import {
   callExpression,
   expressionStatement,
   identifier,
+  nodeGroup,
   stringLiteral,
   whileStatement,
   withInnerConversionComment,
@@ -21,9 +22,11 @@ describe('Print while statement', () => {
 
   it('should print with non-empty body', () => {
     const given = whileStatement(identifier('cond'), [
-      expressionStatement(
-        callExpression(identifier('print'), [stringLiteral('foo')])
-      ),
+      nodeGroup([
+        expressionStatement(
+          callExpression(identifier('print'), [stringLiteral('foo')])
+        ),
+      ]),
     ]);
     const expected = dedent`
     while cond do
@@ -48,9 +51,11 @@ describe('Print while statement', () => {
   it('should print with empty non-body and inner comment', () => {
     const given = withInnerConversionComment(
       whileStatement(identifier('cond'), [
-        expressionStatement(
-          callExpression(identifier('print'), [stringLiteral('foo')])
-        ),
+        nodeGroup([
+          expressionStatement(
+            callExpression(identifier('print'), [stringLiteral('foo')])
+          ),
+        ]),
       ]),
       'conversion comment'
     );

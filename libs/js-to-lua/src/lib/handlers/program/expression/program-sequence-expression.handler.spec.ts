@@ -9,6 +9,7 @@ import {
   functionDeclaration,
   functionExpression,
   identifier,
+  nodeGroup,
   numericLiteral,
   program,
   returnStatement,
@@ -42,7 +43,7 @@ describe('Program handler', () => {
                   callExpression(
                     functionExpression(
                       [],
-                      [
+                      nodeGroup([
                         assignmentStatement(
                           AssignmentStatementOperatorEnum.EQ,
                           [identifier('a')],
@@ -63,7 +64,7 @@ describe('Program handler', () => {
                           callExpression(identifier('bar'), [])
                         ),
                         returnStatement(identifier('a')),
-                      ]
+                      ])
                     ),
                     []
                   )
@@ -96,7 +97,7 @@ describe('Program handler', () => {
                   callExpression(
                     functionExpression(
                       [],
-                      [
+                      nodeGroup([
                         assignmentStatement(
                           AssignmentStatementOperatorEnum.ADD,
                           [identifier('a')],
@@ -109,21 +110,21 @@ describe('Program handler', () => {
                             callExpression(
                               functionExpression(
                                 [],
-                                [
+                                nodeGroup([
                                   assignmentStatement(
                                     AssignmentStatementOperatorEnum.ADD,
                                     [identifier('a')],
                                     [numericLiteral(1)]
                                   ),
                                   returnStatement(identifier('a')),
-                                ]
+                                ])
                               ),
                               []
                             ),
                           ]
                         ),
                         returnStatement(identifier('a')),
-                      ]
+                      ])
                     ),
                     []
                   )
@@ -151,7 +152,7 @@ describe('Program handler', () => {
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     assignmentStatement(
                       AssignmentStatementOperatorEnum.EQ,
                       [identifier('a')],
@@ -170,7 +171,7 @@ describe('Program handler', () => {
                     ),
                     expressionStatement(callExpression(identifier('bar'), [])),
                     returnStatement(identifier('a')),
-                  ]
+                  ])
                 ),
                 []
               )
@@ -196,7 +197,7 @@ describe('Program handler', () => {
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     assignmentStatement(
                       AssignmentStatementOperatorEnum.ADD,
                       [identifier('a')],
@@ -209,21 +210,21 @@ describe('Program handler', () => {
                         callExpression(
                           functionExpression(
                             [],
-                            [
+                            nodeGroup([
                               assignmentStatement(
                                 AssignmentStatementOperatorEnum.ADD,
                                 [identifier('a')],
                                 [numericLiteral(1)]
                               ),
                               returnStatement(identifier('a')),
-                            ]
+                            ])
                           ),
                           []
                         ),
                       ]
                     ),
                     returnStatement(identifier('a')),
-                  ]
+                  ])
                 ),
                 []
               )
@@ -245,7 +246,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [
+          nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('a')],
@@ -258,7 +259,7 @@ describe('Program handler', () => {
             ),
             expressionStatement(callExpression(identifier('bar'), [])),
             returnStatement(identifier('a')),
-          ]
+          ])
         ),
       ]);
 
@@ -275,7 +276,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [
+          nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('a')],
@@ -287,7 +288,7 @@ describe('Program handler', () => {
               [binaryExpression(identifier('a'), '+', numericLiteral(1, '1'))]
             ),
             returnStatement(callExpression(identifier('bar'), [])),
-          ]
+          ])
         ),
       ]);
 
@@ -304,7 +305,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [
+          nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.ADD,
               [identifier('a')],
@@ -317,21 +318,21 @@ describe('Program handler', () => {
                 callExpression(
                   functionExpression(
                     [],
-                    [
+                    nodeGroup([
                       assignmentStatement(
                         AssignmentStatementOperatorEnum.ADD,
                         [identifier('a')],
                         [numericLiteral(1)]
                       ),
                       returnStatement(identifier('a')),
-                    ]
+                    ])
                   ),
                   []
                 ),
               ]
             ),
             returnStatement(identifier('a')),
-          ]
+          ])
         ),
       ]);
 
@@ -348,7 +349,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [
+          nodeGroup([
             withTrailingConversionComment(
               unhandledStatement(),
               `ROBLOX TODO: Lua doesn't support 'Identifier' as a standalone type`,
@@ -361,21 +362,21 @@ describe('Program handler', () => {
                 callExpression(
                   functionExpression(
                     [],
-                    [
+                    nodeGroup([
                       assignmentStatement(
                         AssignmentStatementOperatorEnum.ADD,
                         [identifier('a')],
                         [numericLiteral(1)]
                       ),
                       returnStatement(identifier('a')),
-                    ]
+                    ])
                   ),
                   []
                 ),
               ]
             ),
             returnStatement(identifier('a')),
-          ]
+          ])
         ),
       ]);
 

@@ -43,7 +43,7 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        functionDeclaration(identifier('foo'), [], []),
+        functionDeclaration(identifier('foo'), [], nodeGroup([])),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
       expect(luaProgram).toEqual(expected);
@@ -55,7 +55,7 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = program([
-        functionDeclaration(identifier('foo'), [], []),
+        functionDeclaration(identifier('foo'), [], nodeGroup([])),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
       expect(luaProgram).toEqual(expected);
@@ -70,7 +70,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [identifier('bar'), identifier('baz')],
-          []
+          nodeGroup([])
         ),
       ]);
 
@@ -89,7 +89,7 @@ describe('Program handler', () => {
             identifier('bar', typeAnnotation(typeOptional(typeAny()))),
             identifier('baz', typeAnnotation(typeOptional(typeString()))),
           ],
-          []
+          nodeGroup([])
         ),
       ]);
 
@@ -105,7 +105,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [identifier('ref'), identifier('ref_')],
-          [
+          nodeGroup([
             variableDeclaration(
               [
                 variableDeclaratorIdentifier(identifier('bar')),
@@ -135,7 +135,7 @@ describe('Program handler', () => {
                 ),
               ]
             ),
-          ]
+          ])
         ),
       ]);
 
@@ -155,20 +155,20 @@ describe('Program handler', () => {
             identifier('bar'),
             identifier('baz', typeAnnotation(typeOptional(typeString()))),
           ],
-          [
+          nodeGroup([
             ifStatement(
               ifClause(
                 binaryExpression(identifier('baz'), '==', nilLiteral()),
-                [
+                nodeGroup([
                   assignmentStatement(
                     AssignmentStatementOperatorEnum.EQ,
                     [identifier('baz')],
                     [stringLiteral('hello')]
                   ),
-                ]
+                ])
               )
             ),
-          ]
+          ])
         ),
       ]);
 
@@ -190,24 +190,26 @@ describe('Program handler', () => {
             identifier('bar'),
             identifier('baz', typeAnnotation(typeOptional(typeString()))),
           ],
-          [
+          nodeGroup([
             ifStatement(
               ifClause(
                 binaryExpression(identifier('baz'), '==', nilLiteral()),
-                [
+                nodeGroup([
                   assignmentStatement(
                     AssignmentStatementOperatorEnum.EQ,
                     [identifier('baz')],
                     [stringLiteral('hello')]
                   ),
-                ]
+                ])
               )
             ),
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('fizz'))],
-              [variableDeclaratorValue(stringLiteral('fuzz'))]
-            ),
-          ]
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('fizz'))],
+                [variableDeclaratorValue(stringLiteral('fuzz'))]
+              ),
+            ]),
+          ])
         ),
       ]);
 
@@ -233,7 +235,13 @@ describe('Program handler', () => {
             ],
             []
           ),
-          functionDeclaration(identifier('foo'), [], [], undefined, false),
+          functionDeclaration(
+            identifier('foo'),
+            [],
+            nodeGroup([]),
+            undefined,
+            false
+          ),
         ]),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -258,7 +266,7 @@ describe('Program handler', () => {
               )
             ),
           ],
-          [
+          nodeGroup([
             variableDeclaration(
               [
                 variableDeclaratorIdentifier(identifier('foo')),
@@ -273,13 +281,15 @@ describe('Program handler', () => {
                 ),
               ]
             ),
-            returnStatement(
-              tableConstructor([
-                tableNoKeyField(identifier('foo')),
-                tableNoKeyField(identifier('bar')),
-              ])
-            ),
-          ]
+            nodeGroup([
+              returnStatement(
+                tableConstructor([
+                  tableNoKeyField(identifier('foo')),
+                  tableNoKeyField(identifier('bar')),
+                ])
+              ),
+            ]),
+          ])
         ),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -302,7 +312,7 @@ describe('Program handler', () => {
               typeAnnotation(typeReference(identifier('Array'), [typeString()]))
             ),
           ],
-          [
+          nodeGroup([
             variableDeclaration(
               [
                 variableDeclaratorIdentifier(identifier('foo')),
@@ -318,13 +328,15 @@ describe('Program handler', () => {
                 ),
               ]
             ),
-            returnStatement(
-              tableConstructor([
-                tableNameKeyField(identifier('foo'), identifier('foo')),
-                tableNameKeyField(identifier('bar'), identifier('bar')),
-              ])
-            ),
-          ]
+            nodeGroup([
+              returnStatement(
+                tableConstructor([
+                  tableNameKeyField(identifier('foo'), identifier('foo')),
+                  tableNameKeyField(identifier('bar'), identifier('bar')),
+                ])
+              ),
+            ]),
+          ])
         ),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -362,18 +374,18 @@ describe('Program handler', () => {
               )
             ),
           ],
-          [
+          nodeGroup([
             nodeGroup([
               ifStatement(
                 ifClause(
                   binaryExpression(identifier('ref'), '==', nilLiteral()),
-                  [
+                  nodeGroup([
                     assignmentStatement(
                       AssignmentStatementOperatorEnum.EQ,
                       [identifier('ref')],
                       [identifier('fizz')]
                     ),
-                  ]
+                  ])
                 )
               ),
               variableDeclaration(
@@ -389,13 +401,13 @@ describe('Program handler', () => {
               ifStatement(
                 ifClause(
                   binaryExpression(identifier('ref_'), '==', nilLiteral()),
-                  [
+                  nodeGroup([
                     assignmentStatement(
                       AssignmentStatementOperatorEnum.EQ,
                       [identifier('ref_')],
                       [identifier('fuzz')]
                     ),
-                  ]
+                  ])
                 )
               ),
               variableDeclaration(
@@ -411,13 +423,15 @@ describe('Program handler', () => {
                 ]
               ),
             ]),
-            returnStatement(
-              tableConstructor([
-                tableNoKeyField(identifier('foo')),
-                tableNoKeyField(identifier('bar')),
-              ])
-            ),
-          ]
+            nodeGroup([
+              returnStatement(
+                tableConstructor([
+                  tableNoKeyField(identifier('foo')),
+                  tableNoKeyField(identifier('bar')),
+                ])
+              ),
+            ]),
+          ])
         ),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);

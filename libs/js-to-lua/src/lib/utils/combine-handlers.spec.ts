@@ -7,6 +7,11 @@ import {
 } from '../types';
 import { LuaNode } from '@js-to-lua/lua-types';
 import { mockNodeHandler } from '../testUtils/mock-node';
+import {
+  booleanLiteral as babelBooleanLiteral,
+  numericLiteral as babelNumericLiteral,
+  stringLiteral as babelStringLiteral,
+} from '@babel/types';
 
 jest.mock('../testUtils/mock-node');
 
@@ -21,11 +26,7 @@ describe('Combine Handlers', () => {
     combineHandlers(Array<BaseNodeHandler<LuaNode>>(), mockNodeHandler).handler(
       source,
       {},
-      {
-        type: 'StringLiteral',
-        start: 0,
-        end: 1,
-      }
+      babelStringLiteral('123')
     );
 
     expect(mockNodeHandler).toHaveBeenCalled();
@@ -47,11 +48,7 @@ describe('Combine Handlers', () => {
     combineHandlers(handlers, mockNodeHandler).handler(
       source,
       {},
-      {
-        type: 'StringLiteral',
-        start: 0,
-        end: 1,
-      }
+      babelStringLiteral('123')
     );
 
     expect(mockNodeHandler).not.toHaveBeenCalled();
@@ -60,16 +57,8 @@ describe('Combine Handlers', () => {
   });
 
   it('should use correct handler ', () => {
-    const givenStringLiteral: BabelNode = {
-      type: 'StringLiteral',
-      start: 0,
-      end: 1,
-    };
-    const givenNumericLiteral: BabelNode = {
-      type: 'NumericLiteral',
-      start: 0,
-      end: 1,
-    };
+    const givenStringLiteral = babelStringLiteral('123');
+    const givenNumericLiteral = babelNumericLiteral(1);
 
     const handlerString = jest
       .fn<LuaNode, [string, EmptyConfig, BabelNode]>()
@@ -110,11 +99,7 @@ describe('Combine Handlers', () => {
   });
 
   it('should use default handler if no matching handler', () => {
-    const givenBooleanLiteral: BabelNode = {
-      type: 'BooleanLiteral',
-      start: 0,
-      end: 1,
-    };
+    const givenBooleanLiteral = babelBooleanLiteral(true);
 
     const handlerString = jest
       .fn<LuaNode, [string, BabelNode]>()

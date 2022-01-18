@@ -1,6 +1,7 @@
-import { LuaNode, LuaTypeIntersection } from '@js-to-lua/lua-types';
+import { LuaTypeIntersection } from '@js-to-lua/lua-types';
+import { PrintNode } from '../print-node';
 
 export const createPrintTypeIntersection =
-  (printNode: (node: LuaNode) => string) =>
+  (printNode: PrintNode) =>
   (node: LuaTypeIntersection): string =>
-    node.types.map(printNode).join(' & ');
+    node.types.map((n) => printNode(n)).join(' & ');

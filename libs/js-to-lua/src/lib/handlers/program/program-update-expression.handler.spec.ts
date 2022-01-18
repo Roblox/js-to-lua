@@ -1,10 +1,10 @@
-import { handleProgram } from './program.handler';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
   functionExpression,
   identifier,
+  nodeGroup,
   numericLiteral,
   program,
   returnStatement,
@@ -12,6 +12,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
+import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
 
 const source = '';
@@ -98,14 +99,14 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   assignmentStatement(
                     AssignmentStatementOperatorEnum.ADD,
                     [identifier('foo')],
                     [numericLiteral(1)]
                   ),
                   returnStatement(identifier('foo')),
-                ]
+                ])
               ),
               []
             ),
@@ -130,7 +131,7 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   variableDeclaration(
                     [variableDeclaratorIdentifier(identifier('result'))],
                     [variableDeclaratorValue(identifier('foo'))]
@@ -141,7 +142,7 @@ describe('Program handler', () => {
                     [numericLiteral(1)]
                   ),
                   returnStatement(identifier('result')),
-                ]
+                ])
               ),
               []
             ),
@@ -166,14 +167,14 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   assignmentStatement(
                     AssignmentStatementOperatorEnum.SUB,
                     [identifier('foo')],
                     [numericLiteral(1)]
                   ),
                   returnStatement(identifier('foo')),
-                ]
+                ])
               ),
               []
             ),
@@ -198,7 +199,7 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   variableDeclaration(
                     [variableDeclaratorIdentifier(identifier('result'))],
                     [variableDeclaratorValue(identifier('foo'))]
@@ -209,7 +210,7 @@ describe('Program handler', () => {
                     [numericLiteral(1)]
                   ),
                   returnStatement(identifier('result')),
-                ]
+                ])
               ),
               []
             ),

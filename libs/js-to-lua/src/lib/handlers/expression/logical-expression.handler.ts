@@ -20,6 +20,7 @@ import {
   LuaExpression,
   LuaLogicalExpression,
   LuaLogicalExpressionOperatorEnum,
+  nodeGroup,
   returnStatement,
   UnhandledStatement,
   variableDeclaration,
@@ -72,7 +73,7 @@ export const createLogicalExpressionHandler = (
             : callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     variableDeclaration(
                       [variableDeclaratorIdentifier(identifier('ref'))],
                       [variableDeclaratorValue(leftExpression)]
@@ -86,7 +87,7 @@ export const createLogicalExpressionHandler = (
                         identifier('ref')
                       )
                     ),
-                  ]
+                  ])
                 ),
                 []
               ),
@@ -132,19 +133,19 @@ export const createLogicalExpressionHandler = (
                 [],
                 isBabelIdentifier(node.left) ||
                   isBabelMemberExpression(node.left)
-                  ? [
+                  ? nodeGroup([
                       ifStatement(
                         ifClause(
                           callExpression(booleanMethod('toJSBoolean'), [
                             leftExpression,
                           ]),
-                          [returnStatement(rightExpression)]
+                          nodeGroup([returnStatement(rightExpression)])
                         ),
                         [],
-                        elseClause([returnStatement(leftExpression)])
+                        elseClause(nodeGroup([returnStatement(leftExpression)]))
                       ),
-                    ]
-                  : [
+                    ])
+                  : nodeGroup([
                       variableDeclaration(
                         [variableDeclaratorIdentifier(identifier('ref'))],
                         [variableDeclaratorValue(leftExpression)]
@@ -154,12 +155,14 @@ export const createLogicalExpressionHandler = (
                           callExpression(booleanMethod('toJSBoolean'), [
                             identifier('ref'),
                           ]),
-                          [returnStatement(rightExpression)]
+                          nodeGroup([returnStatement(rightExpression)])
                         ),
                         [],
-                        elseClause([returnStatement(identifier('ref'))])
+                        elseClause(
+                          nodeGroup([returnStatement(identifier('ref'))])
+                        )
                       ),
-                    ]
+                    ])
               ),
               []
             );

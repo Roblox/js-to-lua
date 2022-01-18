@@ -56,14 +56,20 @@ describe('For Statement Handler', () => {
           )
         ),
         [
-          mockNodeWithValue(
-            babelExpressionStatement(
-              babelCallExpression(babelIdentifier('foo'), [
-                babelIdentifier('i'),
-              ])
-            )
-          ),
-          mockNodeWithValue(babelUpdateExpression('++', babelIdentifier('i'))),
+          nodeGroup([
+            mockNodeWithValue(
+              babelExpressionStatement(
+                babelCallExpression(babelIdentifier('foo'), [
+                  babelIdentifier('i'),
+                ])
+              )
+            ),
+          ]),
+          nodeGroup([
+            mockNodeWithValue(
+              babelUpdateExpression('++', babelIdentifier('i'))
+            ),
+          ]),
         ]
       ),
     ]);
@@ -84,23 +90,33 @@ describe('For Statement Handler', () => {
       ])
     );
 
-    const expected = whileStatement(
-      mockNodeWithValue(
-        babelBinaryExpression(
-          '<',
-          babelIdentifier('i'),
-          babelNumericLiteral(10)
-        )
-      ),
-      [
+    const expected = nodeGroup([
+      whileStatement(
         mockNodeWithValue(
-          babelExpressionStatement(
-            babelCallExpression(babelIdentifier('foo'), [babelIdentifier('i')])
+          babelBinaryExpression(
+            '<',
+            babelIdentifier('i'),
+            babelNumericLiteral(10)
           )
         ),
-        mockNodeWithValue(babelUpdateExpression('++', babelIdentifier('i'))),
-      ]
-    );
+        [
+          nodeGroup([
+            mockNodeWithValue(
+              babelExpressionStatement(
+                babelCallExpression(babelIdentifier('foo'), [
+                  babelIdentifier('i'),
+                ])
+              )
+            ),
+          ]),
+          nodeGroup([
+            mockNodeWithValue(
+              babelUpdateExpression('++', babelIdentifier('i'))
+            ),
+          ]),
+        ]
+      ),
+    ]);
 
     const handledGiven = handleForStatement.handler('', {}, given);
     expect(handledGiven).toEqual(expected);
@@ -127,12 +143,18 @@ describe('For Statement Handler', () => {
         ])
       ),
       whileStatement(booleanLiteral(true), [
-        mockNodeWithValue(
-          babelExpressionStatement(
-            babelCallExpression(babelIdentifier('foo'), [babelIdentifier('i')])
-          )
-        ),
-        mockNodeWithValue(babelUpdateExpression('++', babelIdentifier('i'))),
+        nodeGroup([
+          mockNodeWithValue(
+            babelExpressionStatement(
+              babelCallExpression(babelIdentifier('foo'), [
+                babelIdentifier('i'),
+              ])
+            )
+          ),
+        ]),
+        nodeGroup([
+          mockNodeWithValue(babelUpdateExpression('++', babelIdentifier('i'))),
+        ]),
       ]),
     ]);
 
@@ -169,13 +191,15 @@ describe('For Statement Handler', () => {
           )
         ),
         [
-          mockNodeWithValue(
-            babelExpressionStatement(
-              babelCallExpression(babelIdentifier('foo'), [
-                babelIdentifier('i'),
-              ])
-            )
-          ),
+          nodeGroup([
+            mockNodeWithValue(
+              babelExpressionStatement(
+                babelCallExpression(babelIdentifier('foo'), [
+                  babelIdentifier('i'),
+                ])
+              )
+            ),
+          ]),
         ]
       ),
     ]);
@@ -196,12 +220,18 @@ describe('For Statement Handler', () => {
       ])
     );
 
-    const expected = whileStatement(booleanLiteral(true), [
-      mockNodeWithValue(
-        babelExpressionStatement(
-          babelCallExpression(babelIdentifier('foo'), [babelIdentifier('i')])
-        )
-      ),
+    const expected = nodeGroup([
+      whileStatement(booleanLiteral(true), [
+        nodeGroup([
+          mockNodeWithValue(
+            babelExpressionStatement(
+              babelCallExpression(babelIdentifier('foo'), [
+                babelIdentifier('i'),
+              ])
+            )
+          ),
+        ]),
+      ]),
     ]);
 
     const handledGiven = handleForStatement.handler('', {}, given);
@@ -235,14 +265,20 @@ describe('For Statement Handler', () => {
           )
         ),
         [
-          mockNodeWithValue(
-            babelExpressionStatement(
-              babelCallExpression(babelIdentifier('foo'), [
-                babelIdentifier('i'),
-              ])
-            )
-          ),
-          mockNodeWithValue(babelUpdateExpression('++', babelIdentifier('i'))),
+          nodeGroup([
+            mockNodeWithValue(
+              babelExpressionStatement(
+                babelCallExpression(babelIdentifier('foo'), [
+                  babelIdentifier('i'),
+                ])
+              )
+            ),
+          ]),
+          nodeGroup([
+            mockNodeWithValue(
+              babelUpdateExpression('++', babelIdentifier('i'))
+            ),
+          ]),
         ]
       ),
     ]);

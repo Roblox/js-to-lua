@@ -10,6 +10,7 @@ import {
   LuaProgram,
   memberExpression,
   nilLiteral,
+  nodeGroup,
   numericLiteral,
   program,
   stringLiteral,
@@ -35,7 +36,7 @@ describe('Program handler', () => {
         function foo() {}
       `);
       const expected: LuaProgram = program([
-        functionDeclaration(identifier('foo'), [], []),
+        functionDeclaration(identifier('foo'), [], nodeGroup([])),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -51,7 +52,7 @@ describe('Program handler', () => {
       functionDeclaration(
         identifier('foo'),
         [identifier('bar'), identifier('baz')],
-        []
+        nodeGroup([])
       ),
     ]);
 
@@ -70,7 +71,7 @@ describe('Program handler', () => {
           identifier('bar', typeAnnotation(typeOptional(typeAny()))),
           identifier('baz', typeAnnotation(typeOptional(typeString()))),
         ],
-        []
+        nodeGroup([])
       ),
     ]);
 
@@ -86,7 +87,7 @@ describe('Program handler', () => {
       functionDeclaration(
         identifier('foo'),
         [identifier('ref'), identifier('ref_')],
-        [
+        nodeGroup([
           variableDeclaration(
             [
               variableDeclaratorIdentifier(identifier('bar')),
@@ -116,7 +117,7 @@ describe('Program handler', () => {
               ),
             ]
           ),
-        ]
+        ])
       ),
     ]);
 
@@ -141,26 +142,32 @@ describe('Program handler', () => {
             )
           ),
         ],
-        [
+        nodeGroup([
           ifStatement(
-            ifClause(binaryExpression(identifier('baz'), '==', nilLiteral()), [
-              assignmentStatement(
-                AssignmentStatementOperatorEnum.EQ,
-                [identifier('baz')],
-                [stringLiteral('hello')]
-              ),
-            ])
+            ifClause(
+              binaryExpression(identifier('baz'), '==', nilLiteral()),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [identifier('baz')],
+                  [stringLiteral('hello')]
+                ),
+              ])
+            )
           ),
           ifStatement(
-            ifClause(binaryExpression(identifier('fizz'), '==', nilLiteral()), [
-              assignmentStatement(
-                AssignmentStatementOperatorEnum.EQ,
-                [identifier('fizz')],
-                [numericLiteral(1, '1')]
-              ),
-            ])
+            ifClause(
+              binaryExpression(identifier('fizz'), '==', nilLiteral()),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [identifier('fizz')],
+                  [numericLiteral(1, '1')]
+                ),
+              ])
+            )
           ),
-        ]
+        ])
       ),
     ]);
 
@@ -182,21 +189,26 @@ describe('Program handler', () => {
           identifier('bar'),
           identifier('baz', typeAnnotation(typeOptional(typeString()))),
         ],
-        [
+        nodeGroup([
           ifStatement(
-            ifClause(binaryExpression(identifier('baz'), '==', nilLiteral()), [
-              assignmentStatement(
-                AssignmentStatementOperatorEnum.EQ,
-                [identifier('baz')],
-                [stringLiteral('hello')]
-              ),
-            ])
+            ifClause(
+              binaryExpression(identifier('baz'), '==', nilLiteral()),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [identifier('baz')],
+                  [stringLiteral('hello')]
+                ),
+              ])
+            )
           ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('fizz'))],
-            [variableDeclaratorValue(stringLiteral('fuzz'))]
-          ),
-        ]
+          nodeGroup([
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('fizz'))],
+              [variableDeclaratorValue(stringLiteral('fuzz'))]
+            ),
+          ]),
+        ])
       ),
     ]);
 

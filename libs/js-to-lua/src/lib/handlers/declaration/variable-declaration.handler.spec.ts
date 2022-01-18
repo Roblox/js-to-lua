@@ -343,7 +343,7 @@ describe('Variable Declaration', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   variableDeclaration(
                     [variableDeclaratorIdentifier(identifier('element'))],
                     [
@@ -363,12 +363,14 @@ describe('Variable Declaration', () => {
                         '==',
                         nilLiteral()
                       ),
-                      [returnStatement(numericLiteral(3))]
+                      nodeGroup([returnStatement(numericLiteral(3))])
                     ),
                     undefined,
-                    elseClause([returnStatement(identifier('element'))])
+                    elseClause(
+                      nodeGroup([returnStatement(identifier('element'))])
+                    )
                   ),
-                ]
+                ])
               ),
               []
             )
@@ -555,7 +557,7 @@ describe('Variable Declaration', () => {
           callExpression(
             functionExpression(
               [],
-              [
+              nodeGroup([
                 ifStatement(
                   ifClause(
                     binaryExpression(
@@ -567,20 +569,22 @@ describe('Variable Declaration', () => {
                       '==',
                       nilLiteral()
                     ),
-                    [returnStatement(numericLiteral(3))]
+                    nodeGroup([returnStatement(numericLiteral(3))])
                   ),
                   undefined,
-                  elseClause([
-                    returnStatement(
-                      memberExpression(
-                        identifier('fizz'),
-                        '.',
-                        identifier('bar')
-                      )
-                    ),
-                  ])
+                  elseClause(
+                    nodeGroup([
+                      returnStatement(
+                        memberExpression(
+                          identifier('fizz'),
+                          '.',
+                          identifier('bar')
+                        )
+                      ),
+                    ])
+                  )
                 ),
-              ]
+              ])
             ),
             []
           )

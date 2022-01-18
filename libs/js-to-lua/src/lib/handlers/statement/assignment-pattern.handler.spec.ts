@@ -15,6 +15,7 @@ import {
   ifStatement,
   LuaIdentifier,
   nilLiteral,
+  nodeGroup,
   unhandledStatement,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
@@ -49,13 +50,13 @@ describe('Assignment Pattern Handler', () => {
     const expected = ifStatement(
       ifClause(
         binaryExpression(mockNodeWithValue(leftGiven), '==', nilLiteral()),
-        [
+        nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [mockNodeWithValue(leftGiven) as LuaIdentifier],
             [mockNodeWithValue(rightGiven)]
           ),
-        ]
+        ])
       )
     );
 
@@ -76,13 +77,16 @@ describe('Assignment Pattern Handler', () => {
     const given = babelAssignmentPattern(leftGiven, rightGiven);
 
     const expected = ifStatement(
-      ifClause(binaryExpression(identifier('foo'), '==', nilLiteral()), [
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.EQ,
-          [identifier('foo')],
-          [mockNodeWithValue(rightGiven)]
-        ),
-      ])
+      ifClause(
+        binaryExpression(identifier('foo'), '==', nilLiteral()),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [mockNodeWithValue(rightGiven)]
+          ),
+        ])
+      )
     );
 
     expect(handleAssignmentPattern(source, {}, given)).toEqual(expected);

@@ -7,6 +7,7 @@ import {
   ifClause,
   ifStatement,
   nilLiteral,
+  nodeGroup,
   program,
   typeAnnotation,
   typeAny,
@@ -27,20 +28,20 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('func'),
           [identifier('foo', typeAnnotation(typeOptional(typeAny())))],
-          [
+          nodeGroup([
             ifStatement(
               ifClause(
                 binaryExpression(identifier('foo'), '==', nilLiteral()),
-                [
+                nodeGroup([
                   assignmentStatement(
                     AssignmentStatementOperatorEnum.EQ,
                     [identifier('foo')],
                     [identifier('bar')]
                   ),
-                ]
+                ])
               )
             ),
-          ]
+          ])
         ),
       ]);
 

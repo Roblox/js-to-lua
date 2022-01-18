@@ -1,4 +1,15 @@
-import { EmptyConfig, HandlerFunction } from '../../types';
+import {
+  ArrowFunctionExpression,
+  BlockStatement,
+  ClassMethod,
+  ClassPrivateMethod,
+  Expression,
+  FunctionDeclaration,
+  FunctionExpression,
+  isTSDeclareMethod,
+  Statement,
+  TSDeclareMethod,
+} from '@babel/types';
 import {
   callExpression,
   expressionStatement,
@@ -10,20 +21,11 @@ import {
   returnStatement,
   stringLiteral,
 } from '@js-to-lua/lua-types';
-import {
-  ArrowFunctionExpression,
-  ClassMethod,
-  ClassPrivateMethod,
-  Expression,
-  FunctionDeclaration,
-  FunctionExpression,
-  isTSDeclareMethod,
-  Statement,
-  TSDeclareMethod,
-} from '@babel/types';
 import { applyTo, curry } from 'ramda';
-import { getReturnExpressions } from '../../utils/get-return-expressions';
+import { EmptyConfig, HandlerFunction } from '../../types';
 import { createExpressionStatement } from '../../utils/create-expression-statement';
+import { getReturnExpressions } from '../../utils/get-return-expressions';
+import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
 
 type FunctionTypes =
   | FunctionDeclaration
@@ -58,13 +60,28 @@ export const createFunctionBodyHandler = (
         ];
       }
 
-      const nodeBody = node.body;
-      return nodeBody.type === 'BlockStatement'
-        ? nodeBody.body.map(handleStatement(source, config))
+      const handleBody = createInnerBodyStatementHandler(handleStatement);
+      const handleBlockStatementBody = (
+        source: string,
+        config: EmptyConfig,
+        body: BlockStatement
+      ) => {
+        const handled = handleBody(source, config, body);
+        return handled.body.length || handled.innerComments?.length
+          ? [handled]
+          : [];
+      };
+
+      return node.body.type === 'BlockStatement'
+        ? handleBlockStatementBody(source, config, node.body)
         : applyTo(
             {
-              expression: handleExpressionAsStatement(source, config, nodeBody),
-              babelExpression: nodeBody,
+              expression: handleExpressionAsStatement(
+                source,
+                config,
+                node.body
+              ),
+              babelExpression: node.body,
             },
             ({ expression, babelExpression }) => {
               const returnExpressions = getReturnExpressions(expression);

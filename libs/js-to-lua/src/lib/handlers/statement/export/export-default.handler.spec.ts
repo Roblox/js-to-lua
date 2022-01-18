@@ -114,7 +114,7 @@ describe('Export Default Handler', () => {
     );
 
     const expected = nodeGroup([
-      functionDeclaration(identifier('foo'), [], []),
+      functionDeclaration(identifier('foo'), [], nodeGroup([])),
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('default'))],

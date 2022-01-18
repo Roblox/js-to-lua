@@ -1,10 +1,11 @@
-import { LuaNode, LuaTypeReference } from '@js-to-lua/lua-types';
+import { LuaTypeReference } from '@js-to-lua/lua-types';
+import { PrintNode } from '../print-node';
 
 export const createPrintTypeReference =
-  (printNode: (node: LuaNode) => string) =>
+  (printNode: PrintNode) =>
   (node: LuaTypeReference): string => {
     const genericTypeParameters = node.typeParameters
-      ? `<${node.typeParameters.map(printNode).join(', ')}>`
+      ? `<${node.typeParameters.map((n) => printNode(n)).join(', ')}>`
       : '';
 
     return `${printNode(node.typeName)}${genericTypeParameters}`;

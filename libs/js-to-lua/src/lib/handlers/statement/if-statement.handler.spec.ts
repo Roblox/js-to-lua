@@ -11,6 +11,7 @@ import {
   identifier,
   ifClause,
   ifStatement,
+  nodeGroup,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import {
@@ -36,7 +37,7 @@ describe('If statement Handler', () => {
     const expected = ifStatement(
       ifClause(
         callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
-        []
+        nodeGroup([])
       )
     );
 
@@ -53,10 +54,10 @@ describe('If statement Handler', () => {
     const expected = ifStatement(
       ifClause(
         callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
-        []
+        nodeGroup([])
       ),
       [],
-      elseClause([])
+      elseClause(nodeGroup([]))
     );
 
     expect(handleIfStatement.handler(source, {}, given)).toEqual(expected);
@@ -72,12 +73,12 @@ describe('If statement Handler', () => {
     const expected = ifStatement(
       ifClause(
         callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
-        []
+        nodeGroup([])
       ),
       [
         elseifClause(
           callExpression(booleanMethod('toJSBoolean'), [identifier('bar')]),
-          []
+          nodeGroup([])
         ),
       ]
     );
@@ -99,15 +100,15 @@ describe('If statement Handler', () => {
     const expected = ifStatement(
       ifClause(
         callExpression(booleanMethod('toJSBoolean'), [identifier('foo')]),
-        []
+        nodeGroup([])
       ),
       [
         elseifClause(
           callExpression(booleanMethod('toJSBoolean'), [identifier('bar')]),
-          []
+          nodeGroup([])
         ),
       ],
-      elseClause([])
+      elseClause(nodeGroup([]))
     );
 
     expect(handleIfStatement.handler(source, {}, given)).toEqual(expected);

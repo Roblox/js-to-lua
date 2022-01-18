@@ -15,6 +15,7 @@ import { LuaIdentifier, isIdentifier, identifier } from './expression';
 import { callExpression, functionExpression } from './lua-nodes.creators';
 
 import { LuaStringLiteral } from './literals';
+import { nodeGroup } from './statement';
 
 describe('isNodeType', () => {
   [
@@ -95,7 +96,7 @@ describe('isAnyNodeType', () => {
     {
       givenValues: [
         identifier('foo'),
-        callExpression(functionExpression([], []), []),
+        callExpression(functionExpression([], nodeGroup([])), []),
       ],
       sut: isLiteral,
       sutName: 'Literal',

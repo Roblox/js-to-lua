@@ -19,6 +19,7 @@ import {
   ifStatement,
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
+  nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
 import { createLogicalExpressionHandler } from './logical-expression.handler';
@@ -100,18 +101,20 @@ describe('Logical Expression Handler', () => {
       const expected = callExpression(
         functionExpression(
           [],
-          [
+          nodeGroup([
             ifStatement(
               ifClause(
                 callExpression(booleanMethod('toJSBoolean'), [
                   mockNodeWithValue(leftGiven),
                 ]),
-                [returnStatement(mockNodeWithValue(rightGiven))]
+                nodeGroup([returnStatement(mockNodeWithValue(rightGiven))])
               ),
               [],
-              elseClause([returnStatement(mockNodeWithValue(leftGiven))])
+              elseClause(
+                nodeGroup([returnStatement(mockNodeWithValue(leftGiven))])
+              )
             ),
-          ]
+          ])
         ),
         []
       );
@@ -139,18 +142,20 @@ describe('Logical Expression Handler', () => {
         const expected = callExpression(
           functionExpression(
             [],
-            [
+            nodeGroup([
               ifStatement(
                 ifClause(
                   callExpression(booleanMethod('toJSBoolean'), [
                     mockNodeWithValue(leftGiven),
                   ]),
-                  [returnStatement(mockNodeWithValue(rightGiven))]
+                  nodeGroup([returnStatement(mockNodeWithValue(rightGiven))])
                 ),
                 [],
-                elseClause([returnStatement(mockNodeWithValue(leftGiven))])
+                elseClause(
+                  nodeGroup([returnStatement(mockNodeWithValue(leftGiven))])
+                )
               ),
-            ]
+            ])
           ),
           []
         );

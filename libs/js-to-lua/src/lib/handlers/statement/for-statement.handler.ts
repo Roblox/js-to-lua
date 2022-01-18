@@ -1,5 +1,11 @@
-import { defaultStatementHandler } from '../../utils/default-handlers';
-import { combineHandlers } from '../../utils/combine-handlers';
+import {
+  Declaration,
+  Expression,
+  ForStatement as BabelForStatement,
+  isUpdateExpression,
+  Statement,
+  UpdateExpression,
+} from '@babel/types';
 import {
   booleanLiteral,
   isExpression,
@@ -11,17 +17,11 @@ import {
   WhileStatement,
   whileStatement,
 } from '@js-to-lua/lua-types';
-import {
-  Declaration,
-  Expression,
-  ForStatement as BabelForStatement,
-  isBlockStatement,
-  isUpdateExpression,
-  Statement,
-  UpdateExpression,
-} from '@babel/types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import { combineHandlers } from '../../utils/combine-handlers';
 import { createExpressionStatement } from '../../utils/create-expression-statement';
+import { defaultStatementHandler } from '../../utils/default-handlers';
+import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
 
 export const createForStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>,
@@ -38,17 +38,19 @@ export const createForStatementHandler = (
     LuaNodeGroup | LuaDeclaration,
     Declaration
   >
-): BaseNodeHandler<WhileStatement, BabelForStatement> =>
+): BaseNodeHandler<
+  LuaNodeGroup<LuaExpression | WhileStatement>,
+  BabelForStatement
+> =>
   createHandler('ForStatement', (source, config, node) => {
     const handleInitExpression = combineHandlers(
       [expressionHandler, variableDeclarationHandler],
       defaultStatementHandler
     ).handler;
 
-    const handleStatementFn = handleStatement(source, config);
-    const body = (
-      isBlockStatement(node.body) ? node.body.body : [node.body]
-    ).map(handleStatementFn);
+    const handleBody = createInnerBodyStatementHandler(handleStatement);
+
+    const body = handleBody(source, config, node.body);
 
     const updateStatements = (
       node.update
@@ -69,10 +71,13 @@ export const createForStatementHandler = (
       : booleanLiteral(true);
 
     const whileNode = whileStatement(testExpression, [
-      ...body,
-      ...updateStatements,
+      ...(body && body.body.length ? [body] : []),
+      ...(updateStatements.length ? [nodeGroup(updateStatements)] : []),
     ]);
-    return node.init
-      ? nodeGroup([handleInitExpression(source, config, node.init), whileNode])
-      : whileNode;
+
+    return nodeGroup(
+      node.init
+        ? [handleInitExpression(source, config, node.init), whileNode]
+        : [whileNode]
+    );
   });

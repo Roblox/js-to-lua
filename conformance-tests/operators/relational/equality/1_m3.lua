@@ -1,2 +1,2 @@
 local a, b = 1, 1
-local foo = a == b --[[ ROBLOX CHECK: loose equality used upstream ]]
+local foo = a == b --[[ ROBLOX CHECK: loose equality used upstream ]] -- true

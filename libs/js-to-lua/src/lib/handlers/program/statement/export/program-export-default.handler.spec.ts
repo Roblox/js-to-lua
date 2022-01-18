@@ -78,7 +78,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         nodeGroup([
-          functionDeclaration(identifier('foo'), [], []),
+          functionDeclaration(identifier('foo'), [], nodeGroup([])),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [
@@ -109,7 +109,7 @@ describe('Program handler', () => {
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [memberExpression(identifier('exports'), '.', identifier('default'))],
-          [functionExpression([], [])]
+          [functionExpression([], nodeGroup([]))]
         ),
         returnStatement(identifier('exports')),
       ]);

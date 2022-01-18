@@ -40,14 +40,18 @@ describe('Program handler', () => {
               `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
             ),
             [
-              expressionStatement(
-                callExpression(identifier('foo'), [identifier('i')])
-              ),
-              assignmentStatement(
-                AssignmentStatementOperatorEnum.ADD,
-                [identifier('i')],
-                [numericLiteral(1)]
-              ),
+              nodeGroup([
+                expressionStatement(
+                  callExpression(identifier('foo'), [identifier('i')])
+                ),
+              ]),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.ADD,
+                  [identifier('i')],
+                  [numericLiteral(1)]
+                ),
+              ]),
             ]
           ),
         ]),
@@ -64,22 +68,28 @@ describe('Program handler', () => {
         }
       `);
       const expected = program([
-        whileStatement(
-          withTrailingConversionComment(
-            binaryExpression(identifier('i'), '<', numericLiteral(10, '10')),
-            `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
+        nodeGroup([
+          whileStatement(
+            withTrailingConversionComment(
+              binaryExpression(identifier('i'), '<', numericLiteral(10, '10')),
+              `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
+            ),
+            [
+              nodeGroup([
+                expressionStatement(
+                  callExpression(identifier('foo'), [identifier('i')])
+                ),
+              ]),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.ADD,
+                  [identifier('i')],
+                  [numericLiteral(1)]
+                ),
+              ]),
+            ]
           ),
-          [
-            expressionStatement(
-              callExpression(identifier('foo'), [identifier('i')])
-            ),
-            assignmentStatement(
-              AssignmentStatementOperatorEnum.ADD,
-              [identifier('i')],
-              [numericLiteral(1)]
-            ),
-          ]
-        ),
+        ]),
       ]);
 
       const handledGiven = handleProgram.handler(source, {}, given);
@@ -99,14 +109,18 @@ describe('Program handler', () => {
             [variableDeclaratorValue(numericLiteral(0, '0'))]
           ),
           whileStatement(booleanLiteral(true), [
-            expressionStatement(
-              callExpression(identifier('foo'), [identifier('i')])
-            ),
-            assignmentStatement(
-              AssignmentStatementOperatorEnum.ADD,
-              [identifier('i')],
-              [numericLiteral(1)]
-            ),
+            nodeGroup([
+              expressionStatement(
+                callExpression(identifier('foo'), [identifier('i')])
+              ),
+            ]),
+            nodeGroup([
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.ADD,
+                [identifier('i')],
+                [numericLiteral(1)]
+              ),
+            ]),
           ]),
         ]),
       ]);
@@ -133,9 +147,11 @@ describe('Program handler', () => {
               `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
             ),
             [
-              expressionStatement(
-                callExpression(identifier('foo'), [identifier('i')])
-              ),
+              nodeGroup([
+                expressionStatement(
+                  callExpression(identifier('foo'), [identifier('i')])
+                ),
+              ]),
             ]
           ),
         ]),
@@ -152,10 +168,14 @@ describe('Program handler', () => {
         }
       `);
       const expected = program([
-        whileStatement(booleanLiteral(true), [
-          expressionStatement(
-            callExpression(identifier('foo'), [identifier('i')])
-          ),
+        nodeGroup([
+          whileStatement(booleanLiteral(true), [
+            nodeGroup([
+              expressionStatement(
+                callExpression(identifier('foo'), [identifier('i')])
+              ),
+            ]),
+          ]),
         ]),
       ]);
 
@@ -179,14 +199,18 @@ describe('Program handler', () => {
               `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
             ),
             [
-              expressionStatement(
-                callExpression(identifier('foo'), [identifier('i')])
-              ),
-              assignmentStatement(
-                AssignmentStatementOperatorEnum.ADD,
-                [identifier('i')],
-                [numericLiteral(1)]
-              ),
+              nodeGroup([
+                expressionStatement(
+                  callExpression(identifier('foo'), [identifier('i')])
+                ),
+              ]),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.ADD,
+                  [identifier('i')],
+                  [numericLiteral(1)]
+                ),
+              ]),
             ]
           ),
         ]),

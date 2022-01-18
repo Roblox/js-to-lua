@@ -1,7 +1,8 @@
-import { LuaExpression, LuaNode } from '@js-to-lua/lua-types';
+import { LuaExpression } from '@js-to-lua/lua-types';
+import { PrintNode } from '../print-node';
 
 export const createPrintBaseExpression =
-  (printNode: (node: LuaNode) => string) =>
+  (printNode: PrintNode) =>
   (base: LuaExpression): string => {
     switch (base.type) {
       case 'Identifier':

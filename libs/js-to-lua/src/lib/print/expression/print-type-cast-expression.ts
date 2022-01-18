@@ -1,7 +1,8 @@
-import { LuaNode, TypeCastExpression } from '@js-to-lua/lua-types';
+import { TypeCastExpression } from '@js-to-lua/lua-types';
+import { PrintNode } from '../print-node';
 
 export const createPrintTypeCastExpression =
-  (printNode: (node: LuaNode) => string) =>
+  (printNode: PrintNode) =>
   (node: TypeCastExpression): string => {
     switch (node.expression.type) {
       case 'TypeCastExpression':

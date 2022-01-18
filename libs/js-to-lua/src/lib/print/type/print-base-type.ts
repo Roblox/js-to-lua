@@ -1,7 +1,8 @@
-import { LuaNode, LuaType } from '@js-to-lua/lua-types';
+import { LuaType } from '@js-to-lua/lua-types';
+import { PrintNode } from '../print-node';
 
 export const createPrintBaseType =
-  (printNode: (node: LuaNode) => string) =>
+  (printNode: PrintNode) =>
   (base: LuaType): string => {
     switch (base.type) {
       case 'LuaTypeAny':

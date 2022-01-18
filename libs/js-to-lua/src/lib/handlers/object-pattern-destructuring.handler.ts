@@ -31,6 +31,7 @@ import {
   nilLiteral,
   returnStatement,
   elseClause,
+  nodeGroup,
 } from '@js-to-lua/lua-types';
 import { EmptyConfig, HandlerFunction } from '../types';
 import { createPropertyFromBaseHandler } from './expression/property-from-base.handler';
@@ -99,7 +100,7 @@ export const createObjectPatternDestructuringHandler =
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         binaryExpression(
@@ -107,7 +108,7 @@ export const createObjectPatternDestructuringHandler =
                           '==',
                           nilLiteral()
                         ),
-                        [
+                        nodeGroup([
                           returnStatement(
                             handleExpression(
                               source,
@@ -115,14 +116,16 @@ export const createObjectPatternDestructuringHandler =
                               property.value.right
                             )
                           ),
-                        ]
+                        ])
                       ),
                       undefined,
-                      elseClause([
-                        returnStatement(handlePropertyFromBase(property)),
-                      ])
+                      elseClause(
+                        nodeGroup([
+                          returnStatement(handlePropertyFromBase(property)),
+                        ])
+                      )
                     ),
-                  ]
+                  ])
                 ),
                 []
               )

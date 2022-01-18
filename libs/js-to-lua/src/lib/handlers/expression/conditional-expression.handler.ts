@@ -8,6 +8,7 @@ import {
   logicalExpression,
   LuaExpression,
   LuaLogicalExpressionOperatorEnum,
+  nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
 import { ConditionalExpression, Expression } from '@babel/types';
@@ -44,15 +45,16 @@ export const createConditionalExpressionHandler = (
       : callExpression(
           functionExpression(
             [],
-            [
+            nodeGroup([
               ifStatement(
-                ifClause(testExpression, [
-                  returnStatement(consequentExpression),
-                ]),
+                ifClause(
+                  testExpression,
+                  nodeGroup([returnStatement(consequentExpression)])
+                ),
                 [],
-                elseClause([returnStatement(alternateExpression)])
+                elseClause(nodeGroup([returnStatement(alternateExpression)]))
               ),
-            ]
+            ])
           ),
           []
         );

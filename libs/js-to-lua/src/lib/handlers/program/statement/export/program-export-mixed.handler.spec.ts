@@ -34,7 +34,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         nodeGroup([
-          functionDeclaration(identifier('foo'), [], []),
+          functionDeclaration(identifier('foo'), [], nodeGroup([])),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
@@ -77,7 +77,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         nodeGroup([
-          functionDeclaration(identifier('foo'), [], []),
+          functionDeclaration(identifier('foo'), [], nodeGroup([])),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
@@ -122,7 +122,7 @@ describe('Program handler', () => {
           [variableDeclaratorValue(tableConstructor())]
         ),
         nodeGroup([
-          functionDeclaration(identifier('foo'), [], []),
+          functionDeclaration(identifier('foo'), [], nodeGroup([])),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
@@ -141,7 +141,7 @@ describe('Program handler', () => {
           ),
         ]),
         nodeGroup([
-          functionDeclaration(identifier('buzz'), [], []),
+          functionDeclaration(identifier('buzz'), [], nodeGroup([])),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [

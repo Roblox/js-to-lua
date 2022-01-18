@@ -20,6 +20,7 @@ import {
   LuaCallExpression,
   LuaExpression,
   nilLiteral,
+  nodeGroup,
   numericLiteral,
   returnStatement,
   variableDeclaration,
@@ -134,7 +135,7 @@ export const createArrayPatternDestructuringHandler =
                 callExpression(
                   functionExpression(
                     [],
-                    [
+                    nodeGroup([
                       variableDeclaration(
                         [variableDeclaratorIdentifier(identifier('element'))],
                         [
@@ -154,16 +155,18 @@ export const createArrayPatternDestructuringHandler =
                             '==',
                             nilLiteral()
                           ),
-                          [
+                          nodeGroup([
                             returnStatement(
                               handleExpression(source, config, el.right)
                             ),
-                          ]
+                          ])
                         ),
                         undefined,
-                        elseClause([returnStatement(identifier('element'))])
+                        elseClause(
+                          nodeGroup([returnStatement(identifier('element'))])
+                        )
                       ),
-                    ]
+                    ])
                   ),
                   []
                 ),

@@ -5,6 +5,7 @@ import {
   identifier,
   ifClause,
   ifStatement,
+  nodeGroup,
   returnStatement,
   unaryNegationExpression,
   variableDeclaration,
@@ -56,27 +57,31 @@ describe('Try Statement Handler', () => {
               callExpression(identifier('pcall'), [
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     mockNodeWithValue(
                       babelVariableDeclaration('let', [
                         babelVariableDeclarator(babelIdentifier('foo')),
                       ])
                     ),
-                  ]
+                  ])
                 ),
               ])
             ),
           ]
         ),
         ifStatement(
-          ifClause(identifier('hasReturned'), [
-            returnStatement(identifier('result')),
-          ])
+          ifClause(
+            identifier('hasReturned'),
+            nodeGroup([returnStatement(identifier('result'))])
+          )
         ),
         ifStatement(
-          ifClause(unaryNegationExpression(identifier('ok')), [
-            callExpression(identifier('error'), [identifier('result')]),
-          ])
+          ifClause(
+            unaryNegationExpression(identifier('ok')),
+            nodeGroup([
+              callExpression(identifier('error'), [identifier('result')]),
+            ])
+          )
         ),
       ]),
       'ROBLOX COMMENT: try block conversion'
@@ -114,32 +119,33 @@ describe('Try Statement Handler', () => {
               callExpression(identifier('xpcall'), [
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     mockNodeWithValue(
                       babelVariableDeclaration('let', [
                         babelVariableDeclarator(babelIdentifier('foo')),
                       ])
                     ),
-                  ]
+                  ])
                 ),
                 functionExpression(
                   [mockNodeWithValue(babelIdentifier('error'))],
-                  [
+                  nodeGroup([
                     mockNodeWithValue(
                       babelVariableDeclaration('let', [
                         babelVariableDeclarator(babelIdentifier('bar')),
                       ])
                     ),
-                  ]
+                  ])
                 ),
               ])
             ),
           ]
         ),
         ifStatement(
-          ifClause(identifier('hasReturned'), [
-            returnStatement(identifier('result')),
-          ])
+          ifClause(
+            identifier('hasReturned'),
+            nodeGroup([returnStatement(identifier('result'))])
+          )
         ),
       ]),
       'ROBLOX COMMENT: try-catch block conversion'
@@ -175,13 +181,13 @@ describe('Try Statement Handler', () => {
               callExpression(identifier('pcall'), [
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     mockNodeWithValue(
                       babelVariableDeclaration('let', [
                         babelVariableDeclarator(babelIdentifier('foo')),
                       ])
                     ),
-                  ]
+                  ])
                 ),
               ])
             ),
@@ -195,14 +201,18 @@ describe('Try Statement Handler', () => {
           ),
         ]),
         ifStatement(
-          ifClause(identifier('hasReturned'), [
-            returnStatement(identifier('result')),
-          ])
+          ifClause(
+            identifier('hasReturned'),
+            nodeGroup([returnStatement(identifier('result'))])
+          )
         ),
         ifStatement(
-          ifClause(unaryNegationExpression(identifier('ok')), [
-            callExpression(identifier('error'), [identifier('result')]),
-          ])
+          ifClause(
+            unaryNegationExpression(identifier('ok')),
+            nodeGroup([
+              callExpression(identifier('error'), [identifier('result')]),
+            ])
+          )
         ),
       ]),
       'ROBLOX COMMENT: try-finally block conversion'
@@ -245,23 +255,23 @@ describe('Try Statement Handler', () => {
               callExpression(identifier('xpcall'), [
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     mockNodeWithValue(
                       babelVariableDeclaration('let', [
                         babelVariableDeclarator(babelIdentifier('foo')),
                       ])
                     ),
-                  ]
+                  ])
                 ),
                 functionExpression(
                   [mockNodeWithValue(babelIdentifier('error'))],
-                  [
+                  nodeGroup([
                     mockNodeWithValue(
                       babelVariableDeclaration('let', [
                         babelVariableDeclarator(babelIdentifier('bar')),
                       ])
                     ),
-                  ]
+                  ])
                 ),
               ])
             ),
@@ -275,9 +285,10 @@ describe('Try Statement Handler', () => {
           ),
         ]),
         ifStatement(
-          ifClause(identifier('hasReturned'), [
-            returnStatement(identifier('result')),
-          ])
+          ifClause(
+            identifier('hasReturned'),
+            nodeGroup([returnStatement(identifier('result'))])
+          )
         ),
       ]),
       'ROBLOX COMMENT: try-catch-finally block conversion'

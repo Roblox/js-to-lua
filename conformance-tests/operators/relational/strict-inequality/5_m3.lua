@@ -1,2 +1,2 @@
 local a, b = true, false
-local foo = a ~= b
+local foo = a ~= b -- true

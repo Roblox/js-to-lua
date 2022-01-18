@@ -61,14 +61,14 @@ describe('Assignment Expression Handler', () => {
     const expected = callExpression(
       functionExpression(
         [],
-        [
+        nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [mockNodeWithValue(leftGiven) as LuaIdentifier],
             [mockNodeWithValue(rightGiven)]
           ),
           returnStatement(mockNodeWithValue(leftGiven)),
-        ]
+        ])
       ),
       []
     );
@@ -91,7 +91,7 @@ describe('Assignment Expression Handler', () => {
     const expected = callExpression(
       functionExpression(
         [],
-        [
+        nodeGroup([
           nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
@@ -105,7 +105,7 @@ describe('Assignment Expression Handler', () => {
             ),
           ]),
           returnStatement(mockNodeWithValue(leftGiven)),
-        ]
+        ])
       ),
       []
     );

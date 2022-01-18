@@ -75,7 +75,7 @@ describe('Switch Statement Handler', () => {
                     '==',
                     identifier('v')
                   ),
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         binaryExpression(
@@ -83,7 +83,7 @@ describe('Switch Statement Handler', () => {
                           '==',
                           numericLiteral(1, '1')
                         ),
-                        [
+                        nodeGroup([
                           assignmentStatement(
                             AssignmentStatementOperatorEnum.EQ,
                             [identifier('entered_')],
@@ -97,7 +97,7 @@ describe('Switch Statement Handler', () => {
                             ),
                             breakStatement(),
                           ]),
-                        ]
+                        ])
                       )
                     ),
                     ifStatement(
@@ -111,7 +111,7 @@ describe('Switch Statement Handler', () => {
                           ),
                           identifier('entered_')
                         ),
-                        [
+                        nodeGroup([
                           assignmentStatement(
                             AssignmentStatementOperatorEnum.EQ,
                             [identifier('entered_')],
@@ -125,18 +125,19 @@ describe('Switch Statement Handler', () => {
                             ),
                             breakStatement(),
                           ]),
-                        ]
+                        ])
                       )
                     ),
-                  ]
+                  ])
                 )
               ),
             ]
           ),
           ifStatement(
-            ifClause(unaryNegationExpression(identifier('break_')), [
-              breakStatement(),
-            ])
+            ifClause(
+              unaryNegationExpression(identifier('break_')),
+              nodeGroup([breakStatement()])
+            )
           ),
         ]),
         'ROBLOX comment: switch statement conversion'
@@ -191,7 +192,7 @@ describe('Switch Statement Handler', () => {
                     '==',
                     identifier('v')
                   ),
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         binaryExpression(
@@ -199,7 +200,7 @@ describe('Switch Statement Handler', () => {
                           '==',
                           numericLiteral(1, '1')
                         ),
-                        [
+                        nodeGroup([
                           assignmentStatement(
                             AssignmentStatementOperatorEnum.EQ,
                             [identifier('entered_')],
@@ -213,7 +214,7 @@ describe('Switch Statement Handler', () => {
                             ),
                             breakStatement(),
                           ]),
-                        ]
+                        ])
                       )
                     ),
                     ifStatement(
@@ -227,7 +228,7 @@ describe('Switch Statement Handler', () => {
                           ),
                           identifier('entered_')
                         ),
-                        [
+                        nodeGroup([
                           assignmentStatement(
                             AssignmentStatementOperatorEnum.EQ,
                             [identifier('entered_')],
@@ -241,10 +242,10 @@ describe('Switch Statement Handler', () => {
                             ),
                             breakStatement(),
                           ]),
-                        ]
+                        ])
                       )
                     ),
-                  ]
+                  ])
                 )
               ),
             ]
@@ -308,7 +309,7 @@ describe('Switch Statement Handler', () => {
                     '==',
                     identifier('v')
                   ),
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         binaryExpression(
@@ -316,13 +317,13 @@ describe('Switch Statement Handler', () => {
                           '==',
                           numericLiteral(1, '1')
                         ),
-                        [
+                        nodeGroup([
                           assignmentStatement(
                             AssignmentStatementOperatorEnum.EQ,
                             [identifier('entered_')],
                             [booleanLiteral(true)]
                           ),
-                        ]
+                        ])
                       )
                     ),
                     ifStatement(
@@ -336,7 +337,7 @@ describe('Switch Statement Handler', () => {
                           ),
                           identifier('entered_')
                         ),
-                        [
+                        nodeGroup([
                           assignmentStatement(
                             AssignmentStatementOperatorEnum.EQ,
                             [identifier('entered_')],
@@ -350,7 +351,7 @@ describe('Switch Statement Handler', () => {
                             ),
                             breakStatement(),
                           ]),
-                        ]
+                        ])
                       )
                     ),
                     ifStatement(
@@ -364,13 +365,13 @@ describe('Switch Statement Handler', () => {
                           ),
                           identifier('entered_')
                         ),
-                        [
+                        nodeGroup([
                           assignmentStatement(
                             AssignmentStatementOperatorEnum.EQ,
                             [identifier('entered_')],
                             [booleanLiteral(true)]
                           ),
-                        ]
+                        ])
                       )
                     ),
                     ifStatement(
@@ -384,7 +385,7 @@ describe('Switch Statement Handler', () => {
                           ),
                           identifier('entered_')
                         ),
-                        [
+                        nodeGroup([
                           assignmentStatement(
                             AssignmentStatementOperatorEnum.EQ,
                             [identifier('entered_')],
@@ -398,18 +399,19 @@ describe('Switch Statement Handler', () => {
                             ),
                             breakStatement(),
                           ]),
-                        ]
+                        ])
                       )
                     ),
-                  ]
+                  ])
                 )
               ),
             ]
           ),
           ifStatement(
-            ifClause(unaryNegationExpression(identifier('break_')), [
-              breakStatement(),
-            ])
+            ifClause(
+              unaryNegationExpression(identifier('break_')),
+              nodeGroup([breakStatement()])
+            )
           ),
         ]),
         'ROBLOX comment: switch statement conversion'

@@ -7,8 +7,6 @@ const observerOptions = {
             reject('Should have data by this point');
             break;
           }
-          // First result is loaded, run a refetch to get the second result
-          // which is an error.
           expect(stripSymbols(result.data!.allPeople)).toEqual(data.allPeople);
           setTimeout(() => {
             observable.refetch().then(() => {
@@ -17,7 +15,6 @@ const observerOptions = {
           }, 0);
           break;
         case 4:
-          // Third result's data is loaded
           expect(result.loading).toBeFalsy();
           expect(result.networkStatus).toBe(7);
           expect(result.errors).toBeFalsy();

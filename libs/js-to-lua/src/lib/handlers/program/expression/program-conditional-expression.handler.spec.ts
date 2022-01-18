@@ -11,6 +11,7 @@ import {
   LuaLogicalExpressionOperatorEnum,
   memberExpression,
   nilLiteral,
+  nodeGroup,
   numericLiteral,
   program,
   returnStatement,
@@ -72,7 +73,7 @@ describe('Program handler', () => {
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         callExpression(
@@ -83,12 +84,12 @@ describe('Program handler', () => {
                           ),
                           [identifier('a')]
                         ),
-                        [returnStatement(identifier('b'))]
+                        nodeGroup([returnStatement(identifier('b'))])
                       ),
                       [],
-                      elseClause([returnStatement(identifier('c'))])
+                      elseClause(nodeGroup([returnStatement(identifier('c'))]))
                     ),
-                  ]
+                  ])
                 ),
                 []
               )
@@ -144,15 +145,18 @@ describe('Program handler', () => {
                   callExpression(
                     functionExpression(
                       [],
-                      [
+                      nodeGroup([
                         ifStatement(
-                          ifClause(coerced(testGiven), [
-                            returnStatement(identifier('b')),
-                          ]),
+                          ifClause(
+                            coerced(testGiven),
+                            nodeGroup([returnStatement(identifier('b'))])
+                          ),
                           [],
-                          elseClause([returnStatement(identifier('c'))])
+                          elseClause(
+                            nodeGroup([returnStatement(identifier('c'))])
+                          )
                         ),
-                      ]
+                      ])
                     ),
                     []
                   )
@@ -218,7 +222,7 @@ describe('Program handler', () => {
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         callExpression(
@@ -229,12 +233,12 @@ describe('Program handler', () => {
                           ),
                           [identifier('a')]
                         ),
-                        [returnStatement(booleanLiteral(false))]
+                        nodeGroup([returnStatement(booleanLiteral(false))])
                       ),
                       [],
-                      elseClause([returnStatement(identifier('c'))])
+                      elseClause(nodeGroup([returnStatement(identifier('c'))]))
                     ),
-                  ]
+                  ])
                 ),
                 []
               )
@@ -243,7 +247,7 @@ describe('Program handler', () => {
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         callExpression(
@@ -254,12 +258,12 @@ describe('Program handler', () => {
                           ),
                           [identifier('a')]
                         ),
-                        [returnStatement(nilLiteral())]
+                        nodeGroup([returnStatement(nilLiteral())])
                       ),
                       [],
-                      elseClause([returnStatement(identifier('c'))])
+                      elseClause(nodeGroup([returnStatement(identifier('c'))]))
                     ),
-                  ]
+                  ])
                 ),
                 []
               )
@@ -268,7 +272,7 @@ describe('Program handler', () => {
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     ifStatement(
                       ifClause(
                         callExpression(
@@ -279,12 +283,12 @@ describe('Program handler', () => {
                           ),
                           [identifier('a')]
                         ),
-                        [returnStatement(nilLiteral())]
+                        nodeGroup([returnStatement(nilLiteral())])
                       ),
                       [],
-                      elseClause([returnStatement(identifier('c'))])
+                      elseClause(nodeGroup([returnStatement(identifier('c'))]))
                     ),
-                  ]
+                  ])
                 ),
                 []
               )

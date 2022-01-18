@@ -70,7 +70,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`BaseClass.new`),
             [],
-            [
+            nodeGroup([
               variableDeclaration(
                 [variableDeclaratorIdentifier(selfIdentifier())],
                 [
@@ -83,7 +83,7 @@ describe('Class Declaration', () => {
                 ]
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
@@ -117,7 +117,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier('BaseClass.new'),
             [],
-            [
+            nodeGroup([
               variableDeclaration(
                 [variableDeclaratorIdentifier(selfIdentifier())],
                 [
@@ -130,7 +130,7 @@ describe('Class Declaration', () => {
                 ]
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
@@ -172,7 +172,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`BaseClass.new`),
             [],
-            [
+            nodeGroup([
               variableDeclaration(
                 [variableDeclaratorIdentifier(selfIdentifier())],
                 [
@@ -185,14 +185,14 @@ describe('Class Declaration', () => {
                 ]
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
           functionDeclaration(
             identifier('BaseClass:myMethod'),
             [],
-            [],
+            nodeGroup([]),
             undefined,
             false
           ),
@@ -228,7 +228,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`BaseClass.new`),
             [],
-            [
+            nodeGroup([
               variableDeclaration(
                 [variableDeclaratorIdentifier(selfIdentifier())],
                 [
@@ -241,14 +241,14 @@ describe('Class Declaration', () => {
                 ]
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
           functionDeclaration(
             identifier('BaseClass.myStaticMethod'),
             [],
-            [],
+            nodeGroup([]),
             undefined,
             false
           ),
@@ -295,7 +295,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`BaseClass.new`),
             [],
-            [
+            nodeGroup([
               variableDeclaration(
                 [variableDeclaratorIdentifier(selfIdentifier())],
                 [
@@ -308,7 +308,7 @@ describe('Class Declaration', () => {
                 ]
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
@@ -348,7 +348,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`BaseClass.new`),
             [],
-            [
+            nodeGroup([
               variableDeclaration(
                 [variableDeclaratorIdentifier(selfIdentifier())],
                 [
@@ -361,20 +361,20 @@ describe('Class Declaration', () => {
                 ]
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
           functionDeclaration(
             identifier('BaseClass:myMethod'),
             [],
-            [
+            nodeGroup([
               expressionStatement(
                 callExpression(identifier('error'), [
                   stringLiteral('not implemented abstract method'),
                 ])
               ),
-            ],
+            ]),
             undefined,
             false
           ),
@@ -426,7 +426,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`SubClass.new`),
             [],
-            [
+            nodeGroup([
               withTrailingConversionComment(
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
@@ -442,7 +442,7 @@ describe('Class Declaration', () => {
                 `ROBLOX TODO: super constructor may be used`
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
@@ -476,7 +476,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier('SubClass.new'),
             [],
-            [
+            nodeGroup([
               withTrailingConversionComment(
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
@@ -492,7 +492,7 @@ describe('Class Declaration', () => {
                 `ROBLOX TODO: super constructor may be used`
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
@@ -534,7 +534,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`SubClass.new`),
             [],
-            [
+            nodeGroup([
               withTrailingConversionComment(
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
@@ -550,14 +550,14 @@ describe('Class Declaration', () => {
                 `ROBLOX TODO: super constructor may be used`
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
           functionDeclaration(
             identifier('SubClass:myMethod'),
             [],
-            [],
+            nodeGroup([]),
             undefined,
             false
           ),
@@ -592,7 +592,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`SubClass.new`),
             [],
-            [
+            nodeGroup([
               withTrailingConversionComment(
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
@@ -608,14 +608,14 @@ describe('Class Declaration', () => {
                 `ROBLOX TODO: super constructor may be used`
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),
           functionDeclaration(
             identifier('SubClass.myStaticMethod'),
             [],
-            [],
+            nodeGroup([]),
             undefined,
             false
           ),
@@ -662,7 +662,7 @@ describe('Class Declaration', () => {
           functionDeclaration(
             identifier(`SubClass.new`),
             [],
-            [
+            nodeGroup([
               withTrailingConversionComment(
                 variableDeclaration(
                   [variableDeclaratorIdentifier(selfIdentifier())],
@@ -678,7 +678,7 @@ describe('Class Declaration', () => {
                 `ROBLOX TODO: super constructor may be used`
               ),
               returnStatement(selfIdentifier()),
-            ],
+            ]),
             undefined,
             false
           ),

@@ -1,2 +1,2 @@
 local a, b = "hello", "hola"
-local foo = a == b
+local foo = a == b -- false

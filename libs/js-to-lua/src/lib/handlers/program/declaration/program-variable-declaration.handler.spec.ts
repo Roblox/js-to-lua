@@ -358,7 +358,7 @@ describe('Program handler', () => {
               callExpression(
                 functionExpression(
                   [],
-                  [
+                  nodeGroup([
                     variableDeclaration(
                       [variableDeclaratorIdentifier(identifier('element'))],
                       [
@@ -378,12 +378,14 @@ describe('Program handler', () => {
                           '==',
                           nilLiteral()
                         ),
-                        [returnStatement(numericLiteral(3, '3'))]
+                        nodeGroup([returnStatement(numericLiteral(3, '3'))])
                       ),
                       undefined,
-                      elseClause([returnStatement(identifier('element'))])
+                      elseClause(
+                        nodeGroup([returnStatement(identifier('element'))])
+                      )
                     ),
-                  ]
+                  ])
                 ),
                 []
               )
@@ -894,7 +896,7 @@ describe('Program handler', () => {
             callExpression(
               functionExpression(
                 [],
-                [
+                nodeGroup([
                   ifStatement(
                     ifClause(
                       binaryExpression(
@@ -906,20 +908,22 @@ describe('Program handler', () => {
                         '==',
                         nilLiteral()
                       ),
-                      [returnStatement(numericLiteral(3, '3'))]
+                      nodeGroup([returnStatement(numericLiteral(3, '3'))])
                     ),
                     undefined,
-                    elseClause([
-                      returnStatement(
-                        memberExpression(
-                          identifier('fizz'),
-                          '.',
-                          identifier('bar')
-                        )
-                      ),
-                    ])
+                    elseClause(
+                      nodeGroup([
+                        returnStatement(
+                          memberExpression(
+                            identifier('fizz'),
+                            '.',
+                            identifier('bar')
+                          )
+                        ),
+                      ])
+                    )
                   ),
-                ]
+                ])
               ),
               []
             )

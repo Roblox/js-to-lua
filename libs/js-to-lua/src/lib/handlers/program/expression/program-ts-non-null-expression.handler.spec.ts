@@ -4,6 +4,7 @@ import {
   functionDeclaration,
   identifier,
   indexExpression,
+  nodeGroup,
   program,
   returnStatement,
   typeAny,
@@ -72,7 +73,11 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('foo'),
           [],
-          [returnStatement(typeCastExpression(identifier('bar'), typeAny()))]
+          nodeGroup([
+            nodeGroup([
+              returnStatement(typeCastExpression(identifier('bar'), typeAny())),
+            ]),
+          ])
         ),
       ]);
 

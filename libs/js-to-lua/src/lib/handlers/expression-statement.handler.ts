@@ -44,6 +44,7 @@ import {
   LuaStatement,
   LuaTableKeyField,
   memberExpression,
+  nodeGroup,
   numericLiteral,
   returnStatement,
   stringLiteral,
@@ -230,12 +231,12 @@ export const handleFunctionExpression: BaseNodeHandler<
 
   return functionExpression(
     functionParamsHandler(source, config, node),
-    [
+    nodeGroup([
       ...handleParamsBody(source, config, node),
       ...node.body.body.map<LuaStatement>(
         handleStatement.handler(source, config)
       ),
-    ],
+    ]),
     node.returnType ? typesHandler(source, config, node.returnType) : undefined
   );
 });
@@ -255,7 +256,10 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
   );
   return functionExpression(
     functionParamsHandler(source, config, node),
-    [...handleParamsBody(source, config, node), ...handleFunctionBody(node)],
+    nodeGroup([
+      ...handleParamsBody(source, config, node),
+      ...handleFunctionBody(node),
+    ]),
     node.returnType ? typesHandler(source, config, node.returnType) : undefined
   );
 });
@@ -269,7 +273,7 @@ export const handleUpdateExpression: BaseNodeHandler<
     node.prefix
       ? functionExpression(
           [],
-          [
+          nodeGroup([
             assignmentStatement(
               node.operator === '++'
                 ? AssignmentStatementOperatorEnum.ADD
@@ -280,11 +284,11 @@ export const handleUpdateExpression: BaseNodeHandler<
             returnStatement(
               handleExpression.handler(source, config, node.argument)
             ),
-          ]
+          ])
         )
       : functionExpression(
           [],
-          [
+          nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier(resultName))],
               [
@@ -301,7 +305,7 @@ export const handleUpdateExpression: BaseNodeHandler<
               [numericLiteral(1)]
             ),
             returnStatement(identifier(resultName)),
-          ]
+          ])
         ),
     []
   );
@@ -439,14 +443,14 @@ export const handleObjectValueFunctionExpression: BaseNodeHandler<
 
   return functionExpression(
     params,
-    [
+    nodeGroup([
       ...node.params
         .filter(isBabelAssignmentPattern)
         .map((param) => handleAssignmentPattern(source, config, param)),
       ...node.body.body.map<LuaStatement>(
         handleStatement.handler(source, config)
       ),
-    ],
+    ]),
     node.returnType ? typesHandler(source, config, node.returnType) : undefined
   );
 });
@@ -533,12 +537,12 @@ export const handleObjectMethod: BaseNodeHandler<
         handleObjectPropertyIdentifier.handler(source, config, key),
         functionExpression(
           params,
-          [
+          nodeGroup([
             ...handleParamsBody(source, config, node),
             ...node.body.body.map<LuaStatement>(
               handleStatement.handler(source, config)
             ),
-          ],
+          ]),
           node.returnType
             ? typesHandler(source, config, node.returnType)
             : undefined
@@ -549,12 +553,12 @@ export const handleObjectMethod: BaseNodeHandler<
         handleObjectKeyExpression.handler(source, config, node.key),
         functionExpression(
           params,
-          [
+          nodeGroup([
             ...handleParamsBody(source, config, node),
             ...node.body.body.map<LuaStatement>(
               handleStatement.handler(source, config)
             ),
-          ],
+          ]),
           node.returnType
             ? typesHandler(source, config, node.returnType)
             : undefined

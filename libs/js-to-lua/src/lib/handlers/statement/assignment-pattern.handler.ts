@@ -9,6 +9,7 @@ import {
   LuaExpression,
   LuaIdentifier,
   nilLiteral,
+  nodeGroup,
   unhandledStatement,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
@@ -29,13 +30,16 @@ export const createAssignmentPatternHandlerFunction = (
       const leftExpression = handleIdentifier(source, config, node.left);
       delete leftExpression.typeAnnotation;
       return ifStatement(
-        ifClause(binaryExpression(leftExpression, '==', nilLiteral()), [
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [leftExpression],
-            [rightExpression]
-          ),
-        ])
+        ifClause(
+          binaryExpression(leftExpression, '==', nilLiteral()),
+          nodeGroup([
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [leftExpression],
+              [rightExpression]
+            ),
+          ])
+        )
       );
     }
     return withTrailingConversionComment(
