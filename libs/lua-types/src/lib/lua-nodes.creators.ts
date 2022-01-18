@@ -353,14 +353,43 @@ export const booleanMethod = (methodName: BooleanMethod): LuaMemberExpression =>
 
 export const bit32Identifier = (): LuaIdentifier => identifier('bit32');
 
+export const arrayPolyfilledMethodNames = [
+  'concat',
+  'every',
+  'filter',
+  'find',
+  'findIndex',
+  'forEach',
+  'from',
+  'includes',
+  'indexOf',
+  'join',
+  'map',
+  'reduce',
+  'reverse',
+  // 'shift' is handled separately
+  'slice',
+  'some',
+  'sort',
+  'splice',
+  // 'unshift' is handled separately
+] as const;
+
+export type ArrayPolyfilledMethodName =
+  | typeof arrayPolyfilledMethodNames[number]
+  | 'shift'
+  | 'unshift';
+
 export const arrayIdentifier = (): LuaIdentifier =>
   withPolyfillExtra('Array')(identifier('Array'));
-export const arrayConcat = (): LuaMemberExpression =>
-  memberExpression(arrayIdentifier(), '.', identifier('concat'));
+export const arrayMethod = (
+  methodName: ArrayPolyfilledMethodName
+): LuaMemberExpression =>
+  memberExpression(arrayIdentifier(), '.', identifier(methodName));
+export const arrayConcat = (): LuaMemberExpression => arrayMethod('concat');
 export const arraySpread = (): LuaMemberExpression =>
   memberExpression(arrayIdentifier(), '.', identifier('spread'));
-export const arrayIndexOf = (): LuaMemberExpression =>
-  memberExpression(arrayIdentifier(), '.', identifier('indexOf'));
+export const arrayIndexOf = (): LuaMemberExpression => arrayMethod('indexOf');
 
 export const objectIdentifier = (): LuaIdentifier =>
   withPolyfillExtra('Object')(identifier('Object'));

@@ -23,6 +23,12 @@ export type HandlerFunction<
   Config extends ConfigBase = EmptyConfig
 > = F.Curry<(source: string, config: Config, node: T) => R>;
 
+export type OptionalHandlerFunction<
+  R extends LuaNode,
+  T extends BabelNode = BabelNode,
+  Config extends ConfigBase = EmptyConfig
+> = F.Curry<(source: string, config: Config, node: T) => R | undefined>;
+
 export interface BaseNodeHandler<
   R extends LuaNode,
   T extends BabelNode = BabelNode,
@@ -38,6 +44,12 @@ type NonCurriedHandlerFunction<
   Config extends ConfigBase = EmptyConfig
 > = (source: string, config: Config, node: T) => R;
 
+type NonCurriedOptionalHandlerFunction<
+  R extends LuaNode,
+  T extends BabelNode = BabelNode,
+  Config extends ConfigBase = EmptyConfig
+> = (source: string, config: Config, node: T) => R | undefined;
+
 export const createHandlerFunction = <
   R extends LuaNode,
   T extends BabelNode = BabelNode,
@@ -47,6 +59,17 @@ export const createHandlerFunction = <
 ): HandlerFunction<R, T, Config> =>
   curry(function (source: string, config: Config, node: T): R {
     return handleComments(source, node, func(source, config, node));
+  });
+
+export const createOptionalHandlerFunction = <
+  R extends LuaNode,
+  T extends BabelNode = BabelNode,
+  Config extends ConfigBase = EmptyConfig
+>(
+  func: NonCurriedOptionalHandlerFunction<R, T, Config>
+): OptionalHandlerFunction<R, T, Config> =>
+  curry(function (source: string, config: Config, node: T): R | undefined {
+    return func(source, config, node);
   });
 
 export const createHandler = <

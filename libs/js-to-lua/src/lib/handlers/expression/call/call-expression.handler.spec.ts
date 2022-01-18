@@ -14,11 +14,16 @@ import {
   stringLiteral,
 } from '@js-to-lua/lua-types';
 import {
-  handleCallExpression,
+  createCallExpressionHandler,
   USE_DOT_NOTATION_IN_CALL_EXPRESSION,
-} from '../expression-statement.handler';
+} from './call-expression.handler';
+import { handleExpression } from '../../expression-statement.handler';
 
 const source = '';
+
+const handleCallExpression = createCallExpressionHandler(
+  handleExpression.handler
+);
 
 describe('Call Expression Handler', () => {
   it(`should return Call with no parameters`, () => {

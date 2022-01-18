@@ -10,7 +10,7 @@ import {
   withPolyfillExtra,
 } from '@js-to-lua/lua-types';
 import { Expression, NewExpression } from '@babel/types';
-import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
+import { createCalleeExpressionHandlerFunction } from './call/callee-expression.handler';
 
 const requirePolyfill = ['Error', 'Map', 'Set', 'WeakMap'] as PolyfillID[];
 export const createNewExpressionHandler = (

@@ -3,16 +3,11 @@ import { BaseNodeHandler, createHandler } from '../types';
 import {
   ArrowFunctionExpression,
   AssignmentPattern,
-  CallExpression,
   Expression,
   ExpressionStatement,
   FunctionExpression,
   Identifier,
   isAssignmentPattern as isBabelAssignmentPattern_,
-  isCallExpression as isBabelCallExpression,
-  isIdentifier as isBabelIdentifier,
-  isMemberExpression as isBabelMemberExpression,
-  MemberExpression,
   ObjectExpression,
   ObjectMethod,
   ObjectProperty,
@@ -40,10 +35,8 @@ import {
   LuaCallExpression,
   LuaExpression,
   LuaFunctionExpression,
-  LuaIdentifier,
   LuaStatement,
   LuaTableKeyField,
-  memberExpression,
   nodeGroup,
   numericLiteral,
   returnStatement,
@@ -95,7 +88,6 @@ import {
   createSequenceExpressionHandler,
 } from './expression/sequence-expression.handler';
 import { createFunctionBodyHandler } from './expression/function-body.handler';
-import { createCalleeExpressionHandlerFunction } from './expression/callee-expression.handler';
 import { createNewExpressionHandler } from './expression/new-expression.handler';
 import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
 import { createThisExpressionHandler } from './expression/this-expression.handler';
@@ -104,26 +96,7 @@ import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expre
 import { createTaggedTemplateExpressionHandler } from './expression/tagged-template-expression.handler';
 import { createAwaitExpressionHandler } from './expression/await-expression.handler';
 import { createExpressionStatement } from '../utils/create-expression-statement';
-
-type MemberExpressionPredicate = (node: MemberExpression) => boolean;
-const isExpectCall = (node: MemberExpression): boolean => {
-  return (
-    isBabelCallExpression(node.object) &&
-    isBabelIdentifier(node.object.callee) &&
-    node.object.callee.name === 'expect'
-  );
-};
-
-const isNestedExpectCall = (node: MemberExpression): boolean => {
-  return (
-    isBabelMemberExpression(node.object) &&
-    (isExpectCall(node.object) || isNestedExpectCall(node.object))
-  );
-};
-
-export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
-  string | MemberExpressionPredicate
-> = ['React', 'Object', 'Array', isExpectCall, isNestedExpectCall];
+import { createCallExpressionHandler } from './expression/call/call-expression.handler';
 
 type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,
@@ -160,62 +133,6 @@ export const handleExpressionStatement = createHandler(
     return isExpression(expression)
       ? createExpressionStatement(source, babelExpression, expression)
       : expression;
-  }
-);
-
-export const handleCallExpression = createHandler(
-  'CallExpression',
-  (source, config, expression: CallExpression): LuaCallExpression => {
-    if (
-      expression.callee.type !== 'MemberExpression' ||
-      USE_DOT_NOTATION_IN_CALL_EXPRESSION.some((identifierName) =>
-        typeof identifierName === 'string'
-          ? matchesMemberExpressionObject(
-              identifierName,
-              expression.callee as MemberExpression
-            )
-          : identifierName(expression.callee as MemberExpression)
-      )
-    ) {
-      return callExpression(
-        handleCalleeExpression(source, config, expression.callee),
-        expression.arguments.map(handleExpression.handler(source, config))
-      );
-    }
-
-    if (
-      matchesMemberExpressionProperty('toString', expression.callee) &&
-      !expression.arguments.length
-    ) {
-      return callExpression(identifier('tostring'), [
-        handleCalleeExpression(source, config, expression.callee.object),
-      ]);
-    }
-
-    if (expression.callee.computed) {
-      return callExpression(
-        handleCalleeExpression(source, config, expression.callee),
-        [
-          handleCalleeExpression(source, config, expression.callee.object),
-          ...(expression.arguments.map(
-            handleExpression.handler(source, config)
-          ) as LuaExpression[]),
-        ]
-      );
-    }
-
-    return callExpression(
-      memberExpression(
-        handleExpression.handler(source, config, expression.callee.object),
-        ':',
-        handleExpression.handler(
-          source,
-          config,
-          expression.callee.property as Expression
-        ) as LuaIdentifier
-      ),
-      expression.arguments.map(handleExpression.handler(source, config))
-    );
   }
 );
 
@@ -336,7 +253,7 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     handleBooleanLiteral,
     handleNullLiteral,
     createArrayExpressionHandler(forwardHandlerRef(() => handleExpression)),
-    handleCallExpression,
+    createCallExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createObjectExpressionHandler(
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleObjectField)
@@ -572,10 +489,6 @@ export const handleObjectField = combineHandlers<
   NoSpreadObjectProperty
 >([handleObjectProperty, handleObjectMethod], defaultExpressionHandler);
 
-const handleCalleeExpression = createCalleeExpressionHandlerFunction(
-  forwardHandlerRef(() => handleExpression)
-);
-
 export const handleStatement: BaseNodeHandler<LuaStatement> =
   combineStatementHandlers<LuaStatement>([
     handleExpressionStatement,
@@ -618,27 +531,4 @@ function generateUniqueIdentifier(
     .some((node) => (node as Identifier).name === defaultValue)
     ? generateUniqueIdentifier(nodes, `${defaultValue}_`)
     : defaultValue;
-}
-
-function matchesMemberExpressionProperty(
-  identifierName: string,
-  node: MemberExpression
-): boolean {
-  return (
-    (!node.computed &&
-      node.property.type === 'Identifier' &&
-      node.property.name === identifierName) ||
-    (node.computed &&
-      node.property.type === 'StringLiteral' &&
-      node.property.value === identifierName)
-  );
-}
-
-function matchesMemberExpressionObject(
-  identifierName: string,
-  node: MemberExpression
-): boolean {
-  return (
-    node.object.type === 'Identifier' && node.object.name === identifierName
-  );
 }
