@@ -380,6 +380,16 @@ export type ArrayPolyfilledMethodName =
   | 'shift'
   | 'unshift';
 
+export const promiseMethods = ['resolve'] as const;
+
+export type PromiseMethodName = typeof promiseMethods[number];
+
+export const promiseIdentifier = (): LuaIdentifier => identifier('Promise');
+export const promiseMethod = (
+  methodName: PromiseMethodName
+): LuaMemberExpression =>
+  memberExpression(promiseIdentifier(), '.', identifier(methodName));
+
 export const arrayIdentifier = (): LuaIdentifier =>
   withPolyfillExtra('Array')(identifier('Array'));
 export const arrayMethod = (

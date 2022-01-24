@@ -140,6 +140,10 @@ export const handleFunctionExpression: BaseNodeHandler<
   LuaFunctionExpression,
   FunctionExpression
 > = createHandler('FunctionExpression', (source, config, node) => {
+  const handleFunctionBody = createFunctionBodyHandler(
+    handleStatement.handler,
+    handleExpressionAsStatement.handler
+  )(source, config);
   const handleParamsBody = createFunctionParamsBodyHandler(
     forwardHandlerRef(() => handleDeclaration),
     handleAssignmentPattern,
@@ -150,9 +154,7 @@ export const handleFunctionExpression: BaseNodeHandler<
     functionParamsHandler(source, config, node),
     nodeGroup([
       ...handleParamsBody(source, config, node),
-      ...node.body.body.map<LuaStatement>(
-        handleStatement.handler(source, config)
-      ),
+      ...handleFunctionBody(node),
     ]),
     node.returnType ? typesHandler(source, config, node.returnType) : undefined
   );

@@ -1,5 +1,5 @@
-local function f()
+(function()
 	return Promise.resolve():andThen(function()
-		local bar = foo:expect()
+		return bar:expect()
 	end)
-end
+end)()

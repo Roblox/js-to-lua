@@ -1,3 +1,5 @@
 local function f()
-	local foo = Promise:resolve():expect()
+	return Promise.resolve():andThen(function()
+		local foo = Promise:resolve():expect()
+	end)
 end

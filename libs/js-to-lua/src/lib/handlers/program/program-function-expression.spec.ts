@@ -5,10 +5,13 @@ import {
   binaryExpression,
   callExpression,
   functionDeclaration,
+  functionExpression,
   identifier,
   ifClause,
   ifStatement,
+  LuaExpression,
   LuaProgram,
+  LuaStatement,
   memberExpression,
   nilLiteral,
   nodeGroup,
@@ -437,6 +440,198 @@ describe('Program handler', () => {
       const luaProgram = handleProgram.handler(source, {}, given);
 
       expect(luaProgram).toEqual(expected);
+    });
+
+    describe('async', () => {
+      it('should handle function with params', () => {
+        const given = getProgramNode(`
+          const foo = async function(bar, baz) {}
+        `);
+
+        const expected: LuaProgram = program([
+          functionDeclaration(
+            identifier('foo'),
+            [identifier('bar'), identifier('baz')],
+            nodeGroup([
+              returnStatement(
+                callExpression(
+                  memberExpression(
+                    identifier('Promise'),
+                    '.',
+                    identifier('resolve')
+                  ),
+                  [nilLiteral()]
+                )
+              ),
+            ])
+          ),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+        expect(luaProgram).toEqual(expected);
+      });
+
+      it('should handle function with params and default values', () => {
+        const given = getProgramNode(`
+          const foo = async function(bar, baz = 'hello') {}
+        `);
+
+        const expected: LuaProgram = program([
+          functionDeclaration(
+            identifier('foo'),
+            [
+              identifier('bar'),
+              identifier('baz', typeAnnotation(typeOptional(typeString()))),
+            ],
+            nodeGroup([
+              ifStatement(
+                ifClause(
+                  binaryExpression(identifier('baz'), '==', nilLiteral()),
+                  nodeGroup([
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
+                      [identifier('baz')],
+                      [stringLiteral('hello')]
+                    ),
+                  ])
+                )
+              ),
+              returnStatement(
+                callExpression(
+                  memberExpression(
+                    identifier('Promise'),
+                    '.',
+                    identifier('resolve')
+                  ),
+                  [nilLiteral()]
+                )
+              ),
+            ])
+          ),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+        expect(luaProgram).toEqual(expected);
+      });
+
+      it('should handle function with body', () => {
+        const given = getProgramNode(`
+          const foo = async function(bar, baz = 'hello') {
+            let fizz = 'fuzz';
+          }
+        `);
+
+        const expected: LuaProgram = program([
+          functionDeclaration(
+            identifier('foo'),
+            [
+              identifier('bar'),
+              identifier('baz', typeAnnotation(typeOptional(typeString()))),
+            ],
+            nodeGroup([
+              ifStatement(
+                ifClause(
+                  binaryExpression(identifier('baz'), '==', nilLiteral()),
+                  nodeGroup([
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
+                      [identifier('baz')],
+                      [stringLiteral('hello')]
+                    ),
+                  ])
+                )
+              ),
+              returnStatement(
+                callExpression(
+                  memberExpression(
+                    callExpression(
+                      memberExpression(
+                        identifier('Promise'),
+                        '.',
+                        identifier('resolve')
+                      ),
+                      []
+                    ),
+                    ':',
+                    identifier('andThen')
+                  ),
+                  [
+                    functionExpression(
+                      [],
+                      nodeGroup([
+                        variableDeclaration(
+                          [variableDeclaratorIdentifier(identifier('fizz'))],
+                          [variableDeclaratorValue(stringLiteral('fuzz'))]
+                        ),
+                      ])
+                    ),
+                  ]
+                )
+              ),
+            ])
+          ),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+        expect(luaProgram).toEqual(expected);
+      });
+
+      it('should handle double async function expression', () => {
+        const given = getProgramNode(`
+          const foo = async function() {
+            return async function() {
+              return 31337
+            }
+          }
+        `);
+
+        const promiseResolveAndThenCallExpression = (
+          callBody: LuaStatement | LuaExpression
+        ) =>
+          callExpression(
+            memberExpression(
+              callExpression(
+                memberExpression(
+                  identifier('Promise'),
+                  '.',
+                  identifier('resolve')
+                ),
+                []
+              ),
+              ':',
+              identifier('andThen')
+            ),
+            [functionExpression([], nodeGroup([callBody]))]
+          );
+
+        const expected = program([
+          functionDeclaration(
+            identifier('foo'),
+            [],
+            nodeGroup([
+              returnStatement(
+                promiseResolveAndThenCallExpression(
+                  returnStatement(
+                    functionExpression(
+                      [],
+                      nodeGroup([
+                        returnStatement(
+                          promiseResolveAndThenCallExpression(
+                            returnStatement(numericLiteral(31337, '31337'))
+                          )
+                        ),
+                      ])
+                    )
+                  )
+                )
+              ),
+            ])
+          ),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+        expect(luaProgram).toEqual(expected);
+      });
     });
   });
 });
