@@ -54,7 +54,7 @@ export const conformanceTests = (
 
     rmSync(outputPath, { recursive: true, force: true });
 
-    const command = `node dist/apps/convert-js-to-lua/main.js -i "${normalizedConfig.inputPath}/**/*.js" -i "${normalizedConfig.inputPath}/**/*.ts" -i "${normalizedConfig.inputPath}/**/*.tsx" -o ${outputPath}`;
+    const command = `node dist/apps/convert-js-to-lua/main.js -i "${normalizedConfig.inputPath}/**/*.js" -i "${normalizedConfig.inputPath}/**/*.ts" -i "${normalizedConfig.inputPath}/**/*.jsx" -i "${normalizedConfig.inputPath}/**/*.tsx" -o ${outputPath}`;
     execSync(command, { stdio: [] });
 
     const files = getFiles(normalizedConfig.inputPath);
@@ -62,6 +62,7 @@ export const conformanceTests = (
       return (
         (filePath.ext === '.js' ||
           filePath.ext === '.ts' ||
+          filePath.ext === '.jsx' ||
           filePath.ext === '.tsx') &&
         predicates[milestone](filePath)
       );

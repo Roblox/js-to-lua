@@ -234,6 +234,33 @@ describe('Binary Expression Handler', () => {
     expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
   });
 
+  it(`should handle add operator with one string literal and two identifiers`, () => {
+    const given = babelBinaryExpression(
+      '+',
+      babelBinaryExpression(
+        '+',
+        babelStringLiteral('foo'),
+        babelIdentifier('bar')
+      ),
+      babelIdentifier('fizz')
+    );
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      binaryExpression(
+        stringLiteral('foo'),
+        '..',
+        callExpression(identifier('tostring'), [identifier('bar')])
+      ),
+      '..',
+      callExpression(identifier('tostring'), [identifier('fizz')])
+    );
+
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
   it(`should handle add operator with multiple template literals`, () => {
     const given = babelBinaryExpression(
       '+',
@@ -274,6 +301,33 @@ describe('Binary Expression Handler', () => {
           [identifier('foo')]
         )
       )
+    );
+
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle add operator with one template literal and two identifiers`, () => {
+    const given = babelBinaryExpression(
+      '+',
+      babelBinaryExpression(
+        '+',
+        babelTemplateLiteral([babelTemplateElement({ raw: 'a string' })], []),
+        babelIdentifier('bar')
+      ),
+      babelIdentifier('fizz')
+    );
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected: LuaBinaryExpression = binaryExpression(
+      binaryExpression(
+        stringLiteral('a string'),
+        '..',
+        callExpression(identifier('tostring'), [identifier('bar')])
+      ),
+      '..',
+      callExpression(identifier('tostring'), [identifier('fizz')])
     );
 
     expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
