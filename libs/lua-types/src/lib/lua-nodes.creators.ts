@@ -1,5 +1,5 @@
 import { isTruthy } from '@js-to-lua/shared-utils';
-import { curry } from 'ramda';
+import { applyTo, curry, lensPath, set } from 'ramda';
 import { commentBlock, LuaComment } from './comment';
 import { identifier, LuaIdentifier } from './expression';
 import {
@@ -28,6 +28,8 @@ import {
   UnhandledElement,
   UnhandledExpression,
   UnhandledStatement,
+  WithExtras,
+  WithoutExtras,
 } from './lua-nodes.types';
 import { BaseLuaNode } from './node.types';
 import { nodeGroup } from './statement';
@@ -306,7 +308,7 @@ export const withInnerConversionComment = <N extends BaseLuaNode>(
 };
 
 export const withExtras = curry(
-  <N extends LuaNode, E>(extras: E, node: N): N & { extras: E } => ({
+  <N extends LuaNode, E>(extras: E, node: N): WithExtras<N, E> => ({
     ...node,
     extras: {
       ...node.extras,
@@ -314,6 +316,25 @@ export const withExtras = curry(
     },
   })
 );
+
+export const removeExtras = <N extends LuaNode>(
+  extras: string[],
+  node: N | undefined
+): WithoutExtras<N> | undefined =>
+  !node
+    ? node
+    : applyTo(
+        {
+          ...node,
+          extras: set(lensPath(extras), undefined, node.extras),
+        } as unknown as N,
+        (result) =>
+          (!result || !result.extras
+            ? result
+            : Object.keys(result.extras).length
+            ? result
+            : { ...result, extras: undefined }) as WithoutExtras<N>
+      );
 
 export type PolyfillID =
   | 'Array'

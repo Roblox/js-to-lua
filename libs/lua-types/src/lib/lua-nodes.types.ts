@@ -23,6 +23,9 @@ export type LuaNode =
   | LuaClause
   | UnhandledElement;
 
+export type WithExtras<N extends LuaNode, E> = N & { extras: E };
+export type WithoutExtras<N extends LuaNode> = N & { extras: undefined };
+
 export interface LuaExpressionStatement extends BaseLuaNode {
   type: 'ExpressionStatement';
   expression: LuaCallExpression | LuaNodeGroup;

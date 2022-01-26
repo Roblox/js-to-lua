@@ -31,5 +31,13 @@ export default {
 
     // currently we cannot handle a comment spanning two different nodes (trailing and leading at the same time)
     'conformance-tests/comments/leading-and-trailing-comment_m5.js',
+
+    // TODO: convert a bit smarter when applying to ArrayExpressions
+    'conformance-tests/expressions/call/known-array-methods/definitely-array/push-single-apply_m5.js',
+    'conformance-tests/expressions/call/known-array-methods/definitely-array/unshift-multiple-apply_m5.js',
+    'conformance-tests/expressions/call/known-array-methods/definitely-array/unshift-single-apply_m5.js',
+    'conformance-tests/expressions/call/known-array-methods/maybe-array/push-single-apply_m5.js',
+    'conformance-tests/expressions/call/known-array-methods/maybe-array/unshift-multiple-apply_m5.js',
+    'conformance-tests/expressions/call/known-array-methods/maybe-array/unshift-single-apply_m5.js',
   ],
 };

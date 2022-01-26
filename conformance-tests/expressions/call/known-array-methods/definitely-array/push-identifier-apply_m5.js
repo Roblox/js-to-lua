@@ -1,0 +1,1 @@
+[].push.apply(foo, bar)

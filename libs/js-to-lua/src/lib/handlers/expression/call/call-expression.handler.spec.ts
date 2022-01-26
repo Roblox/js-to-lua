@@ -13,11 +13,9 @@ import {
   numericLiteral,
   stringLiteral,
 } from '@js-to-lua/lua-types';
-import {
-  createCallExpressionHandler,
-  USE_DOT_NOTATION_IN_CALL_EXPRESSION,
-} from './call-expression.handler';
+import { createCallExpressionHandler } from './call-expression.handler';
 import { handleExpression } from '../../expression-statement.handler';
+import { USE_DOT_NOTATION_IN_CALL_EXPRESSION } from './call-expression-dot-notation.handler';
 
 const source = '';
 

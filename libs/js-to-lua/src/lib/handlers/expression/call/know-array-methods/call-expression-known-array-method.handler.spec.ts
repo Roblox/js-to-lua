@@ -13,21 +13,18 @@ import {
 import {
   arrayExpression as babelArrayExpression,
   callExpression as babelCallExpression,
-  CallExpression,
   identifier as babelIdentifier,
   memberExpression as babelMemberExpression,
-  MemberExpression,
   numericLiteral as babelNumericLiteral,
 } from '@babel/types';
-import { createKnownArrayMethodCallHandler } from './known-array-method-call.handler';
+import { createCallExpressionKnownArrayMethodHandlerFunction } from './call-expression-known-array-method.handler';
 import {
   mockNodeWithValue,
   mockNodeWithValueHandler,
-} from '../../../testUtils/mock-node';
+} from '../../../../testUtils/mock-node';
 
-const handleKnownArrayMethodCall = createKnownArrayMethodCallHandler(
-  mockNodeWithValueHandler
-);
+const handleKnownArrayMethodCall =
+  createCallExpressionKnownArrayMethodHandlerFunction(mockNodeWithValueHandler);
 
 const source = '';
 
@@ -40,7 +37,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('push')
         ),
         [babelNumericLiteral(1)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         callExpression(
@@ -62,7 +59,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('push')
         ),
         [babelNumericLiteral(1), babelNumericLiteral(2)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         callExpression(
@@ -91,7 +88,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('unshift')
         ),
         [babelNumericLiteral(5)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         callExpression(
@@ -114,7 +111,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('unshift')
         ),
         [babelNumericLiteral(1), babelNumericLiteral(2)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         callExpression(
@@ -138,7 +135,7 @@ describe('Known Array method calls Handler', () => {
       const given = babelCallExpression(
         babelMemberExpression(babelArrayExpression([]), babelIdentifier('pop')),
         []
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         callExpression(
@@ -154,7 +151,7 @@ describe('Known Array method calls Handler', () => {
       const given = babelCallExpression(
         babelMemberExpression(babelArrayExpression([]), babelIdentifier('pop')),
         [babelNumericLiteral(1)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       expect(handleKnownArrayMethodCall(source, {}, given)).toEqual(undefined);
     });
@@ -166,7 +163,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('shift')
         ),
         []
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         callExpression(
@@ -185,7 +182,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('shift')
         ),
         [babelNumericLiteral(1)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       expect(handleKnownArrayMethodCall(source, {}, given)).toEqual(undefined);
     });
@@ -198,7 +195,7 @@ describe('Known Array method calls Handler', () => {
             babelIdentifier(methodName)
           ),
           [babelNumericLiteral(1), babelNumericLiteral(2)]
-        ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+        );
 
         const expected = arrayInferableExpression(
           callExpression(
@@ -229,7 +226,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('push')
         ),
         [babelNumericLiteral(1)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         withTrailingConversionComment(
@@ -259,7 +256,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('push')
         ),
         [babelNumericLiteral(1), babelNumericLiteral(2)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         withTrailingConversionComment(
@@ -296,7 +293,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('unshift')
         ),
         [babelNumericLiteral(5)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         withTrailingConversionComment(
@@ -327,7 +324,7 @@ describe('Known Array method calls Handler', () => {
           babelIdentifier('unshift')
         ),
         [babelNumericLiteral(1), babelNumericLiteral(2)]
-      ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+      );
 
       const expected = arrayInferableExpression(
         withTrailingConversionComment(
@@ -363,7 +360,7 @@ describe('Known Array method calls Handler', () => {
             babelIdentifier(methodName)
           ),
           [babelNumericLiteral(1), babelNumericLiteral(2)]
-        ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+        );
 
         const expected = arrayInferableExpression(
           withTrailingConversionComment(
@@ -401,7 +398,7 @@ describe('Known Array method calls Handler', () => {
             babelIdentifier(methodName)
           ),
           [babelNumericLiteral(1), babelNumericLiteral(2)]
-        ) as Omit<CallExpression, 'callee'> & { callee: MemberExpression };
+        );
 
         expect(handleKnownArrayMethodCall(source, {}, given)).toEqual(
           undefined

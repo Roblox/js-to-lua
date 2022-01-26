@@ -1,0 +1,1 @@
+arr.shift.call(arr)
