@@ -5,7 +5,7 @@ local foo = Array.reduce(
 	Array.map(
 		Array.filter(arr, function(x)
 			return x ~= 7
-		end) --[[ ROBLOX CHECK: check if 'arr' is an Array ]],
+		end), --[[ ROBLOX CHECK: check if 'arr' is an Array ]]
 		function(x)
 			return x * 2
 		end
