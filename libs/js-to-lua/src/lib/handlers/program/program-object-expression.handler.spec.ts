@@ -123,6 +123,146 @@ describe('Program handler', () => {
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
+    it(`should handle object spread expression with undefined assigned to property`, () => {
+      const given = getProgramNode(`
+        foo = {
+          ...bar,
+          baz: undefined
+        }
+      `);
+
+      const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Object'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Object')
+              )
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                identifier('bar'),
+                tableConstructor([
+                  tableNameKeyField(
+                    identifier('baz'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                ]),
+              ]
+            ),
+          ]
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should handle object spread expression with null assigned to property`, () => {
+      const given = getProgramNode(`
+        foo = {
+          ...bar,
+          baz: null
+        }
+      `);
+
+      const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Object'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('Object')
+              )
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo')],
+          [
+            callExpression(
+              memberExpression(identifier('Object'), '.', identifier('assign')),
+              [
+                tableConstructor(),
+                identifier('bar'),
+                tableConstructor([
+                  tableNameKeyField(
+                    identifier('baz'),
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('None')
+                    )
+                  ),
+                ]),
+              ]
+            ),
+          ]
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
     it(`should handle object of objects`, () => {
       const given = getProgramNode(`
         foo = {

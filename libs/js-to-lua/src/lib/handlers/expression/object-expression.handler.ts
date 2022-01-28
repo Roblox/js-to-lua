@@ -11,11 +11,14 @@ import {
 } from '@babel/types';
 import {
   callExpression,
+  isNilLiteral,
+  isTableNoKeyField,
   LuaCallExpression,
   LuaExpression,
   LuaTableConstructor,
   LuaTableKeyField,
   objectAssign,
+  objectNone,
   tableConstructor,
 } from '@js-to-lua/lua-types';
 import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
@@ -42,11 +45,17 @@ export const createObjectExpressionHandler = (
         []
       );
       const args: LuaExpression[] = propertiesGroups.map((group) => {
+        const toField = objectFieldHandlerFunction(source, config);
         return Array.isArray(group)
-          ? {
-              type: 'TableConstructor',
-              elements: group.map(objectFieldHandlerFunction(source, config)),
-            }
+          ? tableConstructor(
+              group
+                .map(toField)
+                .map((field) =>
+                  isTableNoKeyField(field) || !isNilLiteral(field.value)
+                    ? field
+                    : { ...field, value: objectNone() }
+                )
+            )
           : expressionHandlerFunction(source, config, group.argument);
       });
 
@@ -55,12 +64,10 @@ export const createObjectExpressionHandler = (
   );
 
   const handleObjectExpressionWithoutSpread = createHandlerFunction(
-    (source, config, expression: ObjectExpression): LuaTableConstructor => ({
-      type: 'TableConstructor',
-      elements: expression.properties.map(
-        objectFieldHandlerFunction(source, config)
-      ),
-    })
+    (source, config, expression: ObjectExpression): LuaTableConstructor =>
+      tableConstructor(
+        expression.properties.map(objectFieldHandlerFunction(source, config))
+      )
   );
 
   return createHandler(
