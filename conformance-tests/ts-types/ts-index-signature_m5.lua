@@ -1,0 +1,1 @@
+type VariableMap = { [string]: any }

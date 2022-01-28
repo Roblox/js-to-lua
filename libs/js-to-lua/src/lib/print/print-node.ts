@@ -42,6 +42,7 @@ import { createPrintExportTypeStatement } from './statements/print-export-type-s
 import { createPrintForGenericStatement } from './statements/print-for-generic-statement';
 import { createPrintRepeatStatement } from './statements/print-repeat-statement';
 import { createPrintWhileStatement } from './statements/print-while-statement';
+import { createPrintIndexSignature } from './type/print-index-signature';
 import { createPrintTypeFunction } from './type/print-type-function';
 import { createPrintTypeIntersection } from './type/print-type-intersection';
 import { createPrintTypeOptional } from './type/print-type-optional';
@@ -152,9 +153,7 @@ const _printNode = (node: LuaNode): string => {
     case 'NilLiteral':
       return 'nil';
     case 'LuaTypeAnnotation':
-      return `${
-        node.typeAnnotation ? `: ${printNode(node.typeAnnotation)}` : ''
-      }`;
+      return `: ${printNode(node.typeAnnotation)}`;
     case 'LuaTypeAny':
       return 'any';
     case 'LuaTypeString':
@@ -172,11 +171,13 @@ const _printNode = (node: LuaNode): string => {
     case 'LuaTypeAliasDeclaration':
       return createPrintTypeAliasDeclaration(printNode)(node);
     case 'LuaTypeLiteral':
-      return printTypeLiteral(node);
+      return printNode(node, printTypeLiteral);
     case 'LuaTypeFunction':
       return createPrintTypeFunction(printNode)(node);
     case 'LuaPropertySignature':
       return createPrintPropertySignature(printNode)(node);
+    case 'LuaIndexSignature':
+      return `${printNode(node, createPrintIndexSignature(printNode))}`;
     case 'LuaBinaryExpression':
     case 'LogicalExpression':
       return `${useParenthesis(node.left, checkPrecedence(node))} ${

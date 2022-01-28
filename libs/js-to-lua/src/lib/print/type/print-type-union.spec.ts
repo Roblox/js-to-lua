@@ -2,6 +2,7 @@ import {
   isTypeUnion,
   LuaNode,
   typeAny,
+  typeIntersection,
   typeNumber,
   typeString,
   typeUnion,
@@ -56,6 +57,18 @@ describe('Print type union', () => {
     ]);
 
     const expected = 'LuaTypeNumber | LuaTypeString | LuaTypeAny | LuaTypeVoid';
+
+    expect(printTypeUnion(given)).toEqual(expected);
+  });
+
+  it('should print type union with nested intersection type', () => {
+    const given = typeUnion([
+      typeNumber(),
+      typeString(),
+      typeIntersection([typeAny(), typeVoid()]),
+    ]);
+
+    const expected = 'LuaTypeNumber | LuaTypeString | (LuaTypeIntersection)';
 
     expect(printTypeUnion(given)).toEqual(expected);
   });

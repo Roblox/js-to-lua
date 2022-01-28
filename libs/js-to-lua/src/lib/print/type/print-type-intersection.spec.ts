@@ -5,6 +5,7 @@ import {
   typeIntersection,
   typeNumber,
   typeString,
+  typeUnion,
   typeVoid,
 } from '@js-to-lua/lua-types';
 import { createPrintTypeIntersection } from './print-type-intersection';
@@ -19,7 +20,7 @@ describe('Print type intersection', () => {
     })
   );
 
-  it('should print type union with one union type', () => {
+  it('should print type intersection with one type', () => {
     const given = typeIntersection([typeNumber()]);
 
     const expected = 'LuaTypeNumber';
@@ -27,7 +28,7 @@ describe('Print type intersection', () => {
     expect(printTypeIntersection(given)).toEqual(expected);
   });
 
-  it('should print type union with two union type', () => {
+  it('should print type intersection with two types', () => {
     const given = typeIntersection([typeNumber(), typeString()]);
 
     const expected = 'LuaTypeNumber & LuaTypeString';
@@ -35,7 +36,7 @@ describe('Print type intersection', () => {
     expect(printTypeIntersection(given)).toEqual(expected);
   });
 
-  it('should print type union with multiple union type', () => {
+  it('should print type intersection with multiple types', () => {
     const given = typeIntersection([
       typeNumber(),
       typeString(),
@@ -48,7 +49,7 @@ describe('Print type intersection', () => {
     expect(printTypeIntersection(given)).toEqual(expected);
   });
 
-  it('should print type union with nested union type', () => {
+  it('should print type intersection with nested intersection type', () => {
     const given = typeIntersection([
       typeNumber(),
       typeString(),
@@ -56,6 +57,18 @@ describe('Print type intersection', () => {
     ]);
 
     const expected = 'LuaTypeNumber & LuaTypeString & LuaTypeAny & LuaTypeVoid';
+
+    expect(printTypeIntersection(given)).toEqual(expected);
+  });
+
+  it('should print type intersection with nested union type', () => {
+    const given = typeIntersection([
+      typeNumber(),
+      typeString(),
+      typeUnion([typeAny(), typeVoid()]),
+    ]);
+
+    const expected = 'LuaTypeNumber & LuaTypeString & (LuaTypeUnion)';
 
     expect(printTypeIntersection(given)).toEqual(expected);
   });

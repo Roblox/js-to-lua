@@ -1,4 +1,5 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
+import { LuaIndexSignature } from './type-index-signature';
 import { LuaPropertySignature } from './type-property-signature';
 
 export interface LuaTypeLiteral extends BaseLuaNode {
@@ -7,7 +8,8 @@ export interface LuaTypeLiteral extends BaseLuaNode {
 }
 
 type LuaTypeElement =
-  LuaPropertySignature; /*| TSCallSignatureDeclaration | TSConstructSignatureDeclaration |  TSMethodSignature | TSIndexSignature*/
+  | LuaPropertySignature
+  | LuaIndexSignature; /*| TSCallSignatureDeclaration | TSConstructSignatureDeclaration |  TSMethodSignature */
 
 export const typeLiteral = (
   members: LuaTypeLiteral['members']

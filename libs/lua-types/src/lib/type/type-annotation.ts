@@ -4,11 +4,11 @@ import { makeOptional } from './type-optional';
 
 export interface LuaTypeAnnotation extends BaseLuaNode {
   type: 'LuaTypeAnnotation';
-  typeAnnotation?: LuaType;
+  typeAnnotation: LuaType;
 }
 
 export const typeAnnotation = (
-  typeAnnotation?: LuaTypeAnnotation['typeAnnotation']
+  typeAnnotation: LuaTypeAnnotation['typeAnnotation']
 ): LuaTypeAnnotation => ({
   type: 'LuaTypeAnnotation',
   typeAnnotation,

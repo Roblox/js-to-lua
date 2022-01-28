@@ -1,0 +1,167 @@
+import {
+  identifier as babelIdentifier,
+  tsBooleanKeyword,
+  tsIndexSignature,
+  tsNumberKeyword,
+  tsStringKeyword,
+  tsTypeAnnotation,
+} from '@babel/types';
+import {
+  typeAnnotation,
+  typeAny,
+  typeIndexSignature,
+  typeNumber,
+  typeString,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-types';
+import {
+  forwardHandlerFunctionRef,
+  forwardHandlerRef,
+} from '../../utils/forward-handler-ref';
+import { handleExpression } from '../expression-statement.handler';
+import { createIdentifierHandler } from '../expression/identifier.handler';
+import { createTsIndexSignatureHandler } from './ts-index-signature.handler';
+import { createTypeAnnotationHandler } from './type-annotation.handler';
+
+describe('TSIndesSignature handler', () => {
+  const { typesHandler } = createTypeAnnotationHandler(
+    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => handleIdentifier)
+  );
+
+  const handleIdentifier = createIdentifierHandler(
+    forwardHandlerFunctionRef(() => typesHandler)
+  );
+
+  const indexSignatureHandler = createTsIndexSignatureHandler(typesHandler);
+  const source = '';
+
+  it('should handle Valid TSIndexSignature', () => {
+    const given = tsIndexSignature(
+      [
+        {
+          ...babelIdentifier('foo'),
+          typeAnnotation: tsTypeAnnotation(tsStringKeyword()),
+        },
+      ],
+      tsTypeAnnotation(tsNumberKeyword())
+    );
+    const expected = typeIndexSignature(
+      typeString(),
+      typeAnnotation(typeNumber())
+    );
+
+    expect(indexSignatureHandler.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it('should default to {[string]:any} with a message if there are no parameters', () => {
+    const source = 'Invalid Index Signature';
+    const given = {
+      ...tsIndexSignature([], tsTypeAnnotation(tsNumberKeyword())),
+      start: 0,
+      end: source.length,
+    };
+
+    const expected = withTrailingConversionComment(
+      typeIndexSignature(typeString(), typeAnnotation(typeAny())),
+      'Multiple or no parameters are not handled for TSIndexSignature',
+      source
+    );
+    expect(indexSignatureHandler.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it('should default to {[string]:any} with a message if there is more than one parameter', () => {
+    const source = 'Invalid Index Signature';
+    const given = {
+      ...tsIndexSignature(
+        [
+          {
+            ...babelIdentifier('foo'),
+            typeAnnotation: tsTypeAnnotation(tsStringKeyword()),
+          },
+          {
+            ...babelIdentifier('bar'),
+            typeAnnotation: tsTypeAnnotation(tsStringKeyword()),
+          },
+        ],
+        tsTypeAnnotation(tsNumberKeyword())
+      ),
+      start: 0,
+      end: source.length,
+    };
+
+    const expected = withTrailingConversionComment(
+      typeIndexSignature(typeString(), typeAnnotation(typeAny())),
+      'Multiple or no parameters are not handled for TSIndexSignature',
+      source
+    );
+    expect(indexSignatureHandler.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it('should default to {[string]:any} with a message if parameter has no typeAnnotation', () => {
+    const source = 'Invalid Index Signature';
+    const given = {
+      ...tsIndexSignature(
+        [babelIdentifier('foo')],
+        tsTypeAnnotation(tsNumberKeyword())
+      ),
+      start: 0,
+      end: source.length,
+    };
+
+    const expected = withTrailingConversionComment(
+      typeIndexSignature(typeString(), typeAnnotation(typeAny())),
+      'Node parameter typeAnnotation is required for TSIndexSignature',
+      source
+    );
+    expect(indexSignatureHandler.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it('should default to {[string]:any} with a message if index signature has no typeAnnotation', () => {
+    const source = 'Invalid Index Signature';
+    const given = {
+      ...tsIndexSignature([
+        {
+          ...babelIdentifier('foo'),
+          typeAnnotation: tsTypeAnnotation(tsStringKeyword()),
+        },
+      ]),
+      start: 0,
+      end: source.length,
+    };
+
+    const expected = withTrailingConversionComment(
+      typeIndexSignature(typeString(), typeAnnotation(typeAny())),
+      'TSIndexSignature typeAnnotation is required',
+      source
+    );
+    expect(indexSignatureHandler.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it('should return to {[string]:<Type>} with a message if parameter type is not a string or number', () => {
+    const source = 'Invalid Index Signature';
+    const given = {
+      ...tsIndexSignature(
+        [
+          {
+            ...babelIdentifier('foo'),
+            typeAnnotation: tsTypeAnnotation(tsBooleanKeyword()),
+            start: 0,
+            end: source.length,
+          },
+        ],
+        tsTypeAnnotation(tsNumberKeyword())
+      ),
+    };
+
+    const expected = typeIndexSignature(
+      withTrailingConversionComment(
+        typeString(),
+        'TSIndexSignature parameter type must be string or number.',
+        source
+      ),
+      typeAnnotation(typeNumber())
+    );
+    expect(indexSignatureHandler.handler(source, {}, given)).toEqual(expected);
+  });
+});

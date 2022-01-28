@@ -2,11 +2,16 @@ import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import {
   LuaExpression,
   LuaTypeAnnotation,
+  LuaTypeIntersection,
   LuaTypeLiteral,
+  LuaTypeUnion,
+  typeIntersection,
   typeLiteral,
+  typeUnion,
 } from '@js-to-lua/lua-types';
 import {
   Expression,
+  isTSIndexSignature,
   Noop,
   TSTypeAnnotation,
   TSTypeLiteral,
@@ -26,10 +31,42 @@ export const createTsTypeLiteralHandler = (
     typesHandlerFunction
   );
 
-  const handleTsTypeLiteral: BaseNodeHandler<LuaTypeLiteral, TSTypeLiteral> =
-    createHandler('TSTypeLiteral', (source, config, node) =>
-      typeLiteral(node.members.map(typeElementHandler.handler(source, config)))
+  const handleTsTypeLiteral: BaseNodeHandler<
+    LuaTypeLiteral | LuaTypeUnion | LuaTypeIntersection,
+    TSTypeLiteral
+  > = createHandler('TSTypeLiteral', (source, config, node: TSTypeLiteral) => {
+    const indexSignatures = node.members.filter((member) =>
+      isTSIndexSignature(member)
     );
+    const nonIndexSignatures = node.members.filter(
+      (member) => !isTSIndexSignature(member)
+    );
+
+    if (indexSignatures.length > 1 && nonIndexSignatures.length) {
+      return typeIntersection([
+        typeUnion([
+          ...indexSignatures.map((signature) =>
+            typeLiteral([typeElementHandler.handler(source, config, signature)])
+          ),
+        ]),
+        typeLiteral(
+          nonIndexSignatures.map(typeElementHandler.handler(source, config))
+        ),
+      ]);
+    }
+
+    if (indexSignatures.length > 1) {
+      return typeUnion([
+        ...indexSignatures.map((signature) =>
+          typeLiteral([typeElementHandler.handler(source, config, signature)])
+        ),
+      ]);
+    }
+
+    return typeLiteral(
+      node.members.map(typeElementHandler.handler(source, config))
+    );
+  });
 
   return handleTsTypeLiteral;
 };

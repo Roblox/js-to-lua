@@ -5,6 +5,7 @@ import {
   Noop,
   TSAnyKeyword,
   TSBooleanKeyword,
+  TSIntersectionType,
   TSNumberKeyword,
   TSStringKeyword,
   TSType,
@@ -20,6 +21,7 @@ import {
   LuaTypeAnnotation,
   LuaTypeAny,
   LuaTypeBoolean,
+  LuaTypeIntersection,
   LuaTypeNumber,
   LuaTypeString,
   LuaTypeUnion,
@@ -27,31 +29,33 @@ import {
   typeAnnotation,
   typeAny,
   typeBoolean,
+  typeIntersection,
   typeNumber,
   typeString,
   typeUnion,
   typeVoid,
 } from '@js-to-lua/lua-types';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import {
   combineHandlers,
   combineTypeAnnotationHandlers,
 } from '../../utils/combine-handlers';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import { defaultTypeHandler } from '../../utils/default-handlers';
-import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
-import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
-import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
+import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
+import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
+import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
 
 export const createTypeAnnotationHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>
 ) => {
+  // TODO: move handlers to their own files
   const handleNoop: BaseNodeHandler<LuaTypeAnnotation, Noop> = createHandler(
     'Noop',
-    () => typeAnnotation()
+    () => typeAnnotation(typeAny())
   );
 
   const handleTsTypeAnnotation: BaseNodeHandler<
@@ -95,6 +99,13 @@ export const createTypeAnnotationHandler = (
       typeUnion(node.types.map(handleTsTypes.handler(source, config)))
     );
 
+  const handleTsTypeIntersection: BaseNodeHandler<
+    LuaTypeIntersection,
+    TSIntersectionType
+  > = createHandler('TSIntersectionType', (source, config, node) =>
+    typeIntersection(node.types.map(handleTsTypes.handler(source, config)))
+  );
+
   const handleTsTypes: BaseNodeHandler<LuaType, TSType> = combineHandlers<
     LuaType,
     TSType
@@ -107,6 +118,7 @@ export const createTypeAnnotationHandler = (
       handleTsAnyKeyword,
       createTsTypeLiteralHandler(expressionHandlerFunction, typesHandler),
       handleTsTypeUnion,
+      handleTsTypeIntersection,
       createTsTypeReferenceHandler(
         identifierHandlerFunction,
         forwardHandlerRef(() => handleTsTypes)

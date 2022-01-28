@@ -3,6 +3,7 @@ import { LuaTableField } from './literals';
 import { BaseLuaNode } from './node.types';
 import { LuaNodeGroup, LuaStatement } from './statement';
 import {
+  LuaIndexSignature,
   LuaPropertySignature,
   LuaType,
   LuaTypeAnnotation,
@@ -20,6 +21,7 @@ export type LuaNode =
   | TypeAnnotation
   | LuaType
   | LuaPropertySignature
+  | LuaIndexSignature
   | LuaClause
   | UnhandledElement;
 

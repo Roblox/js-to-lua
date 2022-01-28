@@ -32,6 +32,9 @@ export default {
     // currently we cannot handle a comment spanning two different nodes (trailing and leading at the same time)
     'conformance-tests/comments/leading-and-trailing-comment_m5.js',
 
+    // requires handling of TSParenthesizedType
+    'conformance-tests/ts-types/intersection/ts-intersection-type-multiple-mixed-union_m5.ts',
+
     // TODO: convert a bit smarter when applying to ArrayExpressions
     'conformance-tests/expressions/call/known-array-methods/definitely-array/push-single-apply_m5.js',
     'conformance-tests/expressions/call/known-array-methods/definitely-array/unshift-multiple-apply_m5.js',

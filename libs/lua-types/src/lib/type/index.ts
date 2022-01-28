@@ -5,6 +5,7 @@ export * from './type-literal';
 export * from './type-nil';
 export * from './type-number';
 export * from './type-optional';
+export * from './type-index-signature';
 export * from './type-property-signature';
 export * from './type-reference';
 export * from './type-string';
