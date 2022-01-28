@@ -1,4 +1,4 @@
-import { handleProgram } from './program.handler';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -10,8 +10,8 @@ import {
   numericLiteral,
   program,
   stringLiteral,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
+import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
 
 const source = '';

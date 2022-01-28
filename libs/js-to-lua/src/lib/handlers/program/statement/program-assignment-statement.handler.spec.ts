@@ -1,3 +1,4 @@
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -9,11 +10,10 @@ import {
   numericLiteral,
   program,
   stringLiteral,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
-import { handleProgram } from '../program.handler';
 import { bit32MethodCall } from '../../../utils/bit-32-method';
+import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 const source = '';
 describe('Program handler', () => {

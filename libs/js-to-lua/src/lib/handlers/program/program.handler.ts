@@ -1,4 +1,5 @@
 import { Program } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   BaseLuaNode,
   callExpression,
@@ -12,7 +13,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { pipe } from 'ramda';
 import { BaseNodeHandler, createHandler } from '../../types';

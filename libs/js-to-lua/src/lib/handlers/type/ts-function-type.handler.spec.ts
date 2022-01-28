@@ -9,6 +9,7 @@ import {
   tsTypeAnnotation,
   tsTypeReference,
 } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   typeAnnotation,
@@ -16,7 +17,6 @@ import {
   typeBoolean,
   typeFunction,
   typeString,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   forwardHandlerFunctionRef,

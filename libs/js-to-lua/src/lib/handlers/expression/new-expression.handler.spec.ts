@@ -1,20 +1,18 @@
-import { createNewExpressionHandler } from './new-expression.handler';
 import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
-import {
-  newExpression as babelNewExpression,
   identifier as babelIdentifier,
   isIdentifier,
+  newExpression as babelNewExpression,
 } from '@babel/types';
+import { withPolyfillExtra } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
   memberExpression,
-  withPolyfillExtra,
 } from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createHandlerFunction } from '../../types';
+import { createNewExpressionHandler } from './new-expression.handler';
 
 describe('New Expression Handler', () => {
   const source = '';

@@ -99,6 +99,29 @@
       },
       "tags": []
     },
+    "lua-conversion-utils": {
+      "root": "libs/lua-conversion-utils",
+      "sourceRoot": "libs/lua-conversion-utils/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/lua-conversion-utils/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/lua-conversion-utils"],
+          "options": {
+            "jestConfig": "libs/lua-conversion-utils/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
+    },
     "lua-types": {
       "root": "libs/lua-types",
       "sourceRoot": "libs/lua-types/src",
@@ -116,6 +139,29 @@
           "outputs": ["coverage/libs/lua-types"],
           "options": {
             "jestConfig": "libs/lua-types/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
+    },
+    "lua-types-test-utils": {
+      "root": "libs/lua-types/test-utils",
+      "sourceRoot": "libs/lua-types/test-utils/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/lua-types/test-utils/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/lua-types/test-utils"],
+          "options": {
+            "jestConfig": "libs/lua-types/test-utils/jest.config.js",
             "passWithNoTests": true
           }
         }

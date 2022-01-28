@@ -7,11 +7,14 @@ import {
   UnaryExpression,
 } from '@babel/types';
 import {
+  bit32Identifier,
+  booleanMethod,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
-  bit32Identifier,
   booleanLiteral,
-  booleanMethod,
   callExpression,
   identifier,
   LuaCallExpression,
@@ -25,7 +28,6 @@ import {
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';

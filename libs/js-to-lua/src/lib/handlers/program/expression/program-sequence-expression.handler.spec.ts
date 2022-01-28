@@ -1,5 +1,4 @@
-import { getProgramNode } from '../program.spec.utils';
-import { handleProgram } from '../program.handler';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -19,8 +18,9 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
+import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Sequence Expression Handler', () => {

@@ -10,11 +10,9 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
 import { createImportDefaultSpecifierHandler } from './import-default-specifier.handler';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../../testUtils/mock-node';
 
 const { handler } = createImportDefaultSpecifierHandler(
   mockNodeWithValueHandler,

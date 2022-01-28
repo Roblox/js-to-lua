@@ -1,17 +1,19 @@
+import { CallExpression, Expression, MemberExpression } from '@babel/types';
+import {
+  arrayMethod,
+  withExtras,
+  WithExtras,
+} from '@js-to-lua/lua-conversion-utils';
+import {
+  callExpression,
+  LuaCallExpression,
+  LuaExpression,
+} from '@js-to-lua/lua-types';
+import { applyTo } from 'ramda';
 import {
   createOptionalHandlerFunction,
   HandlerFunction,
 } from '../../../../types';
-import {
-  arrayMethod,
-  callExpression,
-  LuaCallExpression,
-  LuaExpression,
-  WithExtras,
-  withExtras,
-} from '@js-to-lua/lua-types';
-import { CallExpression, Expression, MemberExpression } from '@babel/types';
-import { applyTo } from 'ramda';
 import {
   isAnyPolyfilledArrayMethodCall,
   isAnyPolyfilledMethod,

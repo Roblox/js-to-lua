@@ -1,3 +1,4 @@
+import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -21,10 +22,9 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withInnerConversionComment,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 describe('Switch Statement Handler', () => {
   const source = '';

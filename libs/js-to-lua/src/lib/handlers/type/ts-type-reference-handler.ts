@@ -1,22 +1,22 @@
-import { createHandler, HandlerFunction } from '../../types';
-import {
-  LuaIdentifier,
-  LuaType,
-  LuaTypeReference,
-  typeReference,
-} from '@js-to-lua/lua-types';
 import {
   Identifier,
   TSEntityName,
   TSType,
   TSTypeReference,
 } from '@babel/types';
-import { combineHandlers } from '../../utils/combine-handlers';
-import { NonEmptyArray } from '@js-to-lua/shared-utils';
 import {
   requiresTypePolyfill,
   withPolyfillTypeExtra,
-} from '../../utils/with-polyfill-type-extra';
+} from '@js-to-lua/lua-conversion-utils';
+import {
+  LuaIdentifier,
+  LuaType,
+  LuaTypeReference,
+  typeReference,
+} from '@js-to-lua/lua-types';
+import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { createHandler, HandlerFunction } from '../../types';
+import { combineHandlers } from '../../utils/combine-handlers';
 
 export const createTsTypeReferenceHandler = (
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>,

@@ -1,3 +1,4 @@
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   booleanLiteral,
   callExpression,
@@ -12,7 +13,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';

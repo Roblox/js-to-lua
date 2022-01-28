@@ -1,8 +1,4 @@
 import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
-import {
   identifier as babelIdentifier,
   stringLiteral,
   TaggedTemplateExpression,
@@ -10,11 +6,10 @@ import {
   templateElement,
   templateLiteral,
 } from '@babel/types';
-import {
-  callExpression,
-  unhandledExpression,
-  withTrailingConversionComment,
-} from '@js-to-lua/lua-types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import { callExpression, unhandledExpression } from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTaggedTemplateExpressionHandler } from './tagged-template-expression.handler';
 
 describe('Tagged Template Expression Handler', () => {

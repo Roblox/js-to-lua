@@ -1,23 +1,23 @@
 import {
-  nodeGroup,
-  whileStatement,
-  booleanLiteral,
-} from '@js-to-lua/lua-types';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
-import { createForStatementHandler } from './for-statement.handler';
-import {
-  forStatement as babelForStatement,
-  variableDeclaration as babelVariableDeclaration,
-  variableDeclarator as babelVariableDeclarator,
-  identifier as babelIdentifier,
-  numericLiteral as babelNumericLiteral,
   binaryExpression as babelBinaryExpression,
-  updateExpression as babelUpdateExpression,
   blockStatement as babelBlockStatement,
   callExpression as babelCallExpression,
   expressionStatement as babelExpressionStatement,
+  forStatement as babelForStatement,
+  identifier as babelIdentifier,
+  numericLiteral as babelNumericLiteral,
+  updateExpression as babelUpdateExpression,
+  variableDeclaration as babelVariableDeclaration,
+  variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
-import { mockNodeWithValue } from '../../testUtils/mock-node';
+import {
+  booleanLiteral,
+  nodeGroup,
+  whileStatement,
+} from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
+import { createForStatementHandler } from './for-statement.handler';
 
 describe('For Statement Handler', () => {
   const handleForStatement = createForStatementHandler(

@@ -1,5 +1,5 @@
 import { typeCastExpression } from '@js-to-lua/lua-types';
-import { mockNodeWithValue } from '../../testUtils/mock-node';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { createPrintTypeCastExpression } from './print-type-cast-expression';
 
 describe('Print type cast expression', () => {

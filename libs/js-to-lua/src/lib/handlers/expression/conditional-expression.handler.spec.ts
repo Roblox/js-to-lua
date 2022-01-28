@@ -12,8 +12,11 @@ import {
   templateLiteral as babelTemplateLiteral,
 } from '@babel/types';
 import {
-  booleanLiteral,
   booleanMethod,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
+  booleanLiteral,
   callExpression,
   elseClause,
   functionExpression,
@@ -25,16 +28,13 @@ import {
   LuaLogicalExpressionOperatorEnum,
   nodeGroup,
   returnStatement,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
-import { createConditionalExpressionHandler } from './conditional-expression.handler';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { HandlerFunction } from '../../types';
-import { handleExpression } from '../expression-statement.handler';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
+import { handleExpression } from '../expression-statement.handler';
+import { createConditionalExpressionHandler } from './conditional-expression.handler';
 
 const source = '';
 

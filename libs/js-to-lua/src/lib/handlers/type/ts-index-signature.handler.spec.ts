@@ -6,13 +6,13 @@ import {
   tsStringKeyword,
   tsTypeAnnotation,
 } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   typeAnnotation,
   typeAny,
   typeIndexSignature,
   typeNumber,
   typeString,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   forwardHandlerFunctionRef,

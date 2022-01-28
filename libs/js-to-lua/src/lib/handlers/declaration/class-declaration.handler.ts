@@ -22,6 +22,11 @@ import {
   TSType,
 } from '@babel/types';
 import {
+  createWithSourceTypeExtra,
+  selfIdentifier,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
@@ -39,7 +44,6 @@ import {
   memberExpression,
   nodeGroup,
   returnStatement,
-  selfIdentifier,
   tableConstructor,
   tableNameKeyField,
   typeAliasDeclaration,
@@ -51,11 +55,9 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { Unpacked } from '@js-to-lua/shared-utils';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import { createWithSourceTypeExtra } from '../../utils/with-source-type-extra';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import {
   createFunctionParamsBodyHandler,

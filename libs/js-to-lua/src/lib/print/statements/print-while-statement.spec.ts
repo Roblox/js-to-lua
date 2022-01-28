@@ -1,3 +1,4 @@
+import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   expressionStatement,
@@ -5,10 +6,9 @@ import {
   nodeGroup,
   stringLiteral,
   whileStatement,
-  withInnerConversionComment,
 } from '@js-to-lua/lua-types';
-import { printNode } from '../print-node';
 import dedent from '../../testUtils/dedent';
+import { printNode } from '../print-node';
 
 describe('Print while statement', () => {
   it('should print with empty body', () => {

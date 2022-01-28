@@ -1,14 +1,12 @@
 import {
+  identifier as babelIdentifier,
   tsArrayType,
   tsTypeReference,
-  identifier as babelIdentifier,
 } from '@babel/types';
+import { withPolyfillTypeExtra } from '@js-to-lua/lua-conversion-utils';
 import { identifier, typeReference } from '@js-to-lua/lua-types';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
-import { withPolyfillTypeExtra } from '../../utils/with-polyfill-type-extra';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
 
 describe('TSArrayType handler', () => {

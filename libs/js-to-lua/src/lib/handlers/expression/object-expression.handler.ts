@@ -1,14 +1,10 @@
 import {
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../../types';
-import {
   Expression,
   isSpreadElement as isBabelSpreadElement,
   ObjectExpression,
   SpreadElement,
 } from '@babel/types';
+import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   isNilLiteral,
@@ -17,11 +13,14 @@ import {
   LuaExpression,
   LuaTableConstructor,
   LuaTableKeyField,
-  objectAssign,
-  objectNone,
   tableConstructor,
 } from '@js-to-lua/lua-types';
 import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
+import {
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '../../types';
 
 type ObjectExpressionProperty = Unpacked<ObjectExpression['properties']>;
 

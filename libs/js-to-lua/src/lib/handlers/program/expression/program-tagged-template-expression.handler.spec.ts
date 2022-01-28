@@ -1,4 +1,4 @@
-import { getProgramNode } from '../program.spec.utils';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   expressionStatement,
@@ -6,10 +6,10 @@ import {
   multilineStringLiteral,
   program,
   unhandledStatement,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
 import dedent from '../../../testUtils/dedent';
+import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Tagged Template Expression Handler', () => {

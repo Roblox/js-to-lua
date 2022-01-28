@@ -1,14 +1,12 @@
-import { createReturnStatementHandler } from './return-statement.handler';
 import {
   assignmentExpression as babelAssignmentExpression,
   identifier as babelIdentifier,
   returnStatement as babelReturnStatement,
 } from '@babel/types';
 import { nodeGroup, returnStatement } from '@js-to-lua/lua-types';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
+import { createReturnStatementHandler } from './return-statement.handler';
 
 jest.mock('../../utils/get-return-expressions', () => ({
   getReturnExpressions: jest

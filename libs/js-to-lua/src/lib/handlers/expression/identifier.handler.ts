@@ -1,4 +1,10 @@
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  Identifier,
+  Noop,
+  TSTypeAnnotation,
+  TypeAnnotation,
+} from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   identifier,
@@ -13,21 +19,15 @@ import {
   numericLiteral,
   typeAnnotation,
   typeAny,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import {
-  Identifier,
-  Noop,
-  TSTypeAnnotation,
-  TypeAnnotation,
-} from '@babel/types';
+import { applyTo } from 'ramda';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import { getNodeSource } from '../../utils/get-node-source';
 import {
   isValidIdentifier,
   toValidIdentifier,
 } from '../../utils/valid-identifier';
 import { createWithOriginalIdentifierNameExtras } from '../../utils/with-original-identifier-name-extras';
-import { applyTo } from 'ramda';
 
 export const createIdentifierHandler = (
   handleType: HandlerFunction<

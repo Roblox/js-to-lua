@@ -1,8 +1,3 @@
-import { createSwitchStatementHandler } from './switch-statement.handler';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
 import {
   breakStatement as babelBreakStatement,
   identifier as babelIdentifier,
@@ -11,6 +6,7 @@ import {
   switchCase as babelSwitchCase,
   switchStatement as babelSwitchStatement,
 } from '@babel/types';
+import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -33,10 +29,12 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withInnerConversionComment,
 } from '@js-to-lua/lua-types';
-import { combineHandlers } from '../../utils/combine-handlers';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createHandler } from '../../types';
+import { combineHandlers } from '../../utils/combine-handlers';
+import { createSwitchStatementHandler } from './switch-statement.handler';
 
 describe('Switch Statement Handler', () => {
   const handleSwitchStatement = createSwitchStatementHandler(

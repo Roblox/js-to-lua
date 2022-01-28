@@ -1,4 +1,4 @@
-import { getProgramNode } from '../program.spec.utils';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
@@ -17,9 +17,9 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 const source = '';
 

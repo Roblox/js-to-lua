@@ -1,4 +1,6 @@
-import { isIdentifier, LuaExpression } from '../expression';
+import { LuaExpression } from '../expression';
+// TODO: importing directly from identifier file to not cause cyclic dependency. Try to solve it better
+import { isIdentifier } from '../expression/identifier';
 import {
   LuaTableNameKeyField,
   tableNameKeyField,

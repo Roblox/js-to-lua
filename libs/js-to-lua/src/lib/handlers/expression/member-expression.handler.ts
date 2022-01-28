@@ -1,10 +1,5 @@
-import {
-  BaseNodeHandler,
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../../types';
 import { Expression, MemberExpression, PrivateName } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
@@ -17,12 +12,17 @@ import {
   LuaStringLiteral,
   memberExpression,
   UnhandledStatement,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '../../types';
+import { defaultExpressionHandler } from '../../utils/default-handlers';
 import { handleNumericLiteral } from '../primitives/numeric.handler';
 import { handleStringLiteral } from '../primitives/string.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
-import { defaultExpressionHandler } from '../../utils/default-handlers';
 
 export const createMemberExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

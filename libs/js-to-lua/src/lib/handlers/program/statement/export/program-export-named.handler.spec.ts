@@ -1,5 +1,7 @@
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
+  AssignmentStatementOperatorEnum,
   callExpression,
   exportTypeStatement,
   functionDeclaration,
@@ -8,21 +10,19 @@ import {
   nodeGroup,
   numericLiteral,
   program,
-  typePropertySignature,
   returnStatement,
   tableConstructor,
-  typeAnnotation,
   typeAliasDeclaration,
+  typeAnnotation,
   typeLiteral,
+  typePropertySignature,
   typeString,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
-  AssignmentStatementOperatorEnum,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
+import { getProgramNode } from '../../program.spec.utils';
 
 const source = '';
 

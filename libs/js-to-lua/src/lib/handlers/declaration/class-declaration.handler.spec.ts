@@ -10,6 +10,11 @@ import {
   tsDeclareMethod,
 } from '@babel/types';
 import {
+  createWithSourceTypeExtra,
+  selfIdentifier,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
@@ -20,7 +25,6 @@ import {
   memberExpression,
   nodeGroup,
   returnStatement,
-  selfIdentifier,
   stringLiteral,
   tableConstructor,
   tableNameKeyField,
@@ -32,9 +36,7 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { createWithSourceTypeExtra } from '../../utils/with-source-type-extra';
 import { handleStatement } from '../expression-statement.handler';
 
 const source = '';

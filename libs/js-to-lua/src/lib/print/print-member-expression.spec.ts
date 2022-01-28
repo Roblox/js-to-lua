@@ -1,3 +1,4 @@
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   memberExpression,
@@ -5,7 +6,6 @@ import {
   tableConstructor,
   tableNoKeyField,
   unhandledExpression,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { printNode } from './print-node';
 

@@ -1,6 +1,5 @@
+import { arrayConcat, arrayMethod } from '@js-to-lua/lua-conversion-utils';
 import {
-  arrayConcat,
-  arrayMethod,
   callExpression,
   identifier,
   LuaExpression,

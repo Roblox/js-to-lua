@@ -1,10 +1,13 @@
 import { Expression } from '@babel/types';
 import {
-  booleanLiteral,
   booleanMethod,
+  isBooleanInferable,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
+  booleanLiteral,
   callExpression,
   isAnyNodeType,
-  isBooleanInferable,
   isMultilineStringLiteral,
   isNilLiteral,
   isNumericLiteral,
@@ -13,7 +16,6 @@ import {
   LuaMultilineStringLiteral,
   LuaNumericLiteral,
   LuaStringLiteral,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { EmptyConfig, HandlerFunction } from '../types';
 import { getNodeSource } from '../utils/get-node-source';

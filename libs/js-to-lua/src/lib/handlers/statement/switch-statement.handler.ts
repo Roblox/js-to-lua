@@ -1,8 +1,10 @@
 import {
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../../types';
+  Expression,
+  Statement,
+  SwitchCase,
+  SwitchStatement,
+} from '@babel/types';
+import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -26,16 +28,14 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withInnerConversionComment,
 } from '@js-to-lua/lua-types';
-import {
-  Expression,
-  Statement,
-  SwitchCase,
-  SwitchStatement,
-} from '@babel/types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
+import {
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '../../types';
 import { visit } from '../../utils/visitor';
 
 type DefaultSwitchCase = Omit<SwitchCase, 'test'> & { test: null };

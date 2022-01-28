@@ -1,13 +1,13 @@
+import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   expressionStatement,
   identifier,
   repeatStatement,
   stringLiteral,
-  withInnerConversionComment,
 } from '@js-to-lua/lua-types';
-import { printNode } from '../print-node';
 import dedent from '../../testUtils/dedent';
+import { printNode } from '../print-node';
 
 describe('Print repeat statement', () => {
   it('should print with empty body', () => {

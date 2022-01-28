@@ -1,5 +1,5 @@
-import { createHandler, HandlerFunction } from '../../types';
 import { Expression, TemplateLiteral } from '@babel/types';
+import { stringInferableExpression } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
@@ -9,9 +9,9 @@ import {
   LuaStringLiteral,
   memberExpression,
   multilineStringLiteral,
-  stringInferableExpression,
   stringLiteral,
 } from '@js-to-lua/lua-types';
+import { createHandler, HandlerFunction } from '../../types';
 
 export const createMultilineStringLiteralHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>

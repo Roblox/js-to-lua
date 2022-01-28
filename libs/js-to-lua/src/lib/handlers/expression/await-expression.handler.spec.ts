@@ -7,10 +7,8 @@ import {
   identifier,
   memberExpression,
 } from '@js-to-lua/lua-types';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createAwaitExpressionHandler } from './await-expression.handler';
 
 const source = '';

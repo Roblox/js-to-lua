@@ -1,8 +1,3 @@
-import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
 import {
   identifier as babelIdentifier,
   tsAnyKeyword as babelTsAnyKeyword,
@@ -10,6 +5,9 @@ import {
   tsTypeReference as babelTsTypeReference,
 } from '@babel/types';
 import { typeReference } from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
+import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
 
 describe('TSTypeReference handler', () => {
   const tsTypeReferenceHandler = createTsTypeReferenceHandler(

@@ -1,4 +1,8 @@
 import {
+  selfIdentifier,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
@@ -10,7 +14,6 @@ import {
   nodeGroup,
   program,
   returnStatement,
-  selfIdentifier,
   stringLiteral,
   tableConstructor,
   tableNameKeyField,
@@ -22,7 +25,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';

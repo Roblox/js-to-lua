@@ -3,14 +3,20 @@ import {
   identifier as babelIdentifier,
   numericLiteral as babelNumericLiteral,
   stringLiteral as babelStringLiteral,
-  templateLiteral as babelTemplateLiteral,
   templateElement as babelTemplateElement,
+  templateLiteral as babelTemplateLiteral,
 } from '@babel/types';
 import {
   arrayIdentifier,
   arrayIndexOf,
-  binaryExpression,
   bit32Identifier,
+  objectIdentifier,
+  objectKeys,
+  stringInferableExpression,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
+  binaryExpression,
   callExpression,
   identifier,
   LuaBinaryExpression,
@@ -18,11 +24,7 @@ import {
   memberExpression,
   multilineStringLiteral,
   numericLiteral,
-  objectIdentifier,
-  objectKeys,
-  stringInferableExpression,
   stringLiteral,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';

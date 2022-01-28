@@ -1,8 +1,11 @@
 import {
+  bit32Identifier,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   binaryExpression,
-  bit32Identifier,
   booleanLiteral,
   callExpression,
   identifier,
@@ -14,7 +17,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';

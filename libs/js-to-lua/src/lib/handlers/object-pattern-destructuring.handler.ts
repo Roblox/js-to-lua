@@ -7,35 +7,34 @@ import {
   isRestElement,
   LVal,
   ObjectMethod,
-  ObjectProperty,
   ObjectPattern,
+  ObjectProperty,
   PatternLike,
   RestElement,
 } from '@babel/types';
+import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
 import {
+  binaryExpression,
   callExpression,
+  elseClause,
+  functionExpression,
   identifier,
+  ifClause,
+  ifStatement,
   LuaExpression,
   LuaIdentifier,
   LuaIndexExpression,
   LuaLVal,
   LuaMemberExpression,
-  functionExpression,
-  objectAssign,
-  objectNone,
-  tableConstructor,
   LuaTableKeyField,
-  ifStatement,
-  ifClause,
-  binaryExpression,
   nilLiteral,
-  returnStatement,
-  elseClause,
   nodeGroup,
+  returnStatement,
+  tableConstructor,
 } from '@js-to-lua/lua-types';
+import { anyPass } from 'ramda';
 import { EmptyConfig, HandlerFunction } from '../types';
 import { createPropertyFromBaseHandler } from './expression/property-from-base.handler';
-import { anyPass } from 'ramda';
 
 export const createObjectPatternDestructuringHandler =
   (

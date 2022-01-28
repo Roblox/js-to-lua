@@ -1,12 +1,12 @@
 import { TSArrayType, TSType } from '@babel/types';
+import { withPolyfillTypeExtra } from '@js-to-lua/lua-conversion-utils';
 import {
-  LuaTypeReference,
-  typeReference,
   identifier,
   LuaType,
+  LuaTypeReference,
+  typeReference,
 } from '@js-to-lua/lua-types';
 import { createHandler, HandlerFunction } from '../../types';
-import { withPolyfillTypeExtra } from '../../utils/with-polyfill-type-extra';
 
 export const createTsArrayTypeHandler = (
   typesHandlerFunction: HandlerFunction<LuaType, TSType>

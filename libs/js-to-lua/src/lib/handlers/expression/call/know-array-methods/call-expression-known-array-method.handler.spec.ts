@@ -1,27 +1,27 @@
 import {
-  arrayInferableExpression,
-  arrayPolyfilledMethodNames,
-  callExpression,
-  identifier,
-  memberExpression,
-  numericLiteral,
-  tableConstructor,
-  tableNoKeyField,
-  withPolyfillExtra,
-  withTrailingConversionComment,
-} from '@js-to-lua/lua-types';
-import {
   arrayExpression as babelArrayExpression,
   callExpression as babelCallExpression,
   identifier as babelIdentifier,
   memberExpression as babelMemberExpression,
   numericLiteral as babelNumericLiteral,
 } from '@babel/types';
-import { createCallExpressionKnownArrayMethodHandlerFunction } from './call-expression-known-array-method.handler';
 import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../../../testUtils/mock-node';
+  arrayInferableExpression,
+  arrayPolyfilledMethodNames,
+  withPolyfillExtra,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
+  callExpression,
+  identifier,
+  memberExpression,
+  numericLiteral,
+  tableConstructor,
+  tableNoKeyField,
+} from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../../../testUtils/mock-node';
+import { createCallExpressionKnownArrayMethodHandlerFunction } from './call-expression-known-array-method.handler';
 
 const handleKnownArrayMethodCall =
   createCallExpressionKnownArrayMethodHandlerFunction(mockNodeWithValueHandler);

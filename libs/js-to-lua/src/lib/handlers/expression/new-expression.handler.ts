@@ -1,15 +1,17 @@
-import { createHandler, HandlerFunction } from '../../types';
+import { Expression, NewExpression } from '@babel/types';
+import {
+  isPolyfillID,
+  PolyfillID,
+  withPolyfillExtra,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
   isIdentifier,
-  isPolyfillID,
   LuaExpression,
   memberExpression,
-  PolyfillID,
-  withPolyfillExtra,
 } from '@js-to-lua/lua-types';
-import { Expression, NewExpression } from '@babel/types';
+import { createHandler, HandlerFunction } from '../../types';
 import { createCalleeExpressionHandlerFunction } from './call/callee-expression.handler';
 
 const requirePolyfill = ['Error', 'Map', 'Set', 'WeakMap'] as PolyfillID[];

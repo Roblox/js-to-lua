@@ -11,6 +11,8 @@ import {
 import {
   booleanInferableExpression,
   booleanMethod,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   callExpression,
   elseClause,
   functionExpression,
@@ -22,11 +24,9 @@ import {
   nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createLogicalExpressionHandler } from './logical-expression.handler';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
 
 const source = '';
 

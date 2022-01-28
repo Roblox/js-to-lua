@@ -1,4 +1,5 @@
 import { Expression } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatement,
   expressionStatement,
@@ -9,7 +10,6 @@ import {
   LuaExpressionStatement,
   LuaNodeGroup,
   unhandledStatement,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { getNodeSource } from './get-node-source';
 

@@ -1,7 +1,5 @@
-import {
-  unhandledExpression,
-  withTrailingConversionComment,
-} from '@js-to-lua/lua-types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import { unhandledExpression } from '@js-to-lua/lua-types';
 import { printNode } from './print-node';
 
 describe('Print conversion comment', () => {

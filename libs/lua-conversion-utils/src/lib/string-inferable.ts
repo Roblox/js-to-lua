@@ -1,7 +1,10 @@
-import { withExtras } from './lua-nodes.creators';
-import { isMultilineStringLiteral, isStringLiteral } from './literals';
-import { isBinaryExpression } from './lua-nodes.checks';
-import { LuaExpression } from './expression';
+import {
+  isBinaryExpression,
+  isMultilineStringLiteral,
+  isStringLiteral,
+  LuaExpression,
+} from '@js-to-lua/lua-types';
+import { withExtras } from './extras';
 
 export const stringInferableExpression = withExtras({
   isStringInferable: true,

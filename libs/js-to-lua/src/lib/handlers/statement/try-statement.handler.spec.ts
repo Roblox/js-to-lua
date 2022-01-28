@@ -1,4 +1,13 @@
 import {
+  blockStatement as babelBlockStatement,
+  catchClause as babelCatchClause,
+  identifier as babelIdentifier,
+  tryStatement as babelTryStatement,
+  variableDeclaration as babelVariableDeclaration,
+  variableDeclarator as babelVariableDeclarator,
+} from '@babel/types';
+import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
   blockStatement,
   callExpression,
   functionExpression,
@@ -11,21 +20,10 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withInnerConversionComment,
 } from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTryStatementHandler } from './try-statement.handler';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
-import {
-  blockStatement as babelBlockStatement,
-  catchClause as babelCatchClause,
-  identifier as babelIdentifier,
-  tryStatement as babelTryStatement,
-  variableDeclaration as babelVariableDeclaration,
-  variableDeclarator as babelVariableDeclarator,
-} from '@babel/types';
 
 const source = '';
 

@@ -1,4 +1,5 @@
-import { createHandlerFunction, HandlerFunction } from '../types';
+import { FlowType, TSType } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   LuaIdentifier,
@@ -12,10 +13,9 @@ import {
   unhandledStatement,
   UnhandledTypeAnnotation,
   unhandledTypeAnnotation,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
+import { createHandlerFunction, HandlerFunction } from '../types';
 import { getNodeSource } from './get-node-source';
-import { FlowType, TSType } from '@babel/types';
 
 export const defaultStatementHandler: HandlerFunction<UnhandledStatement> =
   createHandlerFunction((source, config, node) => {

@@ -1,5 +1,5 @@
+import { bit32Identifier } from '@js-to-lua/lua-conversion-utils';
 import {
-  bit32Identifier,
   callExpression,
   identifier,
   LuaExpression,

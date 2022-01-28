@@ -7,24 +7,26 @@ import {
 } from '@babel/types';
 import {
   arrayIndexOf,
+  isStringInferable,
+  objectKeys,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   binaryExpression,
   callExpression,
   identifier,
-  isStringInferable,
   LuaCallExpression,
   LuaExpression,
   LuaStringLiteral,
   numericLiteral,
-  objectKeys,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   createHandler,
   createHandlerFunction,
   HandlerFunction,
 } from '../../types';
-import { defaultExpressionHandler } from '../../utils/default-handlers';
 import { bit32MethodCall } from '../../utils/bit-32-method';
+import { defaultExpressionHandler } from '../../utils/default-handlers';
 
 export const createBinaryExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

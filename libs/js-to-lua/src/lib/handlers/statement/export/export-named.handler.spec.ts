@@ -20,11 +20,13 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
-import { createExportNamedHandler } from './export-named.handler';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
 import {
   forwardHandlerFunctionRef,
   forwardHandlerRef,
 } from '../../../utils/forward-handler-ref';
+import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import {
   handleExpression,
   handleExpressionAsStatement,
@@ -34,14 +36,10 @@ import {
   handleObjectPropertyValue,
   handleStatement,
 } from '../../expression-statement.handler';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../../testUtils/mock-node';
-import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import { createIdentifierHandler } from '../../expression/identifier.handler';
-import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
 import { createLValHandler } from '../../l-val.handler';
+import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
+import { createExportNamedHandler } from './export-named.handler';
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression),

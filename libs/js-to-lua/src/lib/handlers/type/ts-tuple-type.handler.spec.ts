@@ -6,10 +6,8 @@ import {
   tsTypeReference,
 } from '@babel/types';
 import { identifier, typeReference, typeUnion } from '@js-to-lua/lua-types';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
 
 describe('TSTupleType handler', () => {

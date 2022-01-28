@@ -1,32 +1,4 @@
 import {
-  BaseNodeHandler,
-  createHandler,
-  EmptyConfig,
-  HandlerFunction,
-} from '../../types';
-import {
-  AssignmentStatement,
-  assignmentStatement,
-  AssignmentStatementOperatorEnum,
-  blockStatement,
-  identifier,
-  isStringInferable,
-  LuaBinaryExpression,
-  LuaCallExpression,
-  LuaExpression,
-  LuaLVal,
-  LuaNodeGroup,
-  LuaTableKeyField,
-  nodeGroup,
-  stringInferableExpression,
-  UnhandledStatement,
-  unhandledStatement,
-  variableDeclaration,
-  variableDeclaratorIdentifier,
-  variableDeclaratorValue,
-  withTrailingConversionComment,
-} from '@js-to-lua/lua-types';
-import {
   ArrayPattern,
   AssignmentExpression,
   binaryExpression as babelBinaryExpression,
@@ -38,27 +10,57 @@ import {
   isIdentifier as isBabelIdentifier,
   isObjectExpression,
   isObjectPattern as isBabelObjectPattern,
+  isObjectProperty,
   isRestElement as isBabelRestElement,
   isTSParameterProperty,
   LVal,
   ObjectMethod,
   ObjectPattern,
   ObjectProperty,
-  isObjectProperty,
 } from '@babel/types';
+import {
+  isStringInferable,
+  stringInferableExpression,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
+  AssignmentStatement,
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
+  blockStatement,
+  identifier,
+  LuaBinaryExpression,
+  LuaCallExpression,
+  LuaExpression,
+  LuaLVal,
+  LuaNodeGroup,
+  LuaTableKeyField,
+  nodeGroup,
+  UnhandledStatement,
+  unhandledStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
+} from '@js-to-lua/lua-types';
+import { isTruthy } from '@js-to-lua/shared-utils';
+import { equals } from 'ramda';
+import {
+  BaseNodeHandler,
+  createHandler,
+  EmptyConfig,
+  HandlerFunction,
+} from '../../types';
 import { defaultExpressionHandler } from '../../utils/default-handlers';
 import { getReturnExpressions } from '../../utils/get-return-expressions';
-import {
-  createObjectPatternDestructuringHandler,
-  hasUnhandledObjectDestructuringParam,
-} from '../object-pattern-destructuring.handler';
-import { isTruthy } from '@js-to-lua/shared-utils';
 import {
   createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,
 } from '../expression/array-pattern-destructuring.handler';
 import { createExpressionAsNumericHandler } from '../expression/handle-expression-as-numeric';
-import { equals } from 'ramda';
+import {
+  createObjectPatternDestructuringHandler,
+  hasUnhandledObjectDestructuringParam,
+} from '../object-pattern-destructuring.handler';
 
 export const createAssignmentStatementHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

@@ -1,4 +1,3 @@
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import {
   Expression,
   isIdentifier as isBabelIdentifier,
@@ -8,13 +7,15 @@ import {
 import {
   booleanInferableExpression,
   booleanMethod,
+  isBooleanInferable,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   callExpression,
   elseClause,
   functionExpression,
   identifier,
   ifClause,
   ifStatement,
-  isBooleanInferable,
   logicalExpression,
   LuaCallExpression,
   LuaExpression,
@@ -27,9 +28,10 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
+import { applyTo } from 'ramda';
+import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import { defaultStatementHandler } from '../../utils/default-handlers';
 import { isLuaTruthy } from '../../utils/is-lua-truthy';
-import { applyTo } from 'ramda';
 
 export const createLogicalExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

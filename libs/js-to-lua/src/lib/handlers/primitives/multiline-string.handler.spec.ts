@@ -6,19 +6,17 @@ import {
   templateLiteral as babelTemplateLiteral,
   TemplateLiteral,
 } from '@babel/types';
+import { stringInferableExpression } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
   LuaMultilineStringLiteral,
   memberExpression,
   multilineStringLiteral,
-  stringInferableExpression,
 } from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createMultilineStringLiteralHandler } from './multiline-string.handler';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
 
 const handleMultilineStringLiteral = createMultilineStringLiteralHandler(
   mockNodeWithValueHandler

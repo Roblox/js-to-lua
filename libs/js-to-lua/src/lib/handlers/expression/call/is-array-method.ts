@@ -10,7 +10,7 @@ import {
 import {
   ArrayPolyfilledMethodName,
   arrayPolyfilledMethodNames,
-} from '@js-to-lua/lua-types';
+} from '@js-to-lua/lua-conversion-utils';
 
 type ArrayMethod = keyof [] | 'from';
 

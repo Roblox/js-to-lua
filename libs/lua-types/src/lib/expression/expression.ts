@@ -5,35 +5,21 @@ import {
   LuaTableConstructor,
 } from '../literals';
 import {
-  LuaBinaryExpression,
-  LuaCallExpression,
-  LuaFunctionExpression,
-  LuaIndexExpression,
-  LuaLogicalExpression,
-  LuaMemberExpression,
-  LuaUnaryExpression,
-  LuaUnaryNegationExpression,
-  LuaUnaryVoidExpression,
-  UnhandledExpression,
-} from '../lua-nodes.types';
-import {
   isTypeCastExpression,
   TypeCastExpression,
 } from './type-cast-expression';
 import { isAnyNodeType } from '../node.types';
-import {
-  isBinaryExpression,
-  isCallExpression,
-  isFunctionExpression,
-  isIndexExpression,
-  isLogicalExpression,
-  isMemberExpression,
-  isUnaryExpression,
-  isUnaryNegation,
-  isUnaryVoidExpression,
-  isUnhandledExpression,
-} from '../lua-nodes.checks';
 import { isIdentifier, LuaIdentifier } from './identifier';
+import { isMemberExpression, LuaMemberExpression } from './member';
+import { isIndexExpression, LuaIndexExpression } from './index-expression';
+import { isUnaryNegation, LuaUnaryNegationExpression } from './unary-negation';
+import { isBinaryExpression, LuaBinaryExpression } from './binary';
+import { isLogicalExpression, LuaLogicalExpression } from './logical';
+import { isFunctionExpression, LuaFunctionExpression } from './function';
+import { isUnaryExpression, LuaUnaryExpression } from './unary';
+import { isUnaryVoidExpression, LuaUnaryVoidExpression } from './unary-void';
+import { isUnhandledExpression, UnhandledExpression } from '../unhandled';
+import { isCallExpression, LuaCallExpression } from './call';
 
 export type LuaExpression =
   | LuaLiteral

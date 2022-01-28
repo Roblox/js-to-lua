@@ -1,11 +1,11 @@
 import {
+  blockStatement as babelBlockStatement,
   identifier as babelIdentifier,
   ifStatement as babelIfStatement,
-  blockStatement as babelBlockStatement,
 } from '@babel/types';
+import { booleanMethod } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
-  booleanMethod,
   elseClause,
   elseifClause,
   identifier,

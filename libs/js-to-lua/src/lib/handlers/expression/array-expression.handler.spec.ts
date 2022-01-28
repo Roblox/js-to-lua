@@ -1,8 +1,8 @@
 import {
   ArrayExpression,
-  Expression,
   arrayExpression as babelArrayExpression,
   booleanLiteral as babelBooleanLiteral,
+  Expression,
   numericLiteral as babelNumericLiteral,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
@@ -12,9 +12,10 @@ import {
   tableConstructor,
   tableNoKeyField,
 } from '@js-to-lua/lua-types';
-import { createArrayExpressionHandler } from './array-expression.handler';
+import { mockNode } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeHandler } from '../../testUtils/mock-node';
 import { combineHandlers } from '../../utils/combine-handlers';
-import { mockNode, mockNodeHandler } from '../../testUtils/mock-node';
+import { createArrayExpressionHandler } from './array-expression.handler';
 
 const source = '';
 

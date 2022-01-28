@@ -4,13 +4,13 @@ import {
   RestElement,
   TSType,
 } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   LuaIdentifier,
   LuaType,
   typeAnnotation,
   typeAny,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { EmptyConfig, HandlerFunction } from '../types';
 

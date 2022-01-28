@@ -1,12 +1,11 @@
 import { CallExpression, Expression, MemberExpression } from '@babel/types';
+import { withExtras, WithExtras } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
   LuaCallExpression,
   LuaExpression,
   memberExpression,
-  WithExtras,
-  withExtras,
 } from '@js-to-lua/lua-types';
 import {
   createOptionalHandlerFunction,

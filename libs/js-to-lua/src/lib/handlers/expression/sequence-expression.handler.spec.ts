@@ -1,12 +1,4 @@
 import {
-  callExpression,
-  functionExpression,
-  identifier,
-  LuaIdentifier,
-  nodeGroup,
-  returnStatement,
-} from '@js-to-lua/lua-types';
-import {
   assignmentExpression as babelAssignmentExpression,
   binaryExpression as babelBinaryExpression,
   callExpression as babelCallExpression,
@@ -16,15 +8,21 @@ import {
   sequenceExpression as babelSequenceExpression,
 } from '@babel/types';
 import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
+  callExpression,
+  functionExpression,
+  identifier,
+  LuaIdentifier,
+  nodeGroup,
+  returnStatement,
+} from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
+import { createHandler } from '../../types';
+import { combineHandlers } from '../../utils/combine-handlers';
 import {
   createSequenceExpressionAsStatementHandler,
   createSequenceExpressionHandler,
 } from './sequence-expression.handler';
-import { combineHandlers } from '../../utils/combine-handlers';
-import { createHandler } from '../../types';
 
 describe('Sequence Expression Handler', () => {
   const source = '';

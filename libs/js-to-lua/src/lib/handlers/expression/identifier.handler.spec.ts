@@ -1,4 +1,5 @@
 import { identifier as babelIdentifier } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   identifier,
@@ -6,13 +7,12 @@ import {
   memberExpression,
   nilLiteral,
   numericLiteral,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import { createIdentifierHandler } from './identifier.handler';
-import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
-import { handleExpression } from '../expression-statement.handler';
 import { createWithOriginalIdentifierNameExtras } from '../../utils/with-original-identifier-name-extras';
+import { handleExpression } from '../expression-statement.handler';
+import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
+import { createIdentifierHandler } from './identifier.handler';
 
 const source = '';
 

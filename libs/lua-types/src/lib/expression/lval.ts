@@ -1,15 +1,8 @@
-import {
-  isIndexExpression,
-  isMemberExpression,
-  isUnhandledExpression,
-} from '../lua-nodes.checks';
-import {
-  LuaIndexExpression,
-  LuaMemberExpression,
-  UnhandledExpression,
-} from '../lua-nodes.types';
 import { isAnyNodeType } from '../node.types';
-import { LuaIdentifier, isIdentifier } from '../expression';
+import { isIdentifier, LuaIdentifier } from './identifier';
+import { isMemberExpression, LuaMemberExpression } from './member';
+import { isIndexExpression, LuaIndexExpression } from './index-expression';
+import { isUnhandledExpression, UnhandledExpression } from '../unhandled';
 
 export type LuaLVal =
   | LuaIdentifier

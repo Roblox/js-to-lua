@@ -1,4 +1,5 @@
-import { LuaNode, withExtras } from '@js-to-lua/lua-types';
+import { LuaNode } from '@js-to-lua/lua-types';
+import { withExtras } from './extras';
 
 export const createWithSourceTypeExtra = (sourceType: string) =>
   withExtras({

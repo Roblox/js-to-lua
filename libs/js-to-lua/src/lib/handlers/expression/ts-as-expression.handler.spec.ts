@@ -1,14 +1,12 @@
-import { createTsAsExpressionHandler } from './ts-as-expression.handler';
 import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
-import {
-  tsAsExpression as babelTsAsExpression,
   identifier as babelIdentifier,
   tsAnyKeyword as babelTsAnyKeyword,
+  tsAsExpression as babelTsAsExpression,
 } from '@babel/types';
 import { typeCastExpression } from '@js-to-lua/lua-types';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
+import { createTsAsExpressionHandler } from './ts-as-expression.handler';
 
 describe('TS as Expression Handler', () => {
   const source = '';

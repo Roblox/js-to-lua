@@ -4,6 +4,7 @@ import {
   isLiteral,
   LuaBooleanLiteral,
   LuaLiteral,
+  LuaStringLiteral,
   multilineStringLiteral,
   nilLiteral,
   numericLiteral,
@@ -11,10 +12,13 @@ import {
 } from './literals';
 import { isAnyNodeType, isNodeType } from './node.types';
 import { LuaNode } from './lua-nodes.types';
-import { LuaIdentifier, isIdentifier, identifier } from './expression';
-import { callExpression, functionExpression } from './lua-nodes.creators';
-
-import { LuaStringLiteral } from './literals';
+import {
+  callExpression,
+  functionExpression,
+  identifier,
+  isIdentifier,
+  LuaIdentifier,
+} from './expression';
 import { nodeGroup } from './statement';
 
 describe('isNodeType', () => {

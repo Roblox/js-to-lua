@@ -5,12 +5,12 @@ import {
   tsStringKeyword,
   tsTypeAnnotation,
 } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   typeAnnotation,
   typePropertySignature,
   typeString,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import {
   forwardHandlerFunctionRef,

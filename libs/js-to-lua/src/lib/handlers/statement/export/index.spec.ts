@@ -5,6 +5,7 @@ import {
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
+import { withExtras } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -13,12 +14,13 @@ import {
   nodeGroup,
   variableDeclaration,
   variableDeclaratorIdentifier,
-  withExtras,
 } from '@js-to-lua/lua-types';
+import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
 import {
   forwardHandlerFunctionRef,
   forwardHandlerRef,
 } from '../../../utils/forward-handler-ref';
+import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import {
   handleExpression,
   handleExpressionAsStatement,
@@ -28,12 +30,10 @@ import {
   handleObjectPropertyValue,
   handleStatement,
 } from '../../expression-statement.handler';
-import { createExportHandler } from './index';
-import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
-import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import { createIdentifierHandler } from '../../expression/identifier.handler';
-import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
 import { createLValHandler } from '../../l-val.handler';
+import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
+import { createExportHandler } from './index';
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression),

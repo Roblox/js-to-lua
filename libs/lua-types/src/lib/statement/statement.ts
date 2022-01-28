@@ -1,27 +1,21 @@
 import { WhileStatement } from './while-statement';
-import {
-  AssignmentStatement,
-  BreakStatement,
-  ExportTypeStatement,
-  ForGenericStatement,
-  LuaBlockStatement,
-  LuaNodeGroup,
-  RepeatStatement,
-} from '../statement';
-import {
-  LuaExpressionStatement,
-  LuaIfStatement,
-  LuaReturnStatement,
-  LuaVariableDeclaration,
-  UnhandledStatement,
-} from '../lua-nodes.types';
 import { LuaDeclaration } from '../declaration';
+import { LuaBlockStatement } from './block-statement';
+import { LuaReturnStatement } from './return-statement';
+import { LuaIfStatement } from './if-statement';
+import { LuaNodeGroup } from './node-group';
+import { AssignmentStatement } from './assignment-statement';
+import { ExportTypeStatement } from './export-type-statement';
+import { ForGenericStatement } from './for-generic-statement';
+import { BreakStatement } from './break-statement';
+import { RepeatStatement } from './repeat-statement';
+import { UnhandledStatement } from '../unhandled';
+import { LuaExpressionStatement } from './expression-statement';
 
 export type LuaStatement =
   | LuaExpressionStatement
   | LuaBlockStatement
   | LuaReturnStatement
-  | LuaVariableDeclaration
   | LuaIfStatement
   | LuaNodeGroup
   | LuaDeclaration

@@ -1,13 +1,16 @@
-import { isBooleanLiteral } from './literals';
 import {
   isBinaryExpression,
+  isBooleanLiteral,
   isCallExpression,
+  isIdentifier,
   isMemberExpression,
   isUnaryNegation,
-} from './lua-nodes.checks';
-import { booleanMethod, withExtras } from './lua-nodes.creators';
-import { LuaMemberExpression } from './lua-nodes.types';
-import { LuaExpression, LuaIdentifier, isIdentifier } from './expression';
+  LuaExpression,
+  LuaIdentifier,
+  LuaMemberExpression,
+} from '@js-to-lua/lua-types';
+import { booleanMethod } from './creators';
+import { withExtras } from './extras';
 
 export const booleanInferableExpression = withExtras({
   isBooleanInferable: true,
@@ -25,7 +28,7 @@ export const isBooleanInferable = (
   (isBinaryExpression(node) && node.operator === '>=') ||
   (isBinaryExpression(node) && node.operator === '<=') ||
   isToJSBooleanMethod(node) ||
-  node.extras?.isBooleanInferable;
+  node.extras?.isBooleanInferable === true;
 
 function isToJSBooleanMethod(node: LuaExpression): boolean {
   const { base, identifier } = booleanMethod(

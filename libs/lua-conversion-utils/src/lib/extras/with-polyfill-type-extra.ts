@@ -1,4 +1,5 @@
-import { LuaIdentifier, LuaNode, withExtras } from '@js-to-lua/lua-types';
+import { LuaIdentifier, LuaNode } from '@js-to-lua/lua-types';
+import { withExtras } from './extras';
 
 export const requiresTypePolyfill = [
   { name: 'Array', generics: ['T'] },

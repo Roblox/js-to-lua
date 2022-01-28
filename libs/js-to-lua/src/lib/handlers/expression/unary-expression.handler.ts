@@ -5,9 +5,12 @@ import {
   UnaryExpression,
 } from '@babel/types';
 import {
+  bit32Identifier,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
-  bit32Identifier,
   callExpression,
   identifier,
   LuaCallExpression,
@@ -21,7 +24,6 @@ import {
   unaryNegationExpression,
   unaryVoidExpression,
   UnhandledStatement,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
 import { defaultStatementHandler } from '../../utils/default-handlers';

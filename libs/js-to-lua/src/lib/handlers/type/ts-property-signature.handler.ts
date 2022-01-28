@@ -5,6 +5,7 @@ import {
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   isIdentifier,
   LuaExpression,
@@ -13,7 +14,6 @@ import {
   makeOptionalAnnotation,
   typePropertySignature,
   typeString,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
 import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';

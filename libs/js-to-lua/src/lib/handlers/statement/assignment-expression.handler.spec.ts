@@ -11,14 +11,12 @@ import {
   nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
-import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { combineHandlers } from '../../utils/combine-handlers';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { createAssignmentExpressionHandlerFunction } from './assignment-expression.handler';
+import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
 
 const handleAssignmentStatement = createAssignmentStatementHandlerFunction(
   combineHandlers(

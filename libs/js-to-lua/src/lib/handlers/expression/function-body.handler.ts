@@ -10,6 +10,7 @@ import {
   Statement,
   TSDeclareMethod,
 } from '@babel/types';
+import { promiseMethod } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   expressionStatement,
@@ -22,7 +23,6 @@ import {
   memberExpression,
   nilLiteral,
   nodeGroup,
-  promiseMethod,
   returnStatement,
   stringLiteral,
 } from '@js-to-lua/lua-types';

@@ -10,14 +10,13 @@ import {
   spreadElement as babelSpreadElement,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
+import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
 import {
   booleanLiteral,
   callExpression,
   functionExpression,
   identifier,
   numericLiteral,
-  objectAssign,
-  objectNone,
   stringLiteral,
   tableConstructor,
   tableExpressionKeyField,

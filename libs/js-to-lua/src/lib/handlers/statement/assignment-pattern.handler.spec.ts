@@ -6,6 +6,7 @@ import {
   tsAnyKeyword as babelTsAnyKeyword,
   tsTypeAnnotation as babelTsTypeAnnotation,
 } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -17,14 +18,11 @@ import {
   nilLiteral,
   nodeGroup,
   unhandledStatement,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../testUtils/mock-node';
-import { createAssignmentPatternHandlerFunction } from './assignment-pattern.handler';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createIdentifierHandler } from '../expression/identifier.handler';
+import { createAssignmentPatternHandlerFunction } from './assignment-pattern.handler';
 
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
   mockNodeWithValueHandler,

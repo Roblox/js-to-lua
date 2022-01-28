@@ -5,6 +5,7 @@ import {
   TryStatement,
   TSType,
 } from '@babel/types';
+import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   blockStatement,
   booleanLiteral,
@@ -24,7 +25,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withInnerConversionComment,
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { pipe } from 'ramda';

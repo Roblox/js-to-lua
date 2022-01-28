@@ -11,10 +11,8 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import {
-  mockNodeWithValue,
-  mockNodeWithValueHandler,
-} from '../../../testUtils/mock-node';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
 import { createImportNamedSpecifierHandler } from './import-named-specifier.handler';
 
 const { handler } = createImportNamedSpecifierHandler(

@@ -1,15 +1,11 @@
 import { CallExpression, Expression, MemberExpression } from '@babel/types';
-import {
-  LuaCallExpression,
-  LuaExpression,
-  withExtras,
-  WithExtras,
-} from '@js-to-lua/lua-types';
+import { withExtras, WithExtras } from '@js-to-lua/lua-conversion-utils';
+import { LuaCallExpression, LuaExpression } from '@js-to-lua/lua-types';
+import { applyTo } from 'ramda';
 import {
   createOptionalHandlerFunction,
   HandlerFunction,
 } from '../../../../types';
-import { applyTo } from 'ramda';
 import { isArrayMethod, isArrayMethodCall } from '../is-array-method';
 import { matchesBabelMemberExpressionProperty } from '../utils';
 import {

@@ -20,6 +20,7 @@ import {
   VariableDeclaration,
   VariableDeclarator,
 } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -42,7 +43,6 @@ import {
   variableDeclarator,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
 import {
@@ -56,12 +56,12 @@ import {
   createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,
 } from '../expression/array-pattern-destructuring.handler';
-import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
 import { createLValHandler } from '../l-val.handler';
 import {
   createObjectPatternDestructuringHandler,
   hasUnhandledObjectDestructuringParam,
 } from '../object-pattern-destructuring.handler';
+import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
 
 export const createVariableDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

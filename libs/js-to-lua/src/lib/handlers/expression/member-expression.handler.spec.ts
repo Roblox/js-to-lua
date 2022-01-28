@@ -1,4 +1,5 @@
 import { MemberExpression } from '@babel/types';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   booleanLiteral,
@@ -10,7 +11,6 @@ import {
   memberExpression,
   numericLiteral,
   stringLiteral,
-  withTrailingConversionComment,
 } from '@js-to-lua/lua-types';
 import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';
