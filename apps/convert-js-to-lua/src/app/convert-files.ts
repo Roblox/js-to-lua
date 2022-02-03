@@ -1,7 +1,7 @@
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
-import { convert } from './convert';
 import { join, parse } from 'path';
 import { format_code } from 'stylua-wasm';
+import { convert } from './convert';
 import { transform } from './transform';
 
 const safeApply =
@@ -44,7 +44,9 @@ export const convertFiles =
         Promise.all(
           files.map((file) =>
             readFile(file, { encoding: 'utf-8' })
-              .then((code) => transform(transformOptions, code))
+              .then((code) =>
+                transform(transformOptions, parse(file).base, code)
+              )
               .then((code) =>
                 convert(options)({ isInitFile: isInitFile(file) }, code)
               )
