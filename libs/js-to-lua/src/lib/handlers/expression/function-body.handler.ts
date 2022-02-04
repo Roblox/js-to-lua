@@ -10,7 +10,12 @@ import {
   Statement,
   TSDeclareMethod,
 } from '@babel/types';
-import { promiseMethod } from '@js-to-lua/lua-conversion-utils';
+import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import {
+  createExpressionStatement,
+  getReturnExpressions,
+  promiseMethod,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   expressionStatement,
@@ -27,9 +32,6 @@ import {
   stringLiteral,
 } from '@js-to-lua/lua-types';
 import { applyTo, curry } from 'ramda';
-import { EmptyConfig, HandlerFunction } from '../../types';
-import { createExpressionStatement } from '../../utils/create-expression-statement';
-import { getReturnExpressions } from '../../utils/get-return-expressions';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
 
 type FunctionTypes =

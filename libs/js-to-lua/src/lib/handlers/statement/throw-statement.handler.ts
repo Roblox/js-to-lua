@@ -1,4 +1,8 @@
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import {
   callExpression,
   expressionStatement,

@@ -6,6 +6,7 @@ import {
   numericLiteral as babelNumericLiteral,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
+import { combineHandlers, testUtils } from '@js-to-lua/handler-utils';
 import {
   LuaExpression,
   LuaTableConstructor,
@@ -13,8 +14,6 @@ import {
   tableNoKeyField,
 } from '@js-to-lua/lua-types';
 import { mockNode } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeHandler } from '../../testUtils/mock-node';
-import { combineHandlers } from '../../utils/combine-handlers';
 import { createArrayExpressionHandler } from './array-expression.handler';
 
 const source = '';
@@ -22,7 +21,7 @@ const source = '';
 const handleArrayExpression = createArrayExpressionHandler((...args) =>
   combineHandlers<LuaExpression, Expression>(
     [handleArrayExpression],
-    mockNodeHandler
+    testUtils.mockNodeHandler
   ).handler(...args)
 );
 

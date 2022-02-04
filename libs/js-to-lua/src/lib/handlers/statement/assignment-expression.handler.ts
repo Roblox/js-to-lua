@@ -1,4 +1,13 @@
-import { createHandler, HandlerFunction } from '../../types';
+import {
+  AssignmentExpression,
+  BinaryExpression,
+  Expression,
+  LVal,
+  ObjectMethod,
+  ObjectProperty,
+} from '@babel/types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import { getReturnExpressions } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   functionExpression,
@@ -11,16 +20,7 @@ import {
   returnStatement,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
-import {
-  AssignmentExpression,
-  BinaryExpression,
-  Expression,
-  LVal,
-  ObjectMethod,
-  ObjectProperty,
-} from '@babel/types';
 import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
-import { getReturnExpressions } from '../../utils/get-return-expressions';
 
 export const createAssignmentExpressionHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

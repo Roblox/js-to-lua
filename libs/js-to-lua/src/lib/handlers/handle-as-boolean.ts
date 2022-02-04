@@ -1,6 +1,8 @@
 import { Expression } from '@babel/types';
+import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   booleanMethod,
+  getNodeSource,
   isBooleanInferable,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
@@ -17,8 +19,6 @@ import {
   LuaNumericLiteral,
   LuaStringLiteral,
 } from '@js-to-lua/lua-types';
-import { EmptyConfig, HandlerFunction } from '../types';
-import { getNodeSource } from '../utils/get-node-source';
 
 export const createExpressionAsBooleanHandler =
   (handleExpression: HandlerFunction<LuaExpression, Expression>) =>

@@ -6,7 +6,7 @@ import {
   typeReference,
   typeUnion,
 } from '@js-to-lua/lua-types';
-import { createHandler, HandlerFunction } from '../../types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import { uniqWith } from 'ramda';
 
 const replacer = (key: string, value: unknown): unknown =>

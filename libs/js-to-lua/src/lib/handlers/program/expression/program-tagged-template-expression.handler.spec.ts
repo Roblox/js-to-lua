@@ -7,7 +7,7 @@ import {
   program,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
-import dedent from '../../../testUtils/dedent';
+import { dedent } from '@js-to-lua/shared-utils';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
 

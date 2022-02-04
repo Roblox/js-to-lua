@@ -1,0 +1,23 @@
+{
+  "root": "libs/handler-utils",
+  "sourceRoot": "libs/handler-utils/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/handler-utils/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/handler-utils"],
+      "options": {
+        "jestConfig": "libs/handler-utils/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": ["type:utils:convert", "feature:convert"]
+}

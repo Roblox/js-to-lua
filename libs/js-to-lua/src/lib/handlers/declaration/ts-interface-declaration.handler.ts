@@ -1,4 +1,16 @@
-import { createHandler, HandlerFunction } from '../../types';
+import {
+  Expression,
+  Identifier,
+  isIdentifier as isBabelIdentifier,
+  Noop,
+  TSExpressionWithTypeArguments,
+  TSInterfaceDeclaration,
+  TSType,
+  TSTypeAnnotation,
+  TypeAnnotation,
+} from '@babel/types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import { defaultExpressionHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaBinaryExpression,
   LuaExpression,
@@ -12,20 +24,8 @@ import {
   typeIntersection,
   typeReference,
 } from '@js-to-lua/lua-types';
-import {
-  Expression,
-  Identifier,
-  isIdentifier as isBabelIdentifier,
-  Noop,
-  TSExpressionWithTypeArguments,
-  TSInterfaceDeclaration,
-  TSType,
-  TSTypeAnnotation,
-  TypeAnnotation,
-} from '@babel/types';
-import { createTsInterfaceBodyHandler } from '../type/ts-interface-body.handler';
-import { defaultExpressionHandler } from '../../utils/default-handlers';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { createTsInterfaceBodyHandler } from '../type/ts-interface-body.handler';
 import { createTsTypeParameterHandler } from '../type/ts-type-parameter.handler';
 
 export const createTsInterfaceHandler = (

@@ -6,6 +6,10 @@ import {
   tsStringKeyword,
   tsTypeAnnotation,
 } from '@babel/types';
+import {
+  forwardHandlerFunctionRef,
+  forwardHandlerRef,
+} from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   typeAnnotation,
@@ -14,10 +18,6 @@ import {
   typeNumber,
   typeString,
 } from '@js-to-lua/lua-types';
-import {
-  forwardHandlerFunctionRef,
-  forwardHandlerRef,
-} from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsIndexSignatureHandler } from './ts-index-signature.handler';

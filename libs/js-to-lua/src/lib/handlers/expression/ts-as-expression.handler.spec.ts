@@ -3,10 +3,13 @@ import {
   tsAnyKeyword as babelTsAnyKeyword,
   tsAsExpression as babelTsAsExpression,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
+
 import { typeCastExpression } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTsAsExpressionHandler } from './ts-as-expression.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 describe('TS as Expression Handler', () => {
   const source = '';

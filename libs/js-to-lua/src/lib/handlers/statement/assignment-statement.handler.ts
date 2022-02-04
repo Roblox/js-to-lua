@@ -19,6 +19,14 @@ import {
   ObjectProperty,
 } from '@babel/types';
 import {
+  BaseNodeHandler,
+  createHandler,
+  EmptyConfig,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  defaultExpressionHandler,
+  getReturnExpressions,
   isStringInferable,
   stringInferableExpression,
   withTrailingConversionComment,
@@ -44,14 +52,6 @@ import {
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { equals } from 'ramda';
-import {
-  BaseNodeHandler,
-  createHandler,
-  EmptyConfig,
-  HandlerFunction,
-} from '../../types';
-import { defaultExpressionHandler } from '../../utils/default-handlers';
-import { getReturnExpressions } from '../../utils/get-return-expressions';
 import {
   createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,

@@ -16,7 +16,11 @@ import {
   typeString,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 
 export const createTsPropertySignatureHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,

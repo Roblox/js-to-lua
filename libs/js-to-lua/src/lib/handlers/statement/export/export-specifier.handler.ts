@@ -1,11 +1,11 @@
-import { HandlerFunction } from '../../../types';
 import { Expression, Identifier } from '@babel/types';
+import { HandlerFunction } from '@js-to-lua/handler-utils';
+import { combineStatementHandlers } from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatement,
   LuaExpression,
   LuaIdentifier,
 } from '@js-to-lua/lua-types';
-import { combineStatementHandlers } from '../../../utils/combine-handlers';
 import { createExportNamedSpecifierHandler } from './export-named-specifier.handler';
 import { createExportNamespaceSpecifierHandler } from './export-namespace-specifier.handler';
 

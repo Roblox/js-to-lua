@@ -9,6 +9,13 @@ import {
   StringLiteral,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
+import {
+  combineHandlers,
+  createHandlerFunction,
+  EmptyConfig,
+  forwardHandlerRef,
+  testUtils,
+} from '@js-to-lua/handler-utils';
 import { stringInferableExpression } from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatement,
@@ -23,11 +30,9 @@ import {
   numericLiteral,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
-import { createHandlerFunction, EmptyConfig } from '../../types';
-import { combineHandlers } from '../../utils/combine-handlers';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 const handleAssignmentStatement = createAssignmentStatementHandlerFunction(
   combineHandlers(

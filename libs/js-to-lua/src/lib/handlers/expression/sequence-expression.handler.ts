@@ -1,4 +1,14 @@
-import { createHandler, HandlerFunction } from '../../types';
+import {
+  Expression,
+  isUpdateExpression,
+  SequenceExpression,
+  UpdateExpression,
+} from '@babel/types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import {
+  createExpressionStatement,
+  getReturnExpressions,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   functionExpression,
@@ -9,15 +19,7 @@ import {
   nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import {
-  Expression,
-  isUpdateExpression,
-  SequenceExpression,
-  UpdateExpression,
-} from '@babel/types';
 import { dropLast, last, takeLast } from 'ramda';
-import { getReturnExpressions } from '../../utils/get-return-expressions';
-import { createExpressionStatement } from '../../utils/create-expression-statement';
 
 export const createSequenceExpressionHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,

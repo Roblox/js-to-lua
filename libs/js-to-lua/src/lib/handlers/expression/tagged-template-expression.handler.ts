@@ -1,4 +1,10 @@
-import { createHandler, HandlerFunction } from '../../types';
+import {
+  Expression,
+  TaggedTemplateExpression,
+  TemplateLiteral,
+} from '@babel/types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import { defaultExpressionHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   LuaCallExpression,
@@ -6,12 +12,6 @@ import {
   LuaMultilineStringLiteral,
   LuaStringLiteral,
 } from '@js-to-lua/lua-types';
-import {
-  Expression,
-  TaggedTemplateExpression,
-  TemplateLiteral,
-} from '@babel/types';
-import { defaultExpressionHandler } from '../../utils/default-handlers';
 
 export const createTaggedTemplateExpressionHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,

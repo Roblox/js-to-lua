@@ -1,5 +1,9 @@
 import { identifier as babelIdentifier } from '@babel/types';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import { forwardHandlerRef } from '@js-to-lua/handler-utils';
+import {
+  createWithOriginalIdentifierNameExtras,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   identifier,
@@ -8,8 +12,6 @@ import {
   nilLiteral,
   numericLiteral,
 } from '@js-to-lua/lua-types';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
-import { createWithOriginalIdentifierNameExtras } from '../../utils/with-original-identifier-name-extras';
 import { handleExpression } from '../expression-statement.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createIdentifierHandler } from './identifier.handler';

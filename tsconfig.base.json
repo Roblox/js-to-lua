@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@js-to-lua/handler-utils": ["libs/handler-utils/src/index.ts"],
       "@js-to-lua/js-to-lua": ["libs/js-to-lua/src/index.ts"],
       "@js-to-lua/lua-conversion-utils": [
         "libs/lua-conversion-utils/src/index.ts"

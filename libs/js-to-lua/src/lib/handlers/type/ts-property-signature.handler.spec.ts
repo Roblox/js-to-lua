@@ -5,6 +5,10 @@ import {
   tsStringKeyword,
   tsTypeAnnotation,
 } from '@babel/types';
+import {
+  forwardHandlerFunctionRef,
+  forwardHandlerRef,
+} from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
@@ -12,10 +16,6 @@ import {
   typePropertySignature,
   typeString,
 } from '@js-to-lua/lua-types';
-import {
-  forwardHandlerFunctionRef,
-  forwardHandlerRef,
-} from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsPropertySignatureHandler } from './ts-property-signature.handler';

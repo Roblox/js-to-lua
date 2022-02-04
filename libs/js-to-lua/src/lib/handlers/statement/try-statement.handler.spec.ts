@@ -6,6 +6,7 @@ import {
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
 import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   blockStatement,
@@ -22,8 +23,9 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTryStatementHandler } from './try-statement.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 const source = '';
 

@@ -1,4 +1,7 @@
-import { createHandlerFunction, HandlerFunction } from '../../types';
+import {
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import {
   identifier,
   indexExpression,

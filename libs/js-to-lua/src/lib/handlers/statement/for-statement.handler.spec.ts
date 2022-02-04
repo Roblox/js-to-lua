@@ -10,14 +10,16 @@ import {
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
 import {
   booleanLiteral,
   nodeGroup,
   whileStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createForStatementHandler } from './for-statement.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 describe('For Statement Handler', () => {
   const handleForStatement = createForStatementHandler(

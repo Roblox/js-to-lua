@@ -6,6 +6,11 @@ import {
   switchCase as babelSwitchCase,
   switchStatement as babelSwitchStatement,
 } from '@babel/types';
+import {
+  combineHandlers,
+  createHandler,
+  testUtils,
+} from '@js-to-lua/handler-utils';
 import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
@@ -31,10 +36,9 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
-import { createHandler } from '../../types';
-import { combineHandlers } from '../../utils/combine-handlers';
 import { createSwitchStatementHandler } from './switch-statement.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 describe('Switch Statement Handler', () => {
   const handleSwitchStatement = createSwitchStatementHandler(

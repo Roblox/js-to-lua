@@ -5,6 +5,12 @@ import {
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
+import {
+  forwardHandlerFunctionRef,
+  forwardHandlerRef,
+  testUtils,
+} from '@js-to-lua/handler-utils';
+
 import { withExtras } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
@@ -15,11 +21,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
-import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
-import {
-  forwardHandlerFunctionRef,
-  forwardHandlerRef,
-} from '../../../utils/forward-handler-ref';
 import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import {
   handleExpression,
@@ -65,7 +66,7 @@ const handleDeclaration = createDeclarationHandler(
 const { handler } = createExportHandler(
   forwardHandlerRef(() => handleDeclaration),
   forwardHandlerRef(() => handleExpression),
-  mockNodeWithValueHandler
+  testUtils.mockNodeWithValueHandler
 );
 
 const source = '';

@@ -11,7 +11,7 @@ import {
   multilineStringLiteral,
   stringLiteral,
 } from '@js-to-lua/lua-types';
-import { createHandler, HandlerFunction } from '../../types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 
 export const createMultilineStringLiteralHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>

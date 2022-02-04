@@ -12,9 +12,89 @@
             "enforceBuildableLibDependency": true,
             "allow": [],
             "depConstraints": [
+              /* type constraints */
               {
-                "sourceTag": "*",
-                "onlyDependOnLibsWithTags": ["*"]
+                "sourceTag": "type:app",
+                "onlyDependOnLibsWithTags": ["type:entry"]
+              },
+              {
+                "sourceTag": "type:entry",
+                "onlyDependOnLibsWithTags": [
+                  "type:feature",
+                  "type:utils:convert",
+                  "type:utils:luaTypes",
+                  "type:utils",
+                  "type:utils:luaTypes:test"
+                ]
+              },
+              {
+                "sourceTag": "type:feature",
+                "onlyDependOnLibsWithTags": [
+                  "type:utils",
+                  "type:feature",
+                  "type:utils:test"
+                ]
+              },
+              {
+                "sourceTag": "type:utils:convert",
+                "onlyDependOnLibsWithTags": [
+                  "type:utils:convert",
+                  "type:utils:luaTypes",
+                  "type:utils:luaTypes:test",
+                  "type:utils",
+                  "type:utils:test"
+                ]
+              },
+              {
+                "sourceTag": "type:utils:luaTypes",
+                "onlyDependOnLibsWithTags": ["type:utils", "type:utils:test"]
+              },
+              {
+                "sourceTag": "type:utils:luaTypes:test",
+                "onlyDependOnLibsWithTags": [
+                  "type:utils:luaTypes",
+                  "type:utils"
+                ]
+              },
+              {
+                "sourceTag": "type:utils:test",
+                "onlyDependOnLibsWithTags": ["type:utils"]
+              },
+              {
+                "sourceTag": "type:utils",
+                "onlyDependOnLibsWithTags": []
+              },
+              /* feature constraints */
+              {
+                "sourceTag": "feature:convert",
+                "onlyDependOnLibsWithTags": [
+                  "feature:convert",
+                  "feature:luaTypes",
+                  "feature:luaTypes:test",
+                  "feature:shared"
+                ]
+              },
+              {
+                "sourceTag": "feature:print",
+                "onlyDependOnLibsWithTags": [
+                  "feature:print",
+                  "feature:luaTypes",
+                  "feature:luaTypes:test",
+                  "feature:shared",
+                  /* remove after splitting js-to-lua library to separate convert and print libraries */
+                  "feature:convert"
+                ]
+              },
+              {
+                "sourceTag": "feature:luaTypes",
+                "onlyDependOnLibsWithTags": [
+                  "feature:luaTypes",
+                  "feature:shared"
+                ]
+              },
+              {
+                "sourceTag": "feature:shared",
+                "onlyDependOnLibsWithTags": ["feature:shared"]
               }
             ]
           }

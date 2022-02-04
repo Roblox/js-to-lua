@@ -12,7 +12,7 @@ import {
   typeAnnotation,
   typeAny,
 } from '@js-to-lua/lua-types';
-import { EmptyConfig, HandlerFunction } from '../types';
+import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
 
 export const createRestElementHandler =
   (

@@ -6,6 +6,8 @@ import {
   templateLiteral as babelTemplateLiteral,
   TemplateLiteral,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
+
 import { stringInferableExpression } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
@@ -15,11 +17,10 @@ import {
   multilineStringLiteral,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createMultilineStringLiteralHandler } from './multiline-string.handler';
 
 const handleMultilineStringLiteral = createMultilineStringLiteralHandler(
-  mockNodeWithValueHandler
+  testUtils.mockNodeWithValueHandler
 );
 
 const source = '';

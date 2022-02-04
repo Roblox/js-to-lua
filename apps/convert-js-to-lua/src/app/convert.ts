@@ -1,7 +1,7 @@
 import { parse, ParserOptions } from '@babel/parser';
-import { ConfigBase, handleProgram, printNode } from '@js-to-lua/js-to-lua';
+import { handleProgram, printNode } from '@js-to-lua/js-to-lua';
 
-export interface ConversionConfig extends ConfigBase {
+export interface ConversionConfig {
   isInitFile: boolean;
 }
 

@@ -1,11 +1,11 @@
 import { LuaNode } from '@js-to-lua/lua-types';
+import { createOptionalHandlerFunction } from './create-optional-handler-function';
 import {
   BabelNode,
   ConfigBase,
-  createOptionalHandlerFunction,
   EmptyConfig,
   OptionalHandlerFunction,
-} from '../types';
+} from './types';
 
 export const combineOptionalHandlerFunctions = <
   R extends LuaNode,

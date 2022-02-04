@@ -10,6 +10,10 @@ import {
   tsTypeLiteral,
 } from '@babel/types';
 import {
+  forwardHandlerFunctionRef,
+  forwardHandlerRef,
+} from '@js-to-lua/handler-utils';
+import {
   identifier,
   typeAnnotation,
   typeAny,
@@ -22,10 +26,6 @@ import {
   typeString,
   typeUnion,
 } from '@js-to-lua/lua-types';
-import {
-  forwardHandlerFunctionRef,
-  forwardHandlerRef,
-} from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsTypeLiteralHandler } from './ts-type-literal.handler';

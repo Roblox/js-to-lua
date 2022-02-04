@@ -1,5 +1,12 @@
-import { createHandlerFunction, HandlerFunction } from '../../../types';
 import { StringLiteral } from '@babel/types';
+import {
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  getModulePath,
+  toValidIdentifier,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   LuaExpression,
@@ -8,8 +15,6 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { getModulePath } from '../../../utils/get-module-path';
-import { toValidIdentifier } from '../../../utils/valid-identifier';
 
 export const createImportModuleDeclarationHandler = (
   importExpressionHandler: HandlerFunction<LuaExpression, StringLiteral>

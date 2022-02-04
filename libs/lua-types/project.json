@@ -1,0 +1,23 @@
+{
+  "root": "libs/lua-types",
+  "sourceRoot": "libs/lua-types/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/lua-types/**/*.ts"]
+      },
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/lua-types"],
+      "options": {
+        "jestConfig": "libs/lua-types/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": ["type:utils:luaTypes", "feature:luaTypes"]
+}

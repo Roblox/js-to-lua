@@ -5,9 +5,16 @@ import {
   LogicalExpression,
 } from '@babel/types';
 import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   booleanInferableExpression,
   booleanMethod,
+  defaultStatementHandler,
   isBooleanInferable,
+  isLuaTruthy,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
@@ -29,9 +36,6 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import { defaultStatementHandler } from '../../utils/default-handlers';
-import { isLuaTruthy } from '../../utils/is-lua-truthy';
 
 export const createLogicalExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

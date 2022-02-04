@@ -6,7 +6,7 @@ import {
   repeatStatement,
   stringLiteral,
 } from '@js-to-lua/lua-types';
-import dedent from '../../testUtils/dedent';
+import { dedent } from '@js-to-lua/shared-utils';
 import { printNode } from '../print-node';
 
 describe('Print repeat statement', () => {

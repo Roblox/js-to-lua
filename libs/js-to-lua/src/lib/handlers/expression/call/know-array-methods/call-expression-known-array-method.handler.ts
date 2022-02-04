@@ -4,7 +4,13 @@ import {
   isMemberExpression as isBabelMemberExpression,
 } from '@babel/types';
 import {
+  combineOptionalHandlerFunctions,
+  createOptionalHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   arrayInferableExpression,
+  getNodeSource,
   isArrayInferable,
   removeExtras,
   WithExtras,
@@ -12,12 +18,6 @@ import {
 } from '@js-to-lua/lua-conversion-utils';
 import { LuaCallExpression, LuaExpression } from '@js-to-lua/lua-types';
 import { applyTo, pipe } from 'ramda';
-import {
-  createOptionalHandlerFunction,
-  HandlerFunction,
-} from '../../../../types';
-import { combineOptionalHandlerFunctions } from '../../../../utils/combine-optional-handlers';
-import { getNodeSource } from '../../../../utils/get-node-source';
 import { isArrayNode } from '../is-array-node';
 import { createArrayPolyfilledMethodCallHandler } from './array-polyfilled-method-call.handler';
 import { createArrayPopMethodCallHandler } from './array-pop-method-call.handler';

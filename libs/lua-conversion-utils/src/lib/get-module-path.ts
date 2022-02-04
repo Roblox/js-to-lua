@@ -1,5 +1,5 @@
-import { curry } from 'ramda';
 import { isTruthy } from '@js-to-lua/shared-utils';
+import { curry } from 'ramda';
 
 interface GetModulePathConfig {
   isInitFile: boolean;

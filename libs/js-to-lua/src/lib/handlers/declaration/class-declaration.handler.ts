@@ -57,7 +57,11 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { Unpacked } from '@js-to-lua/shared-utils';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import {
   createFunctionParamsBodyHandler,

@@ -1,6 +1,5 @@
 import { ForGenericStatement, LuaComment } from '@js-to-lua/lua-types';
-import { isTruthy } from '@js-to-lua/shared-utils';
-import { prependString } from '../../utils/prepend-string';
+import { isTruthy, prependString } from '@js-to-lua/shared-utils';
 import { PrintNode } from '../print-node';
 
 export const createPrintForGenericStatement =

@@ -1,4 +1,4 @@
-import { BaseNodeHandler, createHandler } from '../../types';
+import { BaseNodeHandler, createHandler } from '@js-to-lua/handler-utils';
 import { NumericLiteral } from '@babel/types';
 import { LuaNumericLiteral } from '@js-to-lua/lua-types';
 

@@ -11,7 +11,7 @@ import {
   LuaExpression,
   memberExpression,
 } from '@js-to-lua/lua-types';
-import { createHandler, HandlerFunction } from '../../types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import { createCalleeExpressionHandlerFunction } from './call/callee-expression.handler';
 
 const requirePolyfill = ['Error', 'Map', 'Set', 'WeakMap'] as PolyfillID[];

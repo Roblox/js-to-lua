@@ -6,6 +6,7 @@ import {
   tsAnyKeyword as babelTsAnyKeyword,
   tsTypeAnnotation as babelTsTypeAnnotation,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
@@ -20,9 +21,10 @@ import {
   unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createAssignmentPatternHandlerFunction } from './assignment-pattern.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
   mockNodeWithValueHandler,

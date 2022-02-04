@@ -1,4 +1,4 @@
-import { withExtras } from '@js-to-lua/lua-conversion-utils';
+import { withExtras } from './extras';
 
 export const createWithOriginalIdentifierNameExtras = (name: string) =>
   withExtras({

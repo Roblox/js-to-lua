@@ -6,7 +6,7 @@ import {
   LuaTypeReference,
   typeReference,
 } from '@js-to-lua/lua-types';
-import { createHandler, HandlerFunction } from '../../types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 
 export const createTsArrayTypeHandler = (
   typesHandlerFunction: HandlerFunction<LuaType, TSType>

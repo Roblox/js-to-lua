@@ -20,7 +20,7 @@ import {
   createHandler,
   createHandlerFunction,
   HandlerFunction,
-} from '../../types';
+} from '@js-to-lua/handler-utils';
 
 type ObjectExpressionProperty = Unpacked<ObjectExpression['properties']>;
 

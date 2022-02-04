@@ -13,6 +13,13 @@ import {
   TSEnumMember,
 } from '@babel/types';
 import {
+  BaseNodeHandler,
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import { defaultStatementHandler } from '@js-to-lua/lua-conversion-utils';
+import {
   LuaExpression,
   LuaIdentifier,
   LuaNilLiteral,
@@ -39,13 +46,6 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { splitBy } from '@js-to-lua/shared-utils';
-import {
-  BaseNodeHandler,
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../../types';
-import { defaultStatementHandler } from '../../utils/default-handlers';
 
 const autoIncrementMembers = (members: TSEnumMember[]): TSEnumMember[] => {
   type T = TSEnumMember & { initializer?: BabelExpression };

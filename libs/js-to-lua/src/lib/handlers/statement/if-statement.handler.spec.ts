@@ -3,6 +3,7 @@ import {
   identifier as babelIdentifier,
   ifStatement as babelIfStatement,
 } from '@babel/types';
+import { forwardHandlerRef } from '@js-to-lua/handler-utils';
 import { booleanMethod } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
@@ -13,7 +14,6 @@ import {
   ifStatement,
   nodeGroup,
 } from '@js-to-lua/lua-types';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import {
   handleExpression,
   handleStatement,

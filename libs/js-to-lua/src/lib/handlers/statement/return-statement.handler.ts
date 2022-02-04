@@ -1,13 +1,17 @@
 import { Expression, ReturnStatement } from '@babel/types';
 import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import { getReturnExpressions } from '@js-to-lua/lua-conversion-utils';
+import {
   LuaExpression,
   LuaReturnStatement,
   LuaStatement,
   nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import { getReturnExpressions } from '../../utils/get-return-expressions';
 
 export const createReturnStatementHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

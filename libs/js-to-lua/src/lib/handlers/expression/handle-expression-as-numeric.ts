@@ -1,5 +1,9 @@
 import { Expression, isNullLiteral as isBabelNullLiteral } from '@babel/types';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import {
+  getNodeSource,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   isBooleanLiteral,
@@ -7,8 +11,6 @@ import {
   LuaExpression,
   numericLiteral,
 } from '@js-to-lua/lua-types';
-import { EmptyConfig, HandlerFunction } from '../../types';
-import { getNodeSource } from '../../utils/get-node-source';
 
 export const createExpressionAsNumericHandler =
   (handleExpression: HandlerFunction<LuaExpression, Expression>) =>

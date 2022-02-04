@@ -14,7 +14,11 @@ import {
   LuaNodeGroup,
   LuaStatement,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
 
 export const createFunctionDeclarationHandler = (

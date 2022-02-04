@@ -4,7 +4,15 @@ import {
   SwitchCase,
   SwitchStatement,
 } from '@babel/types';
-import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  visit,
+  withInnerConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -31,12 +39,6 @@ import {
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
-import {
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../../types';
-import { visit } from '../../utils/visitor';
 
 type DefaultSwitchCase = Omit<SwitchCase, 'test'> & { test: null };
 type NotDefaultSwitchCase = Omit<SwitchCase, 'test'> & { test: Expression };

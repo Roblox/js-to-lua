@@ -3,6 +3,7 @@ import {
   isIdentifier,
   newExpression as babelNewExpression,
 } from '@babel/types';
+import { createHandlerFunction, testUtils } from '@js-to-lua/handler-utils';
 import { withPolyfillExtra } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
@@ -10,9 +11,9 @@ import {
   memberExpression,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
-import { createHandlerFunction } from '../../types';
 import { createNewExpressionHandler } from './new-expression.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 describe('New Expression Handler', () => {
   const source = '';
@@ -26,7 +27,7 @@ describe('New Expression Handler', () => {
   beforeEach(() => {
     mockedExpressionHandlerFn
       .mockReset()
-      .mockImplementation(mockNodeWithValueHandler);
+      .mockImplementation(testUtils.mockNodeWithValueHandler);
   });
 
   it('handle new expression without params', () => {

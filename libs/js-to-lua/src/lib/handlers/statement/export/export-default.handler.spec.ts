@@ -8,6 +8,10 @@ import {
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
 import {
+  forwardHandlerFunctionRef,
+  forwardHandlerRef,
+} from '@js-to-lua/handler-utils';
+import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   functionDeclaration,
@@ -18,11 +22,7 @@ import {
   tableConstructor,
   tableNameKeyField,
 } from '@js-to-lua/lua-types';
-import { createExportDefaultHandler } from './export-default.handler';
-import {
-  forwardHandlerFunctionRef,
-  forwardHandlerRef,
-} from '../../../utils/forward-handler-ref';
+import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import {
   handleExpression,
   handleExpressionAsStatement,
@@ -32,10 +32,10 @@ import {
   handleObjectPropertyValue,
   handleStatement,
 } from '../../expression-statement.handler';
-import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
 import { createIdentifierHandler } from '../../expression/identifier.handler';
-import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import { createLValHandler } from '../../l-val.handler';
+import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
+import { createExportDefaultHandler } from './export-default.handler';
 
 const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression),

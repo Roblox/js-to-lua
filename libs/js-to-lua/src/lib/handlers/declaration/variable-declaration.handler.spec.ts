@@ -11,6 +11,7 @@ import {
   VariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
+import { forwardHandlerRef } from '@js-to-lua/handler-utils';
 import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
@@ -34,7 +35,6 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import {
   handleExpression,
   handleExpressionAsStatement,

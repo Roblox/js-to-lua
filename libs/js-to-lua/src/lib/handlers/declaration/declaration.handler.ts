@@ -13,6 +13,13 @@ import {
   TSType,
 } from '@babel/types';
 import {
+  BaseNodeHandler,
+  EmptyConfig,
+  forwardHandlerRef,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import { combineStatementHandlers } from '@js-to-lua/lua-conversion-utils';
+import {
   functionDeclaration,
   LuaDeclaration,
   LuaExpression,
@@ -27,9 +34,6 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, EmptyConfig, HandlerFunction } from '../../types';
-import { combineStatementHandlers } from '../../utils/combine-handlers';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import {
   createFunctionParamsBodyHandler,

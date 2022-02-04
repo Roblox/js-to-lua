@@ -28,7 +28,11 @@ import {
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { pipe } from 'ramda';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import { createFunctionParamsHandler } from '../function-params.handler';
 
 export const createTryStatementHandler = (

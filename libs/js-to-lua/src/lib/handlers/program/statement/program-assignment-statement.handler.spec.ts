@@ -1,4 +1,7 @@
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  bit32MethodCall,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -11,7 +14,6 @@ import {
   program,
   stringLiteral,
 } from '@js-to-lua/lua-types';
-import { bit32MethodCall } from '../../../utils/bit-32-method';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
 

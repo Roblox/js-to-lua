@@ -8,6 +8,12 @@ import {
   sequenceExpression as babelSequenceExpression,
 } from '@babel/types';
 import {
+  combineHandlers,
+  createHandler,
+  testUtils,
+} from '@js-to-lua/handler-utils';
+
+import {
   callExpression,
   functionExpression,
   identifier,
@@ -16,13 +22,12 @@ import {
   returnStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
-import { createHandler } from '../../types';
-import { combineHandlers } from '../../utils/combine-handlers';
 import {
   createSequenceExpressionAsStatementHandler,
   createSequenceExpressionHandler,
 } from './sequence-expression.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 describe('Sequence Expression Handler', () => {
   const source = '';

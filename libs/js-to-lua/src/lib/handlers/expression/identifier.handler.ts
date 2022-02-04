@@ -4,7 +4,18 @@ import {
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  createWithOriginalIdentifierNameExtras,
+  getNodeSource,
+  isValidIdentifier,
+  toValidIdentifier,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   identifier,
@@ -21,13 +32,6 @@ import {
   typeAny,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import { getNodeSource } from '../../utils/get-node-source';
-import {
-  isValidIdentifier,
-  toValidIdentifier,
-} from '../../utils/valid-identifier';
-import { createWithOriginalIdentifierNameExtras } from '../../utils/with-original-identifier-name-extras';
 
 export const createIdentifierHandler = (
   handleType: HandlerFunction<

@@ -1,19 +1,15 @@
-import { combineHandlers } from './combine-handlers';
-import {
-  BabelNode,
-  BaseNodeHandler,
-  createHandlerFunction,
-  EmptyConfig,
-} from '../types';
-import { LuaNode } from '@js-to-lua/lua-types';
-import { mockNodeHandler } from '../testUtils/mock-node';
 import {
   booleanLiteral as babelBooleanLiteral,
   numericLiteral as babelNumericLiteral,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
+import { LuaNode } from '@js-to-lua/lua-types';
+import { combineHandlers } from './combine-handlers';
+import { createHandlerFunction } from './create-handler-function';
+import { mockNodeHandler } from './test-utils';
+import { BabelNode, BaseNodeHandler, EmptyConfig } from './types';
 
-jest.mock('../testUtils/mock-node');
+jest.mock('./test-utils');
 
 const source = '';
 

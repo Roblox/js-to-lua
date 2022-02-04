@@ -1,5 +1,9 @@
 import { Program } from '@babel/types';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import { BaseNodeHandler, createHandler } from '@js-to-lua/handler-utils';
+import {
+  visit,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   BaseLuaNode,
   callExpression,
@@ -15,8 +19,6 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { pipe } from 'ramda';
-import { BaseNodeHandler, createHandler } from '../../types';
-import { visit } from '../../utils/visitor';
 import { handleStatement } from '../expression-statement.handler';
 
 const polyfillIdentifier = identifier('LuauPolyfill');

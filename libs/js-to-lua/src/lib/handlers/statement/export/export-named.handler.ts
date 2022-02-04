@@ -4,7 +4,11 @@ import {
   Expression,
   Identifier,
 } from '@babel/types';
-import { hasSourceTypeExtra } from '@js-to-lua/lua-conversion-utils';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import {
+  defaultStatementHandler,
+  hasSourceTypeExtra,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -31,8 +35,6 @@ import {
   unhandledExpression,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import { createHandler, HandlerFunction } from '../../../types';
-import { defaultStatementHandler } from '../../../utils/default-handlers';
 import { createImportExpressionHandler } from '../import/import-expression.handler';
 import { createImportModuleDeclarationHandler } from '../import/import-module-declaration.handler';
 import { createExportSpecifierHandler } from './export-specifier.handler';

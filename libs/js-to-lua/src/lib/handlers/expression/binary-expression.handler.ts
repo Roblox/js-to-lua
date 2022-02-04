@@ -6,7 +6,14 @@ import {
   PrivateName,
 } from '@babel/types';
 import {
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   arrayIndexOf,
+  bit32MethodCall,
+  defaultExpressionHandler,
   isStringInferable,
   objectKeys,
   withTrailingConversionComment,
@@ -20,13 +27,6 @@ import {
   LuaStringLiteral,
   numericLiteral,
 } from '@js-to-lua/lua-types';
-import {
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../../types';
-import { bit32MethodCall } from '../../utils/bit-32-method';
-import { defaultExpressionHandler } from '../../utils/default-handlers';
 
 export const createBinaryExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

@@ -1,4 +1,4 @@
-import { createHandler, HandlerFunction } from '../../../types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import { Identifier, ImportNamespaceSpecifier } from '@babel/types';
 import {
   LuaExpression,

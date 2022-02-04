@@ -5,14 +5,14 @@ import {
   tsTupleType,
   tsTypeReference,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
 import { identifier, typeReference, typeUnion } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
 
 describe('TSTupleType handler', () => {
   const tsTupleTypeHandler = createTsTupleTypeHandler(
-    mockNodeWithValueHandler
+    testUtils.mockNodeWithValueHandler
   ).handler;
 
   const source = '';

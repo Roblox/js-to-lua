@@ -1,13 +1,15 @@
 import { Declaration, Expression, Identifier } from '@babel/types';
-import { withExtras } from '@js-to-lua/lua-conversion-utils';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import {
+  combineStatementHandlers,
+  withExtras,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   LuaDeclaration,
   LuaExpression,
   LuaIdentifier,
   LuaStatement,
 } from '@js-to-lua/lua-types';
-import { createHandler, HandlerFunction } from '../../../types';
-import { combineStatementHandlers } from '../../../utils/combine-handlers';
 import { createExportAllHandler } from './export-all.handler';
 import { createExportDefaultHandler } from './export-default.handler';
 import { createExportNamedHandler } from './export-named.handler';

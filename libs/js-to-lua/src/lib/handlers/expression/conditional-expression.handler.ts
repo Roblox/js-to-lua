@@ -1,4 +1,10 @@
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import { ConditionalExpression, Expression } from '@babel/types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import { isLuaTruthy } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   elseClause,
@@ -11,9 +17,7 @@ import {
   nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import { ConditionalExpression, Expression } from '@babel/types';
 import { createExpressionAsBooleanHandler } from '../handle-as-boolean';
-import { isLuaTruthy } from '../../utils/is-lua-truthy';
 
 export const createConditionalExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

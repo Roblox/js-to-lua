@@ -4,10 +4,12 @@ import {
   tsTypeParameterInstantiation as babelTsTypeParameterInstantiation,
   tsTypeReference as babelTsTypeReference,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
 import { typeReference } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 describe('TSTypeReference handler', () => {
   const tsTypeReferenceHandler = createTsTypeReferenceHandler(

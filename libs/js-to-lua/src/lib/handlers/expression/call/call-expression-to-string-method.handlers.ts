@@ -1,4 +1,7 @@
-import { createOptionalHandlerFunction, HandlerFunction } from '../../../types';
+import {
+  createOptionalHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import {
   callExpression,
   identifier,

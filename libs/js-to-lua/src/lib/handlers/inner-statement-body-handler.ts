@@ -1,6 +1,10 @@
 import { Statement } from '@babel/types';
 import { LuaStatement, nodeGroup } from '@js-to-lua/lua-types';
-import { createHandlerFunction, EmptyConfig, HandlerFunction } from '../types';
+import {
+  createHandlerFunction,
+  EmptyConfig,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 
 export const createInnerBodyStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>

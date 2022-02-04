@@ -3,6 +3,12 @@ import {
   identifier as babelIdentifier,
 } from '@babel/types';
 import {
+  combineHandlers,
+  forwardHandlerRef,
+  testUtils,
+} from '@js-to-lua/handler-utils';
+
+import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
@@ -12,11 +18,10 @@ import {
   returnStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
-import { combineHandlers } from '../../utils/combine-handlers';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { createAssignmentExpressionHandlerFunction } from './assignment-expression.handler';
 import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 const handleAssignmentStatement = createAssignmentStatementHandlerFunction(
   combineHandlers(

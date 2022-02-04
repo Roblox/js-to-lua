@@ -9,8 +9,8 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
+import { dedent } from '@js-to-lua/shared-utils';
 import { printBlockStatement } from './print-node';
-import dedent from '../testUtils/dedent';
 
 describe('Print Block Statement', () => {
   it(`should print Block Statement Node with body`, () => {

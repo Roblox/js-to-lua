@@ -5,6 +5,11 @@ import {
   TSTypeReference,
 } from '@babel/types';
 import {
+  combineHandlers,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   requiresTypePolyfill,
   withPolyfillTypeExtra,
 } from '@js-to-lua/lua-conversion-utils';
@@ -15,8 +20,6 @@ import {
   typeReference,
 } from '@js-to-lua/lua-types';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
-import { createHandler, HandlerFunction } from '../../types';
-import { combineHandlers } from '../../utils/combine-handlers';
 
 export const createTsTypeReferenceHandler = (
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>,

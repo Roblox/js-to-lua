@@ -20,7 +20,16 @@ import {
   VariableDeclaration,
   VariableDeclarator,
 } from '@babel/types';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  BaseNodeHandler,
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  defaultStatementHandler,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -45,13 +54,6 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
-import {
-  BaseNodeHandler,
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../../types';
-import { defaultStatementHandler } from '../../utils/default-handlers';
 import {
   createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,

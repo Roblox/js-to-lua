@@ -5,6 +5,7 @@ import {
   memberExpression as babelMemberExpression,
   numericLiteral as babelNumericLiteral,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
 import {
   arrayInferableExpression,
   arrayPolyfilledMethodNames,
@@ -20,11 +21,12 @@ import {
   tableNoKeyField,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../../../testUtils/mock-node';
 import { createCallExpressionKnownArrayMethodHandlerFunction } from './call-expression-known-array-method.handler';
 
 const handleKnownArrayMethodCall =
-  createCallExpressionKnownArrayMethodHandlerFunction(mockNodeWithValueHandler);
+  createCallExpressionKnownArrayMethodHandlerFunction(
+    testUtils.mockNodeWithValueHandler
+  );
 
 const source = '';
 

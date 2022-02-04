@@ -2,6 +2,8 @@ import {
   identifier as babelIdentifier,
   importSpecifier as babelImportSpecifier,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
+
 import {
   identifier,
   LuaIdentifier,
@@ -12,8 +14,9 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
 import { createImportNamedSpecifierHandler } from './import-named-specifier.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 const { handler } = createImportNamedSpecifierHandler(
   mockNodeWithValueHandler,

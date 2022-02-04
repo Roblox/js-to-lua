@@ -6,11 +6,14 @@ import {
   templateElement,
   templateLiteral,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
+
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import { callExpression, unhandledExpression } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createTaggedTemplateExpressionHandler } from './tagged-template-expression.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 describe('Tagged Template Expression Handler', () => {
   const source = '';

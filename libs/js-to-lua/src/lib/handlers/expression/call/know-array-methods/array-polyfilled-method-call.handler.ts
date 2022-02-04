@@ -13,7 +13,7 @@ import { applyTo } from 'ramda';
 import {
   createOptionalHandlerFunction,
   HandlerFunction,
-} from '../../../../types';
+} from '@js-to-lua/handler-utils';
 import {
   isAnyPolyfilledArrayMethodCall,
   isAnyPolyfilledMethod,

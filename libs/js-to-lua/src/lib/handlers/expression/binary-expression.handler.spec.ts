@@ -6,6 +6,7 @@ import {
   templateElement as babelTemplateElement,
   templateLiteral as babelTemplateLiteral,
 } from '@babel/types';
+import { forwardHandlerRef } from '@js-to-lua/handler-utils';
 import {
   arrayIdentifier,
   arrayIndexOf,
@@ -26,7 +27,6 @@ import {
   numericLiteral,
   stringLiteral,
 } from '@js-to-lua/lua-types';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
 

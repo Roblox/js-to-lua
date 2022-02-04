@@ -1,5 +1,3 @@
-import { createForStatementHandler } from './statement/for-statement.handler';
-import { BaseNodeHandler, createHandler } from '../types';
 import {
   ArrowFunctionExpression,
   AssignmentPattern,
@@ -16,14 +14,19 @@ import {
   UpdateExpression,
 } from '@babel/types';
 import {
-  combineExpressionsHandlers,
+  BaseNodeHandler,
   combineHandlers,
+  createHandler,
+  forwardHandlerFunctionRef,
+  forwardHandlerRef,
+} from '@js-to-lua/handler-utils';
+import {
+  combineExpressionsHandlers,
   combineStatementHandlers,
-} from '../utils/combine-handlers';
-import { handleNumericLiteral } from './primitives/numeric.handler';
-import { handleStringLiteral } from './primitives/string.handler';
-import { handleBooleanLiteral } from './primitives/boolean.handler';
-import { handleNullLiteral } from './primitives/null.handler';
+  createExpressionStatement,
+  defaultExpressionHandler,
+  defaultStatementHandler,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -47,56 +50,52 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-
-import { createMultilineStringLiteralHandler } from './primitives/multiline-string.handler';
-import { createTypeAnnotationHandler } from './type/type-annotation.handler';
-import {
-  createFunctionParamsBodyHandler,
-  createFunctionParamsHandler,
-} from './function-params.handler';
-import { createReturnStatementHandler } from './statement/return-statement.handler';
-import { createArrayExpressionHandler } from './expression/array-expression.handler';
-import {
-  forwardHandlerFunctionRef,
-  forwardHandlerRef,
-} from '../utils/forward-handler-ref';
-import { createMemberExpressionHandler } from './expression/member-expression.handler';
-import { createUnaryExpressionHandler } from './expression/unary-expression.handler';
-import { createBinaryExpressionHandler } from './expression/binary-expression.handler';
-import { handleBigIntLiteral } from './primitives/big-int.handler';
-import { createLogicalExpressionHandler } from './expression/logical-expression.handler';
-import {
-  defaultExpressionHandler,
-  defaultStatementHandler,
-} from '../utils/default-handlers';
-import { createAssignmentPatternHandlerFunction } from './statement/assignment-pattern.handler';
-import { createAssignmentExpressionHandlerFunction } from './statement/assignment-expression.handler';
-import { createAssignmentStatementHandlerFunction } from './statement/assignment-statement.handler';
-import { createBlockStatementHandler } from './statement/block-statement.handler';
-import { createIdentifierHandler } from './expression/identifier.handler';
-import { createIfStatementHandler } from './statement/if-statement.handler';
 import { Unpacked } from '@js-to-lua/shared-utils';
 import { createDeclarationHandler } from './declaration/declaration.handler';
-import { createLValHandler } from './l-val.handler';
-import { createThrowStatementHandler } from './statement/throw-statement.handler';
+import { createArrayExpressionHandler } from './expression/array-expression.handler';
+import { createAwaitExpressionHandler } from './expression/await-expression.handler';
+import { createBinaryExpressionHandler } from './expression/binary-expression.handler';
+import { createCallExpressionHandler } from './expression/call/call-expression.handler';
 import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
-import { createTryStatementHandler } from './statement/try-statement.handler';
-import { createSwitchStatementHandler } from './statement/switch-statement.handler';
-import { createBreakStatementHandler } from './statement/break-statement.handler';
+import { createFunctionBodyHandler } from './expression/function-body.handler';
+import { createIdentifierHandler } from './expression/identifier.handler';
+import { createLogicalExpressionHandler } from './expression/logical-expression.handler';
+import { createMemberExpressionHandler } from './expression/member-expression.handler';
+import { createNewExpressionHandler } from './expression/new-expression.handler';
+import { createObjectExpressionHandler } from './expression/object-expression.handler';
 import {
   createSequenceExpressionAsStatementHandler,
   createSequenceExpressionHandler,
 } from './expression/sequence-expression.handler';
-import { createFunctionBodyHandler } from './expression/function-body.handler';
-import { createNewExpressionHandler } from './expression/new-expression.handler';
-import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
-import { createThisExpressionHandler } from './expression/this-expression.handler';
-import { createObjectExpressionHandler } from './expression/object-expression.handler';
-import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expression.handler';
 import { createTaggedTemplateExpressionHandler } from './expression/tagged-template-expression.handler';
-import { createAwaitExpressionHandler } from './expression/await-expression.handler';
-import { createExpressionStatement } from '../utils/create-expression-statement';
-import { createCallExpressionHandler } from './expression/call/call-expression.handler';
+import { createThisExpressionHandler } from './expression/this-expression.handler';
+import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
+import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expression.handler';
+import { createUnaryExpressionHandler } from './expression/unary-expression.handler';
+import {
+  createFunctionParamsBodyHandler,
+  createFunctionParamsHandler,
+} from './function-params.handler';
+import { createLValHandler } from './l-val.handler';
+import { handleBigIntLiteral } from './primitives/big-int.handler';
+import { handleBooleanLiteral } from './primitives/boolean.handler';
+
+import { createMultilineStringLiteralHandler } from './primitives/multiline-string.handler';
+import { handleNullLiteral } from './primitives/null.handler';
+import { handleNumericLiteral } from './primitives/numeric.handler';
+import { handleStringLiteral } from './primitives/string.handler';
+import { createAssignmentExpressionHandlerFunction } from './statement/assignment-expression.handler';
+import { createAssignmentPatternHandlerFunction } from './statement/assignment-pattern.handler';
+import { createAssignmentStatementHandlerFunction } from './statement/assignment-statement.handler';
+import { createBlockStatementHandler } from './statement/block-statement.handler';
+import { createBreakStatementHandler } from './statement/break-statement.handler';
+import { createForStatementHandler } from './statement/for-statement.handler';
+import { createIfStatementHandler } from './statement/if-statement.handler';
+import { createReturnStatementHandler } from './statement/return-statement.handler';
+import { createSwitchStatementHandler } from './statement/switch-statement.handler';
+import { createThrowStatementHandler } from './statement/throw-statement.handler';
+import { createTryStatementHandler } from './statement/try-statement.handler';
+import { createTypeAnnotationHandler } from './type/type-annotation.handler';
 
 type NoSpreadObjectProperty = Exclude<
   Unpacked<ObjectExpression['properties']>,

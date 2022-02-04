@@ -15,6 +15,17 @@ import {
   TypeAnnotation,
 } from '@babel/types';
 import {
+  BaseNodeHandler,
+  combineHandlers,
+  createHandler,
+  forwardHandlerRef,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  combineTypeAnnotationHandlers,
+  defaultTypeHandler,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   LuaExpression,
   LuaIdentifier,
   LuaType,
@@ -35,13 +46,6 @@ import {
   typeUnion,
   typeVoid,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import {
-  combineHandlers,
-  combineTypeAnnotationHandlers,
-} from '../../utils/combine-handlers';
-import { defaultTypeHandler } from '../../utils/default-handlers';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
 import { createTsTupleTypeHandler } from './ts-tuple-type.handler';

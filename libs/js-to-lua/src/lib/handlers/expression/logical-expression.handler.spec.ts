@@ -8,6 +8,7 @@ import {
   objectExpression as babelObjectExpression,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
 import {
   booleanInferableExpression,
   booleanMethod,
@@ -25,8 +26,9 @@ import {
   returnStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createLogicalExpressionHandler } from './logical-expression.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 const source = '';
 
@@ -38,7 +40,7 @@ describe('Logical Expression Handler', () => {
       const given = babelLogicalExpression('||', leftGiven, rightGiven);
 
       const handleLogicalExpression = createLogicalExpressionHandler(
-        mockNodeWithValueHandler
+        testUtils.mockNodeWithValueHandler
       );
 
       const expected = logicalExpression(

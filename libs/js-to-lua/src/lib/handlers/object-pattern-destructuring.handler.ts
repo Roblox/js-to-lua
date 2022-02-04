@@ -33,7 +33,7 @@ import {
   tableConstructor,
 } from '@js-to-lua/lua-types';
 import { anyPass } from 'ramda';
-import { EmptyConfig, HandlerFunction } from '../types';
+import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
 import { createPropertyFromBaseHandler } from './expression/property-from-base.handler';
 
 export const createObjectPatternDestructuringHandler =

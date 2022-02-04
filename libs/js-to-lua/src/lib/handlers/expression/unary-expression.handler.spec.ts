@@ -6,6 +6,7 @@ import {
   unaryExpression as babelUnaryExpression,
   UnaryExpression,
 } from '@babel/types';
+import { forwardHandlerRef } from '@js-to-lua/handler-utils';
 import {
   bit32Identifier,
   booleanMethod,
@@ -29,7 +30,6 @@ import {
   unaryNegationExpression,
   unaryVoidExpression,
 } from '@js-to-lua/lua-types';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';
 import { createUnaryExpressionHandler } from './unary-expression.handler';
 

@@ -18,7 +18,10 @@ import {
   nodeGroup,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
-import { createHandlerFunction, HandlerFunction } from '../../types';
+import {
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 
 export const createAssignmentPatternHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

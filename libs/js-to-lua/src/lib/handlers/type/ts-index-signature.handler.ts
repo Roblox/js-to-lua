@@ -4,7 +4,15 @@ import {
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  getNodeSource,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   isTypeNumber,
   isTypeString,
@@ -15,8 +23,6 @@ import {
   typeIndexSignature,
   typeString,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import { getNodeSource } from '../../utils/get-node-source';
 
 export const createTsIndexSignatureHandler = (
   typesHandlerFunction: HandlerFunction<

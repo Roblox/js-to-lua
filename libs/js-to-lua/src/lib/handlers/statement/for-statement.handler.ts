@@ -7,6 +7,16 @@ import {
   UpdateExpression,
 } from '@babel/types';
 import {
+  BaseNodeHandler,
+  combineHandlers,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  createExpressionStatement,
+  defaultStatementHandler,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   booleanLiteral,
   isExpression,
   LuaDeclaration,
@@ -17,10 +27,6 @@ import {
   WhileStatement,
   whileStatement,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import { combineHandlers } from '../../utils/combine-handlers';
-import { createExpressionStatement } from '../../utils/create-expression-statement';
-import { defaultStatementHandler } from '../../utils/default-handlers';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
 
 export const createForStatementHandler = (

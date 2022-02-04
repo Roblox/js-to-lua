@@ -17,7 +17,7 @@ import {
   createHandler,
   EmptyConfig,
   HandlerFunction,
-} from '../../types';
+} from '@js-to-lua/handler-utils';
 import { createExpressionAsBooleanHandler } from '../handle-as-boolean';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
 

@@ -1,5 +1,13 @@
 import { Expression, Identifier, LVal, MemberExpression } from '@babel/types';
 import {
+  BaseNodeHandler,
+  combineHandlers,
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import { defaultUnhandledIdentifierHandler } from '@js-to-lua/lua-conversion-utils';
+import {
   LuaBinaryExpression,
   LuaExpression,
   LuaIdentifier,
@@ -7,15 +15,7 @@ import {
   LuaMemberExpression,
   LuaNilLiteral,
 } from '@js-to-lua/lua-types';
-import { combineHandlers } from '../utils/combine-handlers';
-import {
-  BaseNodeHandler,
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '../types';
 import { createMemberExpressionHandler } from './expression/member-expression.handler';
-import { defaultUnhandledIdentifierHandler } from '../utils/default-handlers';
 
 export const createLValHandler = (
   handleIdentifier: HandlerFunction<

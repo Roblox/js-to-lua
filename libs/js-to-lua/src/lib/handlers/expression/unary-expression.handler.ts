@@ -5,7 +5,13 @@ import {
   UnaryExpression,
 } from '@babel/types';
 import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   bit32Identifier,
+  defaultStatementHandler,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -25,8 +31,6 @@ import {
   unaryVoidExpression,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
-import { defaultStatementHandler } from '../../utils/default-handlers';
 import { createExpressionAsBooleanHandler } from '../handle-as-boolean';
 
 export const createUnaryExpressionHandler = (

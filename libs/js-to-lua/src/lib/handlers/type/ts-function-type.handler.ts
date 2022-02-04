@@ -11,7 +11,11 @@ import {
   typeAny,
   typeFunction,
 } from '@js-to-lua/lua-types';
-import { BaseNodeHandler, createHandler, HandlerFunction } from '../../types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import { createRestElementHandler } from '../rest-element.handler';
 
 export const createTsFunctionTypeHandler = (

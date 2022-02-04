@@ -1,10 +1,10 @@
-import { bit32Identifier } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
   LuaExpression,
   memberExpression,
 } from '@js-to-lua/lua-types';
+import { bit32Identifier } from './creators';
 
 export type Bit32Method =
   | 'band'

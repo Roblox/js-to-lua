@@ -3,12 +3,14 @@ import {
   identifier as babelIdentifier,
   returnStatement as babelReturnStatement,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
 import { nodeGroup, returnStatement } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
 import { createReturnStatementHandler } from './return-statement.handler';
 
-jest.mock('../../utils/get-return-expressions', () => ({
+const { mockNodeWithValueHandler } = testUtils;
+
+jest.mock('@js-to-lua/lua-conversion-utils', () => ({
   getReturnExpressions: jest
     .fn()
     .mockImplementation((node) => getReturnExpressions(node)),

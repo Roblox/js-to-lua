@@ -5,7 +5,7 @@ import { applyTo } from 'ramda';
 import {
   createOptionalHandlerFunction,
   HandlerFunction,
-} from '../../../../types';
+} from '@js-to-lua/handler-utils';
 import { isArrayMethod, isArrayMethodCall } from '../is-array-method';
 import { matchesBabelMemberExpressionProperty } from '../utils';
 import {

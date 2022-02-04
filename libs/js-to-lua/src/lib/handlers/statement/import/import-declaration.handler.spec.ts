@@ -6,6 +6,8 @@ import {
   importSpecifier as babelImportSpecifier,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
+
 import {
   callExpression,
   identifier,
@@ -17,8 +19,9 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../../testUtils/mock-node';
 import { createImportDeclarationHandler } from './import-declaration.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 const { handler } = createImportDeclarationHandler(
   mockNodeWithValueHandler,

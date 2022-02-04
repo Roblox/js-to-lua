@@ -1,9 +1,14 @@
-import { createHandler, HandlerFunction } from '../../../types';
 import {
   ExportDefaultDeclaration,
   Expression,
   FunctionDeclaration,
 } from '@babel/types';
+import {
+  combineHandlers,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import { defaultStatementHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -16,10 +21,8 @@ import {
   nodeGroup,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
-import { defaultStatementHandler } from '../../../utils/default-handlers';
-import { combineHandlers } from '../../../utils/combine-handlers';
-import { equals } from 'ramda';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { equals } from 'ramda';
 
 export const createExportDefaultHandler = (
   handleDeclaration: HandlerFunction<

@@ -25,6 +25,8 @@ import {
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
+import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import { defaultStatementHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatement,
   identifier,
@@ -49,8 +51,6 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { anyPass, applyTo } from 'ramda';
-import { EmptyConfig, HandlerFunction } from '../types';
-import { defaultStatementHandler } from '../utils/default-handlers';
 import { createRestElementHandler } from './rest-element.handler';
 import { inferType } from './type/infer-type';
 

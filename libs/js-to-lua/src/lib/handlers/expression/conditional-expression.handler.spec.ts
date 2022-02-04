@@ -12,6 +12,11 @@ import {
   templateLiteral as babelTemplateLiteral,
 } from '@babel/types';
 import {
+  forwardHandlerRef,
+  HandlerFunction,
+  testUtils,
+} from '@js-to-lua/handler-utils';
+import {
   booleanMethod,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
@@ -30,9 +35,6 @@ import {
   returnStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { mockNodeWithValueHandler } from '../../testUtils/mock-node';
-import { HandlerFunction } from '../../types';
-import { forwardHandlerRef } from '../../utils/forward-handler-ref';
 import { handleExpression } from '../expression-statement.handler';
 import { createConditionalExpressionHandler } from './conditional-expression.handler';
 
@@ -43,7 +45,7 @@ describe('Conditional Expression Handler', () => {
 
   beforeEach(() => {
     handleConditionalExpression = createConditionalExpressionHandler(
-      mockNodeWithValueHandler
+      testUtils.mockNodeWithValueHandler
     ).handler;
   });
 
