@@ -2,6 +2,9 @@ import {
   Expression,
   FlowType,
   Identifier,
+  isNumericLiteral,
+  isTSLiteralType,
+  isTSNumberKeyword,
   Noop,
   TSAnyKeyword,
   TSBooleanKeyword,
@@ -46,8 +49,10 @@ import {
   typeUnion,
   typeVoid,
 } from '@js-to-lua/lua-types';
+import { uniqWith } from 'ramda';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
+import { createTsLiteralTypeHandler } from './ts-literal-type.handler';
 import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
 import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
 import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
@@ -99,9 +104,22 @@ export const createTypeAnnotationHandler = (
     createHandler('TSVoidKeyword', () => typeVoid());
 
   const handleTsTypeUnion: BaseNodeHandler<LuaTypeUnion, TSUnionType> =
-    createHandler('TSUnionType', (source, config, node) =>
-      typeUnion(node.types.map(handleTsTypes.handler(source, config)))
-    );
+    createHandler('TSUnionType', (source, config, node) => {
+      const isNumericLiteralOrNumber = (node: TSType) =>
+        (isTSLiteralType(node) && isNumericLiteral(node.literal)) ||
+        isTSNumberKeyword(node);
+
+      return typeUnion(
+        uniqWith(
+          (a, b) => isNumericLiteralOrNumber(a) && isNumericLiteralOrNumber(b),
+          node.types
+        ).map((x) =>
+          isNumericLiteralOrNumber(x)
+            ? typeNumber()
+            : handleTsTypes.handler(source, config, x)
+        )
+      );
+    });
 
   const handleTsTypeIntersection: BaseNodeHandler<
     LuaTypeIntersection,
@@ -133,6 +151,7 @@ export const createTypeAnnotationHandler = (
         expressionHandlerFunction,
         forwardHandlerRef(() => handleTsTypes)
       ),
+      createTsLiteralTypeHandler(expressionHandlerFunction),
     ],
     defaultTypeHandler
   );

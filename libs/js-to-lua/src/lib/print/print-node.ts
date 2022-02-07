@@ -174,6 +174,8 @@ const _printNode = (node: LuaNode): string => {
       return printNode(node, printTypeLiteral);
     case 'LuaTypeFunction':
       return createPrintTypeFunction(printNode)(node);
+    case 'LuaLiteralType':
+      return printNode(node.literal);
     case 'LuaPropertySignature':
       return createPrintPropertySignature(printNode)(node);
     case 'LuaIndexSignature':

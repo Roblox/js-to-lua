@@ -13,5 +13,6 @@ export * from './type-union';
 export * from './type-intersection';
 export * from './type-void';
 export * from './type-function';
+export * from './literal-type';
 
 export * from './type';
