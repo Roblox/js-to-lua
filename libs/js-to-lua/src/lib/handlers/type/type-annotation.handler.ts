@@ -2,6 +2,7 @@ import {
   Expression,
   FlowType,
   Identifier,
+  isIdentifier as isBabelIdentifier,
   isNumericLiteral,
   isTSLiteralType,
   isTSNumberKeyword,
@@ -9,11 +10,15 @@ import {
   TSAnyKeyword,
   TSBooleanKeyword,
   TSIntersectionType,
+  TSNullKeyword,
   TSNumberKeyword,
   TSStringKeyword,
   TSType,
   TSTypeAnnotation,
+  TSTypePredicate,
+  TSTypeQuery,
   TSUnionType,
+  TSUnknownKeyword,
   TSVoidKeyword,
   TypeAnnotation,
 } from '@babel/types';
@@ -27,8 +32,13 @@ import {
 import {
   combineTypeAnnotationHandlers,
   defaultTypeHandler,
+  defaultUnhandledIdentifierHandler,
+  getNodeSource,
+  withTrailingConversionComment,
+  withUnknownTypePolyfillExtra,
 } from '@js-to-lua/lua-conversion-utils';
 import {
+  identifier,
   LuaExpression,
   LuaIdentifier,
   LuaType,
@@ -44,7 +54,10 @@ import {
   typeAny,
   typeBoolean,
   typeIntersection,
+  typeNil,
   typeNumber,
+  typeQuery,
+  typeReference,
   typeString,
   typeUnion,
   typeVoid,
@@ -95,6 +108,38 @@ export const createTypeAnnotationHandler = (
   const handleTsNumberKeyword: BaseNodeHandler<LuaTypeNumber, TSNumberKeyword> =
     createHandler('TSNumberKeyword', () => typeNumber());
 
+  const handleTsUnknownKeyword: BaseNodeHandler<LuaType, TSUnknownKeyword> =
+    createHandler('TSUnknownKeyword', () =>
+      withUnknownTypePolyfillExtra(typeReference(identifier('unknown')))
+    );
+
+  const handleTsNullKeyword: BaseNodeHandler<LuaType, TSNullKeyword> =
+    createHandler('TSNullKeyword', () =>
+      withTrailingConversionComment(
+        typeNil(),
+        "ROBLOX CHECK: verify if `null` wasn't used differently than `undefined`"
+      )
+    );
+
+  const handleTsTypeQuery: BaseNodeHandler<LuaType, TSTypeQuery> =
+    createHandler('TSTypeQuery', (source, config, node) => {
+      const exprName = node.exprName;
+      return typeQuery(
+        isBabelIdentifier(exprName)
+          ? identifierHandlerFunction(source, config, exprName)
+          : defaultUnhandledIdentifierHandler(source, config, exprName)
+      );
+    });
+
+  const handleTsTypePredicate: BaseNodeHandler<LuaType, TSTypePredicate> =
+    createHandler('TSTypePredicate', (source, config, node) =>
+      withTrailingConversionComment(
+        typeBoolean(),
+        'ROBLOX FIXME: change to TSTypePredicate equivalent if supported',
+        getNodeSource(source, node)
+      )
+    );
+
   const handleTsBooleanKeyword: BaseNodeHandler<
     LuaTypeBoolean,
     TSBooleanKeyword
@@ -138,6 +183,10 @@ export const createTypeAnnotationHandler = (
       handleTsBooleanKeyword,
       handleTsVoidKeyword,
       handleTsAnyKeyword,
+      handleTsUnknownKeyword,
+      handleTsNullKeyword,
+      handleTsTypeQuery,
+      handleTsTypePredicate,
       createTsTypeLiteralHandler(expressionHandlerFunction, typesHandler),
       handleTsTypeUnion,
       handleTsTypeIntersection,

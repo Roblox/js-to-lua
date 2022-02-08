@@ -1,5 +1,6 @@
 import { LuaTypeAny } from './type-any';
 import { LuaTypeNumber } from './type-number';
+import { LuaTypeQuery } from './type-query';
 import { LuaTypeString } from './type-string';
 import { LuaTypeBoolean } from './type-boolean';
 import { LuaTypeLiteral } from './type-literal';
@@ -25,4 +26,5 @@ export type LuaType =
   | LuaTypeUnion
   | LuaTypeIntersection
   | LuaTypeFunction
-  | LuaLiteralType;
+  | LuaLiteralType
+  | LuaTypeQuery;

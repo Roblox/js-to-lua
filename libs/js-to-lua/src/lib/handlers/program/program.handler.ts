@@ -1,6 +1,7 @@
 import { Program } from '@babel/types';
 import { BaseNodeHandler, createHandler } from '@js-to-lua/handler-utils';
 import {
+  hasUnknownTypePolyfillExtra,
   visit,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
@@ -9,10 +10,12 @@ import {
   callExpression,
   identifier,
   LuaProgram,
+  LuaStatement,
   memberExpression,
   returnStatement,
   tableConstructor,
   typeAliasDeclaration,
+  typeAny,
   typeReference,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -41,6 +44,7 @@ const postProcess = (program: LuaProgram): LuaProgram => {
     addExports,
     addPolyfills,
     addImports,
+    addUnknownPolyfillType,
     removeExtras
   )(program);
 };
@@ -80,9 +84,8 @@ function removeExtras(program: LuaProgram): LuaProgram {
 
 function addImports(program: LuaProgram): LuaProgram {
   return program.extras?.needsPackages
-    ? {
-        ...program,
-        body: [
+    ? prependProgram(
+        [
           withTrailingConversionComment(
             variableDeclaration(
               [variableDeclaratorIdentifier(packagesIdentifier)],
@@ -90,9 +93,9 @@ function addImports(program: LuaProgram): LuaProgram {
             ),
             'ROBLOX comment: must define Packages module'
           ),
-          ...program.body,
         ],
-      }
+        program
+      )
     : program;
 }
 
@@ -171,4 +174,25 @@ function addPolyfills(program: LuaProgram) {
         ],
       }
     : program;
+}
+
+function addUnknownPolyfillType(program: LuaProgram) {
+  return hasUnknownTypePolyfillExtra(program)
+    ? prependProgram(
+        [
+          withTrailingConversionComment(
+            typeAliasDeclaration(identifier('unknown'), typeAny()),
+            'ROBLOX FIXME: adding `unknown` type alias to make it easier to use Luau unknown equivalent when supported'
+          ),
+        ],
+        program
+      )
+    : program;
+}
+
+function prependProgram(statements: LuaStatement[], program: LuaProgram) {
+  return {
+    ...program,
+    body: [...statements, ...program.body],
+  };
 }

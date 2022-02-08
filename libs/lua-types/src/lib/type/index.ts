@@ -7,6 +7,7 @@ export * from './type-number';
 export * from './type-optional';
 export * from './type-index-signature';
 export * from './type-property-signature';
+export * from './type-query';
 export * from './type-reference';
 export * from './type-string';
 export * from './type-union';

@@ -46,6 +46,7 @@ import { createPrintIndexSignature } from './type/print-index-signature';
 import { createPrintTypeFunction } from './type/print-type-function';
 import { createPrintTypeIntersection } from './type/print-type-intersection';
 import { createPrintTypeOptional } from './type/print-type-optional';
+import { createPrintTypeQuery } from './type/print-type-query';
 import { createPrintTypeReference } from './type/print-type-reference';
 import { createPrintTypeUnion } from './type/print-type-union';
 import { calculateEqualsForDelimiter } from './utils';
@@ -219,6 +220,8 @@ const _printNode = (node: LuaNode): string => {
       return 'nil';
     case 'LuaTypeOptional':
       return createPrintTypeOptional(printNode)(node);
+    case 'LuaTypeQuery':
+      return createPrintTypeQuery(printNode)(node);
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':

@@ -1,21 +1,28 @@
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
+  functionDeclaration,
   identifier,
+  nodeGroup,
   program,
+  typeAliasDeclaration,
   typeAnnotation,
   typeAny,
   typeBoolean,
+  typeIntersection,
   typeLiteral,
+  typeNil,
   typeNumber,
   typeOptional,
   typePropertySignature,
+  typeQuery,
   typeReference,
   typeString,
   typeUnion,
   variableDeclaration,
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
+import { getProgramNode } from './program.spec.utils';
 
 const source = '';
 
@@ -87,6 +94,98 @@ describe('Program handler', () => {
             ),
           ],
           []
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle "unknown"', () => {
+      const given = getProgramNode(`
+        let foo: unknown;
+      `);
+      const expected = program([
+        withTrailingConversionComment(
+          typeAliasDeclaration(identifier('unknown'), typeAny()),
+          'ROBLOX FIXME: adding `unknown` type alias to make it easier to use Luau unknown equivalent when supported'
+        ),
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier(
+                'foo',
+                typeAnnotation(typeReference(identifier('unknown')))
+              )
+            ),
+          ],
+          []
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle "null"', () => {
+      const given = getProgramNode(`
+        let foo: null;
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier(
+                'foo',
+                typeAnnotation(
+                  withTrailingConversionComment(
+                    typeNil(),
+                    "ROBLOX CHECK: verify if `null` wasn't used differently than `undefined`"
+                  )
+                )
+              )
+            ),
+          ],
+          []
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle TSTypeQuery', () => {
+      const given = getProgramNode(`
+        let foo: typeof bar;
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier('foo', typeAnnotation(typeQuery(identifier('bar'))))
+            ),
+          ],
+          []
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle TSTypePredicate', () => {
+      const source = `
+        function foo(bar): bar is string {}
+      `;
+      const given = getProgramNode(source);
+      const expected = program([
+        functionDeclaration(
+          identifier('foo'),
+          [identifier('bar')],
+          nodeGroup([]),
+          typeAnnotation(
+            withTrailingConversionComment(
+              typeBoolean(),
+              'ROBLOX FIXME: change to TSTypePredicate equivalent if supported',
+              'bar is string'
+            )
+          )
         ),
       ]);
 
@@ -218,6 +317,34 @@ describe('Program handler', () => {
                 'foo',
                 typeAnnotation(
                   typeUnion([
+                    typeNumber(),
+                    typeString(),
+                    typeReference(identifier('TypeReference')),
+                  ])
+                )
+              )
+            ),
+          ],
+          []
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle type intersection', () => {
+      const source = `
+        let foo: number & string & TypeReference;
+      `;
+      const given = getProgramNode(source);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier(
+                'foo',
+                typeAnnotation(
+                  typeIntersection([
                     typeNumber(),
                     typeString(),
                     typeReference(identifier('TypeReference')),
