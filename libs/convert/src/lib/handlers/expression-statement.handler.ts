@@ -95,6 +95,7 @@ import { createReturnStatementHandler } from './statement/return-statement.handl
 import { createSwitchStatementHandler } from './statement/switch-statement.handler';
 import { createThrowStatementHandler } from './statement/throw-statement.handler';
 import { createTryStatementHandler } from './statement/try-statement.handler';
+import { createWhileStatementHandler } from './statement/while-statement.handler';
 import { createTypeAnnotationHandler } from './type/type-annotation.handler';
 
 type NoSpreadObjectProperty = Exclude<
@@ -521,6 +522,10 @@ export const handleStatement: BaseNodeHandler<LuaStatement> =
       forwardHandlerRef(() => handleExpression)
     ),
     createBreakStatementHandler(),
+    createWhileStatementHandler(
+      forwardHandlerRef(() => handleExpression),
+      forwardHandlerRef(() => handleStatement)
+    ),
   ]);
 
 function generateUniqueIdentifier(

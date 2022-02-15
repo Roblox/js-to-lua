@@ -1,5 +1,11 @@
 import { Expression, IfStatement, Statement } from '@babel/types';
 import {
+  BaseNodeHandler,
+  createHandler,
+  EmptyConfig,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   elseClause,
   elseifClause,
   ifClause,
@@ -12,12 +18,6 @@ import {
   LuaIfStatement,
   LuaStatement,
 } from '@js-to-lua/lua-types';
-import {
-  BaseNodeHandler,
-  createHandler,
-  EmptyConfig,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
 import { createExpressionAsBooleanHandler } from '../handle-as-boolean';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
 
@@ -26,11 +26,10 @@ export const createIfStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>
 ): BaseNodeHandler<LuaIfStatement, IfStatement> => {
   const handleConsequent = createInnerBodyStatementHandler(handleStatement);
+  const expressionAsBooleanHandler =
+    createExpressionAsBooleanHandler(handleExpression);
 
   return createHandler('IfStatement', (source, config, node) => {
-    const expressionAsBooleanHandler =
-      createExpressionAsBooleanHandler(handleExpression);
-
     const alternates = node.alternate
       ? handleAlternate(source, config, node.alternate)
       : [];
