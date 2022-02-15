@@ -15,11 +15,12 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@js-to-lua/convert": ["libs/convert/src/index.ts"],
       "@js-to-lua/handler-utils": ["libs/handler-utils/src/index.ts"],
-      "@js-to-lua/js-to-lua": ["libs/js-to-lua/src/index.ts"],
       "@js-to-lua/lua-conversion-utils": [
         "libs/lua-conversion-utils/src/index.ts"
       ],
+      "@js-to-lua/lua-print": ["libs/lua-print/src/index.ts"],
       "@js-to-lua/lua-types": ["libs/lua-types/src/index.ts"],
       "@js-to-lua/lua-types/test-utils": [
         "libs/lua-types/test-utils/src/index.ts"

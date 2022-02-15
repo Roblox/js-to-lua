@@ -1,5 +1,6 @@
-import { handleProgram, printNode } from '@js-to-lua/js-to-lua';
+import { handleProgram } from '@js-to-lua/convert';
 import { parse } from '@babel/parser';
+import { printNode } from '@js-to-lua/lua-print';
 
 // THIS IS A PLAYGROUND FILE
 // PLEASE DO NOT COMMIT CHANGES TO THIS FILE

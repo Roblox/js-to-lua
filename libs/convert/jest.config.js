@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: 'js-to-lua',
+  displayName: 'convert',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': { tsconfig: '<rootDir>/tsconfig.spec.json' },
@@ -8,5 +8,5 @@ module.exports = {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/js-to-lua',
+  coverageDirectory: '../../coverage/libs/convert',
 };

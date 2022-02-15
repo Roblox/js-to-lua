@@ -1,23 +1,23 @@
 {
-  "root": "libs/js-to-lua",
-  "sourceRoot": "libs/js-to-lua/src",
+  "root": "libs/convert",
+  "sourceRoot": "libs/convert/src",
   "projectType": "library",
   "targets": {
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["libs/js-to-lua/**/*.ts"]
+        "lintFilePatterns": ["libs/convert/**/*.ts"]
       },
       "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/js-to-lua"],
+      "outputs": ["coverage/libs/convert"],
       "options": {
-        "jestConfig": "libs/js-to-lua/jest.config.js",
+        "jestConfig": "libs/convert/jest.config.js",
         "passWithNoTests": true
       }
     }
   },
-  "tags": ["type:entry", "feature:convert", "feature:print"]
+  "tags": ["type:entry", "feature:convert"]
 }

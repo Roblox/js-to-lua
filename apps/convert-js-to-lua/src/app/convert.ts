@@ -1,5 +1,6 @@
 import { parse, ParserOptions } from '@babel/parser';
-import { handleProgram, printNode } from '@js-to-lua/js-to-lua';
+import { handleProgram } from '@js-to-lua/convert';
+import { printNode } from '@js-to-lua/lua-print';
 
 export interface ConversionConfig {
   isInitFile: boolean;

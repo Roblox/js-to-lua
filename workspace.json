@@ -1,10 +1,11 @@
 {
   "version": 2,
   "projects": {
+    "convert": "libs/convert",
     "convert-js-to-lua": "apps/convert-js-to-lua",
     "handler-utils": "libs/handler-utils",
-    "js-to-lua": "libs/js-to-lua",
     "lua-conversion-utils": "libs/lua-conversion-utils",
+    "lua-print": "libs/lua-print",
     "lua-types": "libs/lua-types",
     "lua-types-test-utils": "libs/lua-types/test-utils",
     "playground": "apps/playground",
