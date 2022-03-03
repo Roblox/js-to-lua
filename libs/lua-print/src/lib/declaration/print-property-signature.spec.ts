@@ -1,6 +1,7 @@
 import {
   identifier,
   LuaNode,
+  stringLiteral,
   typeAnnotation,
   typeAny,
   typeNumber,
@@ -24,6 +25,8 @@ describe('Print property signature', () => {
         return 'string';
       case 'LuaTypeNumber':
         return 'number';
+      case 'StringLiteral':
+        return `"${node.value}"`;
       default:
         return `<-${node.type}->`;
     }
@@ -38,6 +41,15 @@ describe('Print property signature', () => {
     );
 
     expect(printPropertySignature(given)).toEqual(`foo: any`);
+  });
+
+  it('should print property signature with string literal', () => {
+    const given = typePropertySignature(
+      stringLiteral('a/b/c'),
+      typeAnnotation(typeAny())
+    );
+
+    expect(printPropertySignature(given)).toEqual(`["a/b/c"]: any`);
   });
 
   it('should print property signature with string type', () => {

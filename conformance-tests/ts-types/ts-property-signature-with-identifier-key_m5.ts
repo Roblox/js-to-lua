@@ -1,0 +1,1 @@
+type PropertySignatureWithId = { foo: any }

@@ -8,6 +8,7 @@ import {
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   isIdentifier,
+  isStringLiteral,
   LuaExpression,
   LuaPropertySignature,
   LuaTypeAnnotation,
@@ -34,8 +35,9 @@ export const createTsPropertySignatureHandler = (
     TSPropertySignature
   > = createHandler('TSPropertySignature', (source, config, node) => {
     const key = expressionHandlerFunction(source, config, node.key);
+
     return typePropertySignature(
-      isIdentifier(key)
+      isIdentifier(key) || isStringLiteral(key)
         ? key
         : withTrailingConversionComment(
             typeString(),

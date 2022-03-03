@@ -1,12 +1,13 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaTypeAnnotation } from './type-annotation';
-import { LuaTypeString } from './type-string';
 import { LuaTypeNumber } from './type-number';
 import { LuaIdentifier } from '../expression';
+import { LuaStringLiteral } from '../literals';
+import { LuaTypeString } from './type-string';
 
 export interface LuaPropertySignature extends BaseLuaNode {
   type: 'LuaPropertySignature';
-  key: LuaIdentifier | LuaTypeString | LuaTypeNumber;
+  key: LuaIdentifier | LuaStringLiteral | LuaTypeString | LuaTypeNumber;
   typeAnnotation?: LuaTypeAnnotation;
 }
 

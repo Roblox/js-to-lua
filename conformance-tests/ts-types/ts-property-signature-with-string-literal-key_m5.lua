@@ -1,0 +1,1 @@
+type PropertySignatureWithStrLit = { ["foo"]: any }
