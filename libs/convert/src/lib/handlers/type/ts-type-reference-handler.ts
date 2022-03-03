@@ -1,10 +1,12 @@
 import {
   Identifier,
   TSEntityName,
+  TSQualifiedName,
   TSType,
   TSTypeReference,
 } from '@babel/types';
 import {
+  BaseNodeHandler,
   combineHandlers,
   createHandler,
   HandlerFunction,
@@ -23,13 +25,14 @@ import { NonEmptyArray } from '@js-to-lua/shared-utils';
 
 export const createTsTypeReferenceHandler = (
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>,
+  tsQualifiedNameHandler: BaseNodeHandler<LuaIdentifier, TSQualifiedName>,
   tsTypeHandlerFunction: HandlerFunction<LuaType, TSType>
 ) =>
   createHandler<LuaTypeReference, TSTypeReference>(
     'TSTypeReference',
     (source, config, node) => {
       const typeNameHandler = combineHandlers<LuaIdentifier, TSEntityName>(
-        [],
+        [tsQualifiedNameHandler],
         identifierHandlerFunction
       ).handler;
 

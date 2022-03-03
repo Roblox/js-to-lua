@@ -7,6 +7,7 @@ import {
 import { testUtils } from '@js-to-lua/handler-utils';
 import { typeReference } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { createTsQualifiedNameHandler } from './ts-qualified-name.handler';
 import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
 
 const { mockNodeWithValueHandler } = testUtils;
@@ -14,6 +15,7 @@ const { mockNodeWithValueHandler } = testUtils;
 describe('TSTypeReference handler', () => {
   const tsTypeReferenceHandler = createTsTypeReferenceHandler(
     mockNodeWithValueHandler,
+    createTsQualifiedNameHandler(),
     mockNodeWithValueHandler
   ).handler;
 

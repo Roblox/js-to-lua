@@ -1,0 +1,1 @@
+type QualifiedNested = Foo.Bar.Baz.Fuzz
