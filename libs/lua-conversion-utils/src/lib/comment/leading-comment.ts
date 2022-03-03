@@ -2,25 +2,25 @@ import { BaseLuaNode, commentBlock, LuaComment } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { trimValueAndWrapWithSpaces } from './trim-values';
 
-export const withTrailingConversionComment = <N extends BaseLuaNode>(
+export const withLeadingConversionComment = <N extends BaseLuaNode>(
   node: N,
   ...conversionComments: string[]
 ): N => {
-  const trailingComments = Array<LuaComment>().concat(
+  const leadingComments = Array<LuaComment>().concat(
     ...[
-      node.trailingComments,
+      node.leadingComments,
       conversionComments
         .filter(isTruthy)
         .map(trimValueAndWrapWithSpaces)
-        .map((comment) => commentBlock(comment, 'SameLineTrailingComment')),
+        .map((comment) => commentBlock(comment, 'SameLineLeadingComment')),
     ].filter(isTruthy)
   );
 
   return {
     ...node,
-    ...(trailingComments.length
+    ...(leadingComments.length
       ? {
-          trailingComments,
+          leadingComments,
         }
       : {}),
   };

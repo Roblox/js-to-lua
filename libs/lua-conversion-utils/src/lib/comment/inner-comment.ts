@@ -17,6 +17,6 @@ export const withInnerConversionComment = <N extends BaseLuaNode>(
   );
   return {
     ...node,
-    ...(innerComments.length ? { innerComments: innerComments } : {}),
+    ...(innerComments.length ? { innerComments } : {}),
   };
 };

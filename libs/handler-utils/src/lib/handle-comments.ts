@@ -9,27 +9,32 @@ export const handleComments = <R extends LuaNode>(
   { leadingComments, innerComments, trailingComments, loc }: BabelNode,
   luaNode: R
 ): R => {
+  const toLuaComment = (comment: Comment) =>
+    handleComment(source, comment, loc);
   return {
     ...luaNode,
     ...(leadingComments
       ? {
-          leadingComments: leadingComments.map((comment) =>
-            handleComment(source, comment, loc)
-          ),
+          leadingComments: [
+            ...(luaNode.leadingComments || []),
+            ...leadingComments.map(toLuaComment),
+          ],
         }
       : {}),
     ...(innerComments
       ? {
-          innerComments: innerComments.map((comment) =>
-            handleComment(source, comment, loc)
-          ),
+          innerComments: [
+            ...(luaNode.innerComments || []),
+            ...innerComments.map(toLuaComment),
+          ],
         }
       : {}),
     ...(trailingComments
       ? {
-          trailingComments: trailingComments.map((comment) =>
-            handleComment(source, comment, loc)
-          ),
+          trailingComments: [
+            ...(luaNode.trailingComments || []),
+            ...trailingComments.map(toLuaComment),
+          ],
         }
       : {}),
   };

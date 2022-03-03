@@ -29,7 +29,8 @@ export const combineHandlers = <
           })?.handler || (fallback as HandlerFunction<R, T, Config>);
 
         return (handler as F)(source, config, node); // TODO fix typing error
-      }
+      },
+      { skipComments: true }
     ),
   } as BaseNodeHandler<R, T, Config>;
 };
