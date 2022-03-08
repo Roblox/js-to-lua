@@ -5,6 +5,11 @@ import {
   isFunctionDeclaration,
   isIfClause,
   isLogicalExpression,
+  isSameLineComment,
+  isSameLineInnerComment,
+  isSameLineLeadingAndTrailingComment,
+  isSameLineLeadingComment,
+  isSameLineTrailingComment,
   isUnaryExpression,
   isUnaryNegation,
   LuaBlockStatement,
@@ -19,6 +24,7 @@ import {
   LuaNodeGroup,
   LuaProgram,
   LuaReturnStatement,
+  LuaStatement,
   LuaTableConstructor,
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
@@ -82,18 +88,24 @@ export function printNode<N extends LuaNode | LuaNodeGroup<any>>(
   ];
 
   const leadSeparator = filteredLeadAndInnerComments.length
-    ? ['SameLineLeadingComment', 'SameLineInnerComment'].includes(
-        last(filteredLeadAndInnerComments)!.loc
-      )
+    ? [
+        isSameLineLeadingComment,
+        isSameLineInnerComment,
+        isSameLineLeadingAndTrailingComment,
+      ].some((predicate) => predicate(last(filteredLeadAndInnerComments)!))
       ? ' '
       : '\n'
     : '';
 
-  const trailingSeparator = filteredTrailingComments.length
-    ? ['SameLineTrailingComment'].includes(filteredTrailingComments[0].loc)
+  const trailingSeparator =
+    node.trailingComments?.length &&
+    isSameLineLeadingAndTrailingComment(node.trailingComments[0])
       ? ' '
-      : '\n'
-    : '';
+      : filteredTrailingComments.length
+      ? isSameLineTrailingComment(filteredTrailingComments[0])
+        ? ' '
+        : '\n'
+      : '';
 
   return [
     leadingComments,
@@ -238,19 +250,12 @@ const _printNode = (node: LuaNode): string => {
 const _printComments = (
   comments: ReadonlyArray<LuaComment> | undefined
 ): string => {
-  const isInlineComment = (comment: LuaComment) =>
-    [
-      'SameLineTrailingComment',
-      'SameLineLeadingComment',
-      'SameLineInnerComment',
-    ].includes(comment.loc);
-
   const getCommentLeadingSpace = (
     comment: LuaComment,
     index: number,
     prev: LuaComment | null
   ) => {
-    return isInlineComment(comment) && comment.loc == prev?.loc
+    return isSameLineComment(comment) && comment.loc == prev?.loc
       ? ' '
       : index !== 0
       ? '\n'
@@ -277,7 +282,21 @@ const _printComments = (
 };
 
 function printProgram(node: LuaProgram) {
-  const program = node.body.map((node) => printNode(node)).join('\n');
+  const getTrailingSpace = (innerNode: LuaStatement) => {
+    if (innerNode === last(node.body)) {
+      return '';
+    } else if (
+      innerNode.trailingComments?.length &&
+      isSameLineLeadingAndTrailingComment(last(innerNode.trailingComments)!)
+    ) {
+      return ' ';
+    }
+    return '\n';
+  };
+
+  const program = node.body
+    .map((innerNode) => `${printNode(innerNode)}${getTrailingSpace(innerNode)}`)
+    .join('');
   const innerComments = _printComments(filterInnerComments(node.innerComments));
   return `${innerComments}${program}\n`;
 }
@@ -480,7 +499,9 @@ export const filterLeadingComments = (
     (n) =>
       !printedNodes.get(n) &&
       !isBabelAddedComment(n) &&
-      !['SameLineTrailingComment', 'SameLineInnerComment'].includes(n.loc)
+      ![isSameLineTrailingComment, isSameLineInnerComment].some((predicate) =>
+        predicate(n)
+      )
   );
 
 export const filterInnerComments = (
@@ -490,7 +511,11 @@ export const filterInnerComments = (
     (n) =>
       !printedNodes.get(n) &&
       !isBabelAddedComment(n) &&
-      !['SameLineLeadingComment', 'SameLineTrailingComment'].includes(n.loc)
+      ![
+        isSameLineLeadingComment,
+        isSameLineTrailingComment,
+        isSameLineLeadingAndTrailingComment,
+      ].some((predicate) => predicate(n))
   );
 
 export const filterTrailingComments = (
@@ -500,5 +525,9 @@ export const filterTrailingComments = (
     (n) =>
       !printedNodes.get(n) &&
       !isBabelAddedComment(n) &&
-      !['SameLineLeadingComment', 'SameLineInnerComment'].includes(n.loc)
+      ![
+        isSameLineLeadingComment,
+        isSameLineInnerComment,
+        isSameLineLeadingAndTrailingComment,
+      ].some((predicate) => predicate(n))
   );

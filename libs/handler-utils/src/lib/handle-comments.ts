@@ -54,21 +54,30 @@ const handleComment = (
   }
   const handled = handledComments.get(comment)!;
 
-  if (!loc) {
+  if (!loc || handled.loc === 'SameLineLeadingAndTrailingComment') {
     return handled;
   }
 
   if (
     loc.start.line == comment.loc.end.line &&
-    loc.start.column > comment.loc.end.column
+    loc.start.column >= comment.loc.end.column
   ) {
-    handled.loc = 'SameLineLeadingComment';
+    if (handled.loc === 'SameLineTrailingComment') {
+      handled.loc = 'SameLineLeadingAndTrailingComment';
+    } else {
+      handled.loc = 'SameLineLeadingComment';
+    }
   }
+
   if (
     loc.end.line == comment.loc.start.line &&
-    loc.end.column < comment.loc.start.column
+    loc.end.column <= comment.loc.start.column
   ) {
-    handled.loc = 'SameLineTrailingComment';
+    if (handled.loc === 'SameLineLeadingComment') {
+      handled.loc = 'SameLineLeadingAndTrailingComment';
+    } else {
+      handled.loc = 'SameLineTrailingComment';
+    }
   }
 
   return handled;
