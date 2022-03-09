@@ -24,7 +24,7 @@ const descriptions = {
   [Milestone.M2]: 'Milestone 2',
   [Milestone.M3]: 'Milestone 3',
   [Milestone.M4]: 'Milestone 4',
-  [Milestone.M5]: 'Milestone 4',
+  [Milestone.M5]: 'Milestone 5',
   [Milestone.Unspecified]: 'Milestone Unspecified',
 };
 

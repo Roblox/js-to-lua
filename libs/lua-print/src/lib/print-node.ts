@@ -29,7 +29,6 @@ import {
   LuaTableExpressionKeyField,
   LuaTableNameKeyField,
   LuaTableNoKeyField,
-  LuaTypeLiteral,
   LuaVariableDeclaration,
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
@@ -52,6 +51,7 @@ import { createPrintWhileStatement } from './statements/print-while-statement';
 import { createPrintIndexSignature } from './type/print-index-signature';
 import { createPrintTypeFunction } from './type/print-type-function';
 import { createPrintTypeIntersection } from './type/print-type-intersection';
+import { createPrintTypeLiteral } from './type/print-type-literal';
 import { createPrintTypeOptional } from './type/print-type-optional';
 import { createPrintTypeQuery } from './type/print-type-query';
 import { createPrintTypeReference } from './type/print-type-reference';
@@ -65,35 +65,54 @@ const isBabelAddedComment = (comment: LuaComment) =>
   comment.value === '#__PURE__';
 
 export type PrintNode = typeof printNode;
+export type GetPrintSections = typeof getPrintSections;
+export type PrintSections = {
+  leadingComments: string;
+  leadSeparator: string;
+  innerComments: string;
+  innerSeparator: string;
+  nodeStr: string;
+  trailingSeparator: string;
+  trailingComments: string;
+};
 
-export function printNode<N extends LuaNode | LuaNodeGroup<any>>(
+export function getPrintSections<N extends LuaNode | LuaNodeGroup<any>>(
   node: N,
   nodePrintFn: (node: N) => string = _printNode
-): string {
+): PrintSections {
   const nodeStr = nodePrintFn(node);
 
-  const filteredLeadingComments = filterLeadingComments(node.leadingComments);
-  const leadingComments = _printComments(filteredLeadingComments);
+  const filteredLeadingComments = getFilteredLeadingComments(
+    node.leadingComments
+  );
+  const leadingComments = _printComments(
+    getPrintableLeadingComments(node.leadingComments)
+  );
 
-  const filteredTrailingComments = filterTrailingComments(
+  const filteredTrailingComments = getFilteredTrailingComments(
     node.trailingComments
   );
-  const trailingComments = _printComments(filteredTrailingComments);
+  const trailingComments = _printComments(
+    getPrintableTrailingComments(node.trailingComments)
+  );
 
-  const filteredInnerComments = filterInnerComments(node.innerComments);
-  const innerComments = _printComments(filteredInnerComments) || '';
+  const filteredInnerComments = getFilteredInnerComments(node.innerComments);
+  const innerComments = _printComments(
+    getPrintableInnerComments(node.innerComments)
+  );
 
-  const filteredLeadAndInnerComments = [
-    ...filteredLeadingComments,
-    ...filteredInnerComments,
-  ];
-
-  const leadSeparator = filteredLeadAndInnerComments.length
+  const leadSeparator = filteredLeadingComments.length
     ? [
         isSameLineLeadingComment,
         isSameLineInnerComment,
         isSameLineLeadingAndTrailingComment,
-      ].some((predicate) => predicate(last(filteredLeadAndInnerComments)!))
+      ].some((predicate) => predicate(last(filteredLeadingComments)!))
+      ? ' '
+      : '\n'
+    : '';
+
+  const innerSeparator = filteredInnerComments.length
+    ? ['SameLineInnerComment'].includes(last(filteredInnerComments)!.loc)
       ? ' '
       : '\n'
     : '';
@@ -108,9 +127,30 @@ export function printNode<N extends LuaNode | LuaNodeGroup<any>>(
         : '\n'
       : '';
 
+  return {
+    leadingComments,
+    leadSeparator,
+    innerComments,
+    innerSeparator,
+    nodeStr,
+    trailingSeparator,
+    trailingComments,
+  };
+}
+export function printNode<N extends LuaNode | LuaNodeGroup<any>>(
+  node: N,
+  nodePrintFn: (node: N) => string = _printNode
+): string {
+  const {
+    leadingComments,
+    leadSeparator,
+    nodeStr,
+    trailingSeparator,
+    trailingComments,
+  } = getPrintSections(node, nodePrintFn);
+
   return [
     leadingComments,
-    innerComments,
     leadSeparator,
     nodeStr,
     trailingSeparator,
@@ -185,7 +225,7 @@ const _printNode = (node: LuaNode): string => {
     case 'LuaTypeAliasDeclaration':
       return createPrintTypeAliasDeclaration(printNode)(node);
     case 'LuaTypeLiteral':
-      return printNode(node, printTypeLiteral);
+      return createPrintTypeLiteral(printNode, getPrintSections)(node);
     case 'LuaTypeFunction':
       return createPrintTypeFunction(printNode)(node);
     case 'LuaLiteralType':
@@ -300,7 +340,9 @@ function printProgram(node: LuaProgram) {
   const program = node.body
     .map((innerNode) => `${printNode(innerNode)}${getTrailingSpace(innerNode)}`)
     .join('');
-  const innerComments = _printComments(filterInnerComments(node.innerComments));
+  const innerComments = _printComments(
+    getFilteredInnerComments(node.innerComments)
+  );
   return `${innerComments}${program}\n`;
 }
 
@@ -310,7 +352,9 @@ export function printNodeGroup(node: LuaNodeGroup): string {
     .filter(Boolean)
     .join('\n');
 
-  const innerComments = _printComments(filterInnerComments(node.innerComments));
+  const innerComments = _printComments(
+    getPrintableInnerComments(node.innerComments)
+  );
 
   return `${innerComments}${printedBody}`;
 }
@@ -355,7 +399,9 @@ function printTableExpressionKeyField(
 
 export function printBlockStatement(node: LuaBlockStatement) {
   const blockBody = node.body.map((value) => printNode(value)).join('\n  ');
-  const innerComments = _printComments(filterInnerComments(node.innerComments));
+  const innerComments = _printComments(
+    getPrintableInnerComments(node.innerComments)
+  );
 
   if (blockBody.length > 0) {
     return `do${innerComments ? ` ${innerComments}` : ''}
@@ -403,17 +449,12 @@ function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
 
   const body = printNode(node.body);
 
-  const innerComments = _printComments(filterInnerComments(node.innerComments));
+  const innerComments = '';
+  _printComments(getPrintableInnerComments(node.innerComments));
 
   return `function${name}(${parameters})${returnType}${innerComments}${
-    body ? `\n${body}` : ''
-  }${body || innerComments ? '\n' : ' '}end`;
-}
-
-function printTypeLiteral(node: LuaTypeLiteral) {
-  return `{ ${node.members.map((member) => printNode(member)).join(', ')}${
-    node.members.length ? ' ' : ''
-  }}`;
+    body ? `\n${body}\n` : ' '
+  }end`;
 }
 
 function printIfStatement(node: LuaIfStatement): string {
@@ -497,24 +538,27 @@ function getPrecedence(node: LuaNode) {
   return 0;
 }
 
-export const filterLeadingComments = (
+export const getFilteredLeadingComments = (
   comments: readonly LuaComment[] | undefined = []
 ): LuaComment[] =>
   comments.filter(
     (n) =>
-      !printedNodes.get(n) &&
       !isBabelAddedComment(n) &&
       ![isSameLineTrailingComment, isSameLineInnerComment].some((predicate) =>
         predicate(n)
       )
   );
 
-export const filterInnerComments = (
+export const getPrintableLeadingComments = (
+  comments: readonly LuaComment[] | undefined = []
+): LuaComment[] =>
+  getFilteredLeadingComments(comments).filter((n) => !printedNodes.get(n));
+
+export const getFilteredInnerComments = (
   comments: readonly LuaComment[] | undefined = []
 ): LuaComment[] =>
   comments.filter(
     (n) =>
-      !printedNodes.get(n) &&
       !isBabelAddedComment(n) &&
       ![
         isSameLineLeadingComment,
@@ -523,12 +567,16 @@ export const filterInnerComments = (
       ].some((predicate) => predicate(n))
   );
 
-export const filterTrailingComments = (
+export const getPrintableInnerComments = (
+  comments: readonly LuaComment[] | undefined = []
+): LuaComment[] =>
+  getFilteredInnerComments(comments).filter((n) => !printedNodes.get(n));
+
+export const getFilteredTrailingComments = (
   comments: readonly LuaComment[] | undefined = []
 ): LuaComment[] =>
   comments.filter(
     (n) =>
-      !printedNodes.get(n) &&
       !isBabelAddedComment(n) &&
       ![
         isSameLineLeadingComment,
@@ -536,3 +584,8 @@ export const filterTrailingComments = (
         isSameLineLeadingAndTrailingComment,
       ].some((predicate) => predicate(n))
   );
+
+export const getPrintableTrailingComments = (
+  comments: readonly LuaComment[] | undefined = []
+): LuaComment[] =>
+  getFilteredTrailingComments(comments).filter((n) => !printedNodes.get(n));
