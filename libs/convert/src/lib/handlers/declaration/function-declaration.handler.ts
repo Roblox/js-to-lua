@@ -19,7 +19,7 @@ import {
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
-import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
+import { createConvertToFunctionDeclarationHandler } from './convert-to-function-declaration.handler';
 
 export const createFunctionDeclarationHandler = (
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,

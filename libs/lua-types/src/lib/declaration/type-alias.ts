@@ -1,12 +1,12 @@
-import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaType, LuaTypeReference } from '../type';
 import { LuaIdentifier, LuaMemberExpression } from '../expression';
+import { BaseLuaNode, isNodeType } from '../node.types';
+import { LuaType, LuaTypeParameterDeclaration } from '../type';
 
 export interface LuaTypeAliasDeclaration extends BaseLuaNode {
   type: 'LuaTypeAliasDeclaration';
   id: LuaIdentifier;
   typeAnnotation: LuaType | LuaMemberExpression;
-  typeParameters?: LuaTypeReference[];
+  typeParameters?: LuaTypeParameterDeclaration;
 }
 
 export const isTypeAliasDeclaration = isNodeType<LuaTypeAliasDeclaration>(

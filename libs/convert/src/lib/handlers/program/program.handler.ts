@@ -16,6 +16,7 @@ import {
   tableConstructor,
   typeAliasDeclaration,
   typeAny,
+  typeParameterDeclaration,
   typeReference,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -166,8 +167,10 @@ function addPolyfills(program: LuaProgram) {
                 )
               ),
               type.generics
-                ? type.generics.map((t) => typeReference(identifier(t)))
-                : []
+                ? typeParameterDeclaration(
+                    type.generics.map((t) => typeReference(identifier(t)))
+                  )
+                : undefined
             )
           ),
           ...program.body,

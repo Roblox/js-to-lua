@@ -63,7 +63,7 @@ import {
   createObjectPatternDestructuringHandler,
   hasUnhandledObjectDestructuringParam,
 } from '../object-pattern-destructuring.handler';
-import { createConvertToFunctionDeclarationHandler } from './declaration.handler';
+import { createConvertToFunctionDeclarationHandler } from './convert-to-function-declaration.handler';
 
 export const createVariableDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

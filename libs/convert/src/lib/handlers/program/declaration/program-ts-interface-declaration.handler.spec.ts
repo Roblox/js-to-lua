@@ -11,6 +11,7 @@ import {
   typeLiteral,
   typeNumber,
   typeOptional,
+  typeParameterDeclaration,
   typePropertySignature,
   typeReference,
   typeString,
@@ -80,7 +81,7 @@ describe('Program handler', () => {
         typeAliasDeclaration(
           identifier('Object'),
           typeReference(identifier('LuauPolyfill.Object')),
-          []
+          undefined
         ),
         typeAliasDeclaration(
           identifier('Foo'),
@@ -172,7 +173,7 @@ describe('Program handler', () => {
               typeAnnotation(typeNumber())
             ),
           ]),
-          [typeReference(identifier('T'))]
+          typeParameterDeclaration([typeReference(identifier('T'))])
         ),
       ]);
 
@@ -197,7 +198,7 @@ describe('Program handler', () => {
               ),
             ]),
           ]),
-          [typeReference(identifier('T'))]
+          typeParameterDeclaration([typeReference(identifier('T'))])
         ),
       ]);
 

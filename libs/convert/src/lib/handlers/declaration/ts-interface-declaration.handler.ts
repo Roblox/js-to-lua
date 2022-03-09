@@ -26,7 +26,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
 import { createTsInterfaceBodyHandler } from '../type/ts-interface-body.handler';
-import { createTsTypeParameterHandler } from '../type/ts-type-parameter.handler';
+import { createTsTypeParameterDeclarationHandler } from '../type/ts-type-parameter-declaration.handler';
 
 export const createTsInterfaceHandler = (
   handleIdentifier: HandlerFunction<
@@ -68,10 +68,8 @@ export const createTsInterfaceHandler = (
               tsExpressionNode.expression
             );
 
-      const handleTsTypeParameter = createTsTypeParameterHandler().handler(
-        source,
-        config
-      );
+      const handleTsTypeParameterDeclaration =
+        createTsTypeParameterDeclarationHandler().handler(source, config);
 
       return typeAliasDeclaration(
         handleIdentifier(source, config, node.id) as LuaIdentifier,
@@ -82,7 +80,7 @@ export const createTsInterfaceHandler = (
             ])
           : interfaceBody,
         node.typeParameters && node.typeParameters.params.length
-          ? node.typeParameters.params.map(handleTsTypeParameter)
+          ? handleTsTypeParameterDeclaration(node.typeParameters)
           : undefined
       );
     }

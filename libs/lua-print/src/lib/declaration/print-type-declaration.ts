@@ -4,8 +4,8 @@ import { PrintNode } from '../print-node';
 export const createPrintTypeAliasDeclaration =
   (printNode: PrintNode) => (node: LuaTypeAliasDeclaration) => {
     const typeParameters =
-      node.typeParameters && node.typeParameters.length
-        ? `<${node.typeParameters.map((n) => printNode(n)).join(', ')}>`
+      node.typeParameters && node.typeParameters.params.length
+        ? printNode(node.typeParameters)
         : '';
 
     return `type ${printNode(node.id)}${typeParameters} = ${printNode(

@@ -37,6 +37,7 @@ import {
 import { anyPass, last } from 'ramda';
 import { createPrintPropertySignature } from './declaration/print-property-signature';
 import { createPrintTypeAliasDeclaration } from './declaration/print-type-declaration';
+import { createPrintTypeParameterDeclaration } from './declaration/print-type-parameter-declaration';
 import { createPrintIndexExpression } from './expression/print-index-expression';
 import { createPrintMemberExpression } from './expression/print-member-expression';
 import { createPrintTypeCastExpression } from './expression/print-type-cast-expression';
@@ -234,6 +235,8 @@ const _printNode = (node: LuaNode): string => {
       return createPrintTypeOptional(printNode)(node);
     case 'LuaTypeQuery':
       return createPrintTypeQuery(printNode)(node);
+    case 'LuaTypeParameterDeclaration':
+      return createPrintTypeParameterDeclaration(printNode)(node);
     case 'UnhandledStatement':
       return `error("not implemented");`;
     case 'UnhandledExpression':
@@ -388,7 +391,9 @@ function printCalleeExpression(callee: LuaExpression): string {
 
 function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
   const name = isFunctionDeclaration(node)
-    ? ` ${printNode({ ...node.id, typeAnnotation: undefined })}`
+    ? ` ${printNode({ ...node.id, typeAnnotation: undefined })}${
+        node.typeParams ? printNode(node.typeParams) : ''
+      }`
     : '';
   const parameters = node.params
     .map((parameter) => printNode(parameter))

@@ -1,10 +1,11 @@
-import { createPrintTypeAliasDeclaration } from './print-type-declaration';
 import {
   identifier,
   typeAliasDeclaration,
   typeAny,
+  typeParameterDeclaration,
   typeReference,
 } from '@js-to-lua/lua-types';
+import { createPrintTypeAliasDeclaration } from './print-type-declaration';
 
 describe('Print type alias declaration', () => {
   const printTypeAliasDeclaration = createPrintTypeAliasDeclaration((node) => {
@@ -15,6 +16,8 @@ describe('Print type alias declaration', () => {
         return 'any';
       case 'TypeReference':
         return `Reference${node.typeName.name}`;
+      case 'LuaTypeParameterDeclaration':
+        return `<LuaTypeParameterDeclaration>`;
       default:
         return `<-${node.type}->`;
     }
@@ -26,24 +29,15 @@ describe('Print type alias declaration', () => {
     expect(printTypeAliasDeclaration(given)).toEqual(`type Foo = any`);
   });
 
-  it('should print generic type declaration', () => {
-    const given = typeAliasDeclaration(identifier('Foo'), typeAny(), [
-      typeReference(identifier('T')),
-    ]);
-
-    expect(printTypeAliasDeclaration(given)).toEqual(
-      `type Foo<ReferenceT> = any`
+  it('should print TypeParameterDeclaration', () => {
+    const given = typeAliasDeclaration(
+      identifier('Foo'),
+      typeAny(),
+      typeParameterDeclaration([typeReference(identifier('T'))])
     );
-  });
-
-  it('should print generic type declaration with multiple generic params', () => {
-    const given = typeAliasDeclaration(identifier('Foo'), typeAny(), [
-      typeReference(identifier('T')),
-      typeReference(identifier('V')),
-    ]);
 
     expect(printTypeAliasDeclaration(given)).toEqual(
-      `type Foo<ReferenceT, ReferenceV> = any`
+      `type Foo<LuaTypeParameterDeclaration> = any`
     );
   });
 });

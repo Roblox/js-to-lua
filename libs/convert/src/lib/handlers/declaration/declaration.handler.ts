@@ -1,9 +1,6 @@
 import {
-  ArrowFunctionExpression,
   Declaration,
   Expression,
-  FunctionDeclaration,
-  FunctionExpression,
   Identifier,
   LVal,
   ObjectMethod,
@@ -14,32 +11,19 @@ import {
 } from '@babel/types';
 import {
   BaseNodeHandler,
-  EmptyConfig,
   forwardHandlerRef,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import { combineStatementHandlers } from '@js-to-lua/lua-conversion-utils';
 import {
-  functionDeclaration,
   LuaDeclaration,
   LuaExpression,
-  LuaFunctionDeclaration,
-  LuaIdentifier,
   LuaLVal,
   LuaNodeGroup,
   LuaStatement,
   LuaTableKeyField,
   LuaType,
-  nodeGroup,
-  variableDeclaration,
-  variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
-import { createFunctionBodyHandler } from '../expression/function-body.handler';
-import {
-  createFunctionParamsBodyHandler,
-  createFunctionParamsHandler,
-} from '../function-params.handler';
-import { createAssignmentPatternHandlerFunction } from '../statement/assignment-pattern.handler';
 import { createExportHandler } from '../statement/export';
 import { createImportHandler } from '../statement/import';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
@@ -137,76 +121,3 @@ export const createDeclarationHandler = (
 
   return declarationHandler;
 };
-
-export function createConvertToFunctionDeclarationHandler(
-  handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleExpressionAsStatement: HandlerFunction<
-    LuaExpression | LuaStatement,
-    Expression
-  >,
-  handleIdentifier: HandlerFunction<LuaLVal, LVal>,
-  handleDeclaration: HandlerFunction<
-    LuaNodeGroup | LuaDeclaration,
-    Declaration
-  >,
-  handleLVal: HandlerFunction<LuaLVal, LVal>
-) {
-  const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
-    handleExpression,
-    handleIdentifier
-  );
-  const { typesHandler } = createTypeAnnotationHandler(
-    handleExpression,
-    handleIdentifier
-  );
-  const functionParamsHandler = createFunctionParamsHandler(
-    handleIdentifier,
-    typesHandler
-  );
-
-  return function (
-    source: string,
-    config: EmptyConfig,
-    node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
-    id: LuaIdentifier
-  ): LuaFunctionDeclaration | LuaNodeGroup {
-    const handleFunctionBody = createFunctionBodyHandler(
-      handleStatement,
-      handleExpressionAsStatement
-    )(source, config);
-    const handleParamsBody = createFunctionParamsBodyHandler(
-      handleDeclaration,
-      handleAssignmentPattern,
-      handleLVal
-    );
-
-    return id.typeAnnotation
-      ? nodeGroup([
-          variableDeclaration([variableDeclaratorIdentifier(id)], []),
-          functionDeclaration(
-            { ...id, typeAnnotation: undefined },
-            functionParamsHandler(source, config, node),
-            nodeGroup([
-              ...handleParamsBody(source, config, node),
-              ...handleFunctionBody(node),
-            ]),
-            node.returnType
-              ? typesHandler(source, config, node.returnType)
-              : undefined,
-            false
-          ),
-        ])
-      : functionDeclaration(
-          id,
-          functionParamsHandler(source, config, node),
-          nodeGroup([
-            ...handleParamsBody(source, config, node),
-            ...handleFunctionBody(node),
-          ]),
-          node.returnType
-            ? typesHandler(source, config, node.returnType)
-            : undefined
-        );
-  };
-}

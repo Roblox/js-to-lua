@@ -1,8 +1,8 @@
 import { isAnyNodeType } from '../node.types';
-import { isTypeAliasDeclaration, LuaTypeAliasDeclaration } from './type-alias';
-import { isFunctionDeclaration, LuaFunctionDeclaration } from './function';
-import { isVariableDeclaration, LuaVariableDeclaration } from './variable';
 import { isUnhandledStatement, UnhandledStatement } from '../unhandled';
+import { isFunctionDeclaration, LuaFunctionDeclaration } from './function';
+import { isTypeAliasDeclaration, LuaTypeAliasDeclaration } from './type-alias';
+import { isVariableDeclaration, LuaVariableDeclaration } from './variable';
 
 export type LuaDeclaration =
   | LuaFunctionDeclaration

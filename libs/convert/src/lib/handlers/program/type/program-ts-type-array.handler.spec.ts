@@ -6,6 +6,7 @@ import {
   program,
   typeAliasDeclaration,
   typeNumber,
+  typeParameterDeclaration,
   typeReference,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -47,7 +48,7 @@ describe('Program handler', () => {
         typeAliasDeclaration(
           identifier('Array'),
           typeReference(identifier('LuauPolyfill.Array<T>')),
-          [typeReference(identifier('T'))]
+          typeParameterDeclaration([typeReference(identifier('T'))])
         ),
         typeAliasDeclaration(
           identifier('NumberArray'),
@@ -87,7 +88,7 @@ describe('Program handler', () => {
         typeAliasDeclaration(
           identifier('Array'),
           typeReference(identifier('LuauPolyfill.Array<T>')),
-          [typeReference(identifier('T'))]
+          typeParameterDeclaration([typeReference(identifier('T'))])
         ),
         typeAliasDeclaration(
           identifier('NumberArray'),

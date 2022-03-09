@@ -1,5 +1,10 @@
 import { Identifier, TSType, TSTypeAliasDeclaration } from '@babel/types';
 import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   LuaBinaryExpression,
   LuaIdentifier,
   LuaMemberExpression,
@@ -8,12 +13,7 @@ import {
   LuaTypeAliasDeclaration,
   typeAliasDeclaration,
 } from '@js-to-lua/lua-types';
-import {
-  BaseNodeHandler,
-  createHandler,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
-import { createTsTypeParameterHandler } from '../type/ts-type-parameter.handler';
+import { createTsTypeParameterDeclarationHandler } from '../type/ts-type-parameter-declaration.handler';
 
 export const createTypeAliasDeclarationHandler = (
   handleIdentifier: HandlerFunction<
@@ -23,15 +23,14 @@ export const createTypeAliasDeclarationHandler = (
   handleTsTypes: HandlerFunction<LuaType, TSType>
 ): BaseNodeHandler<LuaTypeAliasDeclaration, TSTypeAliasDeclaration> =>
   createHandler('TSTypeAliasDeclaration', (source, config, node) => {
-    const handleTsTypeParameter = createTsTypeParameterHandler().handler(
-      source,
-      config
-    );
+    const handleTsTypeParameterDeclaration =
+      createTsTypeParameterDeclarationHandler().handler(source, config);
+
     return typeAliasDeclaration(
       handleIdentifier(source, config, node.id) as LuaIdentifier,
       handleTsTypes(source, config, node.typeAnnotation),
       node.typeParameters && node.typeParameters.params.length
-        ? node.typeParameters.params.map(handleTsTypeParameter)
+        ? handleTsTypeParameterDeclaration(node.typeParameters)
         : undefined
     );
   });
