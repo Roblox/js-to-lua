@@ -69,7 +69,10 @@ export const createTsInterfaceHandler = (
             );
 
       const handleTsTypeParameterDeclaration =
-        createTsTypeParameterDeclarationHandler().handler(source, config);
+        createTsTypeParameterDeclarationHandler(tsTypeHandlerFunction).handler(
+          source,
+          config
+        );
 
       return typeAliasDeclaration(
         handleIdentifier(source, config, node.id) as LuaIdentifier,

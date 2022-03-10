@@ -1,4 +1,3 @@
-import { createPrintTypeReference } from './print-type-reference';
 import {
   identifier,
   LuaNode,
@@ -7,6 +6,7 @@ import {
   typeReference,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
+import { createPrintTypeReference } from './print-type-reference';
 
 describe('Print type reference', () => {
   const printTypeReference = createPrintTypeReference(
@@ -49,6 +49,16 @@ describe('Print type reference', () => {
     ]);
 
     const expected = 'TypeReference<any, NestedTypeReference<any>>';
+
+    expect(printTypeReference(given)).toEqual(expected);
+  });
+
+  it('should print type reference with default generic params', () => {
+    const given = typeReference(identifier('TypeReference'), [
+      typeReference(identifier('T'), undefined, typeAny()),
+    ]);
+
+    const expected = 'TypeReference<T = any>';
 
     expect(printTypeReference(given)).toEqual(expected);
   });

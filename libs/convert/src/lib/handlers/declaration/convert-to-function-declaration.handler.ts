@@ -67,7 +67,10 @@ export function createConvertToFunctionDeclarationHandler(
     id: LuaIdentifier
   ): LuaFunctionDeclaration | LuaNodeGroup {
     const handleTsTypeParameterDeclaration =
-      createTsTypeParameterDeclarationHandler().handler(source, config);
+      createTsTypeParameterDeclarationHandler(typesHandler).handler(
+        source,
+        config
+      );
 
     const handleFunctionBody = createFunctionBodyHandler(
       handleStatement,

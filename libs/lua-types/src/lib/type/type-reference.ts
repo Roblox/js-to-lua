@@ -7,15 +7,18 @@ export interface LuaTypeReference extends BaseLuaNode {
   type: 'TypeReference';
   typeName: LuaIdentifier;
   typeParameters?: NonEmptyArray<LuaType>;
+  defaultType?: LuaType;
 }
 
 export const typeReference = (
   typeName: LuaTypeReference['typeName'],
-  typeParameters?: LuaTypeReference['typeParameters']
+  typeParameters?: LuaTypeReference['typeParameters'],
+  defaultType?: LuaTypeReference['defaultType']
 ): LuaTypeReference => ({
   type: 'TypeReference',
   typeName,
   ...(typeParameters ? { typeParameters } : {}),
+  defaultType,
 });
 
 export const isTypeReference = isNodeType<LuaTypeReference>('TypeReference');

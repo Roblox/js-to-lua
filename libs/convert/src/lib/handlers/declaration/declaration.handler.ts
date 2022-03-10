@@ -27,6 +27,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { createExportHandler } from '../statement/export';
 import { createImportHandler } from '../statement/import';
+import { createTsTypeAnnotationHandler } from '../type/ts-type-annotation.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createClassDeclarationHandler } from './class-declaration.handler';
 import { createFunctionDeclarationHandler } from './function-declaration.handler';

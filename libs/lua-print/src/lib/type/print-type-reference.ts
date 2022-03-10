@@ -8,5 +8,7 @@ export const createPrintTypeReference =
       ? `<${node.typeParameters.map((n) => printNode(n)).join(', ')}>`
       : '';
 
-    return `${printNode(node.typeName)}${genericTypeParameters}`;
+    return `${printNode(node.typeName)}${
+      node.defaultType ? ` = ${printNode(node.defaultType)}` : ''
+    }${genericTypeParameters}`;
   };

@@ -1,18 +1,29 @@
-import { TSTypeParameter } from '@babel/types';
+import { TSType, TSTypeParameter } from '@babel/types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   identifier,
+  LuaType,
   LuaTypeReference,
   typeReference,
 } from '@js-to-lua/lua-types';
-import { createHandler } from '@js-to-lua/handler-utils';
 
-export const createTsTypeParameterHandler = () => {
+export const createTsTypeParameterHandler = (
+  typesHandler: HandlerFunction<LuaType, TSType>
+) => {
   return createHandler<LuaTypeReference, TSTypeParameter>(
     'TSTypeParameter',
     (
-      _source,
-      _config,
+      source,
+      config,
       tsTypeParameterNode: TSTypeParameter
-    ): LuaTypeReference => typeReference(identifier(tsTypeParameterNode.name))
+    ): LuaTypeReference => {
+      return typeReference(
+        identifier(tsTypeParameterNode.name),
+        undefined,
+        tsTypeParameterNode.default
+          ? typesHandler(source, config, tsTypeParameterNode.default)
+          : undefined
+      );
+    }
   );
 };

@@ -1,14 +1,26 @@
 import { tsTypeParameter, tsTypeParameterDeclaration } from '@babel/types';
+import { forwardHandlerFunctionRef } from '@js-to-lua/handler-utils';
 import {
   identifier,
   typeParameterDeclaration,
   typeReference,
 } from '@js-to-lua/lua-types';
+import { handleExpression } from '../expression-statement.handler';
+import { createIdentifierHandler } from '../expression/identifier.handler';
+import { createTsTypeAnnotationHandler } from './ts-type-annotation.handler';
 import { createTsTypeParameterDeclarationHandler } from './ts-type-parameter-declaration.handler';
 
 describe('TSTypeParameterDeclaration handler', () => {
+  const handleIdentifier = createIdentifierHandler(
+    forwardHandlerFunctionRef(() => handleTsTypeAnnotation.handler)
+  );
+  const { handleTsTypes, handleTsTypeAnnotation } =
+    createTsTypeAnnotationHandler(
+      handleExpression.handler,
+      handleIdentifier.handler
+    );
   const handleTsTypeParameterDeclaration =
-    createTsTypeParameterDeclarationHandler().handler;
+    createTsTypeParameterDeclarationHandler(handleTsTypes.handler).handler;
 
   const source = '';
 
