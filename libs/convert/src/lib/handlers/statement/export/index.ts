@@ -31,7 +31,10 @@ export const createExportHandler = (
     ]
   );
   const withExportsExtras = withExtras({ doesExport: true });
-  return createHandler(type, (source: string, config, node: Declaration) =>
-    withExportsExtras(handler(source, config, node))
+  return createHandler(
+    type,
+    (source: string, config, node: Declaration) =>
+      withExportsExtras(handler(source, config, node)),
+    { skipComments: true }
   );
 };

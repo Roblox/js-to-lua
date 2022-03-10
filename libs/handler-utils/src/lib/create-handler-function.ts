@@ -4,7 +4,7 @@ import { handleComments } from './handle-comments';
 import { NonCurriedHandlerFunction } from './inner-types';
 import { BabelNode, ConfigBase, EmptyConfig, HandlerFunction } from './types';
 
-interface CreateHandlerFunctionOptions {
+export interface CreateHandlerFunctionOptions {
   skipComments?: boolean;
 }
 

@@ -3,6 +3,7 @@ import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
+  commentLine,
   exportTypeStatement,
   functionDeclaration,
   identifier,
@@ -238,6 +239,118 @@ describe('Program handler', () => {
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    describe('with comments', () => {
+      it(`should export named variable declaration with leading comment`, () => {
+        const given = getProgramNode(`
+          // leading comment
+          export const foo = 10
+        `);
+        const expected = program([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('exports'))],
+            [variableDeclaratorValue(tableConstructor())]
+          ),
+          {
+            ...nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('foo'))],
+                [variableDeclaratorValue(numericLiteral(10, '10'))]
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    identifier('exports'),
+                    '.',
+                    identifier('foo')
+                  ),
+                ],
+                [identifier('foo')]
+              ),
+            ]),
+            leadingComments: [commentLine(' leading comment')],
+          },
+          returnStatement(identifier('exports')),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it(`should export named variable declaration with trailing comment`, () => {
+        const given = getProgramNode(`
+          export const foo = 10
+          // trailing comment
+        `);
+        const expected = program([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('exports'))],
+            [variableDeclaratorValue(tableConstructor())]
+          ),
+          {
+            ...nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('foo'))],
+                [variableDeclaratorValue(numericLiteral(10, '10'))]
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    identifier('exports'),
+                    '.',
+                    identifier('foo')
+                  ),
+                ],
+                [identifier('foo')]
+              ),
+            ]),
+            trailingComments: [commentLine(' trailing comment')],
+          },
+          returnStatement(identifier('exports')),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it(`should export named variable declaration with leading and trailing comment`, () => {
+        const given = getProgramNode(`
+          // leading comment
+          export const foo = 10
+          // trailing comment
+        `);
+        const expected = program([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('exports'))],
+            [variableDeclaratorValue(tableConstructor())]
+          ),
+          {
+            ...nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('foo'))],
+                [variableDeclaratorValue(numericLiteral(10, '10'))]
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    identifier('exports'),
+                    '.',
+                    identifier('foo')
+                  ),
+                ],
+                [identifier('foo')]
+              ),
+            ]),
+            leadingComments: [commentLine(' leading comment')],
+            trailingComments: [commentLine(' trailing comment')],
+          },
+          returnStatement(identifier('exports')),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
     });
   });
 

@@ -1,6 +1,7 @@
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  commentLine,
   functionDeclaration,
   functionExpression,
   identifier,
@@ -115,6 +116,100 @@ describe('Program handler', () => {
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    describe('with comments', () => {
+      it(`should export default identifier with leading comment`, () => {
+        const given = getProgramNode(`
+          // leading comment
+          export default foo
+        `);
+        const expected = program([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('exports'))],
+            [variableDeclaratorValue(tableConstructor())]
+          ),
+          {
+            ...assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                memberExpression(
+                  identifier('exports'),
+                  '.',
+                  identifier('default')
+                ),
+              ],
+              [identifier('foo')]
+            ),
+            leadingComments: [commentLine(' leading comment')],
+          },
+          returnStatement(identifier('exports')),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it(`should export default identifier with trailing comment`, () => {
+        const given = getProgramNode(`
+          export default foo
+          // trailing comment
+        `);
+        const expected = program([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('exports'))],
+            [variableDeclaratorValue(tableConstructor())]
+          ),
+          {
+            ...assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                memberExpression(
+                  identifier('exports'),
+                  '.',
+                  identifier('default')
+                ),
+              ],
+              [identifier('foo')]
+            ),
+            trailingComments: [commentLine(' trailing comment')],
+          },
+          returnStatement(identifier('exports')),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it(`should export default identifier with leading and trailing comment`, () => {
+        const given = getProgramNode(`
+          // leading comment
+          export default foo
+          // trailing comment
+        `);
+        const expected = program([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('exports'))],
+            [variableDeclaratorValue(tableConstructor())]
+          ),
+          {
+            ...assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [
+                memberExpression(
+                  identifier('exports'),
+                  '.',
+                  identifier('default')
+                ),
+              ],
+              [identifier('foo')]
+            ),
+            leadingComments: [commentLine(' leading comment')],
+            trailingComments: [commentLine(' trailing comment')],
+          },
+          returnStatement(identifier('exports')),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
     });
   });
 });
