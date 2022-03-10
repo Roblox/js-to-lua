@@ -1,9 +1,4 @@
-import {
-  Expression,
-  Noop,
-  TSTypeAnnotation,
-  TypeAnnotation,
-} from '@babel/types';
+import { Expression, TSTypeAnnotation } from '@babel/types';
 import { combineHandlers, HandlerFunction } from '@js-to-lua/handler-utils';
 import { defaultElementHandler } from '@js-to-lua/lua-conversion-utils';
 import { LuaExpression, LuaTypeAnnotation } from '@js-to-lua/lua-types';
@@ -12,10 +7,7 @@ import { createTsPropertySignatureHandler } from './ts-property-signature.handle
 
 export const createTsTypeElementHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
-  typesHandlerFunction: HandlerFunction<
-    LuaTypeAnnotation,
-    TypeAnnotation | TSTypeAnnotation | Noop
-  >
+  typesHandlerFunction: HandlerFunction<LuaTypeAnnotation, TSTypeAnnotation>
 ) => {
   const handleTsPropertySignature = createTsPropertySignatureHandler(
     expressionHandlerFunction,

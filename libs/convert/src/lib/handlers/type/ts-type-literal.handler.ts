@@ -1,4 +1,10 @@
 import {
+  Expression,
+  isTSIndexSignature,
+  TSTypeAnnotation,
+  TSTypeLiteral,
+} from '@babel/types';
+import {
   BaseNodeHandler,
   createHandler,
   HandlerFunction,
@@ -13,22 +19,11 @@ import {
   typeLiteral,
   typeUnion,
 } from '@js-to-lua/lua-types';
-import {
-  Expression,
-  isTSIndexSignature,
-  Noop,
-  TSTypeAnnotation,
-  TSTypeLiteral,
-  TypeAnnotation,
-} from '@babel/types';
 import { createTsTypeElementHandler } from './ts-type-element.handler';
 
 export const createTsTypeLiteralHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
-  typesHandlerFunction: HandlerFunction<
-    LuaTypeAnnotation,
-    TypeAnnotation | TSTypeAnnotation | Noop
-  >
+  typesHandlerFunction: HandlerFunction<LuaTypeAnnotation, TSTypeAnnotation>
 ) => {
   const typeElementHandler = createTsTypeElementHandler(
     expressionHandlerFunction,

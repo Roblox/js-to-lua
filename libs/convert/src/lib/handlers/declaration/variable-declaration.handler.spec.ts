@@ -52,7 +52,7 @@ import { createVariableDeclarationHandler } from './variable-declaration.handler
 
 const source = '';
 
-const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
+const { typesHandler, handleTypes } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifier)
 );
@@ -70,7 +70,7 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
-  handleTsTypes,
+  handleTypes,
   forwardHandlerRef(() => handleObjectPropertyIdentifier),
   forwardHandlerRef(() => handleObjectKeyExpression),
   forwardHandlerRef(() => handleObjectPropertyValue),

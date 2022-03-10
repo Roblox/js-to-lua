@@ -25,16 +25,17 @@ import {
 import { handleExpression } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
-import { createTypeAnnotationHandler } from './type-annotation.handler';
+import { createTsTypeAnnotationHandler } from './ts-type-annotation.handler';
 
 describe('TSFunctionType handler', () => {
-  const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
-    forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleIdentifier)
-  );
+  const { handleTsTypeAnnotation, handleTsTypes } =
+    createTsTypeAnnotationHandler(
+      forwardHandlerRef(() => handleExpression),
+      forwardHandlerRef(() => handleIdentifier)
+    );
 
   const handleIdentifier = createIdentifierHandler(
-    forwardHandlerFunctionRef(() => typesHandler)
+    forwardHandlerFunctionRef(() => handleTsTypeAnnotation.handler)
   );
 
   const tsFunctionTypeHandler = createTsFunctionTypeHandler(

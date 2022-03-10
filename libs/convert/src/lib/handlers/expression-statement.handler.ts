@@ -79,7 +79,6 @@ import {
 import { createLValHandler } from './l-val.handler';
 import { handleBigIntLiteral } from './primitives/big-int.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
-
 import { createMultilineStringLiteralHandler } from './primitives/multiline-string.handler';
 import { handleNullLiteral } from './primitives/null.handler';
 import { handleNumericLiteral } from './primitives/numeric.handler';
@@ -286,7 +285,7 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     createNewExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createTsAsExpressionHandler(
       forwardHandlerRef(() => handleExpression),
-      forwardHandlerRef(() => handleTsTypes)
+      forwardHandlerRef(() => handleTypes)
     ),
     createTsNonNullExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createTaggedTemplateExpressionHandler(
@@ -298,7 +297,7 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     createAwaitExpressionHandler(forwardHandlerRef(() => handleExpression)),
   ]);
 
-const { typesHandler, handleTsTypes } = createTypeAnnotationHandler(
+const { typesHandler, handleTypes } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifier)
 );
@@ -339,7 +338,7 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
-  handleTsTypes,
+  handleTypes,
   forwardHandlerRef(() => handleObjectPropertyIdentifier),
   forwardHandlerRef(() => handleObjectKeyExpression),
   forwardHandlerRef(() => handleObjectPropertyValue),

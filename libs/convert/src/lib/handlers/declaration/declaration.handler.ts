@@ -1,6 +1,7 @@
 import {
   Declaration,
   Expression,
+  FlowType,
   Identifier,
   LVal,
   ObjectMethod,
@@ -46,7 +47,7 @@ export const createDeclarationHandler = (
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
   >,
-  handleTsTypes: BaseNodeHandler<LuaType, TSType>,
+  handleTypes: BaseNodeHandler<LuaType, TSType | FlowType>,
   objectPropertyIdentifierHandlerFunction: HandlerFunction<
     LuaExpression,
     Identifier
@@ -88,13 +89,13 @@ export const createDeclarationHandler = (
     ),
     createTypeAliasDeclarationHandler(
       handleIdentifier,
-      forwardHandlerRef(() => handleTsTypes)
+      forwardHandlerRef(() => handleTypes)
     ),
     createTsInterfaceHandler(
       handleIdentifier,
       handleExpression,
       typesHandler,
-      forwardHandlerRef(() => handleTsTypes)
+      forwardHandlerRef(() => handleTypes)
     ),
     createTsEnumHandler(
       handleIdentifier,
@@ -115,7 +116,7 @@ export const createDeclarationHandler = (
       handleStatement,
       forwardHandlerRef(() => declarationHandler),
       handleLVal,
-      forwardHandlerRef(() => handleTsTypes)
+      forwardHandlerRef(() => handleTypes)
     ),
   ]);
 
