@@ -1,5 +1,4 @@
-type State = {
-	--[[ before id ]]
+type State = { --[[ before id ]]
 	foo: any,
 	bar	--[[ after id ]]
 : any,

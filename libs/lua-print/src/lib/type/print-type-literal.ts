@@ -11,18 +11,13 @@ export const createPrintTypeLiteral =
     let trailingSpace;
     if (!lastItem) {
       trailingSpace = '';
-    } else if (!lastItemTrailingComments) {
-      trailingSpace = ' ';
     } else if (lastItemTrailingComments?.some((c) => c.type == 'CommentLine')) {
       trailingSpace = '\n';
     } else {
-      trailingSpace = '';
+      trailingSpace = ' ';
     }
 
-    const leadingSpace =
-      node.members.length && !node.members[0].leadingComments?.length
-        ? ' '
-        : '';
+    const leadingSpace = node.members.length ? ' ' : '';
 
     return `{${leadingSpace}${node.members
       .map((member) =>

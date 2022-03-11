@@ -82,37 +82,31 @@ export function getPrintSections<N extends LuaNode | LuaNodeGroup<any>>(
 ): PrintSections {
   const nodeStr = nodePrintFn(node);
 
-  const filteredLeadingComments = getFilteredLeadingComments(
+  const printableLeadingComments = getPrintableLeadingComments(
     node.leadingComments
   );
-  const leadingComments = _printComments(
-    getPrintableLeadingComments(node.leadingComments)
-  );
+  const leadingComments = _printComments(printableLeadingComments);
 
-  const filteredTrailingComments = getFilteredTrailingComments(
+  const printableTrailingComments = getPrintableTrailingComments(
     node.trailingComments
   );
-  const trailingComments = _printComments(
-    getPrintableTrailingComments(node.trailingComments)
-  );
+  const trailingComments = _printComments(printableTrailingComments);
 
-  const filteredInnerComments = getFilteredInnerComments(node.innerComments);
-  const innerComments = _printComments(
-    getPrintableInnerComments(node.innerComments)
-  );
+  const printableInnerComments = getPrintableInnerComments(node.innerComments);
+  const innerComments = _printComments(printableInnerComments);
 
-  const leadSeparator = filteredLeadingComments.length
+  const leadSeparator = printableLeadingComments.length
     ? [
         isSameLineLeadingComment,
         isSameLineInnerComment,
         isSameLineLeadingAndTrailingComment,
-      ].some((predicate) => predicate(last(filteredLeadingComments)!))
+      ].some((predicate) => predicate(last(printableLeadingComments)!))
       ? ' '
       : '\n'
     : '';
 
-  const innerSeparator = filteredInnerComments.length
-    ? ['SameLineInnerComment'].includes(last(filteredInnerComments)!.loc)
+  const innerSeparator = printableInnerComments.length
+    ? ['SameLineInnerComment'].includes(last(printableInnerComments)!.loc)
       ? ' '
       : '\n'
     : '';
@@ -121,8 +115,8 @@ export function getPrintSections<N extends LuaNode | LuaNodeGroup<any>>(
     node.trailingComments?.length &&
     isSameLineLeadingAndTrailingComment(node.trailingComments[0])
       ? ' '
-      : filteredTrailingComments.length
-      ? isSameLineTrailingComment(filteredTrailingComments[0])
+      : printableTrailingComments.length
+      ? isSameLineTrailingComment(printableTrailingComments[0])
         ? ' '
         : '\n'
       : '';
