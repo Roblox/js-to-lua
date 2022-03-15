@@ -151,6 +151,24 @@ describe('Program handler', () => {
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
+    it('should handle "undefined"', () => {
+      const given = getProgramNode(`
+        let foo: undefined;
+      `);
+      const expected = program([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier('foo', typeAnnotation(typeNil()))
+            ),
+          ],
+          []
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
     it('should handle TSTypeQuery', () => {
       const given = getProgramNode(`
         let foo: typeof bar;

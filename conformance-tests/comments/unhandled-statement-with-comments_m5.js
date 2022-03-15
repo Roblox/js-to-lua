@@ -1,5 +1,5 @@
 // some leading comment
-for (const foo of bar) {
+for await (const foo of bar) {
   loopOne();
 }
 // some trailing comment

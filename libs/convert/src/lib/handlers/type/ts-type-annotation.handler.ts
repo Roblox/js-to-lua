@@ -15,6 +15,7 @@ import {
   TSTypeAnnotation,
   TSTypePredicate,
   TSTypeQuery,
+  TSUndefinedKeyword,
   TSUnionType,
   TSUnknownKeyword,
   TSVoidKeyword,
@@ -86,6 +87,9 @@ export const createTsTypeAnnotationHandler = (
 
   const handleTsNumberKeyword: BaseNodeHandler<LuaTypeNumber, TSNumberKeyword> =
     createHandler('TSNumberKeyword', () => typeNumber());
+
+  const handleTsUndefinedKeyword: BaseNodeHandler<LuaType, TSUndefinedKeyword> =
+    createHandler('TSUndefinedKeyword', () => typeNil());
 
   const handleTsUnknownKeyword: BaseNodeHandler<LuaType, TSUnknownKeyword> =
     createHandler('TSUnknownKeyword', () =>
@@ -162,6 +166,7 @@ export const createTsTypeAnnotationHandler = (
       handleTsBooleanKeyword,
       handleTsVoidKeyword,
       handleTsAnyKeyword,
+      handleTsUndefinedKeyword,
       handleTsUnknownKeyword,
       handleTsNullKeyword,
       handleTsTypeQuery,
