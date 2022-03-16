@@ -34,7 +34,7 @@ import {
   nodeGroup,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
-import { applyTo } from 'ramda';
+import { applyTo, uniqWith } from 'ramda';
 import { createImportExpressionHandler } from '../import/import-expression.handler';
 import { createImportModuleDeclarationHandler } from '../import/import-module-declaration.handler';
 import { createExportSpecifierHandler } from './export-specifier.handler';
@@ -99,14 +99,25 @@ export const createExportNamedHandler = (
             if (isTypeAliasDeclaration(id)) {
               return exportTypeStatement(id);
             }
+            const idWithoutTypeAnnotation = {
+              ...id,
+              typeAnnotation: undefined,
+            };
             return assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [
-                isIdentifier(id)
-                  ? memberExpression(identifier('exports'), '.', id)
-                  : indexExpression(identifier('exports'), id),
+                isIdentifier(idWithoutTypeAnnotation)
+                  ? memberExpression(
+                      identifier('exports'),
+                      '.',
+                      idWithoutTypeAnnotation
+                    )
+                  : indexExpression(
+                      identifier('exports'),
+                      idWithoutTypeAnnotation
+                    ),
               ],
-              [id]
+              [idWithoutTypeAnnotation]
             );
           }),
         ]);
@@ -169,8 +180,8 @@ const getDeclarationId = (
       return [declaration];
     case 'VariableDeclaration':
       return declaration.identifiers.map(({ value }) => value);
-    case 'NodeGroup':
-      return declaration.body
+    case 'NodeGroup': {
+      const ids = declaration.body
         .filter(
           isAnyNodeType<LuaDeclaration | LuaNodeGroup>([
             isLuaDeclaration,
@@ -179,6 +190,12 @@ const getDeclarationId = (
         )
         .map((node) => getDeclarationId(node))
         .flat();
+
+      return uniqWith(
+        (a, b) => isIdentifier(a) && isIdentifier(b) && a.name === b.name,
+        ids
+      );
+    }
     case 'UnhandledStatement':
       return [
         {
@@ -190,4 +207,3 @@ const getDeclarationId = (
       return [declaration];
   }
 };
-export const foo = 'bar';
