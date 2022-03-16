@@ -9,6 +9,7 @@ import {
   LVal,
   PatternLike,
 } from '@babel/types';
+import { getNodeSource } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   callExpression,
@@ -176,7 +177,9 @@ export const createArrayPatternDestructuringHandler =
         }
         // should never reach this code because `hasUnhandledArrayDestructuringParam` check is called before
         throw new Error(
-          `Unhandled node for type ${el.type} when destructuring an Array Pattern`
+          `Unhandled node for type ${
+            el.type
+          } when destructuring an Array Pattern ${getNodeSource(source, el)}`
         );
       }
     }
@@ -192,7 +195,7 @@ export function hasUnhandledArrayDestructuringParam(
           isBabelRestElement,
           isBabelArrayPattern,
           isHandledAssignmentPattern,
-        ])(el)
+        ])(el, undefined)
     ) ||
     elements
       .filter((el): el is ArrayPattern => isBabelArrayPattern(el))

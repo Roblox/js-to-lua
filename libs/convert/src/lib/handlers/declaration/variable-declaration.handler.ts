@@ -15,7 +15,6 @@ import {
   ObjectMethod,
   ObjectPattern,
   ObjectProperty,
-  PatternLike,
   Statement,
   VariableDeclaration,
   VariableDeclarator,
@@ -28,6 +27,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   defaultStatementHandler,
+  getNodeSource,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -138,7 +138,7 @@ export const createVariableDeclarationHandler = (
           return withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled node for type: ${node.init?.type}, when within 'init' expression for ${node.type} node`,
-            source.slice(node.start || 0, node.end || 0)
+            getNodeSource(source, node)
           );
       }
     });
@@ -183,7 +183,7 @@ export const createVariableDeclarationHandler = (
           );
         } else if (isArrayPattern(group.id)) {
           return handleArrayPatternDeclaration(
-            group.id.elements.filter(isTruthy),
+            group.id,
             handleExpression(source, config, group.init!)
           );
         } else if (
@@ -215,7 +215,7 @@ export const createVariableDeclarationHandler = (
           withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled Variable declaration when one of the object properties is not supported`,
-            source.slice(declaration.start || 0, declaration.end || 0)
+            getNodeSource(source, declaration)
           ),
         ];
       }
@@ -294,21 +294,22 @@ export const createVariableDeclarationHandler = (
         return withTrailingConversionComment(
           unhandledStatement(),
           `ROBLOX TODO: Unhandled object destructuring init type: "${declaration.init}"`,
-          source.slice(declaration.start || 0, declaration.end || 0)
+          getNodeSource(source, declaration)
         );
       }
     }
 
     function handleArrayPatternDeclaration(
-      elements: PatternLike[],
+      arrayPattern: ArrayPattern,
       init: LuaExpression
     ): (LuaVariableDeclaration | UnhandledStatement)[] {
+      const elements = arrayPattern.elements.filter(isTruthy);
       if (hasUnhandledArrayDestructuringParam(elements)) {
         return [
           withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled variable declaration when one of the elements is not supported`,
-            source.slice(declaration.start || 0, declaration.end || 0)
+            getNodeSource(source, arrayPattern)
           ),
         ];
       }

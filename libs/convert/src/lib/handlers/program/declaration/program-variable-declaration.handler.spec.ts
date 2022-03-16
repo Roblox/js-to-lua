@@ -6,6 +6,7 @@ import {
   blockStatement,
   callExpression,
   elseClause,
+  functionDeclaration,
   functionExpression,
   identifier,
   ifClause,
@@ -22,6 +23,7 @@ import {
   tableConstructor,
   tableExpressionKeyField,
   tableNameKeyField,
+  unhandledStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -35,8 +37,8 @@ describe('Program handler', () => {
   describe('Variable Declarations', () => {
     it('should handle let: not initialized', () => {
       const given = getProgramNode(`
-     let foo;
-    `);
+       let foo;
+      `);
       const expected: LuaProgram = program([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
@@ -52,8 +54,8 @@ describe('Program handler', () => {
 
   it('should handle let: initialized', () => {
     const given = getProgramNode(`
-   let foo = 'foo';
-  `);
+     let foo = 'foo';
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
@@ -68,8 +70,8 @@ describe('Program handler', () => {
 
   it('should handle let: multiple', () => {
     const given = getProgramNode(`
-    let foo, bar = 'bar';
-  `);
+      let foo, bar = 'bar';
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [
@@ -90,8 +92,8 @@ describe('Program handler', () => {
 
   it('should handle let: multiple - partially initialized', () => {
     const given = getProgramNode(`
-    let foo = 'foo', bar;
-  `);
+      let foo = 'foo', bar;
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [
@@ -109,8 +111,8 @@ describe('Program handler', () => {
 
   it('should handle const', () => {
     const given = getProgramNode(`
-   const foo = 'foo';
-  `);
+     const foo = 'foo';
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
@@ -125,9 +127,8 @@ describe('Program handler', () => {
 
   it('should handle const: multiple', () => {
     const given = getProgramNode(`
-    const foo = 'foo', bar = 'bar';
-
-  `);
+      const foo = 'foo', bar = 'bar';
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [
@@ -148,8 +149,8 @@ describe('Program handler', () => {
 
   it('should handle var: not initialized', () => {
     const given = getProgramNode(`
-    var foo;
-  `);
+      var foo;
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
@@ -164,8 +165,8 @@ describe('Program handler', () => {
 
   it('should handle var: initialized', () => {
     const given = getProgramNode(`
-   var foo = 'foo';
-  `);
+     var foo = 'foo';
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
@@ -180,8 +181,8 @@ describe('Program handler', () => {
 
   it('should handle var: multiple', () => {
     const given = getProgramNode(`
-   var foo, bar = 'bar';
-  `);
+     var foo, bar = 'bar';
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [
@@ -202,8 +203,8 @@ describe('Program handler', () => {
 
   it('should handle var: multiple - partially initialized', () => {
     const given = getProgramNode(`
-   var foo = 'foo', bar;
-  `);
+     var foo = 'foo', bar;
+    `);
     const expected: LuaProgram = program([
       variableDeclaration(
         [
@@ -221,8 +222,8 @@ describe('Program handler', () => {
 
   it(`should handle array destructuring`, () => {
     const given = getProgramNode(`
-    const [foo, bar] = baz;
-  `);
+      const [foo, bar] = baz;
+    `);
 
     const expected: LuaProgram = program([
       variableDeclaration(
@@ -249,8 +250,8 @@ describe('Program handler', () => {
 
   it(`should handle array destructuring with nested arrays`, () => {
     const given = getProgramNode(`
-    const [foo, [bar,baz]] = fizz;
-  `);
+      const [foo, [bar,baz]] = fizz;
+    `);
     const expected: LuaProgram = program([
       nodeGroup([
         variableDeclaration(
@@ -294,8 +295,8 @@ describe('Program handler', () => {
 
   it(`should handle array destructuring with rest element`, () => {
     const given = getProgramNode(`
-    const [foo, ...bar] = baz;
-  `);
+      const [foo, ...bar] = baz;
+    `);
 
     const expected: LuaProgram = program([
       nodeGroup([
@@ -334,8 +335,8 @@ describe('Program handler', () => {
 
   it(`should handle array destructuring with assignment pattern element`, () => {
     const given = getProgramNode(`
-    const [foo, bar=3] = baz;
-  `);
+      const [foo, bar=3] = baz;
+    `);
 
     const expected: LuaProgram = program([
       nodeGroup([
@@ -402,8 +403,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring`, () => {
     const given = getProgramNode(`
-    const {foo, bar} = baz;
-  `);
+      const {foo, bar} = baz;
+    `);
 
     const expected: LuaProgram = program([
       variableDeclaration(
@@ -429,8 +430,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring from a call expression`, () => {
     const given = getProgramNode(`
-    const {foo, bar} = baz();
-  `);
+      const {foo, bar} = baz();
+    `);
 
     const expected: LuaProgram = program([
       nodeGroup([
@@ -465,8 +466,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring from a member expression`, () => {
     const given = getProgramNode(`
-    const {foo, bar} = baz.fuzz;
-  `);
+      const {foo, bar} = baz.fuzz;
+    `);
 
     const expected: LuaProgram = program([
       nodeGroup([
@@ -505,8 +506,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring with aliases`, () => {
     const given = getProgramNode(`
-    const {foo:fun, bar:bat} = baz;
-  `);
+      const {foo:fun, bar:bat} = baz;
+    `);
 
     const expected: LuaProgram = program([
       variableDeclaration(
@@ -532,8 +533,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring with rest element`, () => {
     const given = getProgramNode(`
-    const {foo, ...bar} = baz;
-  `);
+      const {foo, ...bar} = baz;
+    `);
 
     const expected: LuaProgram = program([
       withTrailingConversionComment(
@@ -608,8 +609,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring with nested object pattern`, () => {
     const given = getProgramNode(`
-    const {foo:{bar,baz}} = fizz;
-  `);
+      const {foo:{bar,baz}} = fizz;
+    `);
 
     const expected: LuaProgram = program([
       variableDeclaration(
@@ -643,8 +644,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring with rest element and aliases`, () => {
     const given = getProgramNode(`
-    const { a, b, 'foo-bar': bar, method1, ...rest } = foo;
-  `);
+      const { a, b, 'foo-bar': bar, method1, ...rest } = foo;
+    `);
 
     const expected: LuaProgram = program([
       withTrailingConversionComment(
@@ -755,8 +756,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring with rest element, aliases and computed properties`, () => {
     const given = getProgramNode(`
-    const { a, b, 'foo-bar': bar, method1, [bar]: computed, ...rest } = foo;
-  `);
+      const { a, b, 'foo-bar': bar, method1, [bar]: computed, ...rest } = foo;
+    `);
 
     const expected: LuaProgram = program([
       withTrailingConversionComment(
@@ -879,8 +880,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring with assignment pattern property`, () => {
     const given = getProgramNode(`
-    const { foo, bar = 3 } = fizz;
-  `);
+      const { foo, bar = 3 } = fizz;
+    `);
 
     const expected: LuaProgram = program([
       variableDeclaration(
@@ -929,6 +930,39 @@ describe('Program handler', () => {
             )
           ),
         ]
+      ),
+    ]);
+
+    const luaProgram = handleProgram.handler(source, {}, given);
+
+    expect(luaProgram).toEqual(expected);
+  });
+
+  it('should handle unhandled destructuring gracefully', () => {
+    const source = `
+      const fn = ([{message, title}]) => ({message, title})
+    `;
+
+    const given = getProgramNode(source);
+
+    const expected: LuaProgram = program([
+      functionDeclaration(
+        identifier('fn'),
+        [identifier('ref')],
+        nodeGroup([
+          withTrailingConversionComment(
+            unhandledStatement(),
+            'ROBLOX TODO: Unhandled variable declaration when one of the elements is not supported',
+            '[{message, title}]'
+          ),
+
+          returnStatement(
+            tableConstructor([
+              tableNameKeyField(identifier('message'), identifier('message')),
+              tableNameKeyField(identifier('title'), identifier('title')),
+            ])
+          ),
+        ])
       ),
     ]);
 
