@@ -11,6 +11,7 @@ import {
   ObjectProperty,
   PatternLike,
   SpreadElement,
+  Statement,
   UpdateExpression,
 } from '@babel/types';
 import {
@@ -95,6 +96,7 @@ import { createReturnStatementHandler } from './statement/return-statement.handl
 import { createSwitchStatementHandler } from './statement/switch-statement.handler';
 import { createThrowStatementHandler } from './statement/throw-statement.handler';
 import { createTryStatementHandler } from './statement/try-statement.handler';
+import { createTsImportEqualsDeclarationHandler } from './statement/ts-import-equals-declaration.handler';
 import { createWhileStatementHandler } from './statement/while-statement.handler';
 import { createTypeAnnotationHandler } from './type/type-annotation.handler';
 
@@ -491,8 +493,8 @@ export const handleObjectField = combineHandlers<
   NoSpreadObjectProperty
 >([handleObjectProperty, handleObjectMethod], defaultExpressionHandler);
 
-export const handleStatement: BaseNodeHandler<LuaStatement> =
-  combineStatementHandlers<LuaStatement>([
+export const handleStatement: BaseNodeHandler<LuaStatement, Statement> =
+  combineStatementHandlers<LuaStatement, Statement>([
     handleExpressionStatement,
     handleDeclaration,
     createBlockStatementHandler(forwardHandlerRef(() => handleStatement)),
@@ -530,6 +532,9 @@ export const handleStatement: BaseNodeHandler<LuaStatement> =
       forwardHandlerRef(() => handleIdentifier),
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleStatement)
+    ),
+    createTsImportEqualsDeclarationHandler(
+      forwardHandlerRef(() => handleIdentifier)
     ),
   ]);
 
