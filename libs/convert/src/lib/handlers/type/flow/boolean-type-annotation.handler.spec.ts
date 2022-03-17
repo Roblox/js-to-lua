@@ -1,6 +1,9 @@
-import { booleanTypeAnnotation, CommentLine } from '@babel/types';
-import { commentLine, typeBoolean } from '@js-to-lua/lua-types';
+import { booleanTypeAnnotation } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
+import { typeBoolean } from '@js-to-lua/lua-types';
 import { createFlowBooleanTypeAnnotationHandler } from './boolean-type-annotation.handler';
+
+const { withBabelComments, withLuaComments } = testUtils;
 
 describe('Flow - BooleanTypeAnnotation handler', () => {
   const handler = createFlowBooleanTypeAnnotationHandler().handler;
@@ -15,22 +18,8 @@ describe('Flow - BooleanTypeAnnotation handler', () => {
   });
 
   it('should preserve comments', () => {
-    const given = {
-      ...booleanTypeAnnotation(),
-      leadingComments: [
-        { value: 'Leading', type: 'CommentLine' } as CommentLine,
-      ],
-      innerComments: [{ value: 'Inner', type: 'CommentLine' } as CommentLine],
-      trailingComments: [
-        { value: 'Trailing', type: 'CommentLine' } as CommentLine,
-      ],
-    };
-    const expected = {
-      ...typeBoolean(),
-      leadingComments: [commentLine('Leading')],
-      innerComments: [commentLine('Inner')],
-      trailingComments: [commentLine('Trailing')],
-    };
+    const given = withBabelComments(booleanTypeAnnotation());
+    const expected = withLuaComments(typeBoolean());
 
     expect(handler(source, {}, given)).toEqual(expected);
   });

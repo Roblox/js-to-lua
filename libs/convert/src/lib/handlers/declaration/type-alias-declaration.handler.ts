@@ -3,22 +3,19 @@ import {
   Identifier,
   TSType,
   TSTypeAliasDeclaration,
+  TypeAlias,
 } from '@babel/types';
-import {
-  BaseNodeHandler,
-  createHandler,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
+import { combineHandlers, HandlerFunction } from '@js-to-lua/handler-utils';
+import { defaultElementHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaBinaryExpression,
   LuaIdentifier,
   LuaMemberExpression,
   LuaNilLiteral,
   LuaType,
-  LuaTypeAliasDeclaration,
-  typeAliasDeclaration,
 } from '@js-to-lua/lua-types';
-import { createTsTypeParameterDeclarationHandler } from '../type/ts-type-parameter-declaration.handler';
+import { createFlowTypeAliasHandler } from '../type/flow/type-alias.handler';
+import { createTsTypeAliasDeclarationHandler } from '../type/ts-type-alias-declaration.handler';
 
 export const createTypeAliasDeclarationHandler = (
   handleIdentifier: HandlerFunction<
@@ -26,19 +23,12 @@ export const createTypeAliasDeclarationHandler = (
     Identifier
   >,
   handleTypes: HandlerFunction<LuaType, TSType | FlowType>
-): BaseNodeHandler<LuaTypeAliasDeclaration, TSTypeAliasDeclaration> =>
-  createHandler('TSTypeAliasDeclaration', (source, config, node) => {
-    const handleTsTypeParameterDeclaration =
-      createTsTypeParameterDeclarationHandler(handleTypes).handler(
-        source,
-        config
-      );
-
-    return typeAliasDeclaration(
-      handleIdentifier(source, config, node.id) as LuaIdentifier,
-      handleTypes(source, config, node.typeAnnotation),
-      node.typeParameters && node.typeParameters.params.length
-        ? handleTsTypeParameterDeclaration(node.typeParameters)
-        : undefined
-    );
-  });
+) => {
+  return combineHandlers<LuaType, TSTypeAliasDeclaration | TypeAlias>(
+    [
+      createFlowTypeAliasHandler(handleIdentifier, handleTypes),
+      createTsTypeAliasDeclarationHandler(handleIdentifier, handleTypes),
+    ],
+    defaultElementHandler
+  );
+};

@@ -16,6 +16,7 @@ export enum Milestone {
   M3,
   M4,
   M5,
+  M6,
   Unspecified,
 }
 
@@ -25,6 +26,7 @@ const descriptions = {
   [Milestone.M3]: 'Milestone 3',
   [Milestone.M4]: 'Milestone 4',
   [Milestone.M5]: 'Milestone 5',
+  [Milestone.M6]: 'Milestone 6 - Flow',
   [Milestone.Unspecified]: 'Milestone Unspecified',
 };
 
@@ -34,6 +36,7 @@ const predicates = {
   [Milestone.M3]: (filePath: ParsedPath) => /_m3x?$/.test(filePath.name),
   [Milestone.M4]: (filePath: ParsedPath) => /_m4x?$/.test(filePath.name),
   [Milestone.M5]: (filePath: ParsedPath) => /_m5x?$/.test(filePath.name),
+  [Milestone.M6]: (filePath: ParsedPath) => /_m6x?$/.test(filePath.name),
   [Milestone.Unspecified]: (filePath: ParsedPath) =>
     !/_m\dx?$/.test(filePath.name),
 };
@@ -47,14 +50,26 @@ interface Jest {
 
 export const conformanceTests = (
   milestone: Milestone,
-  { describe, it, xit, expect }: Jest
+  { describe, it, xit, expect }: Jest,
+  config?: { babelConfig: string; babelTransformConfig: string }
 ) =>
   describe(`conformance tests - ${descriptions[milestone]}`, () => {
     const outputPath = join(normalizedConfig.outputPath, Milestone[milestone]);
 
     rmSync(outputPath, { recursive: true, force: true });
 
-    const command = `node dist/apps/convert-js-to-lua/main.js -i "${normalizedConfig.inputPath}/**/*.js" -i "${normalizedConfig.inputPath}/**/*.ts" -i "${normalizedConfig.inputPath}/**/*.jsx" -i "${normalizedConfig.inputPath}/**/*.tsx" -o ${outputPath}`;
+    const command = `node dist/apps/convert-js-to-lua/main.js -i "${
+      normalizedConfig.inputPath
+    }/**/*.js" -i "${normalizedConfig.inputPath}/**/*.ts" -i "${
+      normalizedConfig.inputPath
+    }/**/*.jsx" -i "${normalizedConfig.inputPath}/**/*.tsx" -o ${outputPath}${
+      config?.babelConfig ? ` --babelConfig ${config.babelConfig}` : ''
+    }${
+      config?.babelTransformConfig
+        ? ` --babelTransformConfig ${config.babelTransformConfig}`
+        : ''
+    }`;
+
     execSync(command, { stdio: [] });
 
     const files = getFiles(normalizedConfig.inputPath);

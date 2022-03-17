@@ -1,6 +1,9 @@
-import { CommentLine, stringTypeAnnotation } from '@babel/types';
-import { commentLine, typeString } from '@js-to-lua/lua-types';
+import { stringTypeAnnotation } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
+import { typeString } from '@js-to-lua/lua-types';
 import { createFlowStringTypeAnnotationHandler } from './string-type-annotation.handler';
+
+const { withBabelComments, withLuaComments } = testUtils;
 
 describe('Flow - StringTypeAnnotation handler', () => {
   const handler = createFlowStringTypeAnnotationHandler().handler;
@@ -15,22 +18,8 @@ describe('Flow - StringTypeAnnotation handler', () => {
   });
 
   it('should preserve comments', () => {
-    const given = {
-      ...stringTypeAnnotation(),
-      leadingComments: [
-        { value: 'Leading', type: 'CommentLine' } as CommentLine,
-      ],
-      innerComments: [{ value: 'Inner', type: 'CommentLine' } as CommentLine],
-      trailingComments: [
-        { value: 'Trailing', type: 'CommentLine' } as CommentLine,
-      ],
-    };
-    const expected = {
-      ...typeString(),
-      leadingComments: [commentLine('Leading')],
-      innerComments: [commentLine('Inner')],
-      trailingComments: [commentLine('Trailing')],
-    };
+    const given = withBabelComments(stringTypeAnnotation());
+    const expected = withLuaComments(typeString());
 
     expect(handler(source, {}, given)).toEqual(expected);
   });

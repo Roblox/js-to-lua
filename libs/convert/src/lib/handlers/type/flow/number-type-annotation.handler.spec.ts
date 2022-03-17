@@ -1,6 +1,9 @@
-import { CommentLine, numberTypeAnnotation } from '@babel/types';
-import { commentLine, typeNumber } from '@js-to-lua/lua-types';
+import { numberTypeAnnotation } from '@babel/types';
+import { testUtils } from '@js-to-lua/handler-utils';
+import { typeNumber } from '@js-to-lua/lua-types';
 import { createFlowNumberTypeAnnotationHandler } from './number-type-annotation.handler';
+
+const { withBabelComments, withLuaComments } = testUtils;
 
 describe('Flow - NumberTypeAnnotation handler', () => {
   const handler = createFlowNumberTypeAnnotationHandler().handler;
@@ -15,22 +18,8 @@ describe('Flow - NumberTypeAnnotation handler', () => {
   });
 
   it('should preserve comments', () => {
-    const given = {
-      ...numberTypeAnnotation(),
-      leadingComments: [
-        { value: 'Leading', type: 'CommentLine' } as CommentLine,
-      ],
-      innerComments: [{ value: 'Inner', type: 'CommentLine' } as CommentLine],
-      trailingComments: [
-        { value: 'Trailing', type: 'CommentLine' } as CommentLine,
-      ],
-    };
-    const expected = {
-      ...typeNumber(),
-      leadingComments: [commentLine('Leading')],
-      innerComments: [commentLine('Inner')],
-      trailingComments: [commentLine('Trailing')],
-    };
+    const given = withBabelComments(numberTypeAnnotation());
+    const expected = withLuaComments(typeNumber());
 
     expect(handler(source, {}, given)).toEqual(expected);
   });
