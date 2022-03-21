@@ -8,7 +8,6 @@ import {
   isArrowFunctionExpression,
   isFunctionExpression,
   isIdentifier,
-  isObjectExpression,
   isObjectPattern,
   isObjectProperty,
   LVal,
@@ -220,36 +219,10 @@ export const createVariableDeclarationHandler = (
         ];
       }
 
-      if (declaration.init && isObjectExpression(declaration.init)) {
-        const helperIdentifier = identifier(`ref`);
-        const destructured = objectPatternDestructuringHandler(
-          source,
-          config,
-          helperIdentifier,
-          idProperties
-        );
-        return nodeGroup([
-          variableDeclaration(
-            destructured.ids.map((id) => variableDeclaratorIdentifier(id)),
-            []
-          ),
-          blockStatement([
-            variableDeclaration(
-              [variableDeclaratorIdentifier(helperIdentifier)],
-              [
-                variableDeclaratorValue(
-                  handleExpression(source, config, declaration.init)
-                ),
-              ]
-            ),
-            assignmentStatement(
-              AssignmentStatementOperatorEnum.EQ,
-              destructured.ids,
-              destructured.values
-            ),
-          ]),
-        ]);
-      } else if (declaration.init && isIdentifier(declaration.init)) {
+      if (
+        declaration.init &&
+        (isIdentifier(declaration.init) || idProperties.length < 2)
+      ) {
         const destructured = objectPatternDestructuringHandler(
           source,
           config,
@@ -268,7 +241,6 @@ export const createVariableDeclarationHandler = (
           refIdentifier,
           idProperties
         );
-
         return nodeGroup([
           variableDeclaration(
             destructured.ids.map((id) => variableDeclaratorIdentifier(id)),

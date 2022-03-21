@@ -1,6 +1,7 @@
 import {
   arrayPattern,
   assignmentPattern as babelAssignmentPattern,
+  callExpression as babelCallExpression,
   identifier as babelIdentifier,
   numericLiteral as babelNumericLiteral,
   objectPattern,
@@ -8,124 +9,99 @@ import {
   restElement,
   stringLiteral as babelStringLiteral,
   variableDeclaration as babelVariableDeclaration,
-  VariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
-import { forwardHandlerRef } from '@js-to-lua/handler-utils';
+import { forwardHandlerRef, testUtils } from '@js-to-lua/handler-utils';
 import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
 import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
   binaryExpression,
+  blockStatement,
   callExpression,
   elseClause,
   functionExpression,
   identifier,
   ifClause,
   ifStatement,
-  LuaNodeGroup,
-  LuaVariableDeclaration,
   memberExpression,
   nilLiteral,
   nodeGroup,
   numericLiteral,
   returnStatement,
-  stringLiteral,
   tableConstructor,
   tableNameKeyField,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import {
-  handleExpression,
-  handleExpressionAsStatement,
-  handleObjectField,
-  handleObjectKeyExpression,
-  handleObjectPropertyIdentifier,
-  handleObjectPropertyValue,
-  handleStatement,
-} from '../expression-statement.handler';
-import { createIdentifierHandler } from '../expression/identifier.handler';
-import { createLValHandler } from '../l-val.handler';
-import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
-import { createDeclarationHandler } from './declaration.handler';
+import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { handleObjectField } from '../expression-statement.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
+
+const { mockNodeWithValueHandler } = testUtils;
 
 const source = '';
 
-const { typesHandler, handleTypes } = createTypeAnnotationHandler(
-  forwardHandlerRef(() => handleExpression),
-  forwardHandlerRef(() => handleIdentifier)
-);
-
-const handleIdentifier = createIdentifierHandler(typesHandler);
-
-const handleLVal = createLValHandler(
-  forwardHandlerRef(() => handleIdentifier),
-  forwardHandlerRef(() => handleExpression)
-);
-
-const handleDeclaration = createDeclarationHandler(
-  forwardHandlerRef(() => handleExpression),
-  forwardHandlerRef(() => handleExpressionAsStatement),
-  forwardHandlerRef(() => handleIdentifier),
-  forwardHandlerRef(() => handleStatement),
-  forwardHandlerRef(() => handleObjectField),
-  handleTypes,
-  forwardHandlerRef(() => handleObjectPropertyIdentifier),
-  forwardHandlerRef(() => handleObjectKeyExpression),
-  forwardHandlerRef(() => handleObjectPropertyValue),
-  forwardHandlerRef(() => handleLVal)
-);
-
 const handleVariableDeclaration = createVariableDeclarationHandler(
-  forwardHandlerRef(() => handleExpression),
-  forwardHandlerRef(() => handleExpressionAsStatement),
-  forwardHandlerRef(() => handleIdentifier),
-  forwardHandlerRef(() => handleStatement),
+  mockNodeWithValueHandler,
+  mockNodeWithValueHandler,
+  mockNodeWithValueHandler,
+  mockNodeWithValueHandler,
   forwardHandlerRef(() => handleObjectField),
-  forwardHandlerRef(() => handleDeclaration)
+  mockNodeWithValueHandler
 );
 
 describe('Variable Declaration', () => {
-  ['foo', 'bar', 'baz'].forEach((name) => {
-    it(`should return LuaVariableDeclaration Node with declarations`, () => {
-      const given: VariableDeclaration = babelVariableDeclaration('let', [
+  it.each(['foo', 'bar', 'baz'])(
+    `should return LuaVariableDeclaration Node with declarations`,
+    (name) => {
+      const given = babelVariableDeclaration('let', [
         babelVariableDeclarator(babelIdentifier(name)),
       ]);
 
-      const expected: LuaVariableDeclaration = variableDeclaration(
-        [variableDeclaratorIdentifier(identifier(name))],
+      const expected = variableDeclaration(
+        [
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier(name))
+          ),
+        ],
         []
       );
 
       expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
         expected
       );
-    });
-  });
+    }
+  );
 
-  ['foo', 'bar', 'baz'].forEach((name) => {
-    it(`should return LuaVariableDeclaration Node with declarations and initialization`, () => {
-      const given: VariableDeclaration = babelVariableDeclaration('let', [
+  it.each(['foo', 'bar', 'baz'])(
+    `should return LuaVariableDeclaration Node with declarations and initialization`,
+    (name) => {
+      const given = babelVariableDeclaration('let', [
         babelVariableDeclarator(
           babelIdentifier(name),
           babelStringLiteral('abc')
         ),
       ]);
 
-      const expected: LuaVariableDeclaration = variableDeclaration(
-        [variableDeclaratorIdentifier(identifier(name))],
-        [variableDeclaratorValue(stringLiteral('abc'))]
+      const expected = variableDeclaration(
+        [
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier(name))
+          ),
+        ],
+        [variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('abc')))]
       );
 
       expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
         expected
       );
-    });
-  });
+    }
+  );
 
   it(`should return LuaVariableDeclaration Node with declarations and partial initialization - null in the middle`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         babelIdentifier('foo'),
         babelStringLiteral('foo')
@@ -137,16 +113,16 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaVariableDeclaration = variableDeclaration(
+    const expected = variableDeclaration(
       [
-        variableDeclaratorIdentifier(identifier('foo')),
-        variableDeclaratorIdentifier(identifier('bar')),
-        variableDeclaratorIdentifier(identifier('baz')),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('foo'))),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('bar'))),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('baz'))),
       ],
       [
-        variableDeclaratorValue(stringLiteral('foo')),
+        variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('foo'))),
         variableDeclaratorValue(null),
-        variableDeclaratorValue(stringLiteral('baz')),
+        variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('baz'))),
       ]
     );
 
@@ -156,7 +132,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should return LuaVariableDeclaration Node with declarations and partial initialization - null at the end`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         babelIdentifier('foo'),
         babelStringLiteral('foo')
@@ -168,15 +144,15 @@ describe('Variable Declaration', () => {
       babelVariableDeclarator(babelIdentifier('baz')),
     ]);
 
-    const expected: LuaVariableDeclaration = variableDeclaration(
+    const expected = variableDeclaration(
       [
-        variableDeclaratorIdentifier(identifier('foo')),
-        variableDeclaratorIdentifier(identifier('bar')),
-        variableDeclaratorIdentifier(identifier('baz')),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('foo'))),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('bar'))),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('baz'))),
       ],
       [
-        variableDeclaratorValue(stringLiteral('foo')),
-        variableDeclaratorValue(stringLiteral('bar')),
+        variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('foo'))),
+        variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('bar'))),
       ]
     );
 
@@ -186,22 +162,22 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle array destructuring`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         arrayPattern([babelIdentifier('foo'), babelIdentifier('bar')]),
         babelIdentifier('baz')
       ),
     ]);
 
-    const expected: LuaVariableDeclaration = variableDeclaration(
+    const expected = variableDeclaration(
       [
-        variableDeclaratorIdentifier(identifier('foo')),
-        variableDeclaratorIdentifier(identifier('bar')),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('foo'))),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('bar'))),
       ],
       [
         variableDeclaratorValue(
           callExpression(identifier('table.unpack'), [
-            identifier('baz'),
+            mockNodeWithValue(babelIdentifier('baz')),
             numericLiteral(1),
             numericLiteral(2),
           ])
@@ -215,7 +191,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle array destructuring with nested arrays`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         arrayPattern([
           babelIdentifier('foo'),
@@ -225,13 +201,17 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaNodeGroup = nodeGroup([
+    const expected = nodeGroup([
       variableDeclaration(
-        [variableDeclaratorIdentifier(identifier('foo'))],
+        [
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier('foo'))
+          ),
+        ],
         [
           variableDeclaratorValue(
             callExpression(identifier('table.unpack'), [
-              identifier('fizz'),
+              mockNodeWithValue(babelIdentifier('fizz')),
               numericLiteral(1),
               numericLiteral(1),
             ])
@@ -240,14 +220,18 @@ describe('Variable Declaration', () => {
       ),
       variableDeclaration(
         [
-          variableDeclaratorIdentifier(identifier('bar')),
-          variableDeclaratorIdentifier(identifier('baz')),
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier('bar'))
+          ),
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier('baz'))
+          ),
         ],
         [
           variableDeclaratorValue(
             callExpression(identifier('table.unpack'), [
               callExpression(identifier('table.unpack'), [
-                identifier('fizz'),
+                mockNodeWithValue(babelIdentifier('fizz')),
                 numericLiteral(2),
                 numericLiteral(2),
               ]),
@@ -265,7 +249,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle array destructuring with rest element`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         arrayPattern([
           babelIdentifier('foo'),
@@ -275,13 +259,17 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaNodeGroup = nodeGroup([
+    const expected = nodeGroup([
       variableDeclaration(
-        [variableDeclaratorIdentifier(identifier('foo'))],
+        [
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier('foo'))
+          ),
+        ],
         [
           variableDeclaratorValue(
             callExpression(identifier('table.unpack'), [
-              identifier('baz'),
+              mockNodeWithValue(babelIdentifier('baz')),
               numericLiteral(1),
               numericLiteral(1),
             ])
@@ -289,12 +277,16 @@ describe('Variable Declaration', () => {
         ]
       ),
       variableDeclaration(
-        [variableDeclaratorIdentifier(identifier('bar'))],
+        [
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier('bar'))
+          ),
+        ],
         [
           variableDeclaratorValue(
             callExpression(identifier('table.pack'), [
               callExpression(identifier('table.unpack'), [
-                identifier('baz'),
+                mockNodeWithValue(babelIdentifier('baz')),
                 numericLiteral(2),
               ]),
             ])
@@ -309,7 +301,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle array destructuring with assignment pattern element`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         arrayPattern([
           babelIdentifier('foo'),
@@ -322,13 +314,17 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaNodeGroup = nodeGroup([
+    const expected = nodeGroup([
       variableDeclaration(
-        [variableDeclaratorIdentifier(identifier('foo'))],
+        [
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier('foo'))
+          ),
+        ],
         [
           variableDeclaratorValue(
             callExpression(identifier('table.unpack'), [
-              identifier('baz'),
+              mockNodeWithValue(babelIdentifier('baz')),
               numericLiteral(1),
               numericLiteral(1),
             ])
@@ -336,7 +332,11 @@ describe('Variable Declaration', () => {
         ]
       ),
       variableDeclaration(
-        [variableDeclaratorIdentifier(identifier('bar'))],
+        [
+          variableDeclaratorIdentifier(
+            mockNodeWithValue(babelIdentifier('bar'))
+          ),
+        ],
         [
           variableDeclaratorValue(
             callExpression(
@@ -348,7 +348,7 @@ describe('Variable Declaration', () => {
                     [
                       variableDeclaratorValue(
                         callExpression(identifier('table.unpack'), [
-                          identifier('baz'),
+                          mockNodeWithValue(babelIdentifier('baz')),
                           numericLiteral(2),
                           numericLiteral(2),
                         ])
@@ -362,7 +362,11 @@ describe('Variable Declaration', () => {
                         '==',
                         nilLiteral()
                       ),
-                      nodeGroup([returnStatement(numericLiteral(3))])
+                      nodeGroup([
+                        returnStatement(
+                          mockNodeWithValue(babelNumericLiteral(3))
+                        ),
+                      ])
                     ),
                     undefined,
                     elseClause(
@@ -384,7 +388,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         objectPattern([
           objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
@@ -394,17 +398,25 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaVariableDeclaration = variableDeclaration(
+    const expected = variableDeclaration(
       [
         variableDeclaratorIdentifier(identifier('foo')),
         variableDeclaratorIdentifier(identifier('bar')),
       ],
       [
         variableDeclaratorValue(
-          memberExpression(identifier('baz'), '.', identifier('foo'))
+          memberExpression(
+            mockNodeWithValue(babelIdentifier('baz')),
+            '.',
+            identifier('foo')
+          )
         ),
         variableDeclaratorValue(
-          memberExpression(identifier('baz'), '.', identifier('bar'))
+          memberExpression(
+            mockNodeWithValue(babelIdentifier('baz')),
+            '.',
+            identifier('bar')
+          )
         ),
       ]
     );
@@ -415,7 +427,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring with aliases`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         objectPattern([
           objectProperty(babelIdentifier('foo'), babelIdentifier('fun')),
@@ -425,17 +437,25 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaVariableDeclaration = variableDeclaration(
+    const expected = variableDeclaration(
       [
         variableDeclaratorIdentifier(identifier('fun')),
         variableDeclaratorIdentifier(identifier('bat')),
       ],
       [
         variableDeclaratorValue(
-          memberExpression(identifier('baz'), '.', identifier('foo'))
+          memberExpression(
+            mockNodeWithValue(babelIdentifier('baz')),
+            '.',
+            identifier('foo')
+          )
         ),
         variableDeclaratorValue(
-          memberExpression(identifier('baz'), '.', identifier('bar'))
+          memberExpression(
+            mockNodeWithValue(babelIdentifier('baz')),
+            '.',
+            identifier('bar')
+          )
         ),
       ]
     );
@@ -446,7 +466,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring with rest element`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         objectPattern([
           objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
@@ -456,19 +476,23 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaVariableDeclaration = variableDeclaration(
+    const expected = variableDeclaration(
       [
         variableDeclaratorIdentifier(identifier('foo')),
-        variableDeclaratorIdentifier(identifier('bar')),
+        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('bar'))),
       ],
       [
         variableDeclaratorValue(
-          memberExpression(identifier('baz'), '.', identifier('foo'))
+          memberExpression(
+            mockNodeWithValue(babelIdentifier('baz')),
+            '.',
+            identifier('foo')
+          )
         ),
         variableDeclaratorValue(
           callExpression(objectAssign(), [
             tableConstructor(),
-            identifier('baz'),
+            mockNodeWithValue(babelIdentifier('baz')),
             tableConstructor([
               tableNameKeyField(identifier('foo'), objectNone()),
             ]),
@@ -483,7 +507,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring with nested object pattern`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         objectPattern([
           objectProperty(
@@ -498,7 +522,7 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaVariableDeclaration = variableDeclaration(
+    const expected = variableDeclaration(
       [
         variableDeclaratorIdentifier(identifier('bar')),
         variableDeclaratorIdentifier(identifier('baz')),
@@ -506,14 +530,22 @@ describe('Variable Declaration', () => {
       [
         variableDeclaratorValue(
           memberExpression(
-            memberExpression(identifier('fizz'), '.', identifier('foo')),
+            memberExpression(
+              mockNodeWithValue(babelIdentifier('fizz')),
+              '.',
+              identifier('foo')
+            ),
             '.',
             identifier('bar')
           )
         ),
         variableDeclaratorValue(
           memberExpression(
-            memberExpression(identifier('fizz'), '.', identifier('foo')),
+            memberExpression(
+              mockNodeWithValue(babelIdentifier('fizz')),
+              '.',
+              identifier('foo')
+            ),
             '.',
             identifier('baz')
           )
@@ -527,7 +559,7 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring with assignment pattern property`, () => {
-    const given: VariableDeclaration = babelVariableDeclaration('let', [
+    const given = babelVariableDeclaration('let', [
       babelVariableDeclarator(
         objectPattern([
           objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
@@ -543,14 +575,18 @@ describe('Variable Declaration', () => {
       ),
     ]);
 
-    const expected: LuaVariableDeclaration = variableDeclaration(
+    const expected = variableDeclaration(
       [
         variableDeclaratorIdentifier(identifier('foo')),
         variableDeclaratorIdentifier(identifier('bar')),
       ],
       [
         variableDeclaratorValue(
-          memberExpression(identifier('fizz'), '.', identifier('foo'))
+          memberExpression(
+            mockNodeWithValue(babelIdentifier('fizz')),
+            '.',
+            identifier('foo')
+          )
         ),
         variableDeclaratorValue(
           callExpression(
@@ -561,21 +597,25 @@ describe('Variable Declaration', () => {
                   ifClause(
                     binaryExpression(
                       memberExpression(
-                        identifier('fizz'),
+                        mockNodeWithValue(babelIdentifier('fizz')),
                         '.',
                         identifier('bar')
                       ),
                       '==',
                       nilLiteral()
                     ),
-                    nodeGroup([returnStatement(numericLiteral(3))])
+                    nodeGroup([
+                      returnStatement(
+                        mockNodeWithValue(babelNumericLiteral(3))
+                      ),
+                    ])
                   ),
                   undefined,
                   elseClause(
                     nodeGroup([
                       returnStatement(
                         memberExpression(
-                          identifier('fizz'),
+                          mockNodeWithValue(babelIdentifier('fizz')),
                           '.',
                           identifier('bar')
                         )
@@ -590,6 +630,78 @@ describe('Variable Declaration', () => {
         ),
       ]
     );
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
+  it(`should handle object destructuring of call expression with single identifier`, () => {
+    const given = babelVariableDeclaration('let', [
+      babelVariableDeclarator(
+        objectPattern([
+          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
+        ]),
+        babelCallExpression(babelIdentifier('baz'), [])
+      ),
+    ]);
+
+    const expected = variableDeclaration(
+      [variableDeclaratorIdentifier(identifier('foo'))],
+      [
+        variableDeclaratorValue(
+          memberExpression(
+            mockNodeWithValue(babelCallExpression(babelIdentifier('baz'), [])),
+            '.',
+            identifier('foo')
+          )
+        ),
+      ]
+    );
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
+  it(`should handle object destructuring of call expression with multiple identifiers`, () => {
+    const given = babelVariableDeclaration('let', [
+      babelVariableDeclarator(
+        objectPattern([
+          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
+          objectProperty(babelIdentifier('bar'), babelIdentifier('bar')),
+        ]),
+        babelCallExpression(babelIdentifier('baz'), [])
+      ),
+    ]);
+
+    const expected = nodeGroup([
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('foo')),
+          variableDeclaratorIdentifier(identifier('bar')),
+        ],
+        []
+      ),
+      blockStatement([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('ref'))],
+          [
+            variableDeclaratorValue(
+              mockNodeWithValue(babelCallExpression(babelIdentifier('baz'), []))
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo'), identifier('bar')],
+          [
+            memberExpression(identifier('ref'), '.', identifier('foo')),
+            memberExpression(identifier('ref'), '.', identifier('bar')),
+          ]
+        ),
+      ]),
+    ]);
 
     expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
       expected
