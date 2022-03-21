@@ -4,7 +4,10 @@ import {
   Identifier,
   isIdentifier as isBabelIdentifier,
 } from '@babel/types';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  getNodeSource,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatement,
@@ -48,6 +51,6 @@ export const createAssignmentPatternHandlerFunction = (
     return withTrailingConversionComment(
       unhandledStatement(),
       `ROBLOX TODO: Unhandled assignment pattern handling for type: "${node.left.type}"`,
-      source.slice(node.start || 0, node.end || 0)
+      getNodeSource(source, node)
     );
   });

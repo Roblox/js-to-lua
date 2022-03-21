@@ -8,6 +8,7 @@ import {
   LuaDeclaration,
   LuaExpression,
   LuaIdentifier,
+  LuaNodeGroup,
   LuaStatement,
 } from '@js-to-lua/lua-types';
 import { createExportAllHandler } from './export-all.handler';
@@ -15,7 +16,10 @@ import { createExportDefaultHandler } from './export-default.handler';
 import { createExportNamedHandler } from './export-named.handler';
 
 export const createExportHandler = (
-  handleDeclaration: HandlerFunction<LuaDeclaration, Declaration>,
+  handleDeclaration: HandlerFunction<
+    LuaNodeGroup | LuaDeclaration,
+    Declaration
+  >,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
 ) => {

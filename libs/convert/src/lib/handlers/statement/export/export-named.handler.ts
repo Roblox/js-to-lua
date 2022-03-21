@@ -7,7 +7,7 @@ import {
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   defaultStatementHandler,
-  hasSourceTypeExtra,
+  unwrapNodeGroup,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
@@ -18,26 +18,24 @@ import {
   isAnyNodeType,
   isIdentifier,
   isLuaDeclaration,
-  isNodeGroup,
   isTypeAliasDeclaration,
   isVariableDeclaration,
   LuaDeclaration,
   LuaExpression,
   LuaIdentifier,
   LuaLVal,
-  LuaNode,
   LuaNodeGroup,
   LuaStatement,
   LuaTypeAliasDeclaration,
-  LuaVariableDeclaration,
   memberExpression,
   nodeGroup,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
-import { applyTo, uniqWith } from 'ramda';
+import { uniqWith } from 'ramda';
 import { createImportExpressionHandler } from '../import/import-expression.handler';
 import { createImportModuleDeclarationHandler } from '../import/import-module-declaration.handler';
 import { createExportSpecifierHandler } from './export-specifier.handler';
+import { createExtractDeclarationMetadata } from './extract-declaration-metadata';
 
 export const createExportNamedHandler = (
   handleDeclaration: HandlerFunction<
@@ -51,76 +49,44 @@ export const createExportNamedHandler = (
     'ExportNamedDeclaration',
     (source, config, node: ExportNamedDeclaration) => {
       if (node.declaration) {
-        let declaration = handleDeclaration(source, config, node.declaration);
-        let declarationIds: Array<LuaLVal | LuaTypeAliasDeclaration>;
-        let exportedTypes: LuaTypeAliasDeclaration[] = [];
-
-        const isClassDeclaration = (
-          node: LuaDeclaration | LuaNodeGroup
-        ): node is LuaNodeGroup =>
-          isNodeGroup(node) && hasSourceTypeExtra('ClassDeclaration', node);
-
-        if (isClassDeclaration(declaration)) {
-          const [classType, classVariableDeclaration, ...rest] =
-            declaration.body;
-          exportedTypes = [classType as LuaTypeAliasDeclaration];
-          declaration = {
-            ...declaration,
-            body: [classVariableDeclaration, ...rest],
-          };
-          declarationIds = getDeclarationId(
-            classVariableDeclaration as LuaVariableDeclaration
+        const extractDeclarationMetadata =
+          createExtractDeclarationMetadata(getDeclarationId);
+        const { declarationIds, declarationNotIds, exportedTypes } =
+          extractDeclarationMetadata(
+            handleDeclaration(source, config, node.declaration)
           );
-        } else {
-          declarationIds = getDeclarationId(declaration);
-        }
 
-        if (isTypeAliasDeclaration(declaration)) {
-          return exportTypeStatement(declaration);
-        }
-
-        const filterDeclarationIds = (d: typeof declaration) => {
-          if (isNodeGroup(d)) {
-            return d.body.filter(
-              (bodyElement) =>
-                !(declarationIds as Array<LuaNode>).includes(bodyElement)
-            );
-          } else {
-            return [d].filter(
-              (element) => !(declarationIds as Array<LuaNode>).includes(element)
-            );
-          }
-        };
-
-        return nodeGroup([
-          ...exportedTypes.map((t) => exportTypeStatement(t)),
-          ...applyTo(declaration, filterDeclarationIds),
-          ...declarationIds.map((id) => {
-            if (isTypeAliasDeclaration(id)) {
-              return exportTypeStatement(id);
-            }
-            const idWithoutTypeAnnotation = {
-              ...id,
-              typeAnnotation: undefined,
-            };
-            return assignmentStatement(
-              AssignmentStatementOperatorEnum.EQ,
-              [
-                isIdentifier(idWithoutTypeAnnotation)
-                  ? memberExpression(
-                      identifier('exports'),
-                      '.',
-                      idWithoutTypeAnnotation
-                    )
-                  : indexExpression(
-                      identifier('exports'),
-                      idWithoutTypeAnnotation
-                    ),
-              ],
-              [idWithoutTypeAnnotation]
-            );
-          }),
-        ]);
+        return unwrapNodeGroup(
+          nodeGroup([
+            ...exportedTypes.map((t) => exportTypeStatement(t)),
+            ...declarationNotIds,
+            ...declarationIds.map((id) => {
+              if (isTypeAliasDeclaration(id)) {
+                return exportTypeStatement(id);
+              }
+              const idWithoutTypeAnnotation = {
+                ...id,
+                typeAnnotation: undefined,
+              };
+              return assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  isIdentifier(idWithoutTypeAnnotation)
+                    ? memberExpression(
+                        identifier('exports'),
+                        '.',
+                        idWithoutTypeAnnotation
+                      )
+                    : indexExpression(
+                        identifier('exports'),
+                        idWithoutTypeAnnotation
+                      ),
+                ],
+                [idWithoutTypeAnnotation]
+              );
+            }),
+          ])
+        );
       }
 
       if (node.specifiers) {

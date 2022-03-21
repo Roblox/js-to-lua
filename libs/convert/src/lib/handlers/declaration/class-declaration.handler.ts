@@ -22,8 +22,14 @@ import {
   TSType,
 } from '@babel/types';
 import {
-  createWithSourceTypeExtra,
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  getNodeSource,
   selfIdentifier,
+  withClassDeclarationExtra,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -57,11 +63,6 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { Unpacked } from '@js-to-lua/shared-utils';
-import {
-  BaseNodeHandler,
-  createHandler,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import {
   createFunctionParamsBodyHandler,
@@ -85,8 +86,6 @@ export const createClassDeclarationHandler = (
   typesHandlerFunction: HandlerFunction<LuaType, TSType>
 ): BaseNodeHandler<LuaNodeGroup, ClassDeclaration> =>
   createHandler('ClassDeclaration', (source, config, node) => {
-    const withSourceTypeExtra = createWithSourceTypeExtra(node.type);
-
     let unhandledAssignments = 0;
     const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
       handleExpression,
@@ -193,7 +192,7 @@ export const createClassDeclarationHandler = (
       return withTrailingConversionComment(
         unhandledStatement(),
         `ROBLOX comment: unhandled class with identifier of type ${classNodeIdentifier.type}`,
-        source.slice(node.start || 0, node.end || 0)
+        getNodeSource(source, node)
       );
     }
 
@@ -208,10 +207,7 @@ export const createClassDeclarationHandler = (
           } else {
             id = withTrailingConversionComment(
               identifier(`__unhandled__${'_'.repeat(unhandledAssignments++)}`),
-              source.slice(
-                n.parameter.left.start || 0,
-                n.parameter.left.end || 0
-              )
+              getNodeSource(source, n.parameter.left)
             );
           }
         }
@@ -249,13 +245,13 @@ export const createClassDeclarationHandler = (
             return withTrailingConversionComment(
               unhandledStatement(),
               `ROBLOX comment: unhandled class body node type ${n.type}`,
-              source.slice(n.start || 0, n.end || 0)
+              getNodeSource(source, n)
             );
           }
         }),
     ];
 
-    return withSourceTypeExtra(
+    return withClassDeclarationExtra(
       nodeGroup([
         withTrailingConversionComment(
           typeAliasDeclaration(classNodeIdentifier, typeLiteral(publicTypes)),
@@ -330,7 +326,7 @@ export const createClassDeclarationHandler = (
       return withTrailingConversionComment(
         unhandledStatement(),
         `ROBLOX comment: unhandled parameter type ${node.parameter.type} and left value of type ${node.parameter.left.type}`,
-        source.slice(node.parameter.start || 0, node.parameter.end || 0)
+        getNodeSource(source, node.parameter)
       );
     }
 
@@ -411,7 +407,7 @@ export const createClassDeclarationHandler = (
         return withTrailingConversionComment(
           unhandledStatement(),
           `ROBLOX comment: unhandled class body node type ${node.key.type}`,
-          source.slice(node.start || 0, node.end || 0)
+          getNodeSource(source, node)
         );
       }
       const id = handleExpression(source, config, node.key);
@@ -434,7 +430,7 @@ export const createClassDeclarationHandler = (
         : withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX comment: unhandled key type ${node.key.type}`,
-            source.slice(node.key.start || 0, node.key.end || 0)
+            getNodeSource(source, node.key)
           );
     }
   });

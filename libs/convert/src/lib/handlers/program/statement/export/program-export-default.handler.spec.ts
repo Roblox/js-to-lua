@@ -1,7 +1,10 @@
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  callExpression,
   commentLine,
+  exportTypeStatement,
   functionDeclaration,
   functionExpression,
   identifier,
@@ -12,12 +15,17 @@ import {
   stringLiteral,
   tableConstructor,
   tableNameKeyField,
+  typeAliasDeclaration,
+  typeAnnotation,
+  typeAny,
+  typeLiteral,
+  typePropertySignature,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
+import { getProgramNode } from '../../program.spec.utils';
 
 const source = '';
 
@@ -112,6 +120,79 @@ describe('Program handler', () => {
           [memberExpression(identifier('exports'), '.', identifier('default'))],
           [functionExpression([], nodeGroup([]))]
         ),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should export default class declaration`, () => {
+      const given = getProgramNode(`
+        export default class Foo {
+          prop: string
+        }
+      `);
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        nodeGroup([
+          exportTypeStatement(
+            withTrailingConversionComment(
+              typeAliasDeclaration(
+                identifier('Foo'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('prop'),
+                    typeAnnotation(typeAny())
+                  ),
+                ])
+              ),
+              "ROBLOX TODO: replace 'any' type/ add missing"
+            )
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Foo'))],
+            [variableDeclaratorValue(tableConstructor())]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [memberExpression(identifier('Foo'), '.', identifier('__index'))],
+            [identifier('Foo')]
+          ),
+          functionDeclaration(
+            identifier('Foo.new'),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('self'))],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('Foo'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(identifier('self')),
+            ]),
+            undefined,
+            false
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [
+              memberExpression(
+                identifier('exports'),
+                '.',
+                identifier('default')
+              ),
+            ],
+            [identifier('Foo')]
+          ),
+        ]),
         returnStatement(identifier('exports')),
       ]);
 

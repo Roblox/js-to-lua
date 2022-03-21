@@ -10,8 +10,8 @@ import {
   tsDeclareMethod,
 } from '@babel/types';
 import {
-  createWithSourceTypeExtra,
   selfIdentifier,
+  withClassDeclarationExtra,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -40,7 +40,6 @@ import {
 import { handleStatement } from '../expression-statement.handler';
 
 const source = '';
-const withSourceTypeExtra = createWithSourceTypeExtra('ClassDeclaration');
 
 describe('Class Declaration', () => {
   describe('Base Class', () => {
@@ -62,7 +61,7 @@ describe('Class Declaration', () => {
         classBody([])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
@@ -109,7 +108,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
@@ -156,7 +155,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(
@@ -220,7 +219,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
@@ -276,7 +275,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
@@ -332,7 +331,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(
@@ -418,7 +417,7 @@ describe('Class Declaration', () => {
         classBody([])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
@@ -468,7 +467,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
@@ -518,7 +517,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(
@@ -584,7 +583,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
@@ -643,7 +642,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withSourceTypeExtra(
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
         nodeGroup([
           withTrailingConversionComment(
             typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),

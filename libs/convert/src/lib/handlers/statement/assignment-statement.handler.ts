@@ -26,6 +26,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   defaultExpressionHandler,
+  getNodeSource,
   getReturnExpressions,
   isStringInferable,
   stringInferableExpression,
@@ -166,7 +167,7 @@ export const createAssignmentStatementHandlerFunction = (
           : withTrailingConversionComment(
               unhandledStatement(),
               `ROBLOX TODO: Unhandled object destructuring assignment for: "${node.type}" with "${operator}" operator`,
-              source.slice(node.start || 0, node.end || 0)
+              getNodeSource(source, node)
             );
       } else if (isBabelArrayPattern(node.left)) {
         return operator === AssignmentStatementOperatorEnum.EQ
@@ -178,7 +179,7 @@ export const createAssignmentStatementHandlerFunction = (
           : withTrailingConversionComment(
               unhandledStatement(),
               `ROBLOX TODO: Unhandled array destructuring assignment for: "${node.type}" with "${operator}" operator`,
-              source.slice(node.start || 0, node.end || 0)
+              getNodeSource(source, node)
             );
       }
       const leftExpression = handleLVal(source, config, node.left);
@@ -192,7 +193,7 @@ export const createAssignmentStatementHandlerFunction = (
           return withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled array assignment for: "${node.type}" with "${binary}" operator and ${node.left.type} as a left value`,
-            source.slice(node.start || 0, node.end || 0)
+            getNodeSource(source, node)
           );
         }
 
@@ -289,7 +290,7 @@ export const createAssignmentStatementHandlerFunction = (
           return withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled AssignmentStatement when one of the object properties is not supported`,
-            source.slice(node.start || 0, node.end || 0)
+            getNodeSource(source, node)
           );
         }
 
@@ -332,7 +333,7 @@ export const createAssignmentStatementHandlerFunction = (
           return withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled object destructuring assignment for: "${node.right.type}"`,
-            source.slice(node.start || 0, node.end || 0)
+            getNodeSource(source, node)
           );
         }
       }
@@ -349,7 +350,7 @@ export const createAssignmentStatementHandlerFunction = (
             withTrailingConversionComment(
               unhandledStatement(),
               `ROBLOX TODO: Unhandled node for ArrayPattern assignment when one of the elements is not supported`,
-              source.slice(node.start || 0, node.end || 0)
+              getNodeSource(source, node)
             ),
           ];
         }

@@ -15,6 +15,7 @@ import {
   tableConstructor,
   typeAliasDeclaration,
   typeAnnotation,
+  typeAny,
   typeLiteral,
   typePropertySignature,
   typeString,
@@ -235,6 +236,73 @@ describe('Program handler', () => {
             ])
           )
         ),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should export named class declaration`, () => {
+      const given = getProgramNode(`
+        export class Foo {
+          prop: string
+        }
+      `);
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        nodeGroup([
+          exportTypeStatement(
+            withTrailingConversionComment(
+              typeAliasDeclaration(
+                identifier('Foo'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('prop'),
+                    typeAnnotation(typeAny())
+                  ),
+                ])
+              ),
+              "ROBLOX TODO: replace 'any' type/ add missing"
+            )
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Foo'))],
+            [variableDeclaratorValue(tableConstructor())]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [memberExpression(identifier('Foo'), '.', identifier('__index'))],
+            [identifier('Foo')]
+          ),
+          functionDeclaration(
+            identifier('Foo.new'),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('self'))],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('Foo'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(identifier('self')),
+            ]),
+            undefined,
+            false
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [memberExpression(identifier('exports'), '.', identifier('Foo'))],
+            [identifier('Foo')]
+          ),
+        ]),
         returnStatement(identifier('exports')),
       ]);
 

@@ -12,5 +12,6 @@ export * from './lib/is-lua-truthy';
 export * from './lib/member-expression-from-path';
 export * from './lib/extras';
 export * from './lib/string-inferable';
+export * from './lib/unwrap-node-group';
 export * from './lib/valid-identifier';
 export * from './lib/visitor';

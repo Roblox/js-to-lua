@@ -31,7 +31,9 @@
     "dep-graph": "nx dep-graph",
     "help": "nx help",
     "build:stylua-wasm": "wasm-pack build --target nodejs libs/stylua-wasm",
-    "prepare": "husky install & git update-index --assume-unchanged apps/playground/src/main.ts"
+    "prepare": "husky install & npm run playground:assume-unchanged",
+    "playground:assume-unchanged": "git update-index --assume-unchanged apps/playground/src/main.ts apps/playground/src/main.spec.ts apps/playground/src/run.ts",
+    "playground:no-assume-unchanged": "git update-index --no-assume-unchanged apps/playground/src/main.ts apps/playground/src/main.spec.ts apps/playground/src/run.ts"
   },
   "private": true,
   "dependencies": {

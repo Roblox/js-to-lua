@@ -8,25 +8,35 @@ import {
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
-import { defaultStatementHandler } from '@js-to-lua/lua-conversion-utils';
+import {
+  defaultStatementHandler,
+  unwrapNodeGroup,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  exportTypeStatement,
   identifier,
+  isAnyNodeType,
+  isIdentifier,
+  isLuaDeclaration,
+  isTypeAliasDeclaration,
   LuaDeclaration,
   LuaExpression,
   LuaLVal,
+  LuaNodeGroup,
   LuaTableConstructor,
   memberExpression,
   nodeGroup,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
-import { equals } from 'ramda';
+import { uniqWith } from 'ramda';
+import { createExtractDeclarationMetadata } from './extract-declaration-metadata';
 
 export const createExportDefaultHandler = (
   handleDeclaration: HandlerFunction<
-    LuaDeclaration,
+    LuaNodeGroup | LuaDeclaration,
     Exclude<ExportDefaultDeclaration['declaration'], Expression>
   >,
   handleExpression: HandlerFunction<LuaExpression, Expression>
@@ -35,7 +45,7 @@ export const createExportDefaultHandler = (
     'ExportDefaultDeclaration',
     (source, config, node: ExportDefaultDeclaration) => {
       const { handler } = combineHandlers<
-        LuaDeclaration | LuaExpression,
+        LuaNodeGroup | LuaDeclaration | LuaExpression,
         ExportDefaultDeclaration['declaration']
       >(
         [
@@ -68,24 +78,26 @@ export const createExportDefaultHandler = (
       );
 
       if (node.declaration) {
-        const declaration = handler(source, config, node.declaration);
-        const declarationIds = getDeclarationId(declaration);
+        const extractDeclarationMetadata =
+          createExtractDeclarationMetadata(getDeclarationId);
+        const { declarationIds, declarationNotIds, exportedTypes } =
+          extractDeclarationMetadata(handler(source, config, node.declaration));
 
-        return declarationIds.every(equals(declaration))
-          ? assignmentStatement(
-              AssignmentStatementOperatorEnum.EQ,
-              [
-                memberExpression(
-                  identifier('exports'),
-                  '.',
-                  identifier('default')
-                ),
-              ],
-              declarationIds
-            )
-          : nodeGroup([
-              declaration,
-              assignmentStatement(
+        return unwrapNodeGroup(
+          nodeGroup([
+            ...exportedTypes.map((t) => exportTypeStatement(t)),
+            ...declarationNotIds,
+            ...declarationIds.map((id) => {
+              if (isTypeAliasDeclaration(id)) {
+                return exportTypeStatement(id);
+              }
+              const idWithoutTypeAnnotation: typeof id = isIdentifier(id)
+                ? {
+                    ...id,
+                    typeAnnotation: undefined,
+                  }
+                : id;
+              return assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,
                 [
                   memberExpression(
@@ -94,9 +106,11 @@ export const createExportDefaultHandler = (
                     identifier('default')
                   ),
                 ],
-                declarationIds
-              ),
-            ]);
+                [idWithoutTypeAnnotation]
+              );
+            }),
+          ])
+        );
       }
 
       return defaultStatementHandler(source, config, node);
@@ -104,8 +118,8 @@ export const createExportDefaultHandler = (
   );
 
 const getDeclarationId = (
-  declaration: LuaExpression | LuaDeclaration
-): NonEmptyArray<LuaLVal | LuaTableConstructor | LuaExpression> => {
+  declaration: LuaExpression | LuaDeclaration | LuaNodeGroup
+): Array<LuaLVal | LuaTableConstructor | LuaExpression> => {
   switch (declaration.type) {
     case 'FunctionDeclaration':
     case 'LuaTypeAliasDeclaration':
@@ -117,6 +131,22 @@ const getDeclarationId = (
     case 'TableConstructor':
     case 'Identifier':
       return [declaration];
+    case 'NodeGroup': {
+      const ids = declaration.body
+        .filter(
+          isAnyNodeType<LuaDeclaration | LuaNodeGroup>([
+            isLuaDeclaration,
+            isTypeAliasDeclaration,
+          ])
+        )
+        .map((node) => getDeclarationId(node))
+        .flat();
+
+      return uniqWith(
+        (a, b) => isIdentifier(a) && isIdentifier(b) && a.name === b.name,
+        ids
+      );
+    }
     case 'UnhandledStatement':
       return [
         {
@@ -128,4 +158,3 @@ const getDeclarationId = (
       return [declaration];
   }
 };
-export const foo = 'bar';
