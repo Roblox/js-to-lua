@@ -42,7 +42,7 @@ export const createTypeAnnotationHandler = (
       identifierHandlerFunction
     );
 
-  const handleFlowTypes = createFlowTypeHandler();
+  const handleFlowTypes = createFlowTypeHandler(identifierHandlerFunction);
 
   const handleFlowTypeAnnotation = createFlowTypeAnnotationHandler(
     handleFlowTypes.handler
