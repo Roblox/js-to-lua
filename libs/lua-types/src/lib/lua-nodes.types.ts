@@ -3,7 +3,7 @@ import {
   LuaVariableDeclaratorIdentifier,
   LuaVariableDeclaratorValue,
 } from './declaration';
-import { LuaExpression } from './expression';
+import { LuaExpression, LuaExpressionClause } from './expression';
 import { LuaTableField } from './literals';
 import { LuaProgram } from './program';
 import { LuaClause, LuaStatement } from './statement';
@@ -28,4 +28,5 @@ export type LuaNode =
   | LuaPropertySignature
   | LuaIndexSignature
   | LuaClause
+  | LuaExpressionClause
   | UnhandledElement;

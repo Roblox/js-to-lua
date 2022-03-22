@@ -4,6 +4,7 @@ import {
   LuaLiteral,
   LuaTableConstructor,
 } from '../literals';
+import { LuaIfExpression } from './if-expression';
 import {
   isTypeCastExpression,
   TypeCastExpression,
@@ -25,6 +26,7 @@ export type LuaExpression =
   | LuaLiteral
   | LuaTableConstructor
   | LuaIdentifier
+  | LuaIfExpression
   | LuaCallExpression
   | LuaBinaryExpression
   | LuaLogicalExpression

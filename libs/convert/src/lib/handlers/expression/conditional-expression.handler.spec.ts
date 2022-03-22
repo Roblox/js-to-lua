@@ -23,16 +23,11 @@ import {
 import {
   booleanLiteral,
   callExpression,
-  elseClause,
-  functionExpression,
+  elseExpressionClause,
   identifier,
-  ifClause,
-  ifStatement,
-  logicalExpression,
+  ifElseExpression,
+  ifExpressionClause,
   LuaExpression,
-  LuaLogicalExpressionOperatorEnum,
-  nodeGroup,
-  returnStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { handleExpression } from '../expression-statement.handler';
@@ -55,29 +50,15 @@ describe('Conditional Expression Handler', () => {
       babelIdentifier('b'),
       babelIdentifier('c')
     );
-    const expected = callExpression(
-      functionExpression(
-        [],
-        nodeGroup([
-          ifStatement(
-            ifClause(
-              callExpression(booleanMethod('toJSBoolean'), [
-                mockNodeWithValue(babelIdentifier('a')),
-              ]),
-              nodeGroup([
-                returnStatement(mockNodeWithValue(babelIdentifier('b'))),
-              ])
-            ),
-            [],
-            elseClause(
-              nodeGroup([
-                returnStatement(mockNodeWithValue(babelIdentifier('c'))),
-              ])
-            )
-          ),
-        ])
+
+    const expected = ifElseExpression(
+      ifExpressionClause(
+        callExpression(booleanMethod('toJSBoolean'), [
+          mockNodeWithValue(babelIdentifier('a')),
+        ]),
+        mockNodeWithValue(babelIdentifier('b'))
       ),
-      []
+      elseExpressionClause(mockNodeWithValue(babelIdentifier('c')))
     );
 
     expect(handleConditionalExpression(source, {}, given)).toEqual(expected);
@@ -138,21 +119,9 @@ describe('Conditional Expression Handler', () => {
           babelIdentifier('b'),
           babelIdentifier('c')
         );
-        const expected = callExpression(
-          functionExpression(
-            [],
-            nodeGroup([
-              ifStatement(
-                ifClause(
-                  coerced,
-                  nodeGroup([returnStatement(identifier('b'))])
-                ),
-                [],
-                elseClause(nodeGroup([returnStatement(identifier('c'))]))
-              ),
-            ])
-          ),
-          []
+        const expected = ifElseExpression(
+          ifExpressionClause(coerced, identifier('b')),
+          elseExpressionClause(identifier('c'))
         );
 
         expect(handleConditionalExpression(source, {}, given)).toEqual(
@@ -168,41 +137,27 @@ describe('Conditional Expression Handler', () => {
     babelIdentifier('undefined'),
   ];
 
-  falsyValues.forEach((consequentGiven) => {
-    it(`should handle ConditionalExpression when consequent expression is falsy: ${JSON.stringify(
-      consequentGiven
-    )}`, () => {
+  it.each(falsyValues)(
+    `should handle ConditionalExpression when consequent expression is falsy: %s`,
+    (consequentGiven) => {
       const given = babelConditionalExpression(
         babelIdentifier('a'),
         consequentGiven,
         babelIdentifier('c')
       );
-      const expected = callExpression(
-        functionExpression(
-          [],
-          nodeGroup([
-            ifStatement(
-              ifClause(
-                callExpression(booleanMethod('toJSBoolean'), [
-                  mockNodeWithValue(babelIdentifier('a')),
-                ]),
-                nodeGroup([returnStatement(mockNodeWithValue(consequentGiven))])
-              ),
-              [],
-              elseClause(
-                nodeGroup([
-                  returnStatement(mockNodeWithValue(babelIdentifier('c'))),
-                ])
-              )
-            ),
-          ])
+      const expected = ifElseExpression(
+        ifExpressionClause(
+          callExpression(booleanMethod('toJSBoolean'), [
+            mockNodeWithValue(babelIdentifier('a')),
+          ]),
+          mockNodeWithValue(consequentGiven)
         ),
-        []
+        elseExpressionClause(mockNodeWithValue(babelIdentifier('c')))
       );
 
       expect(handleConditionalExpression(source, {}, given)).toEqual(expected);
-    });
-  });
+    }
+  );
 
   const truthyValues = [
     babelNumericLiteral(0),
@@ -215,28 +170,25 @@ describe('Conditional Expression Handler', () => {
     babelIdentifier('NaN'),
   ];
 
-  truthyValues.forEach((consequentGiven) => {
-    it(`should handle ConditionalExpression when consequent expression is truthy in Lua: ${JSON.stringify(
-      consequentGiven
-    )}`, () => {
+  it.each(truthyValues)(
+    `should handle ConditionalExpression when consequent expression is truthy in Lua: %s`,
+    (consequentGiven) => {
       const given = babelConditionalExpression(
         babelIdentifier('a'),
         consequentGiven,
         babelIdentifier('c')
       );
-      const expected = logicalExpression(
-        LuaLogicalExpressionOperatorEnum.OR,
-        logicalExpression(
-          LuaLogicalExpressionOperatorEnum.AND,
+      const expected = ifElseExpression(
+        ifExpressionClause(
           callExpression(booleanMethod('toJSBoolean'), [
             mockNodeWithValue(babelIdentifier('a')),
           ]),
           mockNodeWithValue(consequentGiven)
         ),
-        mockNodeWithValue(babelIdentifier('c'))
+        elseExpressionClause(mockNodeWithValue(babelIdentifier('c')))
       );
 
       expect(handleConditionalExpression(source, {}, given)).toEqual(expected);
-    });
-  });
+    }
+  );
 });

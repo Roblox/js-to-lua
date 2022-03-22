@@ -1,9 +1,7 @@
 import {
   isBinaryExpression,
   isCommentBlock,
-  isElseifClause,
   isFunctionDeclaration,
-  isIfClause,
   isLogicalExpression,
   isSameLineComment,
   isSameLineInnerComment,
@@ -14,12 +12,10 @@ import {
   isUnaryNegation,
   LuaBlockStatement,
   LuaCallExpression,
-  LuaClause,
   LuaComment,
   LuaExpression,
   LuaFunctionDeclaration,
   LuaFunctionExpression,
-  LuaIfStatement,
   LuaNode,
   LuaNodeGroup,
   LuaProgram,
@@ -37,6 +33,7 @@ import { anyPass, last } from 'ramda';
 import { createPrintPropertySignature } from './declaration/print-property-signature';
 import { createPrintTypeAliasDeclaration } from './declaration/print-type-declaration';
 import { createPrintTypeParameterDeclaration } from './declaration/print-type-parameter-declaration';
+import { createPrintIfExpression } from './expression/print-if-expression';
 import { createPrintIndexExpression } from './expression/print-index-expression';
 import { createPrintMemberExpression } from './expression/print-member-expression';
 import { createPrintTypeCastExpression } from './expression/print-type-cast-expression';
@@ -46,6 +43,7 @@ import { printString } from './primitives/print-string';
 import { createPrintAssignmentStatement } from './statements/print-assignment-statement';
 import { createPrintExportTypeStatement } from './statements/print-export-type-statement';
 import { createPrintForGenericStatement } from './statements/print-for-generic-statement';
+import { createPrintIfStatement } from './statements/print-if-statement';
 import { createPrintRepeatStatement } from './statements/print-repeat-statement';
 import { createPrintWhileStatement } from './statements/print-while-statement';
 import { createPrintIndexSignature } from './type/print-index-signature';
@@ -248,7 +246,9 @@ const _printNode = (node: LuaNode): string => {
     case 'LuaMemberExpression':
       return createPrintMemberExpression(printNode)(node);
     case 'LuaIfStatement':
-      return printIfStatement(node);
+      return createPrintIfStatement(printNode)(node);
+    case 'IfExpression':
+      return createPrintIfExpression(printNode)(node);
     case 'AssignmentStatement':
       return createPrintAssignmentStatement(printNode)(node);
     case 'ExportTypeStatement':
@@ -449,27 +449,6 @@ function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
   return `function${name}(${parameters})${returnType}${innerComments}${
     body ? `\n${body}\n` : ' '
   }end`;
-}
-
-function printIfStatement(node: LuaIfStatement): string {
-  const clauses = [
-    node.ifClause,
-    ...(node.elseifClauses ? node.elseifClauses : []),
-    ...(node.elseClause ? [node.elseClause] : []),
-  ];
-  return `${clauses.map(printClause).join('\n')}
-end`;
-}
-
-function printClause(node: LuaClause): string {
-  const body = printNode(node.body);
-  if (isIfClause(node) || isElseifClause(node)) {
-    return `${isIfClause(node) ? 'if' : 'elseif'} ${printNode(
-      node.condition
-    )} then${body ? `\n${body}` : ''}`;
-  } else {
-    return `else${body ? `\n${body}` : ''}`;
-  }
 }
 
 function checkPrecedence(node: LuaNode) {

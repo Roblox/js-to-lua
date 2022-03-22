@@ -4,18 +4,11 @@ import {
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
-import { isLuaTruthy } from '@js-to-lua/lua-conversion-utils';
 import {
-  callExpression,
-  elseClause,
-  functionExpression,
-  ifClause,
-  ifStatement,
-  logicalExpression,
+  elseExpressionClause,
+  ifElseExpression,
+  ifExpressionClause,
   LuaExpression,
-  LuaLogicalExpressionOperatorEnum,
-  nodeGroup,
-  returnStatement,
 } from '@js-to-lua/lua-types';
 import { createExpressionAsBooleanHandler } from '../handle-as-boolean';
 
@@ -36,30 +29,8 @@ export const createConditionalExpressionHandler = (
       config,
       node.alternate
     );
-    return isLuaTruthy(node.consequent)
-      ? logicalExpression(
-          LuaLogicalExpressionOperatorEnum.OR,
-          logicalExpression(
-            LuaLogicalExpressionOperatorEnum.AND,
-            testExpression,
-            consequentExpression
-          ),
-          alternateExpression
-        )
-      : callExpression(
-          functionExpression(
-            [],
-            nodeGroup([
-              ifStatement(
-                ifClause(
-                  testExpression,
-                  nodeGroup([returnStatement(consequentExpression)])
-                ),
-                [],
-                elseClause(nodeGroup([returnStatement(alternateExpression)]))
-              ),
-            ])
-          ),
-          []
-        );
+    return ifElseExpression(
+      ifExpressionClause(testExpression, consequentExpression),
+      elseExpressionClause(alternateExpression)
+    );
   });

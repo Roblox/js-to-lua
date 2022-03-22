@@ -3,6 +3,7 @@ export * from './call';
 export * from './expression';
 export * from './function';
 export * from './identifier';
+export * from './if-expression';
 export * from './index-expression';
 export * from './logical';
 export * from './lval';

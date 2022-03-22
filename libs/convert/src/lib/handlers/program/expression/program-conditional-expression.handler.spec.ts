@@ -3,19 +3,14 @@ import {
   binaryExpression,
   booleanLiteral,
   callExpression,
-  elseClause,
-  functionExpression,
+  elseExpressionClause,
   identifier,
-  ifClause,
-  ifStatement,
-  logicalExpression,
-  LuaLogicalExpressionOperatorEnum,
+  ifElseExpression,
+  ifExpressionClause,
   memberExpression,
   nilLiteral,
-  nodeGroup,
   numericLiteral,
   program,
-  returnStatement,
   stringLiteral,
   tableConstructor,
   variableDeclaration,
@@ -29,8 +24,8 @@ describe('Program handler', () => {
   describe('Conditional Expression Handler', () => {
     it(`should handle ConditionalExpression - when consequent expression in unknown`, () => {
       const source = `
-      let foo = a ? b : c
-    `;
+        let foo = a ? b : c
+      `;
       const given = getProgramNode(source);
       const expected = program([
         withTrailingConversionComment(
@@ -70,28 +65,19 @@ describe('Program handler', () => {
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
             variableDeclaratorValue(
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    ifStatement(
-                      ifClause(
-                        callExpression(
-                          memberExpression(
-                            identifier('Boolean'),
-                            '.',
-                            identifier('toJSBoolean')
-                          ),
-                          [identifier('a')]
-                        ),
-                        nodeGroup([returnStatement(identifier('b'))])
-                      ),
-                      [],
-                      elseClause(nodeGroup([returnStatement(identifier('c'))]))
+              ifElseExpression(
+                ifExpressionClause(
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
                     ),
-                  ])
+                    [identifier('a')]
+                  ),
+                  identifier('b')
                 ),
-                []
+                elseExpressionClause(identifier('c'))
               )
             ),
           ]
@@ -128,37 +114,22 @@ describe('Program handler', () => {
       },
     ];
 
-    coercableTestCases.forEach(({ values, coerced }) => {
-      values.forEach((testGiven) => {
-        it(`should handle ConditionalExpression - with test expression coercion: ${JSON.stringify(
-          testGiven
-        )}`, () => {
+    describe.each(coercableTestCases)('', ({ values, coerced }) => {
+      it.each(values)(
+        `should handle ConditionalExpression - with test expression coercion: %s`,
+        (testGiven) => {
           const source = `
-          let foo = ${testGiven} ? b : c
-        `;
+            let foo = ${testGiven} ? b : c
+          `;
           const given = getProgramNode(source);
           const expected = program([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('foo'))],
               [
                 variableDeclaratorValue(
-                  callExpression(
-                    functionExpression(
-                      [],
-                      nodeGroup([
-                        ifStatement(
-                          ifClause(
-                            coerced(testGiven),
-                            nodeGroup([returnStatement(identifier('b'))])
-                          ),
-                          [],
-                          elseClause(
-                            nodeGroup([returnStatement(identifier('c'))])
-                          )
-                        ),
-                      ])
-                    ),
-                    []
+                  ifElseExpression(
+                    ifExpressionClause(coerced(testGiven), identifier('b')),
+                    elseExpressionClause(identifier('c'))
                   )
                 ),
               ]
@@ -166,8 +137,8 @@ describe('Program handler', () => {
           ]);
 
           expect(handleProgram.handler(source, {}, given)).toEqual(expected);
-        });
-      });
+        }
+      );
     });
 
     it(`should handle ConditionalExpression when consequent expression is falsy`, () => {
@@ -219,78 +190,51 @@ describe('Program handler', () => {
           ],
           [
             variableDeclaratorValue(
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    ifStatement(
-                      ifClause(
-                        callExpression(
-                          memberExpression(
-                            identifier('Boolean'),
-                            '.',
-                            identifier('toJSBoolean')
-                          ),
-                          [identifier('a')]
-                        ),
-                        nodeGroup([returnStatement(booleanLiteral(false))])
-                      ),
-                      [],
-                      elseClause(nodeGroup([returnStatement(identifier('c'))]))
+              ifElseExpression(
+                ifExpressionClause(
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
                     ),
-                  ])
+                    [identifier('a')]
+                  ),
+                  booleanLiteral(false)
                 ),
-                []
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    ifStatement(
-                      ifClause(
-                        callExpression(
-                          memberExpression(
-                            identifier('Boolean'),
-                            '.',
-                            identifier('toJSBoolean')
-                          ),
-                          [identifier('a')]
-                        ),
-                        nodeGroup([returnStatement(nilLiteral())])
-                      ),
-                      [],
-                      elseClause(nodeGroup([returnStatement(identifier('c'))]))
+              ifElseExpression(
+                ifExpressionClause(
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
                     ),
-                  ])
+                    [identifier('a')]
+                  ),
+                  nilLiteral()
                 ),
-                []
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    ifStatement(
-                      ifClause(
-                        callExpression(
-                          memberExpression(
-                            identifier('Boolean'),
-                            '.',
-                            identifier('toJSBoolean')
-                          ),
-                          [identifier('a')]
-                        ),
-                        nodeGroup([returnStatement(nilLiteral())])
-                      ),
-                      [],
-                      elseClause(nodeGroup([returnStatement(identifier('c'))]))
+              ifElseExpression(
+                ifExpressionClause(
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
                     ),
-                  ])
+                    [identifier('a')]
+                  ),
+                  nilLiteral()
                 ),
-                []
+                elseExpressionClause(identifier('c'))
               )
             ),
           ]
@@ -359,10 +303,8 @@ describe('Program handler', () => {
           ],
           [
             variableDeclaratorValue(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
+              ifElseExpression(
+                ifExpressionClause(
                   callExpression(
                     memberExpression(
                       identifier('Boolean'),
@@ -373,14 +315,12 @@ describe('Program handler', () => {
                   ),
                   numericLiteral(0, '0')
                 ),
-                identifier('c')
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
+              ifElseExpression(
+                ifExpressionClause(
                   callExpression(
                     memberExpression(
                       identifier('Boolean'),
@@ -391,14 +331,12 @@ describe('Program handler', () => {
                   ),
                   numericLiteral(1, '1')
                 ),
-                identifier('c')
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
+              ifElseExpression(
+                ifExpressionClause(
                   callExpression(
                     memberExpression(
                       identifier('Boolean'),
@@ -409,14 +347,12 @@ describe('Program handler', () => {
                   ),
                   stringLiteral('')
                 ),
-                identifier('c')
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
+              ifElseExpression(
+                ifExpressionClause(
                   callExpression(
                     memberExpression(
                       identifier('Boolean'),
@@ -427,14 +363,12 @@ describe('Program handler', () => {
                   ),
                   stringLiteral('abc')
                 ),
-                identifier('c')
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
+              ifElseExpression(
+                ifExpressionClause(
                   callExpression(
                     memberExpression(
                       identifier('Boolean'),
@@ -445,14 +379,12 @@ describe('Program handler', () => {
                   ),
                   booleanLiteral(true)
                 ),
-                identifier('c')
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
+              ifElseExpression(
+                ifExpressionClause(
                   callExpression(
                     memberExpression(
                       identifier('Boolean'),
@@ -463,14 +395,12 @@ describe('Program handler', () => {
                   ),
                   tableConstructor()
                 ),
-                identifier('c')
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
+              ifElseExpression(
+                ifExpressionClause(
                   callExpression(
                     memberExpression(
                       identifier('Boolean'),
@@ -481,14 +411,12 @@ describe('Program handler', () => {
                   ),
                   tableConstructor()
                 ),
-                identifier('c')
+                elseExpressionClause(identifier('c'))
               )
             ),
             variableDeclaratorValue(
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.OR,
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.AND,
+              ifElseExpression(
+                ifExpressionClause(
                   callExpression(
                     memberExpression(
                       identifier('Boolean'),
@@ -499,7 +427,7 @@ describe('Program handler', () => {
                   ),
                   binaryExpression(numericLiteral(0), '/', numericLiteral(0))
                 ),
-                identifier('c')
+                elseExpressionClause(identifier('c'))
               )
             ),
           ]
