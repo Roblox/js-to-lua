@@ -4,7 +4,7 @@ import {
   LuaLiteral,
   LuaTableConstructor,
 } from '../literals';
-import { LuaIfExpression } from './if-expression';
+import { isIfExpression, LuaIfExpression } from './if-expression';
 import {
   isTypeCastExpression,
   TypeCastExpression,
@@ -53,5 +53,6 @@ export const isExpression = isAnyNodeType<LuaExpression>([
   isIndexExpression,
   isMemberExpression,
   isTypeCastExpression,
+  isIfExpression,
   isUnhandledExpression,
 ]);
