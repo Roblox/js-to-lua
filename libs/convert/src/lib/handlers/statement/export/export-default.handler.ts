@@ -1,7 +1,14 @@
 import {
+  ClassDeclaration,
   ExportDefaultDeclaration,
   Expression,
   FunctionDeclaration,
+  Identifier,
+  isExpression,
+  isObjectExpression,
+  ObjectExpression,
+  TSDeclareFunction,
+  isIdentifier as isBabelIdentifier,
 } from '@babel/types';
 import {
   combineHandlers,
@@ -46,7 +53,11 @@ export const createExportDefaultHandler = (
     (source, config, node: ExportDefaultDeclaration) => {
       const { handler } = combineHandlers<
         LuaNodeGroup | LuaDeclaration | LuaExpression,
-        ExportDefaultDeclaration['declaration']
+        | ClassDeclaration
+        | TSDeclareFunction
+        | FunctionDeclaration
+        | ObjectExpression
+        | Identifier
       >(
         [
           createHandler(
@@ -69,15 +80,33 @@ export const createExportDefaultHandler = (
           ),
           createHandler(
             ['ObjectExpression', 'Identifier'],
-            (source, config, node: Expression) =>
+            (source, config, node: ObjectExpression | Identifier) =>
               handleExpression(source, config, node)
           ),
-          { type: [], handler: handleExpression },
         ],
         defaultStatementHandler
       );
 
       if (node.declaration) {
+        if (
+          isExpression(node.declaration) &&
+          !(
+            isObjectExpression(node.declaration) ||
+            isBabelIdentifier(node.declaration)
+          )
+        ) {
+          return assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [
+              memberExpression(
+                identifier('exports'),
+                '.',
+                identifier('default')
+              ),
+            ],
+            [handleExpression(source, config, node.declaration)]
+          );
+        }
         const extractDeclarationMetadata =
           createExtractDeclarationMetadata(getDeclarationId);
         const { declarationIds, declarationNotIds, exportedTypes } =

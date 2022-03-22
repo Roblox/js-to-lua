@@ -1,7 +1,10 @@
 import {
+  arrowFunctionExpression as babelArrowFunctionExpression,
   blockStatement as babelBlockStatement,
+  callExpression as babelCallExpression,
   exportDefaultDeclaration as babelExportDefaultDeclaration,
   functionDeclaration as babelFunctionDeclaration,
+  functionExpression as babelFunctionExpression,
   identifier as babelIdentifier,
   objectExpression as babelObjectExpression,
   objectProperty as babelObjectProperty,
@@ -14,7 +17,9 @@ import {
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  callExpression,
   functionDeclaration,
+  functionExpression,
   identifier,
   memberExpression,
   nodeGroup,
@@ -121,6 +126,48 @@ describe('Export Default Handler', () => {
         [identifier('foo')]
       ),
     ]);
+
+    expect(handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should export default function expression`, () => {
+    const given = babelExportDefaultDeclaration(
+      babelFunctionExpression(undefined, [], babelBlockStatement([]))
+    );
+
+    const expected = assignmentStatement(
+      AssignmentStatementOperatorEnum.EQ,
+      [memberExpression(identifier('exports'), '.', identifier('default'))],
+      [functionExpression([], nodeGroup([]))]
+    );
+
+    expect(handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should export default arrow function expression`, () => {
+    const given = babelExportDefaultDeclaration(
+      babelArrowFunctionExpression([], babelBlockStatement([]))
+    );
+
+    const expected = assignmentStatement(
+      AssignmentStatementOperatorEnum.EQ,
+      [memberExpression(identifier('exports'), '.', identifier('default'))],
+      [functionExpression([], nodeGroup([]))]
+    );
+
+    expect(handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should export default expression`, () => {
+    const given = babelExportDefaultDeclaration(
+      babelCallExpression(babelIdentifier('foo'), [])
+    );
+
+    const expected = assignmentStatement(
+      AssignmentStatementOperatorEnum.EQ,
+      [memberExpression(identifier('exports'), '.', identifier('default'))],
+      [callExpression(identifier('foo'), [])]
+    );
 
     expect(handler(source, {}, given)).toEqual(expected);
   });

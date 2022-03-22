@@ -199,6 +199,46 @@ describe('Program handler', () => {
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
 
+    it(`should export default arrow expression`, () => {
+      const given = getProgramNode(`
+        export default () => {}
+      `);
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [memberExpression(identifier('exports'), '.', identifier('default'))],
+          [functionExpression([], nodeGroup([]))]
+        ),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should export default expression`, () => {
+      const given = getProgramNode(`
+        export default foo()
+      `);
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('exports'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [memberExpression(identifier('exports'), '.', identifier('default'))],
+          [callExpression(identifier('foo'), [])]
+        ),
+        returnStatement(identifier('exports')),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
     describe('with comments', () => {
       it(`should export default identifier with leading comment`, () => {
         const given = getProgramNode(`
