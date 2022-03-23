@@ -17,17 +17,22 @@ import {
   isLuaTruthy,
 } from '@js-to-lua/lua-conversion-utils';
 import {
+  binaryExpression,
   callExpression,
   elseClause,
+  elseExpressionClause,
   functionExpression,
   identifier,
   ifClause,
+  ifElseExpression,
+  ifExpressionClause,
   ifStatement,
   logicalExpression,
   LuaCallExpression,
   LuaExpression,
   LuaLogicalExpression,
   LuaLogicalExpressionOperatorEnum,
+  nilLiteral,
   nodeGroup,
   returnStatement,
   UnhandledStatement,
@@ -172,6 +177,17 @@ export const createLogicalExpressionHandler = (
               ),
               []
             );
+      }
+      case '??': {
+        const leftExpression = handleExpression(source, config, node.left);
+        const rightExpression = handleExpression(source, config, node.right);
+        return ifElseExpression(
+          ifExpressionClause(
+            binaryExpression(leftExpression, '~=', nilLiteral()),
+            leftExpression
+          ),
+          elseExpressionClause(rightExpression)
+        );
       }
       default:
         return defaultStatementHandler(source, config, node);

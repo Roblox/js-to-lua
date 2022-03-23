@@ -121,7 +121,9 @@ describe('Identifier Handler', () => {
         end: source.length,
       };
       const expected: LuaIdentifier = withTrailingConversionComment(
-        identifier(expectedName),
+        createWithOriginalIdentifierNameExtras(givenName)(
+          identifier(expectedName)
+        ),
         `ROBLOX CHECK: replaced unhandled characters in identifier. Original identifier: ${givenName}`
       );
 

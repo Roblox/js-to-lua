@@ -64,6 +64,7 @@ import { createLogicalExpressionHandler } from './expression/logical-expression.
 import { createMemberExpressionHandler } from './expression/member-expression.handler';
 import { createNewExpressionHandler } from './expression/new-expression.handler';
 import { createObjectExpressionHandler } from './expression/object-expression.handler';
+import { createOptionalMemberExpressionHandler } from './expression/optional-member-expression.handler';
 import {
   createSequenceExpressionAsStatementHandler,
   createSequenceExpressionHandler,
@@ -266,6 +267,9 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     createUnaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createLogicalExpressionHandler(forwardHandlerRef(() => handleExpression)),
+    createOptionalMemberExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    ),
     handleFunctionExpression,
     handleArrowFunctionExpression,
     handleUpdateExpression,

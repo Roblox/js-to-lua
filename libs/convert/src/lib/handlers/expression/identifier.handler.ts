@@ -89,7 +89,9 @@ export const createIdentifierHandler = (
 
         return !isValidIdentifier(node.name)
           ? withTrailingConversionComment(
-              identifier(toValidIdentifier(node.name), annotation),
+              withOriginalIdentifierNameExtras(
+                identifier(toValidIdentifier(node.name), annotation)
+              ),
               `ROBLOX CHECK: replaced unhandled characters in identifier. Original identifier: ${getNodeSource(
                 source,
                 node

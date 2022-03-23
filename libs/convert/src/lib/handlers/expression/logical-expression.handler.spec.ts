@@ -14,14 +14,19 @@ import {
   booleanMethod,
 } from '@js-to-lua/lua-conversion-utils';
 import {
+  binaryExpression,
   callExpression,
   elseClause,
+  elseExpressionClause,
   functionExpression,
   identifier,
   ifClause,
+  ifElseExpression,
+  ifExpressionClause,
   ifStatement,
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
+  nilLiteral,
   nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
@@ -33,6 +38,23 @@ const { mockNodeWithValueHandler } = testUtils;
 const source = '';
 
 describe('Logical Expression Handler', () => {
+  const falsyValues = [
+    babelBooleanLiteral(false),
+    babelNullLiteral(),
+    babelIdentifier('undefined'),
+  ];
+
+  const truthyValues = [
+    babelNumericLiteral(0),
+    babelNumericLiteral(1),
+    babelStringLiteral(''),
+    babelStringLiteral('abc'),
+    babelBooleanLiteral(true),
+    babelObjectExpression([]),
+    babelArrayExpression([]),
+    babelIdentifier('NaN'),
+  ];
+
   describe(`should handle || operator`, () => {
     it('with 2 identifiers', () => {
       const leftGiven = babelIdentifier('foo');
@@ -126,63 +148,43 @@ describe('Logical Expression Handler', () => {
       );
     });
 
-    const falsyValues = [
-      babelBooleanLiteral(false),
-      babelNullLiteral(),
-      babelIdentifier('undefined'),
-    ];
+    it.each(falsyValues)(`when right side is falsy: %s`, (rightGiven) => {
+      const leftGiven = babelIdentifier('foo');
+      const given = babelLogicalExpression('&&', leftGiven, rightGiven);
 
-    falsyValues.forEach((rightGiven) => {
-      it(`when right side is falsy: ${JSON.stringify(rightGiven)}`, () => {
-        const leftGiven = babelIdentifier('foo');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+      const handleLogicalExpression = createLogicalExpressionHandler(
+        mockNodeWithValueHandler
+      );
 
-        const handleLogicalExpression = createLogicalExpressionHandler(
-          mockNodeWithValueHandler
-        );
-
-        const expected = callExpression(
-          functionExpression(
-            [],
-            nodeGroup([
-              ifStatement(
-                ifClause(
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    mockNodeWithValue(leftGiven),
-                  ]),
-                  nodeGroup([returnStatement(mockNodeWithValue(rightGiven))])
-                ),
-                [],
-                elseClause(
-                  nodeGroup([returnStatement(mockNodeWithValue(leftGiven))])
-                )
+      const expected = callExpression(
+        functionExpression(
+          [],
+          nodeGroup([
+            ifStatement(
+              ifClause(
+                callExpression(booleanMethod('toJSBoolean'), [
+                  mockNodeWithValue(leftGiven),
+                ]),
+                nodeGroup([returnStatement(mockNodeWithValue(rightGiven))])
               ),
-            ])
-          ),
-          []
-        );
+              [],
+              elseClause(
+                nodeGroup([returnStatement(mockNodeWithValue(leftGiven))])
+              )
+            ),
+          ])
+        ),
+        []
+      );
 
-        expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
-          expected
-        );
-      });
+      expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
     });
 
-    const truthyValues = [
-      babelNumericLiteral(0),
-      babelNumericLiteral(1),
-      babelStringLiteral(''),
-      babelStringLiteral('abc'),
-      babelBooleanLiteral(true),
-      babelObjectExpression([]),
-      babelArrayExpression([]),
-      babelIdentifier('NaN'),
-    ];
-
-    truthyValues.forEach((rightGiven) => {
-      it(`when right side is truthy in Lua: ${JSON.stringify(
-        rightGiven
-      )}`, () => {
+    it.each(truthyValues)(
+      `when right side is truthy in Lua: %s`,
+      (rightGiven) => {
         const leftGiven = babelIdentifier('foo');
         const given = babelLogicalExpression('&&', leftGiven, rightGiven);
 
@@ -205,36 +207,62 @@ describe('Logical Expression Handler', () => {
         expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
           expected
         );
-      });
+      }
+    );
 
-      it('with boolean inferable expressions', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+    it('with boolean inferable expressions', () => {
+      const leftGiven = babelIdentifier('foo');
+      const rightGiven = babelIdentifier('bar');
+      const given = babelLogicalExpression('&&', leftGiven, rightGiven);
 
-        const handleLogicalExpression = createLogicalExpressionHandler(
-          jest
-            .fn()
-            .mockImplementationOnce(() =>
-              booleanInferableExpression(identifier('foo'))
-            )
-            .mockImplementationOnce(() =>
-              booleanInferableExpression(identifier('bar'))
-            )
-        );
-
-        const expected = booleanInferableExpression(
-          logicalExpression(
-            LuaLogicalExpressionOperatorEnum.AND,
-            booleanInferableExpression(identifier('foo')),
+      const handleLogicalExpression = createLogicalExpressionHandler(
+        jest
+          .fn()
+          .mockImplementationOnce(() =>
+            booleanInferableExpression(identifier('foo'))
+          )
+          .mockImplementationOnce(() =>
             booleanInferableExpression(identifier('bar'))
           )
+      );
+
+      const expected = booleanInferableExpression(
+        logicalExpression(
+          LuaLogicalExpressionOperatorEnum.AND,
+          booleanInferableExpression(identifier('foo')),
+          booleanInferableExpression(identifier('bar'))
+        )
+      );
+
+      expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
+    });
+  });
+
+  describe(`should handle ?? operator`, () => {
+    it.each([...truthyValues, ...falsyValues])(
+      `when right side is either truthy or falsy: %s`,
+      (rightGiven) => {
+        const leftGiven = babelIdentifier('foo');
+        const given = babelLogicalExpression('??', leftGiven, rightGiven);
+
+        const handleLogicalExpression = createLogicalExpressionHandler(
+          mockNodeWithValueHandler
+        );
+
+        const expected = ifElseExpression(
+          ifExpressionClause(
+            binaryExpression(mockNodeWithValue(leftGiven), '~=', nilLiteral()),
+            mockNodeWithValue(leftGiven)
+          ),
+          elseExpressionClause(mockNodeWithValue(rightGiven))
         );
 
         expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
           expected
         );
-      });
-    });
+      }
+    );
   });
 });

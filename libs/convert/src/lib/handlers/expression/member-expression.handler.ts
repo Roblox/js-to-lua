@@ -1,4 +1,9 @@
-import { Expression, MemberExpression, PrivateName } from '@babel/types';
+import {
+  Expression,
+  isPrivateName,
+  MemberExpression,
+  PrivateName,
+} from '@babel/types';
 import {
   BaseNodeHandler,
   createHandler,
@@ -7,21 +12,25 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   defaultExpressionHandler,
+  getOriginalIdentifierNameExtra,
+  isWithOriginalIdentifierNameExtras,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
   indexExpression,
+  isIdentifier,
   LuaExpression,
-  LuaIdentifier,
   LuaIndexExpression,
   LuaMemberExpression,
   LuaNumericLiteral,
   LuaStringLiteral,
   memberExpression,
+  stringLiteral,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
+import { applyTo } from 'ramda';
 import { handleNumericLiteral } from '../primitives/numeric.handler';
 import { handleStringLiteral } from '../primitives/string.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
@@ -84,19 +93,23 @@ export const createMemberExpressionHandler = (
       config,
       node: MemberExpression
     ): LuaIndexExpression | LuaMemberExpression => {
+      const objectExpression = handleExpression(source, config, node.object);
       if (!node.computed) {
-        return memberExpression(
-          handleExpression(source, config, node.object),
-          '.',
-          handleExpression(
-            source,
-            config,
-            node.property as Expression
-          ) as LuaIdentifier
-        );
+        const propertyExpression = isPrivateName(node.property)
+          ? defaultExpressionHandler(source, config, node.property)
+          : applyTo(handleExpression(source, config, node.property))(
+              (expression) =>
+                isWithOriginalIdentifierNameExtras(expression)
+                  ? stringLiteral(getOriginalIdentifierNameExtra(expression))
+                  : expression
+            );
+
+        return isIdentifier(propertyExpression)
+          ? memberExpression(objectExpression, '.', propertyExpression)
+          : indexExpression(objectExpression, propertyExpression);
       }
       return indexExpression(
-        handleExpression(source, config, node.object),
+        objectExpression,
         handleIndex(source, config, node.property)
       );
     }

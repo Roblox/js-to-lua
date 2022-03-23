@@ -6,10 +6,13 @@ import {
   booleanLiteral,
   callExpression,
   elseClause,
+  elseExpressionClause,
   expressionStatement,
   functionExpression,
   identifier,
   ifClause,
+  ifElseExpression,
+  ifExpressionClause,
   ifStatement,
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
@@ -224,24 +227,25 @@ describe('Program handler', () => {
 
       const falsyValues = [
         {
-          code: 'foo && false',
+          code: 'bar = foo && false',
           leftExpected: identifier('foo'),
           rightExpected: booleanLiteral(false),
         },
         {
-          code: 'foo && null',
+          code: 'bar = foo && null',
           leftExpected: identifier('foo'),
           rightExpected: nilLiteral(),
         },
         {
-          code: 'foo && undefined',
+          code: 'bar = foo && undefined',
           leftExpected: identifier('foo'),
           rightExpected: nilLiteral(),
         },
       ];
 
-      falsyValues.forEach(({ code, leftExpected, rightExpected }) => {
-        it(`when right side is falsy: ${JSON.stringify(code)}`, () => {
+      it.each(falsyValues)(
+        `when right side is falsy: $code`,
+        ({ code, leftExpected, rightExpected }) => {
           const given = getProgramNode(code);
 
           const expected: LuaProgram = program([
@@ -278,38 +282,42 @@ describe('Program handler', () => {
                 ),
               ]
             ),
-            expressionStatement(
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    ifStatement(
-                      ifClause(
-                        callExpression(
-                          memberExpression(
-                            identifier('Boolean'),
-                            '.',
-                            identifier('toJSBoolean')
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('bar')],
+              [
+                callExpression(
+                  functionExpression(
+                    [],
+                    nodeGroup([
+                      ifStatement(
+                        ifClause(
+                          callExpression(
+                            memberExpression(
+                              identifier('Boolean'),
+                              '.',
+                              identifier('toJSBoolean')
+                            ),
+                            [leftExpected]
                           ),
-                          [leftExpected]
+                          nodeGroup([returnStatement(rightExpected)])
                         ),
-                        nodeGroup([returnStatement(rightExpected)])
+                        [],
+                        elseClause(nodeGroup([returnStatement(leftExpected)]))
                       ),
-                      [],
-                      elseClause(nodeGroup([returnStatement(leftExpected)]))
-                    ),
-                  ])
+                    ])
+                  ),
+                  []
                 ),
-                []
-              )
+              ]
             ),
           ]);
 
           const luaProgram = handleProgram.handler(source, {}, given);
 
           expect(luaProgram).toEqual(expected);
-        });
-      });
+        }
+      );
 
       const truthyValues = [
         {
@@ -358,8 +366,9 @@ describe('Program handler', () => {
         },
       ];
 
-      truthyValues.forEach(({ code, leftExpected, rightExpected }) => {
-        it(`when right side is truthy in Lua: ${JSON.stringify(code)}`, () => {
+      it.each(truthyValues)(
+        `when right side is truthy in Lua: %code`,
+        ({ code, leftExpected, rightExpected }) => {
           const given = getProgramNode(code);
 
           const expected: LuaProgram = program([
@@ -423,8 +432,8 @@ describe('Program handler', () => {
           const luaProgram = handleProgram.handler(source, {}, given);
 
           expect(luaProgram).toEqual(expected);
-        });
-      });
+        }
+      );
 
       it('with multiple boolean inferable expressions', () => {
         const given = getProgramNode(`
@@ -473,6 +482,99 @@ describe('Program handler', () => {
 
         expect(luaProgram).toEqual(expected);
       });
+    });
+
+    describe(`should handle ?? operator`, () => {
+      const falsyValues = [
+        {
+          code: 'bar = foo ?? false',
+          leftExpected: identifier('foo'),
+          rightExpected: booleanLiteral(false),
+        },
+        {
+          code: 'bar = foo ?? null',
+          leftExpected: identifier('foo'),
+          rightExpected: nilLiteral(),
+        },
+        {
+          code: 'bar = foo ?? undefined',
+          leftExpected: identifier('foo'),
+          rightExpected: nilLiteral(),
+        },
+      ];
+      const truthyValues = [
+        {
+          code: 'bar = foo ?? 0',
+          leftExpected: identifier('foo'),
+          rightExpected: numericLiteral(0, '0'),
+        },
+        {
+          code: 'bar = foo ?? 1',
+          leftExpected: identifier('foo'),
+          rightExpected: numericLiteral(1, '1'),
+        },
+        {
+          code: 'bar = foo ?? ""',
+          leftExpected: identifier('foo'),
+          rightExpected: stringLiteral(''),
+        },
+        {
+          code: 'bar = foo ?? "abc"',
+          leftExpected: identifier('foo'),
+          rightExpected: stringLiteral('abc'),
+        },
+        {
+          code: 'bar = foo ?? true',
+          leftExpected: identifier('foo'),
+          rightExpected: booleanLiteral(true),
+        },
+        {
+          code: 'bar = foo ?? {}',
+          leftExpected: identifier('foo'),
+          rightExpected: tableConstructor([]),
+        },
+        {
+          code: 'bar = foo ?? []',
+          leftExpected: identifier('foo'),
+          rightExpected: tableConstructor([]),
+        },
+        {
+          code: 'bar = foo ?? NaN',
+          leftExpected: identifier('foo'),
+          rightExpected: binaryExpression(
+            numericLiteral(0),
+            '/',
+            numericLiteral(0)
+          ),
+        },
+      ];
+
+      it.each([...truthyValues, ...falsyValues])(
+        `when right side is either truthy or falsy: %code`,
+        ({ code, leftExpected, rightExpected }) => {
+          const given = getProgramNode(code);
+
+          const expected: LuaProgram = program([
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('bar')],
+              [
+                ifElseExpression(
+                  ifExpressionClause(
+                    binaryExpression(leftExpected, '~=', nilLiteral()),
+                    leftExpected
+                  ),
+                  elseExpressionClause(rightExpected)
+                ),
+              ]
+            ),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        }
+      );
     });
   });
 });
