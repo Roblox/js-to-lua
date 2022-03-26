@@ -1,3 +1,4 @@
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   expressionStatement,
@@ -6,6 +7,11 @@ import {
   memberExpression,
   program,
   stringLiteral,
+  tableConstructor,
+  tableNoKeyField,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
@@ -108,6 +114,247 @@ describe('Call Expression Handler', () => {
             identifier('empty')
           ),
           []
+        )
+      ),
+    ]);
+
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle computed member expressions with spread element`, () => {
+    const given = getProgramNode(`
+      foo['bar'](...baz)
+      foo['bar']('baz', ...fizz)
+      foo['bar'](...fizz, 'baz')
+    `);
+
+    const expected = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Array'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Array')
+            )
+          ),
+        ]
+      ),
+      expressionStatement(
+        callExpression(
+          indexExpression(identifier('foo'), stringLiteral('bar')),
+          [
+            identifier('foo'),
+            callExpression(
+              memberExpression(identifier('table'), '.', identifier('unpack')),
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('spread')
+                  ),
+                  [identifier('baz')]
+                ),
+              ]
+            ),
+          ]
+        )
+      ),
+      expressionStatement(
+        callExpression(
+          indexExpression(identifier('foo'), stringLiteral('bar')),
+          [
+            identifier('foo'),
+            stringLiteral('baz'),
+            callExpression(
+              memberExpression(identifier('table'), '.', identifier('unpack')),
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('spread')
+                  ),
+                  [identifier('fizz')]
+                ),
+              ]
+            ),
+          ]
+        )
+      ),
+      expressionStatement(
+        callExpression(
+          indexExpression(identifier('foo'), stringLiteral('bar')),
+          [
+            identifier('foo'),
+            callExpression(
+              memberExpression(identifier('table'), '.', identifier('unpack')),
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('concat')
+                  ),
+                  [
+                    tableConstructor(),
+                    callExpression(
+                      memberExpression(
+                        identifier('Array'),
+                        '.',
+                        identifier('spread')
+                      ),
+                      [identifier('fizz')]
+                    ),
+                    tableConstructor([tableNoKeyField(stringLiteral('baz'))]),
+                  ]
+                ),
+              ]
+            ),
+          ]
+        )
+      ),
+    ]);
+
+    expect(
+      JSON.stringify(handleProgram.handler(source, {}, given), undefined, 2)
+    ).toEqual(JSON.stringify(expected, undefined, 2));
+  });
+
+  it(`should handle not computed member expressions with spread element`, () => {
+    const given = getProgramNode(`
+      foo.bar(...baz)
+      foo.bar('baz', ...fizz)
+      foo.bar(...fizz, 'baz')
+    `);
+
+    const expected = program([
+      withTrailingConversionComment(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('Packages'))],
+          []
+        ),
+        'ROBLOX comment: must define Packages module'
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+        [
+          variableDeclaratorValue(
+            callExpression(identifier('require'), [
+              memberExpression(
+                identifier('Packages'),
+                '.',
+                identifier('LuauPolyfill')
+              ),
+            ])
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Array'))],
+        [
+          variableDeclaratorValue(
+            memberExpression(
+              identifier('LuauPolyfill'),
+              '.',
+              identifier('Array')
+            )
+          ),
+        ]
+      ),
+      expressionStatement(
+        callExpression(
+          memberExpression(identifier('foo'), ':', identifier('bar')),
+          [
+            callExpression(
+              memberExpression(identifier('table'), '.', identifier('unpack')),
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('spread')
+                  ),
+                  [identifier('baz')]
+                ),
+              ]
+            ),
+          ]
+        )
+      ),
+      expressionStatement(
+        callExpression(
+          memberExpression(identifier('foo'), ':', identifier('bar')),
+          [
+            stringLiteral('baz'),
+            callExpression(
+              memberExpression(identifier('table'), '.', identifier('unpack')),
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('spread')
+                  ),
+                  [identifier('fizz')]
+                ),
+              ]
+            ),
+          ]
+        )
+      ),
+      expressionStatement(
+        callExpression(
+          memberExpression(identifier('foo'), ':', identifier('bar')),
+          [
+            callExpression(
+              memberExpression(identifier('table'), '.', identifier('unpack')),
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Array'),
+                    '.',
+                    identifier('concat')
+                  ),
+                  [
+                    tableConstructor(),
+                    callExpression(
+                      memberExpression(
+                        identifier('Array'),
+                        '.',
+                        identifier('spread')
+                      ),
+                      [identifier('fizz')]
+                    ),
+                    tableConstructor([tableNoKeyField(stringLiteral('baz'))]),
+                  ]
+                ),
+              ]
+            ),
+          ]
         )
       ),
     ]);

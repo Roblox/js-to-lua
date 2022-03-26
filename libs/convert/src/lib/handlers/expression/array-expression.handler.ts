@@ -4,9 +4,13 @@ import {
   isSpreadElement,
   SpreadElement,
 } from '@babel/types';
-import { arrayConcat, arraySpread } from '@js-to-lua/lua-conversion-utils';
 import {
-  callExpression,
+  BaseNodeHandler,
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   LuaCallExpression,
   LuaExpression,
   LuaTableConstructor,
@@ -15,12 +19,7 @@ import {
   tableNoKeyField,
 } from '@js-to-lua/lua-types';
 import { isTruthy, splitBy, Unpacked } from '@js-to-lua/shared-utils';
-import {
-  BaseNodeHandler,
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
+import { createSpreadElementPropertiesHandler } from './spread-element-properties.handler';
 
 type ArrayExpressionElement = Unpacked<ArrayExpression['elements']>;
 
@@ -37,14 +36,8 @@ export const createArrayExpressionHandler = (
     tableNoKeyField(handleExpression(source, config, expression))
   );
 
-  const handleSpreadExpression: HandlerFunction<LuaExpression, SpreadElement> =
-    createHandlerFunction((source, config, spreadElement: SpreadElement) =>
-      spreadElement.argument.type === 'ArrayExpression'
-        ? handleExpression(source, config, spreadElement.argument)
-        : callExpression(arraySpread(), [
-            handleExpression(source, config, spreadElement.argument),
-          ])
-    );
+  const spreadElementPropertiesHandler =
+    createSpreadElementPropertiesHandler(handleExpression);
 
   const handleArrayExpressionWithSpread: HandlerFunction<
     LuaCallExpression,
@@ -58,15 +51,12 @@ export const createArrayExpressionHandler = (
         ),
         []
       );
-    const args: LuaExpression[] = propertiesGroups.map((group) => {
-      return Array.isArray(group)
-        ? tableConstructor(
-            group.map(handleExpressionTableNoKeyFieldHandler(source, config))
-          )
-        : handleSpreadExpression(source, config, group);
-    });
 
-    return callExpression(arrayConcat(), [tableConstructor([]), ...args]);
+    return spreadElementPropertiesHandler(
+      source,
+      { ...config, forceConcat: true },
+      propertiesGroups
+    );
   });
 
   type ArrayExpressionWithoutSpread = ArrayExpression;

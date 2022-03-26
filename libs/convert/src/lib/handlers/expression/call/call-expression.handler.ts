@@ -2,20 +2,24 @@ import {
   CallExpression,
   Expression,
   isMemberExpression as isBabelMemberExpression,
+  isPrivateName,
 } from '@babel/types';
 import {
   combineOptionalHandlerFunctions,
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
+import { defaultExpressionHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
+  indexExpression,
+  isIdentifier,
   LuaCallExpression,
   LuaExpression,
-  LuaIdentifier,
   memberExpression,
 } from '@js-to-lua/lua-types';
 import { createCallExpressionApplyMethodHandlerFunction } from './call-expression-apply-method.handlers';
+import { createCallExpressionArgumentsHandler } from './call-expression-arguments.handler';
 import { createCallExpressionCallMethodHandlerFunction } from './call-expression-call-method.handlers';
 import { createCallExpressionComputedPropertyHandlerFunction } from './call-expression-computed-property.handler';
 import { createCallExpressionDotNotationHandlerFunction } from './call-expression-dot-notation.handler';
@@ -25,11 +29,8 @@ import { createCallExpressionKnownArrayMethodHandlerFunction } from './know-arra
 
 export const createCallExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
-) => {
-  const handleCalleeExpression =
-    createCalleeExpressionHandlerFunction(handleExpression);
-
-  return createHandler(
+) =>
+  createHandler(
     'CallExpression',
     (source, config, expression: CallExpression): LuaCallExpression => {
       const handled = combineOptionalHandlerFunctions([
@@ -46,24 +47,39 @@ export const createCallExpressionHandler = (
       }
 
       const callee = expression.callee;
-      const toExpression = handleExpression(source, config);
-      return isBabelMemberExpression(callee)
-        ? callExpression(
-            memberExpression(
-              handleExpression(source, config, callee.object),
-              ':',
-              handleExpression(
-                source,
-                config,
-                callee.property as Expression
-              ) as LuaIdentifier
-            ),
-            expression.arguments.map(toExpression)
-          )
-        : callExpression(
-            handleCalleeExpression(source, config, expression.callee),
-            expression.arguments.map(toExpression)
-          );
+      const args = createCallExpressionArgumentsHandler(handleExpression)(
+        source,
+        config,
+        expression.arguments
+      );
+
+      if (isBabelMemberExpression(callee)) {
+        const propertyExpression = isPrivateName(callee.property)
+          ? defaultExpressionHandler(source, config, callee.property)
+          : handleExpression(source, config, callee.property as Expression);
+
+        const objectExpression = handleExpression(
+          source,
+          config,
+          callee.object
+        );
+        return isIdentifier(propertyExpression)
+          ? callExpression(
+              memberExpression(objectExpression, ':', propertyExpression),
+              args
+            )
+          : callExpression(
+              indexExpression(objectExpression, propertyExpression),
+              [objectExpression, ...args]
+            );
+      }
+
+      const handleCalleeExpression =
+        createCalleeExpressionHandlerFunction(handleExpression);
+
+      return callExpression(
+        handleCalleeExpression(source, config, expression.callee),
+        args
+      );
     }
   );
-};

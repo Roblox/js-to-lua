@@ -15,6 +15,7 @@ import {
   isMemberExpression as isBabelMemberExpression,
   MemberExpression,
 } from '@babel/types';
+import { createCallExpressionArgumentsHandler } from './call-expression-arguments.handler';
 import { matchesBabelMemberExpressionObject } from './utils';
 import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
 
@@ -45,6 +46,9 @@ export const createCallExpressionDotNotationHandlerFunction = (
   const handleCalleeExpression =
     createCalleeExpressionHandlerFunction(handleExpression);
 
+  const handleCallExpressionArguments =
+    createCallExpressionArgumentsHandler(handleExpression);
+
   return createOptionalHandlerFunction<LuaCallExpression, CallExpression>(
     (source, config, expression) => {
       const callee = expression.callee;
@@ -56,10 +60,9 @@ export const createCallExpressionDotNotationHandlerFunction = (
             : identifierName(callee)
         )
       ) {
-        const toExpression = handleExpression(source, config);
         return callExpression(
           handleCalleeExpression(source, config, expression.callee),
-          expression.arguments.map(toExpression)
+          handleCallExpressionArguments(source, config, expression.arguments)
         );
       }
     }

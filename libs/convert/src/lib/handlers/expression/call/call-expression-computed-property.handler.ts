@@ -12,6 +12,7 @@ import {
   Expression,
   isMemberExpression as isBabelMemberExpression,
 } from '@babel/types';
+import { createCallExpressionArgumentsHandler } from './call-expression-arguments.handler';
 import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
 
 export const createCallExpressionComputedPropertyHandlerFunction = (
@@ -25,12 +26,16 @@ export const createCallExpressionComputedPropertyHandlerFunction = (
       ) {
         const handleCalleeExpression =
           createCalleeExpressionHandlerFunction(handleExpression);
-        const toExpression = handleExpression(source, config);
+        const args = createCallExpressionArgumentsHandler(handleExpression)(
+          source,
+          config,
+          expression.arguments
+        );
         return callExpression(
           handleCalleeExpression(source, config, expression.callee),
           [
             handleCalleeExpression(source, config, expression.callee.object),
-            ...expression.arguments.map(toExpression),
+            ...args,
           ]
         );
       }
