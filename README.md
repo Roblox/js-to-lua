@@ -1,5 +1,14 @@
 # JsToLua
 
+<div align="center">
+	<a href="https://github.com/Roblox/js-to-lua/actions?query=workflow%3AJS%20to%20Lua">
+		<img src="https://github.com/Roblox/js-to-lua/workflows/JS%20to%20Lua/badge.svg" alt="GitHub Actions Build Status" />
+	</a>
+	<a href='https://coveralls.io/github/Roblox/js-to-lua'>
+		<img src='https://coveralls.io/repos/github/Roblox/js-to-lua/badge.svg?t=4czPqO&kill_cache=1' alt='Coverage Status' />
+	</a>
+</div>
+
 Conversion tool for migrating JS/TS code into Luau.
 
 ## Prerequisites

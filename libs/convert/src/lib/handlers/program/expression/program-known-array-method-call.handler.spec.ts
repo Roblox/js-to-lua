@@ -1,5 +1,6 @@
 import {
   arrayPolyfilledMethodNames,
+  tableUnpack,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -18,7 +19,6 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { tableUnpack } from '../../expression/call/know-array-methods/utils';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
 

@@ -1,5 +1,7 @@
 import {
   bit32MethodCall,
+  tablePackCall,
+  tableUnpackCall,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -1152,11 +1154,11 @@ describe('Program handler', () => {
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo'), identifier('bar')],
           [
-            callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
               identifier('baz'),
               numericLiteral(1),
-              numericLiteral(2),
-            ]),
+              numericLiteral(2)
+            ),
           ]
         ),
       ]),
@@ -1176,26 +1178,26 @@ describe('Program handler', () => {
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
           [
-            callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
               identifier('fizz'),
               numericLiteral(1),
-              numericLiteral(1),
-            ]),
+              numericLiteral(1)
+            ),
           ]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('bar'), identifier('baz')],
           [
-            callExpression(identifier('table.unpack'), [
-              callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
+              tableUnpackCall(
                 identifier('fizz'),
                 numericLiteral(2),
-                numericLiteral(2),
-              ]),
+                numericLiteral(2)
+              ),
               numericLiteral(1),
-              numericLiteral(2),
-            ]),
+              numericLiteral(2)
+            ),
           ]
         ),
       ]),
@@ -1215,24 +1217,17 @@ describe('Program handler', () => {
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
           [
-            callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
               identifier('baz'),
               numericLiteral(1),
-              numericLiteral(1),
-            ]),
+              numericLiteral(1)
+            ),
           ]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('bar')],
-          [
-            callExpression(identifier('table.pack'), [
-              callExpression(identifier('table.unpack'), [
-                identifier('baz'),
-                numericLiteral(2),
-              ]),
-            ]),
-          ]
+          [tablePackCall(tableUnpackCall(identifier('baz'), numericLiteral(2)))]
         ),
       ]),
     ]);

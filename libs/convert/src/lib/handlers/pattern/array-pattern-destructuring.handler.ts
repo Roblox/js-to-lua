@@ -9,7 +9,12 @@ import {
   LVal,
   PatternLike,
 } from '@babel/types';
-import { getNodeSource } from '@js-to-lua/lua-conversion-utils';
+import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import {
+  getNodeSource,
+  tablePackCall,
+  tableUnpackCall,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   callExpression,
@@ -30,7 +35,6 @@ import {
 } from '@js-to-lua/lua-types';
 import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
 import { anyPass, last } from 'ramda';
-import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
 
 interface DestructuredArrayPattern {
   ids: LVal[];
@@ -91,11 +95,11 @@ export const createArrayPatternDestructuringHandler =
         return {
           ids: group,
           values: [
-            callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
               init,
               numericLiteral(startIndex),
-              numericLiteral(endIndex),
-            ]),
+              numericLiteral(endIndex)
+            ),
           ],
         };
       }
@@ -110,23 +114,20 @@ export const createArrayPatternDestructuringHandler =
             {
               ids: [el.argument],
               values: [
-                callExpression(identifier('table.pack'), [
-                  callExpression(identifier('table.unpack'), [
-                    init,
-                    numericLiteral(startIndex),
-                  ]),
-                ]),
+                tablePackCall(
+                  tableUnpackCall(init, numericLiteral(startIndex))
+                ),
               ],
             },
           ];
         } else if (isBabelArrayPattern(el)) {
           return handleArrayPatternDestructuring(
             el.elements.filter(isTruthy),
-            callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
               init,
               numericLiteral(startIndex),
-              numericLiteral(endIndex),
-            ])
+              numericLiteral(endIndex)
+            )
           );
         } else if (isBabelAssignmentPattern(el) && isBabelIdentifier(el.left)) {
           return [
@@ -141,11 +142,11 @@ export const createArrayPatternDestructuringHandler =
                         [variableDeclaratorIdentifier(identifier('element'))],
                         [
                           variableDeclaratorValue(
-                            callExpression(identifier('table.unpack'), [
+                            tableUnpackCall(
                               init,
                               numericLiteral(startIndex),
-                              numericLiteral(endIndex),
-                            ])
+                              numericLiteral(endIndex)
+                            )
                           ),
                         ]
                       ),

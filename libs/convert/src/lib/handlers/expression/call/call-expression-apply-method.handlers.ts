@@ -1,19 +1,19 @@
 import {
+  CallExpression,
+  Expression,
+  isMemberExpression as isBabelMemberExpression,
+} from '@babel/types';
+import {
   createOptionalHandlerFunction,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
+import { tableUnpackCall } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   LuaCallExpression,
   LuaExpression,
 } from '@js-to-lua/lua-types';
-import {
-  CallExpression,
-  Expression,
-  isMemberExpression as isBabelMemberExpression,
-} from '@babel/types';
 import { matchesBabelMemberExpressionProperty } from './utils';
-import { tableUnpackCall } from './know-array-methods/utils';
 
 export const createCallExpressionApplyMethodHandlerFunction = (
   handleExpressionFunction: HandlerFunction<LuaExpression, Expression>

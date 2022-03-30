@@ -1,9 +1,11 @@
-import { arrayConcat, arrayMethod } from '@js-to-lua/lua-conversion-utils';
+import {
+  arrayConcat,
+  arrayMethod,
+  tableInsertCall,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
-  identifier,
   LuaExpression,
-  memberExpression,
   numericLiteral,
   tableConstructor,
   tableNoKeyField,
@@ -12,11 +14,7 @@ import {
 export const insertSingleElement = (
   calleeObject: LuaExpression,
   args: LuaExpression[]
-) =>
-  callExpression(
-    memberExpression(identifier('table'), '.', identifier('insert')),
-    [calleeObject, args[0]]
-  );
+) => tableInsertCall(calleeObject, args[0]);
 
 export const insertMultipleElements = (
   calleeObject: LuaExpression,
@@ -35,19 +33,9 @@ export const concatArrays = (
 export const unshiftSingleElement = (
   calleeObject: LuaExpression,
   arg: LuaExpression
-) =>
-  callExpression(
-    memberExpression(identifier('table'), '.', identifier('insert')),
-    [calleeObject, numericLiteral(1), arg]
-  );
+) => tableInsertCall(calleeObject, numericLiteral(1), arg);
 
 export const unshiftMultipleElements = (
   calleeObject: LuaExpression,
   args: LuaExpression[]
 ) => callExpression(arrayMethod('unshift'), [calleeObject, ...args]);
-
-export const tableUnpackCall = (arg: LuaExpression) =>
-  callExpression(tableUnpack(), [arg]);
-
-export const tableUnpack = () =>
-  memberExpression(identifier('table'), '.', identifier('unpack'));

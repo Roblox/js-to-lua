@@ -29,7 +29,7 @@ import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from '../function-params.handler';
-import { createAssignmentPatternHandlerFunction } from '../statement/assignment-pattern.handler';
+import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 import { createTsTypeParameterDeclarationHandler } from '../type/ts-type-parameter-declaration.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 

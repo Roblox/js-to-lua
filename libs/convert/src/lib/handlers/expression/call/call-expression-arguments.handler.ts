@@ -7,11 +7,11 @@ import {
   SpreadElement,
 } from '@babel/types';
 import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import { tableUnpackCall } from '@js-to-lua/lua-conversion-utils';
 import { LuaExpression } from '@js-to-lua/lua-types';
 import { splitBy } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
 import { createSpreadElementPropertiesHandler } from '../spread-element-properties.handler';
-import { tableUnpackCall } from './know-array-methods/utils';
 
 export const createCallExpressionArgumentsHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

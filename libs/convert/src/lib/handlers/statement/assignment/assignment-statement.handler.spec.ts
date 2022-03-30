@@ -3,6 +3,8 @@ import {
   AssignmentExpression,
   assignmentExpression as babelAssignmentExpression,
   identifier as babelIdentifier,
+  memberExpression as babelMemberExpression,
+  objectExpression,
   objectPattern,
   objectProperty,
   restElement,
@@ -16,20 +18,32 @@ import {
   forwardHandlerRef,
   testUtils,
 } from '@js-to-lua/handler-utils';
-import { stringInferableExpression } from '@js-to-lua/lua-conversion-utils';
+import {
+  stringInferableExpression,
+  tablePackCall,
+  tableUnpackCall,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatement,
   assignmentStatement,
   AssignmentStatementOperatorEnum,
-  callExpression,
+  blockStatement,
   identifier,
   LuaIdentifier,
   LuaNodeGroup,
   memberExpression,
   nodeGroup,
   numericLiteral,
+  unhandledStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import {
+  mockNodeWithValue,
+  withLocation,
+} from '@js-to-lua/lua-types/test-utils';
 import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
 
 const { mockNodeWithValueHandler } = testUtils;
@@ -115,15 +129,15 @@ describe('Assignment Statement Handler', () => {
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [
-            mockNodeWithValue(identifier('foo')),
-            mockNodeWithValue(identifier('bar')),
+            mockNodeWithValue(babelIdentifier('foo')),
+            mockNodeWithValue(babelIdentifier('bar')),
           ],
           [
-            callExpression(identifier('table.unpack'), [
-              mockNodeWithValue(identifier('baz')),
+            tableUnpackCall(
+              mockNodeWithValue(babelIdentifier('baz')),
               numericLiteral(1),
-              numericLiteral(2),
-            ]),
+              numericLiteral(2)
+            ),
           ]
         ),
       ]);
@@ -146,31 +160,31 @@ describe('Assignment Statement Handler', () => {
       const expected: LuaNodeGroup = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [mockNodeWithValue(identifier('foo'))],
+          [mockNodeWithValue(babelIdentifier('foo'))],
           [
-            callExpression(identifier('table.unpack'), [
-              mockNodeWithValue(identifier('fizz')),
+            tableUnpackCall(
+              mockNodeWithValue(babelIdentifier('fizz')),
               numericLiteral(1),
-              numericLiteral(1),
-            ]),
+              numericLiteral(1)
+            ),
           ]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [
-            mockNodeWithValue(identifier('bar')),
-            mockNodeWithValue(identifier('baz')),
+            mockNodeWithValue(babelIdentifier('bar')),
+            mockNodeWithValue(babelIdentifier('baz')),
           ],
           [
-            callExpression(identifier('table.unpack'), [
-              callExpression(identifier('table.unpack'), [
-                mockNodeWithValue(identifier('fizz')),
+            tableUnpackCall(
+              tableUnpackCall(
+                mockNodeWithValue(babelIdentifier('fizz')),
                 numericLiteral(2),
-                numericLiteral(2),
-              ]),
+                numericLiteral(2)
+              ),
               numericLiteral(1),
-              numericLiteral(2),
-            ]),
+              numericLiteral(2)
+            ),
           ]
         ),
       ]);
@@ -193,25 +207,25 @@ describe('Assignment Statement Handler', () => {
       const expected: LuaNodeGroup = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [mockNodeWithValue(identifier('foo'))],
+          [mockNodeWithValue(babelIdentifier('foo'))],
           [
-            callExpression(identifier('table.unpack'), [
-              mockNodeWithValue(identifier('baz')),
+            tableUnpackCall(
+              mockNodeWithValue(babelIdentifier('baz')),
               numericLiteral(1),
-              numericLiteral(1),
-            ]),
+              numericLiteral(1)
+            ),
           ]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [mockNodeWithValue(identifier('bar'))],
+          [mockNodeWithValue(babelIdentifier('bar'))],
           [
-            callExpression(identifier('table.pack'), [
-              callExpression(identifier('table.unpack'), [
-                mockNodeWithValue(identifier('baz')),
-                numericLiteral(2),
-              ]),
-            ]),
+            tablePackCall(
+              tableUnpackCall(
+                mockNodeWithValue(babelIdentifier('baz')),
+                numericLiteral(2)
+              )
+            ),
           ]
         ),
       ]);
@@ -236,16 +250,134 @@ describe('Assignment Statement Handler', () => {
         [identifier('foo'), identifier('bar')],
         [
           memberExpression(
-            mockNodeWithValue(identifier('baz')),
+            mockNodeWithValue(babelIdentifier('baz')),
             '.',
             identifier('foo')
           ),
           memberExpression(
-            mockNodeWithValue(identifier('baz')),
+            mockNodeWithValue(babelIdentifier('baz')),
             '.',
             identifier('bar')
           ),
         ]
+      );
+
+      expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
+        expected
+      );
+    });
+
+    it(`should handle object destructuring with object expression on the right`, () => {
+      const given = babelAssignmentExpression(
+        '=',
+        objectPattern([
+          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
+          objectProperty(babelIdentifier('bar'), babelIdentifier('bar')),
+        ]),
+        objectExpression([
+          objectProperty(babelIdentifier('foo'), babelStringLiteral('foo')),
+          objectProperty(babelIdentifier('bar'), babelStringLiteral('bar')),
+        ])
+      );
+
+      const expected = blockStatement([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('ref'))],
+          [
+            variableDeclaratorValue(
+              mockNodeWithValue(
+                objectExpression([
+                  objectProperty(
+                    babelIdentifier('foo'),
+                    babelStringLiteral('foo')
+                  ),
+                  objectProperty(
+                    babelIdentifier('bar'),
+                    babelStringLiteral('bar')
+                  ),
+                ])
+              )
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo'), identifier('bar')],
+          [
+            memberExpression(identifier('ref'), '.', identifier('foo')),
+            memberExpression(identifier('ref'), '.', identifier('bar')),
+          ]
+        ),
+      ]);
+
+      expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
+        expected
+      );
+    });
+
+    it(`should handle object destructuring with member expression on the right`, () => {
+      const given = babelAssignmentExpression(
+        '=',
+        objectPattern([
+          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
+          objectProperty(babelIdentifier('bar'), babelIdentifier('bar')),
+        ]),
+        babelMemberExpression(babelIdentifier('obj'), babelIdentifier('prop'))
+      );
+
+      const expected = blockStatement([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('ref'))],
+          [
+            variableDeclaratorValue(
+              mockNodeWithValue(
+                babelMemberExpression(
+                  babelIdentifier('obj'),
+                  babelIdentifier('prop')
+                )
+              )
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo'), identifier('bar')],
+          [
+            memberExpression(identifier('ref'), '.', identifier('foo')),
+            memberExpression(identifier('ref'), '.', identifier('bar')),
+          ]
+        ),
+      ]);
+
+      expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
+        expected
+      );
+    });
+
+    it(`should NOT YET handle assignment expression with object pattern with nested array pattern as left value`, () => {
+      const source = 'function({foo, bar: [baz]} = val) {}';
+
+      const given = withLocation({
+        start: 9,
+        end: 32,
+      })(
+        babelAssignmentExpression(
+          '=',
+          objectPattern([
+            objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
+            objectProperty(
+              babelIdentifier('bar'),
+              arrayPattern([babelIdentifier('bar')])
+            ),
+          ]),
+          babelIdentifier('val')
+        )
+      );
+
+      const expected = withTrailingConversionComment(
+        unhandledStatement(),
+        'ROBLOX TODO: Unhandled AssignmentStatement when one of the object properties is not supported',
+        '{foo, bar: [baz]} = val'
       );
 
       expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
@@ -268,12 +400,12 @@ describe('Assignment Statement Handler', () => {
         [identifier('fun'), identifier('bat')],
         [
           memberExpression(
-            mockNodeWithValue(identifier('baz')),
+            mockNodeWithValue(babelIdentifier('baz')),
             '.',
             identifier('foo')
           ),
           memberExpression(
-            mockNodeWithValue(identifier('baz')),
+            mockNodeWithValue(babelIdentifier('baz')),
             '.',
             identifier('bar')
           ),
@@ -306,7 +438,7 @@ describe('Assignment Statement Handler', () => {
         [
           memberExpression(
             memberExpression(
-              mockNodeWithValue(identifier('fizz')),
+              mockNodeWithValue(babelIdentifier('fizz')),
               '.',
               identifier('foo')
             ),
@@ -315,7 +447,7 @@ describe('Assignment Statement Handler', () => {
           ),
           memberExpression(
             memberExpression(
-              mockNodeWithValue(identifier('fizz')),
+              mockNodeWithValue(babelIdentifier('fizz')),
               '.',
               identifier('foo')
             ),

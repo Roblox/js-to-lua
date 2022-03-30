@@ -1,4 +1,7 @@
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  tableUnpackCall,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   expressionStatement,
@@ -167,18 +170,15 @@ describe('Call Expression Handler', () => {
           indexExpression(identifier('foo'), stringLiteral('bar')),
           [
             identifier('foo'),
-            callExpression(
-              memberExpression(identifier('table'), '.', identifier('unpack')),
-              [
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier('spread')
-                  ),
-                  [identifier('baz')]
+            tableUnpackCall(
+              callExpression(
+                memberExpression(
+                  identifier('Array'),
+                  '.',
+                  identifier('spread')
                 ),
-              ]
+                [identifier('baz')]
+              )
             ),
           ]
         )
@@ -189,18 +189,15 @@ describe('Call Expression Handler', () => {
           [
             identifier('foo'),
             stringLiteral('baz'),
-            callExpression(
-              memberExpression(identifier('table'), '.', identifier('unpack')),
-              [
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier('spread')
-                  ),
-                  [identifier('fizz')]
+            tableUnpackCall(
+              callExpression(
+                memberExpression(
+                  identifier('Array'),
+                  '.',
+                  identifier('spread')
                 ),
-              ]
+                [identifier('fizz')]
+              )
             ),
           ]
         )
@@ -210,29 +207,26 @@ describe('Call Expression Handler', () => {
           indexExpression(identifier('foo'), stringLiteral('bar')),
           [
             identifier('foo'),
-            callExpression(
-              memberExpression(identifier('table'), '.', identifier('unpack')),
-              [
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier('concat')
-                  ),
-                  [
-                    tableConstructor(),
-                    callExpression(
-                      memberExpression(
-                        identifier('Array'),
-                        '.',
-                        identifier('spread')
-                      ),
-                      [identifier('fizz')]
-                    ),
-                    tableConstructor([tableNoKeyField(stringLiteral('baz'))]),
-                  ]
+            tableUnpackCall(
+              callExpression(
+                memberExpression(
+                  identifier('Array'),
+                  '.',
+                  identifier('concat')
                 ),
-              ]
+                [
+                  tableConstructor(),
+                  callExpression(
+                    memberExpression(
+                      identifier('Array'),
+                      '.',
+                      identifier('spread')
+                    ),
+                    [identifier('fizz')]
+                  ),
+                  tableConstructor([tableNoKeyField(stringLiteral('baz'))]),
+                ]
+              )
             ),
           ]
         )
@@ -289,18 +283,15 @@ describe('Call Expression Handler', () => {
         callExpression(
           memberExpression(identifier('foo'), ':', identifier('bar')),
           [
-            callExpression(
-              memberExpression(identifier('table'), '.', identifier('unpack')),
-              [
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier('spread')
-                  ),
-                  [identifier('baz')]
+            tableUnpackCall(
+              callExpression(
+                memberExpression(
+                  identifier('Array'),
+                  '.',
+                  identifier('spread')
                 ),
-              ]
+                [identifier('baz')]
+              )
             ),
           ]
         )
@@ -310,18 +301,15 @@ describe('Call Expression Handler', () => {
           memberExpression(identifier('foo'), ':', identifier('bar')),
           [
             stringLiteral('baz'),
-            callExpression(
-              memberExpression(identifier('table'), '.', identifier('unpack')),
-              [
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier('spread')
-                  ),
-                  [identifier('fizz')]
+            tableUnpackCall(
+              callExpression(
+                memberExpression(
+                  identifier('Array'),
+                  '.',
+                  identifier('spread')
                 ),
-              ]
+                [identifier('fizz')]
+              )
             ),
           ]
         )
@@ -330,29 +318,26 @@ describe('Call Expression Handler', () => {
         callExpression(
           memberExpression(identifier('foo'), ':', identifier('bar')),
           [
-            callExpression(
-              memberExpression(identifier('table'), '.', identifier('unpack')),
-              [
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier('concat')
-                  ),
-                  [
-                    tableConstructor(),
-                    callExpression(
-                      memberExpression(
-                        identifier('Array'),
-                        '.',
-                        identifier('spread')
-                      ),
-                      [identifier('fizz')]
-                    ),
-                    tableConstructor([tableNoKeyField(stringLiteral('baz'))]),
-                  ]
+            tableUnpackCall(
+              callExpression(
+                memberExpression(
+                  identifier('Array'),
+                  '.',
+                  identifier('concat')
                 ),
-              ]
+                [
+                  tableConstructor(),
+                  callExpression(
+                    memberExpression(
+                      identifier('Array'),
+                      '.',
+                      identifier('spread')
+                    ),
+                    [identifier('fizz')]
+                  ),
+                  tableConstructor([tableNoKeyField(stringLiteral('baz'))]),
+                ]
+              )
             ),
           ]
         )

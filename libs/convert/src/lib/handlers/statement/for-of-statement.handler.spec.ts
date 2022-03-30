@@ -5,6 +5,7 @@ import {
   forOfStatement as babelForOfStatement,
   identifier as babelIdentifier,
   memberExpression as babelMemberExpression,
+  tsParameterProperty,
   variableDeclaration,
   variableDeclarator,
 } from '@babel/types';
@@ -21,6 +22,8 @@ import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { createForOfStatementHandler } from './for-of-statement.handler';
 
 const handleForOfStatement = createForOfStatementHandler(
+  testUtils.mockNodeWithValueHandler,
+  testUtils.mockNodeWithValueHandler,
   testUtils.mockNodeWithValueHandler,
   testUtils.mockNodeWithValueHandler,
   testUtils.mockNodeWithValueHandler
@@ -114,16 +117,16 @@ describe('For Of statement Handler', () => {
       expect(handleForOfStatement.handler(source, {}, given)).toEqual(expected);
     });
 
-    it('should not handle for of statement without variable declaration on the left side', () => {
+    it('should not handle for of statement unhandled value on the left side', () => {
       const given = babelForOfStatement(
-        babelIdentifier('foo'),
+        tsParameterProperty(babelIdentifier('foo')),
         babelIdentifier('bar'),
         babelBlockStatement([])
       );
 
       const expected = withTrailingConversionComment(
         unhandledStatement(),
-        `ROBLOX TODO: Unhandled node for type: ForOfStatement where left side is not a variable declaration`
+        `ROBLOX TODO: Unhandled node for type: ForOfStatement where left side is not handled`
       );
 
       expect(handleForOfStatement.handler(source, {}, given)).toEqual(expected);

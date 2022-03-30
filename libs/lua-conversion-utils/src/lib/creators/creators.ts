@@ -5,7 +5,7 @@ import {
   LuaNode,
   memberExpression,
 } from '@js-to-lua/lua-types';
-import { withExtras } from './extras';
+import { withExtras } from '../extras';
 
 export type PolyfillID =
   | 'Array'

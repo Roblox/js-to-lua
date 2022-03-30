@@ -1,3 +1,4 @@
+import { tableUnpackCall } from '@js-to-lua/lua-conversion-utils';
 import { getProgramNode } from '../program.spec.utils';
 import {
   callExpression,
@@ -7,7 +8,6 @@ import {
   numericLiteral,
   program,
 } from '@js-to-lua/lua-types';
-import { tableUnpackCall } from '../../expression/call/know-array-methods/utils';
 import { handleProgram } from '../program.handler';
 
 describe('Program handler', () => {

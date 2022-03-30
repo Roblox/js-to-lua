@@ -12,7 +12,12 @@ import {
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
 import { forwardHandlerRef, testUtils } from '@js-to-lua/handler-utils';
-import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
+import {
+  objectAssign,
+  objectNone,
+  tablePackCall,
+  tableUnpackCall,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -176,11 +181,11 @@ describe('Variable Declaration', () => {
       ],
       [
         variableDeclaratorValue(
-          callExpression(identifier('table.unpack'), [
+          tableUnpackCall(
             mockNodeWithValue(babelIdentifier('baz')),
             numericLiteral(1),
-            numericLiteral(2),
-          ])
+            numericLiteral(2)
+          )
         ),
       ]
     );
@@ -210,11 +215,11 @@ describe('Variable Declaration', () => {
         ],
         [
           variableDeclaratorValue(
-            callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
               mockNodeWithValue(babelIdentifier('fizz')),
               numericLiteral(1),
-              numericLiteral(1),
-            ])
+              numericLiteral(1)
+            )
           ),
         ]
       ),
@@ -229,15 +234,15 @@ describe('Variable Declaration', () => {
         ],
         [
           variableDeclaratorValue(
-            callExpression(identifier('table.unpack'), [
-              callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
+              tableUnpackCall(
                 mockNodeWithValue(babelIdentifier('fizz')),
                 numericLiteral(2),
-                numericLiteral(2),
-              ]),
+                numericLiteral(2)
+              ),
               numericLiteral(1),
-              numericLiteral(2),
-            ])
+              numericLiteral(2)
+            )
           ),
         ]
       ),
@@ -268,11 +273,11 @@ describe('Variable Declaration', () => {
         ],
         [
           variableDeclaratorValue(
-            callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
               mockNodeWithValue(babelIdentifier('baz')),
               numericLiteral(1),
-              numericLiteral(1),
-            ])
+              numericLiteral(1)
+            )
           ),
         ]
       ),
@@ -284,12 +289,12 @@ describe('Variable Declaration', () => {
         ],
         [
           variableDeclaratorValue(
-            callExpression(identifier('table.pack'), [
-              callExpression(identifier('table.unpack'), [
+            tablePackCall(
+              tableUnpackCall(
                 mockNodeWithValue(babelIdentifier('baz')),
-                numericLiteral(2),
-              ]),
-            ])
+                numericLiteral(2)
+              )
+            )
           ),
         ]
       ),
@@ -323,11 +328,11 @@ describe('Variable Declaration', () => {
         ],
         [
           variableDeclaratorValue(
-            callExpression(identifier('table.unpack'), [
+            tableUnpackCall(
               mockNodeWithValue(babelIdentifier('baz')),
               numericLiteral(1),
-              numericLiteral(1),
-            ])
+              numericLiteral(1)
+            )
           ),
         ]
       ),
@@ -347,11 +352,11 @@ describe('Variable Declaration', () => {
                     [variableDeclaratorIdentifier(identifier('element'))],
                     [
                       variableDeclaratorValue(
-                        callExpression(identifier('table.unpack'), [
+                        tableUnpackCall(
                           mockNodeWithValue(babelIdentifier('baz')),
                           numericLiteral(2),
-                          numericLiteral(2),
-                        ])
+                          numericLiteral(2)
+                        )
                       ),
                     ]
                   ),

@@ -68,7 +68,7 @@ import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from '../function-params.handler';
-import { createAssignmentPatternHandlerFunction } from '../statement/assignment-pattern.handler';
+import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 
 export const createClassDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

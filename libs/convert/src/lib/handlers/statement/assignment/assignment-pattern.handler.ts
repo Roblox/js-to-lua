@@ -5,6 +5,10 @@ import {
   isIdentifier as isBabelIdentifier,
 } from '@babel/types';
 import {
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
   getNodeSource,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
@@ -21,10 +25,6 @@ import {
   nodeGroup,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
-import {
-  createHandlerFunction,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
 
 export const createAssignmentPatternHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

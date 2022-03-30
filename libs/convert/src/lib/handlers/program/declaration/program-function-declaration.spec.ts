@@ -1,3 +1,4 @@
+import { tableUnpackCall } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -28,8 +29,8 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 const source = '';
 
@@ -112,11 +113,11 @@ describe('Program handler', () => {
               ],
               [
                 variableDeclaratorValue(
-                  callExpression(identifier('table.unpack'), [
+                  tableUnpackCall(
                     identifier('ref_'),
                     numericLiteral(1),
-                    numericLiteral(2),
-                  ])
+                    numericLiteral(2)
+                  )
                 ),
               ]
             ),

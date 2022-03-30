@@ -2,20 +2,18 @@ import {
   Expression,
   ForOfStatement as BabelForOfStatement,
   Identifier as BabelIdentifier,
-  isIdentifier as isBabelIdentifier,
   isVariableDeclaration as isBabelVariableDeclaration,
   LVal,
+  ObjectMethod,
+  ObjectProperty,
   Statement,
-  VariableDeclaration as BabelVariableDeclaration,
 } from '@babel/types';
 import {
   BaseNodeHandler,
   createHandler,
-  EmptyConfig,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
-  defaultUnhandledIdentifierHandlerWithComment,
   getNodeSource,
   isArrayInferable,
   withTrailingConversionComment,
@@ -27,31 +25,26 @@ import {
   identifier,
   LuaExpression,
   LuaIdentifier,
+  LuaLVal,
   LuaStatement,
+  LuaTableKeyField,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
+import { createExtractForOfDeclaration } from './for-of-statement-extract-declaration';
+import { createExtractForOfAssignmentStatement } from './for-of-statement-extract-statement';
 
 export const createForOfStatementHandler = (
   handleIdentifier: HandlerFunction<LuaIdentifier, BabelIdentifier>,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleStatement: HandlerFunction<LuaStatement, Statement>
+  handleStatement: HandlerFunction<LuaStatement, Statement>,
+  handleLVal: HandlerFunction<LuaLVal, LVal>,
+  handleObjectField: HandlerFunction<
+    LuaTableKeyField,
+    ObjectMethod | ObjectProperty
+  >
 ): BaseNodeHandler<ForGenericStatement, BabelForOfStatement> => {
-  const variableDeclarationsToIdentifiers = (
-    source: string,
-    config: EmptyConfig,
-    { declarations }: BabelVariableDeclaration
-  ): LuaIdentifier[] => {
-    const handleLVal = (lval: LVal): LuaIdentifier =>
-      isBabelIdentifier(lval)
-        ? handleIdentifier(source, config, lval)
-        : defaultUnhandledIdentifierHandlerWithComment(
-            `ROBLOX TODO: Unhandled node for type: ${lval.type} within ForOfStatement left expression`
-          )(source, config, lval);
-    return declarations.map(({ id }) => id).map(handleLVal);
-  };
-
   const bodyStatementHandler = createInnerBodyStatementHandler(handleStatement);
   return createHandler('ForOfStatement', (source, config, node) => {
     if (node.await) {
@@ -61,21 +54,56 @@ export const createForOfStatementHandler = (
         getNodeSource(source, node)
       );
     }
-
+    const rightExpression: LuaExpression = handleExpression(
+      source,
+      config,
+      node.right
+    );
     if (!isBabelVariableDeclaration(node.left)) {
-      return withTrailingConversionComment(
-        unhandledStatement(),
-        `ROBLOX TODO: Unhandled node for type: ${node.type} where left side is not a variable declaration`,
-        getNodeSource(source, node)
-      );
+      const result = createExtractForOfAssignmentStatement(
+        handleIdentifier,
+        handleExpression,
+        handleStatement,
+        handleLVal,
+        handleObjectField
+      )(source, config, node.left);
+
+      return result
+        ? forGenericStatement(
+            [identifier('_'), result.identifier],
+            [
+              applyTo(callExpression(identifier('ipairs'), [rightExpression]))(
+                (expression) =>
+                  isArrayInferable(rightExpression)
+                    ? expression
+                    : withTrailingConversionComment(
+                        expression,
+                        `ROBLOX CHECK: check if '${getNodeSource(
+                          source,
+                          node.right
+                        )}' is an Array`
+                      )
+              ),
+            ],
+            [result.statement, bodyStatementHandler(source, config, node.body)]
+          )
+        : withTrailingConversionComment(
+            unhandledStatement(),
+            `ROBLOX TODO: Unhandled node for type: ${node.type} where left side is not handled`,
+            getNodeSource(source, node)
+          );
     }
 
-    const rightExpression = handleExpression(source, config, node.right);
+    const { identifiers, statements } = createExtractForOfDeclaration(
+      handleIdentifier,
+      handleExpression,
+      handleStatement,
+      handleLVal,
+      handleObjectField
+    )(source, config, node.left);
+
     return forGenericStatement(
-      [
-        identifier('_'),
-        ...variableDeclarationsToIdentifiers(source, config, node.left),
-      ],
+      [identifier('_'), ...identifiers],
       [
         applyTo(callExpression(identifier('ipairs'), [rightExpression]))(
           (expression) =>
@@ -90,7 +118,7 @@ export const createForOfStatementHandler = (
                 )
         ),
       ],
-      [bodyStatementHandler(source, config, node.body)]
+      [...statements, bodyStatementHandler(source, config, node.body)]
     );
   });
 };

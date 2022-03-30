@@ -53,15 +53,15 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
+import { createLValHandler } from '../l-val.handler';
 import {
   createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,
-} from '../expression/array-pattern-destructuring.handler';
-import { createLValHandler } from '../l-val.handler';
+} from '../pattern/array-pattern-destructuring.handler';
 import {
   createObjectPatternDestructuringHandler,
   hasUnhandledObjectDestructuringParam,
-} from '../object-pattern-destructuring.handler';
+} from '../pattern/object-pattern-destructuring.handler';
 import { createConvertToFunctionDeclarationHandler } from './convert-to-function-declaration.handler';
 
 export const createVariableDeclarationHandler = (
@@ -182,8 +182,7 @@ export const createVariableDeclarationHandler = (
           );
         } else if (isArrayPattern(group.id)) {
           return handleArrayPatternDeclaration(
-            group.id,
-            handleExpression(source, config, group.init!)
+            group as VariableDeclarator & { id: ArrayPattern; init: Expression }
           );
         } else if (
           isFunctionExpression(group.init) ||
@@ -199,9 +198,9 @@ export const createVariableDeclarationHandler = (
     return declarations.length > 1 ? nodeGroup(declarations) : declarations[0];
 
     function objectPatternDestructuringDeclarationHandler(
-      declaration: VariableDeclarator & { id: ObjectPattern }
+      declarator: VariableDeclarator & { id: ObjectPattern }
     ) {
-      const idProperties = declaration.id.properties;
+      const idProperties = declarator.id.properties;
 
       if (
         hasUnhandledObjectDestructuringParam(
@@ -214,26 +213,28 @@ export const createVariableDeclarationHandler = (
           withTrailingConversionComment(
             unhandledStatement(),
             `ROBLOX TODO: Unhandled Variable declaration when one of the object properties is not supported`,
-            getNodeSource(source, declaration)
+            // This is a workaround for synthetically created variable declarations when handling function params
+            getNodeSource(source, declarator) ||
+              getNodeSource(source, declarator.id)
           ),
         ];
       }
 
       if (
-        declaration.init &&
-        (isIdentifier(declaration.init) || idProperties.length < 2)
+        declarator.init &&
+        (isIdentifier(declarator.init) || idProperties.length < 2)
       ) {
         const destructured = objectPatternDestructuringHandler(
           source,
           config,
-          handleExpression(source, config, declaration.init),
+          handleExpression(source, config, declarator.init),
           idProperties
         );
         return variableDeclaration(
           destructured.ids.map((id) => variableDeclaratorIdentifier(id)),
           destructured.values.map((value) => variableDeclaratorValue(value))
         );
-      } else if (declaration.init) {
+      } else if (declarator.init) {
         const refIdentifier = identifier('ref');
         const destructured = objectPatternDestructuringHandler(
           source,
@@ -251,7 +252,7 @@ export const createVariableDeclarationHandler = (
               [variableDeclaratorIdentifier(refIdentifier)],
               [
                 variableDeclaratorValue(
-                  handleExpression(source, config, declaration.init)
+                  handleExpression(source, config, declarator.init)
                 ),
               ]
             ),
@@ -265,23 +266,28 @@ export const createVariableDeclarationHandler = (
       } else {
         return withTrailingConversionComment(
           unhandledStatement(),
-          `ROBLOX TODO: Unhandled object destructuring init type: "${declaration.init}"`,
-          getNodeSource(source, declaration)
+          `ROBLOX TODO: Unhandled object destructuring init type: "${declarator.init}"`,
+          getNodeSource(source, declarator)
         );
       }
     }
 
     function handleArrayPatternDeclaration(
-      arrayPattern: ArrayPattern,
-      init: LuaExpression
+      declarator: Omit<VariableDeclarator, 'id' | 'init'> & {
+        id: ArrayPattern;
+        init: Expression;
+      }
     ): (LuaVariableDeclaration | UnhandledStatement)[] {
-      const elements = arrayPattern.elements.filter(isTruthy);
+      const init = handleExpression(source, config, declarator.init);
+      const elements = declarator.id.elements.filter(isTruthy);
       if (hasUnhandledArrayDestructuringParam(elements)) {
         return [
           withTrailingConversionComment(
             unhandledStatement(),
-            `ROBLOX TODO: Unhandled variable declaration when one of the elements is not supported`,
-            getNodeSource(source, arrayPattern)
+            `ROBLOX TODO: Unhandled Variable declaration when one of the elements is not supported`,
+            // This is a workaround for synthetically created variable declarations when handling function params
+            getNodeSource(source, declarator) ||
+              getNodeSource(source, declarator.id)
           ),
         ];
       }

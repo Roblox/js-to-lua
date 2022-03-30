@@ -6,7 +6,7 @@ import {
   tsAnyKeyword as babelTsAnyKeyword,
   tsTypeAnnotation as babelTsTypeAnnotation,
 } from '@babel/types';
-import { testUtils } from '@js-to-lua/handler-utils';
+import { createHandlerFunction, testUtils } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
@@ -21,7 +21,6 @@ import {
   unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createAssignmentPatternHandlerFunction } from './assignment-pattern.handler';
 
 const { mockNodeWithValueHandler } = testUtils;
@@ -66,7 +65,9 @@ describe('Assignment Pattern Handler', () => {
   it(`should remove type annotation when handling AssignmentPattern `, () => {
     const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
       mockNodeWithValueHandler,
-      createIdentifierHandler(mockNodeWithValueHandler).handler
+      createHandlerFunction<LuaIdentifier, Identifier>((source, config, node) =>
+        identifier(node.name)
+      )
     );
 
     const leftGiven = withTypeAnnotation(

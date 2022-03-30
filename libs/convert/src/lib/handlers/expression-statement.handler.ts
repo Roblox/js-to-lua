@@ -78,6 +78,7 @@ import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from './function-params.handler';
+import { generateUniqueIdentifier } from './generate-unique-identifier';
 import { createLValHandler } from './l-val.handler';
 import { handleBigIntLiteral } from './primitives/big-int.handler';
 import { handleBooleanLiteral } from './primitives/boolean.handler';
@@ -85,9 +86,9 @@ import { createMultilineStringLiteralHandler } from './primitives/multiline-stri
 import { handleNullLiteral } from './primitives/null.handler';
 import { handleNumericLiteral } from './primitives/numeric.handler';
 import { handleStringLiteral } from './primitives/string.handler';
-import { createAssignmentExpressionHandlerFunction } from './statement/assignment-expression.handler';
-import { createAssignmentPatternHandlerFunction } from './statement/assignment-pattern.handler';
-import { createAssignmentStatementHandlerFunction } from './statement/assignment-statement.handler';
+import { createAssignmentExpressionHandlerFunction } from './statement/assignment/assignment-expression.handler';
+import { createAssignmentPatternHandlerFunction } from './statement/assignment/assignment-pattern.handler';
+import { createAssignmentStatementHandlerFunction } from './statement/assignment/assignment-statement.handler';
 import { createBlockStatementHandler } from './statement/block-statement.handler';
 import { createBreakStatementHandler } from './statement/break-statement.handler';
 import { createDoWhileStatementHandler } from './statement/do-while-statement.handler';
@@ -540,20 +541,11 @@ export const handleStatement: BaseNodeHandler<LuaStatement, Statement> =
     createForOfStatementHandler(
       forwardHandlerRef(() => handleIdentifier),
       forwardHandlerRef(() => handleExpression),
-      forwardHandlerRef(() => handleStatement)
+      forwardHandlerRef(() => handleStatement),
+      handleLVal,
+      forwardHandlerRef(() => handleObjectField)
     ),
     createTsImportEqualsDeclarationHandler(
       forwardHandlerRef(() => handleIdentifier)
     ),
   ]);
-
-function generateUniqueIdentifier(
-  nodes: Expression[],
-  defaultValue: string
-): string {
-  return nodes
-    .filter((node) => node.type === 'Identifier')
-    .some((node) => (node as Identifier).name === defaultValue)
-    ? generateUniqueIdentifier(nodes, `${defaultValue}_`)
-    : defaultValue;
-}

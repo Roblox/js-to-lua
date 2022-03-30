@@ -12,6 +12,7 @@ import {
   PatternLike,
   RestElement,
 } from '@babel/types';
+import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
 import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
@@ -33,8 +34,7 @@ import {
   tableConstructor,
 } from '@js-to-lua/lua-types';
 import { anyPass } from 'ramda';
-import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
-import { createPropertyFromBaseHandler } from './expression/property-from-base.handler';
+import { createPropertyFromBaseHandler } from '../expression/property-from-base.handler';
 
 export const createObjectPatternDestructuringHandler =
   (
@@ -165,7 +165,8 @@ export function hasUnhandledObjectDestructuringParam(
     properties.some(
       (el) =>
         !anyPass([isIdentifier, isObjectPattern, isHandledAssignmentPattern])(
-          el.value
+          el.value,
+          undefined
         )
     ) ||
     properties

@@ -139,10 +139,10 @@ describe('OptionalMemberExpression handler', () => {
   it('should handle return unhandled expression when optional prop is false', () => {
     const source = 'const test = foo?.bar';
 
-    const given = withLocation(
-      13,
-      21
-    )(
+    const given = withLocation({
+      start: 13,
+      end: 21,
+    })(
       babelOptionalMemberExpression(
         babelIdentifier('foo'),
         babelIdentifier('bar'),
