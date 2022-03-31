@@ -1,4 +1,5 @@
 import {
+  BinaryExpression as BabelBinaryExpression,
   binaryExpression as babelBinaryExpression,
   identifier as babelIdentifier,
   numericLiteral as babelNumericLiteral,
@@ -26,8 +27,9 @@ import {
   multilineStringLiteral,
   numericLiteral,
   stringLiteral,
+  unhandledExpression,
 } from '@js-to-lua/lua-types';
-import { handleExpression } from '../expression-statement.handler';
+import { handleExpression } from '../../expression-statement.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
 
 const source = '';
@@ -668,6 +670,29 @@ describe('Binary Expression Handler', () => {
         [identifier('foo'), identifier('bar')]
       ),
       'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
+    );
+
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should fail gracefully for unrecognised operator`, () => {
+    const given: BabelBinaryExpression = {
+      ...babelBinaryExpression(
+        '==',
+        babelIdentifier('foo'),
+        babelIdentifier('bar')
+      ),
+      // bamboozle TS into allowing this
+      operator: 'boom' as unknown as BabelBinaryExpression['operator'],
+    };
+
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    );
+
+    const expected = withTrailingConversionComment(
+      unhandledExpression(),
+      "ROBLOX TODO: Unhandled node for type: BinaryExpression with 'boom' operator"
     );
 
     expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);

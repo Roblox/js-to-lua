@@ -1,5 +1,6 @@
 export * from './lib/array-inferable';
 export * from './lib/bit-32-method';
+export * from './lib/babel';
 export * from './lib/boolean-inferable';
 export * from './lib/comment';
 export * from './lib/create-expression-statement';

@@ -55,7 +55,7 @@ import { Unpacked } from '@js-to-lua/shared-utils';
 import { createDeclarationHandler } from './declaration/declaration.handler';
 import { createArrayExpressionHandler } from './expression/array-expression.handler';
 import { createAwaitExpressionHandler } from './expression/await-expression.handler';
-import { createBinaryExpressionHandler } from './expression/binary-expression.handler';
+import { createBinaryExpressionHandler } from './expression/binary-expression/binary-expression.handler';
 import { createCallExpressionHandler } from './expression/call/call-expression.handler';
 import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
 import { createFunctionBodyHandler } from './expression/function-body.handler';

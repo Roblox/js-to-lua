@@ -33,7 +33,7 @@ import {
 import { applyTo } from 'ramda';
 import { handleNumericLiteral } from '../primitives/numeric.handler';
 import { handleStringLiteral } from '../primitives/string.handler';
-import { createBinaryExpressionHandler } from './binary-expression.handler';
+import { createBinaryExpressionHandler } from './binary-expression/binary-expression.handler';
 
 export const createMemberExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
