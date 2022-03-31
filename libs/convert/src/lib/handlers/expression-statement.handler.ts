@@ -91,6 +91,7 @@ import { createAssignmentPatternHandlerFunction } from './statement/assignment/a
 import { createAssignmentStatementHandlerFunction } from './statement/assignment/assignment-statement.handler';
 import { createBlockStatementHandler } from './statement/block-statement.handler';
 import { createBreakStatementHandler } from './statement/break-statement.handler';
+import { createContinueStatementHandler } from './statement/continue-statement.handler';
 import { createDoWhileStatementHandler } from './statement/do-while-statement.handler';
 import { createForOfStatementHandler } from './statement/for-of-statement.handler';
 import { createForStatementHandler } from './statement/for-statement.handler';
@@ -530,6 +531,7 @@ export const handleStatement: BaseNodeHandler<LuaStatement, Statement> =
       forwardHandlerRef(() => handleExpression)
     ),
     createBreakStatementHandler(),
+    createContinueStatementHandler(),
     createWhileStatementHandler(
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleStatement)

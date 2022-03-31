@@ -41,6 +41,7 @@ import { printMultilineString } from './primitives/print-multiline-string';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
 import { createPrintAssignmentStatement } from './statements/print-assignment-statement';
+import { createPrintContinueStatement } from './statements/print-continue-statement';
 import { createPrintExportTypeStatement } from './statements/print-export-type-statement';
 import { createPrintForGenericStatement } from './statements/print-for-generic-statement';
 import { createPrintIfStatement } from './statements/print-if-statement';
@@ -259,6 +260,8 @@ const _printNode = (node: LuaNode): string => {
       return createPrintRepeatStatement(printNode, _printComments)(node);
     case 'BreakStatement':
       return 'break';
+    case 'ContinueStatement':
+      return createPrintContinueStatement()(node);
     case 'TypeCastExpression':
       return createPrintTypeCastExpression(printNode)(node);
     case 'TypeReference':
