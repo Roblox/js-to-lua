@@ -7,7 +7,7 @@ import {
   tableNoKeyField,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
-import { printNode } from './print-node';
+import { printNode } from '../print-node';
 
 describe('Print Member Expression', () => {
   it('should print member expression with two identifiers', () => {

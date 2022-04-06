@@ -10,7 +10,10 @@ import {
   tableNameKeyField,
   tableNoKeyField,
 } from '@js-to-lua/lua-types';
-import { printTableConstructor } from './print-node';
+import { createPrintTableConstructor } from './print-table-constructor';
+import { printNode } from '../../print-node';
+
+const printTableConstructor = createPrintTableConstructor(printNode);
 
 describe('Print Table Constructor', () => {
   it(`should print Lua Table Constructor Node with empty elements`, () => {

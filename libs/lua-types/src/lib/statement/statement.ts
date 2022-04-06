@@ -1,37 +1,38 @@
-import { isWhileStatement, WhileStatement } from './while-statement';
-import { LuaDeclaration, isLuaDeclaration } from '../declaration';
-import { isBlockStatement, LuaBlockStatement } from './block-statement';
-import { isReturnStatement, LuaReturnStatement } from './return-statement';
-import { isIfStatement, LuaIfStatement } from './if-statement';
-import { isNodeGroup, LuaNodeGroup } from './node-group';
+import { isLuaDeclaration, LuaDeclaration } from '../declaration';
+import { LuaNode } from '../lua-nodes.types';
+import { isAnyNodeType } from '../node.types';
+import { isUnhandledStatement, UnhandledStatement } from '../unhandled';
 import {
   AssignmentStatement,
   isAssignmentStatement,
 } from './assignment-statement';
+import { isBlockStatement, LuaBlockStatement } from './block-statement';
+import { BreakStatement, isBreakStatement } from './break-statement';
+import { ContinueStatement, isContinueStatement } from './continue-statement';
 import {
   ExportTypeStatement,
   isExportTypeStatement,
 } from './export-type-statement';
 import {
+  isExpressionStatement,
+  LuaExpressionStatement,
+} from './expression-statement';
+import {
   ForGenericStatement,
   isForGenericStatement,
 } from './for-generic-statement';
-import { BreakStatement, isBreakStatement } from './break-statement';
+import { isIfStatement, LuaIfStatement } from './if-statement';
+import { isNodeGroup, LuaNodeGroup } from './node-group';
 import { isRepeatStatement, RepeatStatement } from './repeat-statement';
-import { isUnhandledStatement, UnhandledStatement } from '../unhandled';
-import {
-  LuaExpressionStatement,
-  isExpressionStatement,
-} from './expression-statement';
-import { isAnyNodeType } from '../node.types';
-import { ContinueStatement, isContinueStatement } from './continue-statement';
+import { isReturnStatement, LuaReturnStatement } from './return-statement';
+import { isWhileStatement, WhileStatement } from './while-statement';
 
 export type LuaStatement =
   | LuaExpressionStatement
   | LuaBlockStatement
   | LuaReturnStatement
   | LuaIfStatement
-  | LuaNodeGroup
+  | LuaNodeGroup<LuaNode>
   | LuaDeclaration
   | AssignmentStatement
   | ExportTypeStatement

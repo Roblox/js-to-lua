@@ -1,51 +1,57 @@
 import {
   isBinaryExpression,
-  isCommentBlock,
   isFunctionDeclaration,
   isLogicalExpression,
-  isSameLineComment,
   isSameLineInnerComment,
   isSameLineLeadingAndTrailingComment,
   isSameLineLeadingComment,
   isSameLineTrailingComment,
   isUnaryExpression,
   isUnaryNegation,
-  LuaBlockStatement,
   LuaCallExpression,
-  LuaComment,
   LuaExpression,
   LuaFunctionDeclaration,
   LuaFunctionExpression,
   LuaNode,
   LuaNodeGroup,
-  LuaProgram,
-  LuaReturnStatement,
-  LuaStatement,
-  LuaTableConstructor,
-  LuaTableExpressionKeyField,
-  LuaTableNameKeyField,
-  LuaTableNoKeyField,
-  LuaVariableDeclaration,
-  LuaVariableDeclaratorIdentifier,
-  LuaVariableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { anyPass, last } from 'ramda';
 import { createPrintPropertySignature } from './declaration/print-property-signature';
 import { createPrintTypeAliasDeclaration } from './declaration/print-type-declaration';
 import { createPrintTypeParameterDeclaration } from './declaration/print-type-parameter-declaration';
+import { createPrintVariableDeclaration } from './declaration/variable-declaration/print-variable-declaration';
+import { createPrintVariableDeclaratorIdentifier } from './declaration/variable-declaration/print-variable-declarator-identifier';
+import { createPrintVariableDeclaratorValue } from './declaration/variable-declaration/print-variable-declarator-value';
 import { createPrintIfExpression } from './expression/print-if-expression';
 import { createPrintIndexExpression } from './expression/print-index-expression';
 import { createPrintMemberExpression } from './expression/print-member-expression';
 import { createPrintTypeCastExpression } from './expression/print-type-cast-expression';
+import { createPrintTableConstructor } from './expression/table-constructor/print-table-constructor';
+import { createPrintTableExpressionKeyField } from './expression/table-constructor/print-table-expression-key-field';
+import { createPrintTableKeyField } from './expression/table-constructor/print-table-key-field';
+import { createPrintTableNoKeyField } from './expression/table-constructor/print-table-no-key-field';
 import { printMultilineString } from './primitives/print-multiline-string';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
+import { createPrintProgram } from './print-program';
+import {
+  _printComments,
+  getPrintableInnerComments,
+  getPrintableLeadingComments,
+  getPrintableTrailingComments,
+} from './printable-comments';
 import { createPrintAssignmentStatement } from './statements/print-assignment-statement';
+import { createPrintBlockStatement } from './statements/print-block-statement';
+import { createPrintBreakStatement } from './statements/print-break-statement';
 import { createPrintContinueStatement } from './statements/print-continue-statement';
 import { createPrintExportTypeStatement } from './statements/print-export-type-statement';
+import { createPrintExpressionStatement } from './statements/print-expression-statement';
 import { createPrintForGenericStatement } from './statements/print-for-generic-statement';
 import { createPrintIfStatement } from './statements/print-if-statement';
+import { createPrintNodeGroup } from './statements/print-node-group';
 import { createPrintRepeatStatement } from './statements/print-repeat-statement';
+import { createPrintReturnStatement } from './statements/print-return-statement';
+import { createPrintUnhandledStatement } from './statements/print-unhandled-statement';
 import { createPrintWhileStatement } from './statements/print-while-statement';
 import { createPrintIndexSignature } from './type/print-index-signature';
 import { createPrintTypeFunction } from './type/print-type-function';
@@ -55,13 +61,6 @@ import { createPrintTypeOptional } from './type/print-type-optional';
 import { createPrintTypeQuery } from './type/print-type-query';
 import { createPrintTypeReference } from './type/print-type-reference';
 import { createPrintTypeUnion } from './type/print-type-union';
-import { calculateEqualsForDelimiter } from './utils';
-
-const printedNodes = new Map();
-
-// Must remove added comment to jsx elements when parsed
-const isBabelAddedComment = (comment: LuaComment) =>
-  comment.value === '#__PURE__';
 
 export type PrintNode = typeof printNode;
 export type GetPrintSections = typeof getPrintSections;
@@ -130,6 +129,7 @@ export function getPrintSections<N extends LuaNode | LuaNodeGroup<any>>(
     trailingComments,
   };
 }
+
 export function printNode<N extends LuaNode | LuaNodeGroup<any>>(
   node: N,
   nodePrintFn: (node: N) => string = _printNode
@@ -154,13 +154,13 @@ export function printNode<N extends LuaNode | LuaNodeGroup<any>>(
 const _printNode = (node: LuaNode): string => {
   switch (node.type) {
     case 'Program':
-      return printProgram(node);
+      return createPrintProgram(printNode, _printComments)(node);
     case 'ExpressionStatement':
-      return `${printNode(node.expression)};`;
+      return createPrintExpressionStatement(printNode)(node);
     case 'BlockStatement':
-      return printBlockStatement(node);
+      return createPrintBlockStatement(printNode, _printComments)(node);
     case 'ReturnStatement':
-      return printReturnStatement(node);
+      return createPrintReturnStatement(printNode)(node);
     case 'WhileStatement':
       return createPrintWhileStatement(printNode, _printComments)(node);
     case 'NumericLiteral':
@@ -176,27 +176,27 @@ const _printNode = (node: LuaNode): string => {
         node.typeAnnotation ? printNode(node.typeAnnotation) : ''
       }`;
     case 'VariableDeclaration':
-      return printNode(node, printVariableDeclaration);
+      return createPrintVariableDeclaration(printNode)(node);
     case 'NodeGroup':
-      return printNodeGroup(node);
+      return createPrintNodeGroup(printNode)(node);
     case 'VariableDeclaratorIdentifier':
-      return printVariableDeclaratorIdentifier(node);
+      return createPrintVariableDeclaratorIdentifier(printNode)(node);
     case 'VariableDeclaratorValue':
-      return printVariableDeclaratorValue(node);
+      return createPrintVariableDeclaratorValue(printNode)(node);
     case 'FunctionDeclaration':
       return `${node.isLocal ? 'local ' : ''}${printFunction(node)}`;
     case 'FunctionExpression':
       return printFunction(node);
     case 'TableConstructor':
-      return printTableConstructor(node);
+      return createPrintTableConstructor(printNode)(node);
     case 'CallExpression':
       return printCallExpression(node);
     case 'TableNoKeyField':
-      return printTableNoKeyField(node);
+      return createPrintTableNoKeyField(printNode)(node);
     case 'TableNameKeyField':
-      return printTableKeyField(node);
+      return createPrintTableKeyField(printNode)(node);
     case 'TableExpressionKeyField':
-      return printTableExpressionKeyField(node);
+      return createPrintTableExpressionKeyField(printNode)(node);
     case 'NilLiteral':
       return 'nil';
     case 'LuaTypeAnnotation':
@@ -259,7 +259,7 @@ const _printNode = (node: LuaNode): string => {
     case 'RepeatStatement':
       return createPrintRepeatStatement(printNode, _printComments)(node);
     case 'BreakStatement':
-      return 'break';
+      return createPrintBreakStatement()(node);
     case 'ContinueStatement':
       return createPrintContinueStatement()(node);
     case 'TypeCastExpression':
@@ -275,7 +275,7 @@ const _printNode = (node: LuaNode): string => {
     case 'LuaTypeParameterDeclaration':
       return createPrintTypeParameterDeclaration(printNode)(node);
     case 'UnhandledStatement':
-      return `error("not implemented");`;
+      return createPrintUnhandledStatement()(node);
     case 'UnhandledExpression':
       return `error("not implemented")`;
     case 'UnhandledTypeAnnotation':
@@ -286,133 +286,6 @@ const _printNode = (node: LuaNode): string => {
       return '--[[ default ]]';
   }
 };
-
-const _printComments = (
-  comments: ReadonlyArray<LuaComment> | undefined
-): string => {
-  const getCommentLeadingSpace = (
-    comment: LuaComment,
-    index: number,
-    prev: LuaComment | null
-  ) => {
-    return isSameLineComment(comment) && comment.loc == prev?.loc
-      ? ' '
-      : index !== 0
-      ? '\n'
-      : '';
-  };
-
-  return comments
-    ? comments
-        .map((comment, i) => {
-          printedNodes.set(comment, true);
-          const prev = i !== 0 ? comments[i - 1] : null;
-          const leadingSpace = getCommentLeadingSpace(comment, i, prev);
-          if (isCommentBlock(comment)) {
-            const numberOfEquals = calculateEqualsForDelimiter(comment.value);
-            return `${leadingSpace}--[${'='.repeat(numberOfEquals)}[${
-              comment.value
-            }]${'='.repeat(numberOfEquals)}]`;
-          } else {
-            return `${leadingSpace}--${comment.value}`;
-          }
-        })
-        .join('')
-    : '';
-};
-
-function printProgram(node: LuaProgram) {
-  const getTrailingSpace = (innerNode: LuaStatement) => {
-    if (innerNode === last(node.body)) {
-      return '';
-    } else if (
-      innerNode.trailingComments?.length &&
-      isSameLineLeadingAndTrailingComment(last(innerNode.trailingComments)!)
-    ) {
-      return ' ';
-    }
-    return '\n';
-  };
-
-  const program = node.body
-    .map((innerNode) => `${printNode(innerNode)}${getTrailingSpace(innerNode)}`)
-    .join('');
-  const innerComments = _printComments(
-    getFilteredInnerComments(node.innerComments)
-  );
-  return `${innerComments}${program}\n`;
-}
-
-export function printNodeGroup(node: LuaNodeGroup): string {
-  const printedBody = node.body
-    .map((node) => printNode(node))
-    .filter(Boolean)
-    .join('\n');
-
-  const innerComments = _printComments(
-    getPrintableInnerComments(node.innerComments)
-  );
-
-  return `${innerComments}${printedBody}`;
-}
-
-export function printVariableDeclaration(node: LuaVariableDeclaration): string {
-  const identifiers = node.identifiers.map((id) => printNode(id)).join(', ');
-  const initializers = node.values.length
-    ? ` = ${node.values.map((value) => printNode(value)).join(', ')}`
-    : '';
-  return `local ${identifiers}${initializers}`;
-}
-
-export function printVariableDeclaratorIdentifier(
-  node: LuaVariableDeclaratorIdentifier
-): string {
-  return printNode(node.value);
-}
-
-export function printVariableDeclaratorValue(
-  node: LuaVariableDeclaratorValue
-): string {
-  return `${node.value ? `${printNode(node.value)}` : 'nil'}`;
-}
-
-export function printTableConstructor(node: LuaTableConstructor): string {
-  return `{${node.elements.map((e) => printNode(e)).join(', ')}}`;
-}
-
-function printTableNoKeyField(node: LuaTableNoKeyField): string {
-  return printNode(node.value);
-}
-
-function printTableKeyField(node: LuaTableNameKeyField): string {
-  return `${printNode(node.key)} = ${printNode(node.value)}`;
-}
-
-function printTableExpressionKeyField(
-  node: LuaTableExpressionKeyField
-): string {
-  return `[${printNode(node.key)}] = ${printNode(node.value)}`;
-}
-
-export function printBlockStatement(node: LuaBlockStatement) {
-  const blockBody = node.body.map((value) => printNode(value)).join('\n  ');
-  const innerComments = _printComments(
-    getPrintableInnerComments(node.innerComments)
-  );
-
-  if (blockBody.length > 0) {
-    return `do${innerComments ? ` ${innerComments}` : ''}
-  ${blockBody}
-end`;
-  }
-
-  return `do${innerComments ? ` ${innerComments}` : ''}
-end`;
-}
-
-export function printReturnStatement(node: LuaReturnStatement) {
-  return `return ${node.arguments.map((arg) => printNode(arg)).join(', ')}`;
-}
 
 function printCallExpression(node: LuaCallExpression): string {
   return `${printCalleeExpression(node.callee)}(${node.arguments
@@ -513,55 +386,3 @@ function getPrecedence(node: LuaNode) {
 
   return 0;
 }
-
-export const getFilteredLeadingComments = (
-  comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  comments.filter(
-    (n) =>
-      !isBabelAddedComment(n) &&
-      ![isSameLineTrailingComment, isSameLineInnerComment].some((predicate) =>
-        predicate(n)
-      )
-  );
-
-export const getPrintableLeadingComments = (
-  comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  getFilteredLeadingComments(comments).filter((n) => !printedNodes.get(n));
-
-export const getFilteredInnerComments = (
-  comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  comments.filter(
-    (n) =>
-      !isBabelAddedComment(n) &&
-      ![
-        isSameLineLeadingComment,
-        isSameLineTrailingComment,
-        isSameLineLeadingAndTrailingComment,
-      ].some((predicate) => predicate(n))
-  );
-
-export const getPrintableInnerComments = (
-  comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  getFilteredInnerComments(comments).filter((n) => !printedNodes.get(n));
-
-export const getFilteredTrailingComments = (
-  comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  comments.filter(
-    (n) =>
-      !isBabelAddedComment(n) &&
-      ![
-        isSameLineLeadingComment,
-        isSameLineInnerComment,
-        isSameLineLeadingAndTrailingComment,
-      ].some((predicate) => predicate(n))
-  );
-
-export const getPrintableTrailingComments = (
-  comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  getFilteredTrailingComments(comments).filter((n) => !printedNodes.get(n));

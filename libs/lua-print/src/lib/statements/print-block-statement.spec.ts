@@ -10,7 +10,14 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { dedent } from '@js-to-lua/shared-utils';
-import { printBlockStatement } from './print-node';
+import { printNode } from '../print-node';
+import { _printComments } from '../printable-comments';
+import { createPrintBlockStatement } from './print-block-statement';
+
+const printBlockStatement = createPrintBlockStatement(
+  printNode,
+  _printComments
+);
 
 describe('Print Block Statement', () => {
   it(`should print Block Statement Node with body`, () => {
@@ -38,8 +45,8 @@ describe('Print Block Statement', () => {
 
     const expected = dedent`
     do
-      foo = "hello"
-      foo = 1
+      foo = "hello";
+      foo = 1;
     end`;
 
     expect(printBlockStatement(given)).toEqual(expected);
@@ -67,10 +74,10 @@ describe('Print Block Statement', () => {
 
     const expected = dedent`
     do
-      local name = "wole"
+      local name = "wole";
       do
-      foo = "roblox"
-      foo = 1
+      foo = "roblox";
+      foo = 1;
     end
     end`;
 
@@ -105,12 +112,12 @@ describe('Print Block Statement', () => {
     ]);
     const expected = dedent`
     do
-      local name = "wole"
+      local name = "wole";
       do
-      foo = "roblox"
-      foo = 1
+      foo = "roblox";
+      foo = 1;
       do
-      foo = 1
+      foo = 1;
     end
     end
     end`;

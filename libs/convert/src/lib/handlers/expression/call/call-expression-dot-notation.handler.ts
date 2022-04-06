@@ -38,7 +38,7 @@ const isNestedExpectCall = (node: MemberExpression): boolean => {
 
 export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
   string | MemberExpressionPredicate
-> = ['React', 'Object', 'Array', isExpectCall, isNestedExpectCall];
+> = ['React', 'Object', 'Array', 'jest', isExpectCall, isNestedExpectCall];
 
 export const createCallExpressionDotNotationHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

@@ -4,4 +4,4 @@ local function calculateFn(v)
 end
 for i = 0, 2 do
 	arr[i + 1].cachedValue = calculateFn(i)
-end```
+end

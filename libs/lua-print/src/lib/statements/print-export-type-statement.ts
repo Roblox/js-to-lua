@@ -6,5 +6,5 @@ import {
 export const createPrintExportTypeStatement =
   (printDeclaration: (node: LuaTypeAliasDeclaration) => string) =>
   (node: ExportTypeStatement): string => {
-    return `export ${printDeclaration(node.declaration)}`;
+    return `export ${printDeclaration(node.declaration)};`;
   };
