@@ -1,5 +1,7 @@
-import { tableUnpackCall } from '@js-to-lua/lua-conversion-utils';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  dateTimeMethodCall,
+  tableUnpackCall,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   expressionStatement,
@@ -7,8 +9,12 @@ import {
   memberExpression,
   numericLiteral,
   program,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Call Expression Handler', () => {
@@ -98,6 +104,30 @@ describe('Program handler', () => {
               identifier('fooArg2'),
             ]
           )
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle Date.now() call', () => {
+      const source = `
+        const t = Date.now()
+      `;
+      const given = getProgramNode(source);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('t'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                dateTimeMethodCall('now'),
+                '.',
+                identifier('UnixTimestampMillis')
+              )
+            ),
+          ]
         ),
       ]);
 

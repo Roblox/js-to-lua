@@ -51,6 +51,8 @@ export const convertFiles =
                 convert(options)({ isInitFile: isInitFile(file) }, code)
               )
               .then(safeApply(format_code))
+              // apply StyLua code formatting twice as it sometimes needs a second run to stabilize the result
+              .then(safeApply(format_code))
               .then((luaCode) => {
                 console.info('output file', output(file));
                 return prepareDir(output(file)).then((outputFile) =>

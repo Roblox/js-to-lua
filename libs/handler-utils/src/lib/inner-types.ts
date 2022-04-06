@@ -11,4 +11,4 @@ export type NonCurriedOptionalHandlerFunction<
   R extends LuaNode,
   T extends BabelNode = BabelNode,
   Config extends ConfigBase = EmptyConfig
-> = (source: string, config: Config, node: T) => R | undefined;
+> = (source: string, config: Config, node: T) => R | undefined | void;

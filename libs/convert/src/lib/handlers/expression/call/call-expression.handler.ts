@@ -14,7 +14,6 @@ import {
   callExpression,
   indexExpression,
   isIdentifier,
-  LuaCallExpression,
   LuaExpression,
   memberExpression,
 } from '@js-to-lua/lua-types';
@@ -22,6 +21,7 @@ import { createCallExpressionApplyMethodHandlerFunction } from './call-expressio
 import { createCallExpressionArgumentsHandler } from './call-expression-arguments.handler';
 import { createCallExpressionCallMethodHandlerFunction } from './call-expression-call-method.handlers';
 import { createCallExpressionComputedPropertyHandlerFunction } from './call-expression-computed-property.handler';
+import { createCallExpressionDateMethodHandler } from './call-expression-date-method.handler';
 import { createCallExpressionDotNotationHandlerFunction } from './call-expression-dot-notation.handler';
 import { createCallExpressionToStringMethodHandlerFunction } from './call-expression-to-string-method.handlers';
 import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
@@ -30,9 +30,9 @@ import { createCallExpressionKnownArrayMethodHandlerFunction } from './know-arra
 export const createCallExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
 ) =>
-  createHandler(
+  createHandler<LuaExpression, CallExpression>(
     'CallExpression',
-    (source, config, expression: CallExpression): LuaCallExpression => {
+    (source, config, expression) => {
       const handled = combineOptionalHandlerFunctions([
         createCallExpressionDotNotationHandlerFunction(handleExpression),
         createCallExpressionKnownArrayMethodHandlerFunction(handleExpression),
@@ -40,6 +40,7 @@ export const createCallExpressionHandler = (
         createCallExpressionCallMethodHandlerFunction(handleExpression),
         createCallExpressionApplyMethodHandlerFunction(handleExpression),
         createCallExpressionComputedPropertyHandlerFunction(handleExpression),
+        createCallExpressionDateMethodHandler(),
       ])(source, config, expression);
 
       if (handled) {

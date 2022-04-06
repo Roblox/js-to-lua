@@ -5,7 +5,7 @@
 		<img src="https://github.com/Roblox/js-to-lua/workflows/JS%20to%20Lua/badge.svg" alt="GitHub Actions Build Status" />
 	</a>
 	<a href='https://coveralls.io/github/Roblox/js-to-lua'>
-		<img src='https://coveralls.io/repos/github/Roblox/js-to-lua/badge.svg?t=4czPqO&kill_cache=1' alt='Coverage Status' />
+		<img src='https://coveralls.io/repos/github/Roblox/js-to-lua/badge.svg?branch=main&t=m3t6Rs' alt='Coverage Status' />
 	</a>
 </div>
 

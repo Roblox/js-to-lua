@@ -16,5 +16,5 @@ export const createOptionalHandlerFunction = <
   func: NonCurriedOptionalHandlerFunction<R, T, Config>
 ): OptionalHandlerFunction<R, T, Config> =>
   curry(function (source: string, config: Config, node: T): R | undefined {
-    return func(source, config, node);
+    return func(source, config, node) ?? undefined;
   });

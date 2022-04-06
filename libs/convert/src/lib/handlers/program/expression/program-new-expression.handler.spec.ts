@@ -1,3 +1,4 @@
+import { dateTimeMethodCall } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
@@ -122,6 +123,22 @@ describe('Program handler', () => {
               )
             ),
           ]
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle new Date expression', () => {
+      const source = `
+        const t = new Date()
+      `;
+      const given = getProgramNode(source);
+
+      const expected = program([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('t'))],
+          [variableDeclaratorValue(dateTimeMethodCall('now'))]
         ),
       ]);
 

@@ -5,6 +5,7 @@ import {
   numericLiteral as babelNumericLiteral,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
+import { dateTimeMethodCall } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
@@ -215,6 +216,20 @@ describe('Call Expression Handler', () => {
           identifier('toEqual')
         ),
         [identifier('bar')]
+      );
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle Date.now() call', () => {
+      const given = babelCallExpression(
+        babelMemberExpression(babelIdentifier('Date'), babelIdentifier('now')),
+        []
+      );
+
+      const expected = memberExpression(
+        dateTimeMethodCall('now'),
+        '.',
+        identifier('UnixTimestampMillis')
       );
       expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
     });

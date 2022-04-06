@@ -4,7 +4,10 @@ import {
   newExpression as babelNewExpression,
 } from '@babel/types';
 import { createHandlerFunction, testUtils } from '@js-to-lua/handler-utils';
-import { withPolyfillExtra } from '@js-to-lua/lua-conversion-utils';
+import {
+  dateTimeMethodCall,
+  withPolyfillExtra,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
@@ -84,6 +87,13 @@ describe('New Expression Handler', () => {
       )
     );
 
+    expect(handleNewExpression(source, {}, given)).toEqual(expected);
+  });
+
+  it('should handle new Date', () => {
+    const given = babelNewExpression(babelIdentifier('Date'), []);
+
+    const expected = dateTimeMethodCall('now');
     expect(handleNewExpression(source, {}, given)).toEqual(expected);
   });
 });

@@ -1,2 +1,3 @@
-type Bar<T--[[ Trailing comment ]]
+type Bar<
+	T--[[ Trailing comment ]]
 > = {}
