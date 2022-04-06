@@ -3,10 +3,14 @@ import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   binaryExpression,
+  blockStatement,
   booleanLiteral,
   callExpression,
+  continueStatement,
   expressionStatement,
   identifier,
+  ifClause,
+  ifStatement,
   nodeGroup,
   numericLiteral,
   program,
@@ -29,7 +33,7 @@ describe('Program handler', () => {
         }
       `);
       const expected = program([
-        nodeGroup([
+        blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
             [variableDeclaratorValue(numericLiteral(0, '0'))]
@@ -60,15 +64,19 @@ describe('Program handler', () => {
       const handledGiven = handleProgram.handler(source, {}, given);
       expect(handledGiven).toEqual(expected);
     });
-
-    it('should handle for statement with no variable declaration', () => {
+    it('should handle basic for loop with continue statement', () => {
       const given = getProgramNode(`
-        for (; i < 10; i++) {
+        for (let i = 0; i < 10; i++) {
+          if(i === 2) continue
           foo(i)
         }
       `);
       const expected = program([
-        nodeGroup([
+        blockStatement([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('i'))],
+            [variableDeclaratorValue(numericLiteral(0, '0'))]
+          ),
           whileStatement(
             withTrailingConversionComment(
               binaryExpression(identifier('i'), '<', numericLiteral(10, '10')),
@@ -76,6 +84,26 @@ describe('Program handler', () => {
             ),
             [
               nodeGroup([
+                ifStatement(
+                  ifClause(
+                    binaryExpression(
+                      identifier('i'),
+                      '==',
+                      numericLiteral(2, '2')
+                    ),
+                    nodeGroup([
+                      nodeGroup([
+                        assignmentStatement(
+                          AssignmentStatementOperatorEnum.ADD,
+                          [identifier('i')],
+                          [numericLiteral(1)]
+                        ),
+                        continueStatement(),
+                      ]),
+                    ])
+                  )
+                ),
+
                 expressionStatement(
                   callExpression(identifier('foo'), [identifier('i')])
                 ),
@@ -96,6 +124,39 @@ describe('Program handler', () => {
       expect(handledGiven).toEqual(expected);
     });
 
+    it('should handle for statement with no variable declaration', () => {
+      const given = getProgramNode(`
+        for (; i < 10; i++) {
+          foo(i)
+        }
+      `);
+      const expected = program([
+        whileStatement(
+          withTrailingConversionComment(
+            binaryExpression(identifier('i'), '<', numericLiteral(10, '10')),
+            `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
+          ),
+          [
+            nodeGroup([
+              expressionStatement(
+                callExpression(identifier('foo'), [identifier('i')])
+              ),
+            ]),
+            nodeGroup([
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.ADD,
+                [identifier('i')],
+                [numericLiteral(1)]
+              ),
+            ]),
+          ]
+        ),
+      ]);
+
+      const handledGiven = handleProgram.handler(source, {}, given);
+      expect(handledGiven).toEqual(expected);
+    });
+
     it('should handle for statement with no test node', () => {
       const given = getProgramNode(`
         for (let i = 0;; i++) {
@@ -103,7 +164,7 @@ describe('Program handler', () => {
         }
       `);
       const expected = program([
-        nodeGroup([
+        blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
             [variableDeclaratorValue(numericLiteral(0, '0'))]
@@ -136,7 +197,7 @@ describe('Program handler', () => {
         }
       `);
       const expected = program([
-        nodeGroup([
+        blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
             [variableDeclaratorValue(numericLiteral(0, '0'))]
@@ -168,13 +229,11 @@ describe('Program handler', () => {
         }
       `);
       const expected = program([
-        nodeGroup([
-          whileStatement(booleanLiteral(true), [
-            nodeGroup([
-              expressionStatement(
-                callExpression(identifier('foo'), [identifier('i')])
-              ),
-            ]),
+        whileStatement(booleanLiteral(true), [
+          nodeGroup([
+            expressionStatement(
+              callExpression(identifier('foo'), [identifier('i')])
+            ),
           ]),
         ]),
       ]);
@@ -188,7 +247,7 @@ describe('Program handler', () => {
         for (let i = 0; i < 10; i++) foo(i)
       `);
       const expected = program([
-        nodeGroup([
+        blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
             [variableDeclaratorValue(numericLiteral(0, '0'))]

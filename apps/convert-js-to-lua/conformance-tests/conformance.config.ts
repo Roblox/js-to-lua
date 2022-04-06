@@ -26,6 +26,11 @@ export default {
     'conformance-tests/statements/for-loops/complex/write-arr-element-property-and-use-index_m5.js',
     'conformance-tests/statements/for-loops/complex/write-arr-element-property_m5.js',
 
+    'conformance-tests/statements/for-loops/simple/continue/single-for-loop_m5.js',
+    'conformance-tests/statements/for-loops/simple/continue/single-for-loop-modifying_m5.js',
+    'conformance-tests/statements/for-loops/simple/continue/nested-for-loops_m5.js',
+    'conformance-tests/statements/for-loops/simple/continue/nested-for-loops-modifying_m5.js',
+
     // Babel is formatting comments.
     'conformance-tests/comments/mixed-leading-trailing-comments_m5.js',
     'conformance-tests/comments/leading-and-trailing-comment_m5.js',

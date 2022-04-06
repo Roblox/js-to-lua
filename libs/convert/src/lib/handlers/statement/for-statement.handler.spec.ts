@@ -12,6 +12,7 @@ import {
 } from '@babel/types';
 import { testUtils } from '@js-to-lua/handler-utils';
 import {
+  blockStatement,
   booleanLiteral,
   nodeGroup,
   whileStatement,
@@ -43,7 +44,7 @@ describe('For Statement Handler', () => {
       ])
     );
 
-    const expected = nodeGroup([
+    const expected = blockStatement([
       mockNodeWithValue(
         babelVariableDeclaration('let', [
           babelVariableDeclarator(babelIdentifier('i'), babelNumericLiteral(0)),
@@ -92,33 +93,29 @@ describe('For Statement Handler', () => {
       ])
     );
 
-    const expected = nodeGroup([
-      whileStatement(
-        mockNodeWithValue(
-          babelBinaryExpression(
-            '<',
-            babelIdentifier('i'),
-            babelNumericLiteral(10)
-          )
-        ),
-        [
-          nodeGroup([
-            mockNodeWithValue(
-              babelExpressionStatement(
-                babelCallExpression(babelIdentifier('foo'), [
-                  babelIdentifier('i'),
-                ])
-              )
-            ),
-          ]),
-          nodeGroup([
-            mockNodeWithValue(
-              babelUpdateExpression('++', babelIdentifier('i'))
-            ),
-          ]),
-        ]
+    const expected = whileStatement(
+      mockNodeWithValue(
+        babelBinaryExpression(
+          '<',
+          babelIdentifier('i'),
+          babelNumericLiteral(10)
+        )
       ),
-    ]);
+      [
+        nodeGroup([
+          mockNodeWithValue(
+            babelExpressionStatement(
+              babelCallExpression(babelIdentifier('foo'), [
+                babelIdentifier('i'),
+              ])
+            )
+          ),
+        ]),
+        nodeGroup([
+          mockNodeWithValue(babelUpdateExpression('++', babelIdentifier('i'))),
+        ]),
+      ]
+    );
 
     const handledGiven = handleForStatement.handler('', {}, given);
     expect(handledGiven).toEqual(expected);
@@ -138,7 +135,7 @@ describe('For Statement Handler', () => {
       ])
     );
 
-    const expected = nodeGroup([
+    const expected = blockStatement([
       mockNodeWithValue(
         babelVariableDeclaration('let', [
           babelVariableDeclarator(babelIdentifier('i'), babelNumericLiteral(0)),
@@ -178,7 +175,7 @@ describe('For Statement Handler', () => {
       ])
     );
 
-    const expected = nodeGroup([
+    const expected = blockStatement([
       mockNodeWithValue(
         babelVariableDeclaration('let', [
           babelVariableDeclarator(babelIdentifier('i'), babelNumericLiteral(0)),
@@ -222,17 +219,13 @@ describe('For Statement Handler', () => {
       ])
     );
 
-    const expected = nodeGroup([
-      whileStatement(booleanLiteral(true), [
-        nodeGroup([
-          mockNodeWithValue(
-            babelExpressionStatement(
-              babelCallExpression(babelIdentifier('foo'), [
-                babelIdentifier('i'),
-              ])
-            )
-          ),
-        ]),
+    const expected = whileStatement(booleanLiteral(true), [
+      nodeGroup([
+        mockNodeWithValue(
+          babelExpressionStatement(
+            babelCallExpression(babelIdentifier('foo'), [babelIdentifier('i')])
+          )
+        ),
       ]),
     ]);
 
@@ -252,7 +245,7 @@ describe('For Statement Handler', () => {
       )
     );
 
-    const expected = nodeGroup([
+    const expected = blockStatement([
       mockNodeWithValue(
         babelVariableDeclaration('let', [
           babelVariableDeclarator(babelIdentifier('i'), babelNumericLiteral(0)),

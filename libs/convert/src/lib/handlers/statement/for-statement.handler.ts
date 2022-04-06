@@ -3,6 +3,7 @@ import {
   Expression,
   ForStatement as BabelForStatement,
   isUpdateExpression,
+  isVariableDeclaration,
   Statement,
   UpdateExpression,
 } from '@babel/types';
@@ -17,6 +18,7 @@ import {
   defaultStatementHandler,
 } from '@js-to-lua/lua-conversion-utils';
 import {
+  blockStatement,
   booleanLiteral,
   isExpression,
   LuaDeclaration,
@@ -28,6 +30,7 @@ import {
   whileStatement,
 } from '@js-to-lua/lua-types';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
+import { withContinueStatementHandlerConfig } from './continue-statement-handler-config';
 
 export const createForStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>,
@@ -50,26 +53,36 @@ export const createForStatementHandler = (
 > =>
   createHandler('ForStatement', (source, config, node) => {
     const handleInitExpression = combineHandlers(
-      [expressionHandler, variableDeclarationHandler],
+      [
+        { type: expressionHandler.type, handler: handleExpressionAsStatement },
+        variableDeclarationHandler,
+      ],
       defaultStatementHandler
     ).handler;
 
     const handleBody = createInnerBodyStatementHandler(handleStatement);
 
-    const body = handleBody(source, config, node.body);
-
     const updateStatements = (
       node.update
         ? [
-            isUpdateExpression(node.update)
-              ? handleUpdateExpressionAsStatement(source, config, node.update)
-              : handleExpressionAsStatement(source, config, node.update),
+            {
+              node: isUpdateExpression(node.update)
+                ? handleUpdateExpressionAsStatement(source, config, node.update)
+                : handleExpressionAsStatement(source, config, node.update),
+              update: node.update,
+            },
           ]
         : []
-    ).map((someNode) =>
+    ).map(({ node: someNode, update }) =>
       isExpression(someNode)
-        ? createExpressionStatement(source, node.update!, someNode)
+        ? createExpressionStatement(source, update, someNode)
         : someNode
+    );
+
+    const body = handleBody(
+      source,
+      withContinueStatementHandlerConfig(updateStatements, config),
+      node.body
     );
 
     const testExpression = node.test
@@ -81,9 +94,12 @@ export const createForStatementHandler = (
       ...(updateStatements.length ? [nodeGroup(updateStatements)] : []),
     ]);
 
-    return nodeGroup(
-      node.init
-        ? [handleInitExpression(source, config, node.init), whileNode]
-        : [whileNode]
-    );
+    return isVariableDeclaration(node.init)
+      ? blockStatement([
+          handleInitExpression(source, config, node.init),
+          whileNode,
+        ])
+      : node.init
+      ? nodeGroup([handleInitExpression(source, config, node.init), whileNode])
+      : whileNode;
   });
