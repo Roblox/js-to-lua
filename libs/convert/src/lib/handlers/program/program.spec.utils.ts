@@ -1,7 +1,10 @@
 import { Program } from '@babel/types';
-import { parse } from '@babel/parser';
+import { parse, ParserOptions } from '@babel/parser';
 
-export const getProgramNode = (code: string): Program => {
+export const getProgramNode = (
+  code: string,
+  additionalParserOptions?: Partial<ParserOptions>
+): Program => {
   const file = parse(code, {
     sourceType: 'module',
     strictMode: true,
@@ -10,6 +13,7 @@ export const getProgramNode = (code: string): Program => {
       'jsx',
       'typescript',
     ],
+    ...additionalParserOptions,
   });
 
   return file.program;

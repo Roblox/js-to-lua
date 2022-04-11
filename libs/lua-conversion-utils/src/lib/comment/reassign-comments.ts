@@ -1,11 +1,5 @@
-import { LuaComment, LuaNode } from '@js-to-lua/lua-types';
-
-const appendComments = (
-  a: readonly LuaComment[] | undefined,
-  b: readonly LuaComment[] | undefined
-): LuaComment[] | undefined => {
-  return a || b ? [...(a || []), ...(b || [])] : undefined;
-};
+import { appendComments } from '@js-to-lua/handler-utils';
+import { LuaNode } from '@js-to-lua/lua-types';
 
 export const reassignComments = <N extends LuaNode, R extends LuaNode>(
   node: N,

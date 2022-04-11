@@ -1,5 +1,7 @@
 import { Comment, SourceLocation } from '@babel/types';
 import { LuaComment, LuaNode } from '@js-to-lua/lua-types';
+import { appendComments } from './append-comments';
+import { prependComments } from './prepend-comments';
 import { BabelNode } from './types';
 
 const handledComments = new Map() as Map<Comment, LuaComment>;
@@ -7,34 +9,36 @@ const handledComments = new Map() as Map<Comment, LuaComment>;
 export const handleComments = <R extends LuaNode>(
   source: string,
   { leadingComments, innerComments, trailingComments, loc }: BabelNode,
-  luaNode: R
+  luaNode: R,
+  shouldWrap = false
 ): R => {
   const toLuaComment = (comment: Comment) =>
     handleComment(source, comment, loc);
+
   return {
     ...luaNode,
     ...(leadingComments
       ? {
-          leadingComments: [
-            ...(luaNode.leadingComments || []),
-            ...leadingComments.map(toLuaComment),
-          ],
+          leadingComments: (shouldWrap ? prependComments : appendComments)(
+            luaNode.leadingComments,
+            leadingComments.map(toLuaComment)
+          ),
         }
       : {}),
     ...(innerComments
       ? {
-          innerComments: [
-            ...(luaNode.innerComments || []),
-            ...innerComments.map(toLuaComment),
-          ],
+          innerComments: appendComments(
+            luaNode.innerComments,
+            innerComments.map(toLuaComment)
+          ),
         }
       : {}),
     ...(trailingComments
       ? {
-          trailingComments: [
-            ...(luaNode.trailingComments || []),
-            ...trailingComments.map(toLuaComment),
-          ],
+          trailingComments: appendComments(
+            luaNode.trailingComments,
+            trailingComments.map(toLuaComment)
+          ),
         }
       : {}),
   };

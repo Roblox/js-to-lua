@@ -75,6 +75,7 @@ import {
 } from './expression/sequence-expression.handler';
 import { createTaggedTemplateExpressionHandler } from './expression/tagged-template-expression.handler';
 import { createThisExpressionHandler } from './expression/this-expression.handler';
+import { createFlowTypeCastExpressionHandler } from './expression/flow-type-cast.handler';
 import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
 import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expression.handler';
 import { createUnaryExpressionHandler } from './expression/unary-expression.handler';
@@ -300,6 +301,10 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     ),
     createNewExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createTsAsExpressionHandler(
+      forwardHandlerRef(() => handleExpression),
+      forwardHandlerRef(() => handleTypes)
+    ),
+    createFlowTypeCastExpressionHandler(
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleTypes)
     ),
