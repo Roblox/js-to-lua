@@ -45,6 +45,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { equals } from 'ramda';
 import { createExpressionAsNumericHandler } from '../../expression/handle-expression-as-numeric';
+import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createArrayPatternDestructuringAssignmentHandlerFunction } from './assignment-statement-array-pattern-destructuring.handler';
 import { createGetAssignmentStatementOperator } from './assignment-statement-get-operator';
 import { createObjectPatternDestructuringAssignmentHandlerFunction } from './assignment-statement-object-pattern-destructuring.handler';
@@ -52,6 +53,7 @@ import { createObjectPatternDestructuringAssignmentHandlerFunction } from './ass
 export const createAssignmentStatementHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleLVal: HandlerFunction<LuaLVal, LVal>,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
@@ -80,6 +82,7 @@ export const createAssignmentStatementHandlerFunction = (
           createObjectPatternDestructuringAssignmentHandlerFunction(
             handleExpression,
             handleLVal,
+            handleIdentifierStrict,
             handleObjectField
           )(source, config);
         return operator === AssignmentStatementOperatorEnum.EQ

@@ -23,8 +23,9 @@ export const createArrayUnshiftMethodCallHandler = (
   >((source, config, expression) => {
     const handleExpression = handleExpressionFunction(source, config);
     if (isArrayMethodCall('unshift', expression)) {
-      return withExtras(
-        { target: expression.callee.object },
+      return withExtras<{ target: Expression }, LuaCallExpression>({
+        target: expression.callee.object,
+      })(
         applyTo(
           {
             calleeObject: handleExpression(expression.callee.object),
@@ -44,16 +45,18 @@ export const createArrayUnshiftMethodCallHandler = (
           expression.arguments.map(handleExpression);
         return restArgs.length !== 1
           ? undefined
-          : withExtras(
-              { target: expression.callee.object.object },
+          : withExtras<{ target: Expression }, LuaCallExpression>({
+              target: expression.callee.object.object,
+            })(
               unshiftMultipleElements(thisArg, [tableUnpackCall(restArgs[0])])
             );
       }
       if (matchesBabelMemberExpressionProperty('call', expression.callee)) {
         const [thisArg, ...restArgs] =
           expression.arguments.map(handleExpression);
-        return withExtras(
-          { target: expression.callee.object.object },
+        return withExtras<{ target: Expression }, LuaCallExpression>({
+          target: expression.callee.object.object,
+        })(
           restArgs.length === 1
             ? unshiftSingleElement(thisArg, restArgs[0])
             : unshiftMultipleElements(thisArg, restArgs)

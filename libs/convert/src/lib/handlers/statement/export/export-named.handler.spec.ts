@@ -37,7 +37,10 @@ import {
   handleObjectPropertyValue,
   handleStatement,
 } from '../../expression-statement.handler';
-import { createIdentifierHandler } from '../../expression/identifier.handler';
+import {
+  createIdentifierHandler,
+  createIdentifierStrictHandler,
+} from '../../expression/identifier.handler';
 import { createLValHandler } from '../../l-val.handler';
 import { createTypeAnnotationHandler } from '../../type/type-annotation.handler';
 import { createExportNamedHandler } from './export-named.handler';
@@ -51,6 +54,10 @@ const handleIdentifier = createIdentifierHandler(
   forwardHandlerFunctionRef(() => typesHandler)
 );
 
+const handleIdentifierStrict = createIdentifierStrictHandler(
+  forwardHandlerFunctionRef(() => typesHandler)
+);
+
 const handleLVal = createLValHandler(
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleExpression)
@@ -60,6 +67,7 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleExpressionAsStatement),
   forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleIdentifierStrict),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
   handleTypes,

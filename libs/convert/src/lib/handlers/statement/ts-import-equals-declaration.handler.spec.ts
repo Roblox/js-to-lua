@@ -10,6 +10,7 @@ import { withExtras } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
+  LuaCallExpression,
   memberExpression,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -41,8 +42,9 @@ describe('TSImportDeclaration Handler', () => {
       [variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('foo')))],
       [
         variableDeclaratorValue(
-          withExtras(
-            { needsPackages: true },
+          withExtras<{ needsPackages: true }, LuaCallExpression>({
+            needsPackages: true,
+          })(
             callExpression(identifier('require'), [
               memberExpression(identifier('Packages'), '.', identifier('bar')),
             ])

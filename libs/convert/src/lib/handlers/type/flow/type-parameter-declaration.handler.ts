@@ -1,9 +1,5 @@
 import { TSType, TypeParameterDeclaration } from '@babel/types';
-import {
-  BaseNodeHandler,
-  createHandler,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   LuaType,
   LuaTypeParameterDeclaration,

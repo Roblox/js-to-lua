@@ -2,7 +2,10 @@ import {
   arrayPattern,
   AssignmentExpression,
   assignmentExpression as babelAssignmentExpression,
+  Identifier,
   identifier as babelIdentifier,
+  isIdentifier as isBabelIdentifier,
+  LVal,
   memberExpression as babelMemberExpression,
   objectExpression,
   objectPattern,
@@ -62,10 +65,25 @@ const handleAssignmentStatement = createAssignmentStatementHandlerFunction(
             stringInferableExpression(mockNodeWithValue(node))
         ),
       },
+      {
+        type: 'Identifier',
+        handler: createHandlerFunction(
+          (source: string, config: EmptyConfig, node: Identifier) =>
+            identifier(node.name)
+        ),
+      },
     ],
     mockNodeWithValueHandler
   ).handler,
-  mockNodeWithValueHandler,
+  createHandlerFunction((source: string, config: EmptyConfig, node: LVal) =>
+    isBabelIdentifier(node)
+      ? identifier(node.name)
+      : mockNodeWithValueHandler(source, config, node)
+  ),
+  createHandlerFunction(
+    (source: string, config: EmptyConfig, node: Identifier) =>
+      identifier(node.name)
+  ),
   mockNodeWithValueHandler,
   mockNodeWithValueHandler
 );
@@ -81,8 +99,8 @@ describe('Assignment Statement Handler', () => {
 
       const expected = assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
-        [mockNodeWithValue(leftGiven) as LuaIdentifier],
-        [mockNodeWithValue(rightGiven)]
+        [identifier(leftGiven.name)],
+        [identifier(rightGiven.name)]
       );
 
       expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
@@ -103,13 +121,13 @@ describe('Assignment Statement Handler', () => {
       const expected = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [mockNodeWithValue(middleGiven) as LuaIdentifier],
-          [mockNodeWithValue(rightGiven)]
+          [identifier(middleGiven.name)],
+          [identifier(rightGiven.name)]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [mockNodeWithValue(leftGiven) as LuaIdentifier],
-          [mockNodeWithValue(middleGiven)]
+          [identifier(leftGiven.name)],
+          [identifier(middleGiven.name)]
         ),
       ]);
 
@@ -128,13 +146,10 @@ describe('Assignment Statement Handler', () => {
       const expected: LuaNodeGroup = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [
-            mockNodeWithValue(babelIdentifier('foo')),
-            mockNodeWithValue(babelIdentifier('bar')),
-          ],
+          [identifier('foo'), identifier('bar')],
           [
             tableUnpackCall(
-              mockNodeWithValue(babelIdentifier('baz')),
+              identifier('baz'),
               numericLiteral(1),
               numericLiteral(2)
             ),
@@ -160,10 +175,10 @@ describe('Assignment Statement Handler', () => {
       const expected: LuaNodeGroup = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [mockNodeWithValue(babelIdentifier('foo'))],
+          [identifier('foo')],
           [
             tableUnpackCall(
-              mockNodeWithValue(babelIdentifier('fizz')),
+              identifier('fizz'),
               numericLiteral(1),
               numericLiteral(1)
             ),
@@ -171,14 +186,11 @@ describe('Assignment Statement Handler', () => {
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [
-            mockNodeWithValue(babelIdentifier('bar')),
-            mockNodeWithValue(babelIdentifier('baz')),
-          ],
+          [identifier('bar'), identifier('baz')],
           [
             tableUnpackCall(
               tableUnpackCall(
-                mockNodeWithValue(babelIdentifier('fizz')),
+                identifier('fizz'),
                 numericLiteral(2),
                 numericLiteral(2)
               ),
@@ -207,10 +219,10 @@ describe('Assignment Statement Handler', () => {
       const expected: LuaNodeGroup = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [mockNodeWithValue(babelIdentifier('foo'))],
+          [identifier('foo')],
           [
             tableUnpackCall(
-              mockNodeWithValue(babelIdentifier('baz')),
+              identifier('baz'),
               numericLiteral(1),
               numericLiteral(1)
             ),
@@ -218,15 +230,8 @@ describe('Assignment Statement Handler', () => {
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
-          [mockNodeWithValue(babelIdentifier('bar'))],
-          [
-            tablePackCall(
-              tableUnpackCall(
-                mockNodeWithValue(babelIdentifier('baz')),
-                numericLiteral(2)
-              )
-            ),
-          ]
+          [identifier('bar')],
+          [tablePackCall(tableUnpackCall(identifier('baz'), numericLiteral(2)))]
         ),
       ]);
 
@@ -249,16 +254,8 @@ describe('Assignment Statement Handler', () => {
         AssignmentStatementOperatorEnum.EQ,
         [identifier('foo'), identifier('bar')],
         [
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('foo')
-          ),
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('bar')
-          ),
+          memberExpression(identifier('baz'), '.', identifier('foo')),
+          memberExpression(identifier('baz'), '.', identifier('bar')),
         ]
       );
 
@@ -399,16 +396,8 @@ describe('Assignment Statement Handler', () => {
         AssignmentStatementOperatorEnum.EQ,
         [identifier('fun'), identifier('bat')],
         [
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('foo')
-          ),
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('bar')
-          ),
+          memberExpression(identifier('baz'), '.', identifier('foo')),
+          memberExpression(identifier('baz'), '.', identifier('bar')),
         ]
       );
 
@@ -437,20 +426,12 @@ describe('Assignment Statement Handler', () => {
         [identifier('bar'), identifier('baz')],
         [
           memberExpression(
-            memberExpression(
-              mockNodeWithValue(babelIdentifier('fizz')),
-              '.',
-              identifier('foo')
-            ),
+            memberExpression(identifier('fizz'), '.', identifier('foo')),
             '.',
             identifier('bar')
           ),
           memberExpression(
-            memberExpression(
-              mockNodeWithValue(babelIdentifier('fizz')),
-              '.',
-              identifier('foo')
-            ),
+            memberExpression(identifier('fizz'), '.', identifier('foo')),
             '.',
             identifier('baz')
           ),
@@ -471,8 +452,8 @@ describe('Assignment Statement Handler', () => {
 
       const expected = assignmentStatement(
         AssignmentStatementOperatorEnum.ADD,
-        [mockNodeWithValue(leftGiven) as LuaIdentifier],
-        [mockNodeWithValue(rightGiven)]
+        [identifier(leftGiven.name)],
+        [identifier(rightGiven.name)]
       );
 
       expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
@@ -489,7 +470,7 @@ describe('Assignment Statement Handler', () => {
         AssignmentStatementOperatorEnum.CONCAT,
         [
           stringInferableExpression(
-            mockNodeWithValue(leftGiven)
+            identifier(leftGiven.name)
           ) as LuaIdentifier,
         ],
         [stringInferableExpression(mockNodeWithValue(rightGiven))]
@@ -513,13 +494,13 @@ describe('Assignment Statement Handler', () => {
       const expected = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.ADD,
-          [mockNodeWithValue(middleGiven) as LuaIdentifier],
-          [mockNodeWithValue(rightGiven)]
+          [identifier(middleGiven.name)],
+          [identifier(rightGiven.name)]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.ADD,
-          [mockNodeWithValue(leftGiven) as LuaIdentifier],
-          [mockNodeWithValue(middleGiven)]
+          [identifier(leftGiven.name)],
+          [identifier(middleGiven.name)]
         ),
       ]);
 
@@ -543,7 +524,7 @@ describe('Assignment Statement Handler', () => {
           AssignmentStatementOperatorEnum.CONCAT,
           [
             stringInferableExpression(
-              mockNodeWithValue(middleGiven)
+              identifier(middleGiven.name)
             ) as LuaIdentifier,
           ],
           [stringInferableExpression(mockNodeWithValue(rightGiven))]
@@ -552,10 +533,10 @@ describe('Assignment Statement Handler', () => {
           AssignmentStatementOperatorEnum.CONCAT,
           [
             stringInferableExpression(
-              mockNodeWithValue(leftGiven)
+              identifier(leftGiven.name)
             ) as LuaIdentifier,
           ],
-          [stringInferableExpression(mockNodeWithValue(middleGiven))]
+          [stringInferableExpression(identifier(middleGiven.name))]
         ),
       ]);
 
@@ -573,8 +554,8 @@ describe('Assignment Statement Handler', () => {
 
       const expected = assignmentStatement(
         AssignmentStatementOperatorEnum.SUB,
-        [mockNodeWithValue(leftGiven) as LuaIdentifier],
-        [mockNodeWithValue(rightGiven)]
+        [identifier(leftGiven.name)],
+        [identifier(rightGiven.name)]
       );
 
       expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
@@ -595,13 +576,13 @@ describe('Assignment Statement Handler', () => {
       const expected = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.SUB,
-          [mockNodeWithValue(middleGiven) as LuaIdentifier],
-          [mockNodeWithValue(rightGiven)]
+          [identifier(middleGiven.name)],
+          [identifier(rightGiven.name)]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.SUB,
-          [mockNodeWithValue(leftGiven) as LuaIdentifier],
-          [mockNodeWithValue(middleGiven)]
+          [identifier(leftGiven.name)],
+          [identifier(middleGiven.name)]
         ),
       ]);
 
@@ -619,8 +600,8 @@ describe('Assignment Statement Handler', () => {
 
       const expected = assignmentStatement(
         AssignmentStatementOperatorEnum.MUL,
-        [mockNodeWithValue(leftGiven) as LuaIdentifier],
-        [mockNodeWithValue(rightGiven)]
+        [identifier(leftGiven.name)],
+        [identifier(rightGiven.name)]
       );
 
       expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
@@ -641,13 +622,13 @@ describe('Assignment Statement Handler', () => {
       const expected = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.MUL,
-          [mockNodeWithValue(middleGiven) as LuaIdentifier],
-          [mockNodeWithValue(rightGiven)]
+          [identifier(middleGiven.name)],
+          [identifier(rightGiven.name)]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.MUL,
-          [mockNodeWithValue(leftGiven) as LuaIdentifier],
-          [mockNodeWithValue(middleGiven)]
+          [identifier(leftGiven.name)],
+          [identifier(middleGiven.name)]
         ),
       ]);
 
@@ -665,8 +646,8 @@ describe('Assignment Statement Handler', () => {
 
       const expected = assignmentStatement(
         AssignmentStatementOperatorEnum.DIV,
-        [mockNodeWithValue(leftGiven) as LuaIdentifier],
-        [mockNodeWithValue(rightGiven)]
+        [identifier(leftGiven.name)],
+        [identifier(rightGiven.name)]
       );
 
       expect(handleAssignmentStatement.handler(source, {}, given)).toEqual(
@@ -687,13 +668,13 @@ describe('Assignment Statement Handler', () => {
       const expected = nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.DIV,
-          [mockNodeWithValue(middleGiven) as LuaIdentifier],
-          [mockNodeWithValue(rightGiven)]
+          [identifier(middleGiven.name)],
+          [identifier(rightGiven.name)]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.DIV,
-          [mockNodeWithValue(leftGiven) as LuaIdentifier],
-          [mockNodeWithValue(middleGiven)]
+          [identifier(leftGiven.name)],
+          [identifier(middleGiven.name)]
         ),
       ]);
 

@@ -42,7 +42,9 @@ export const createNewExpressionHandler = (
         node.arguments.map(handleExpression)
       );
       if (isIdentifier(callee) && isPolyfillID(callee.name, requirePolyfill)) {
-        return withPolyfillExtra(callee.name)(returnValue);
+        return withPolyfillExtra<LuaExpression, PolyfillID>(callee.name)(
+          returnValue
+        );
       }
       return returnValue;
     }

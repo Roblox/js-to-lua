@@ -8,13 +8,15 @@ import {
   LuaExpression,
   LuaIdentifier,
   LuaMemberExpression,
+  LuaNode,
 } from '@js-to-lua/lua-types';
 import { booleanMethod } from './creators';
 import { withExtras } from './extras';
 
-export const booleanInferableExpression = withExtras({
-  isBooleanInferable: true,
-});
+export const booleanInferableExpression = <N extends LuaNode>(node: N) =>
+  withExtras<{ isBooleanInferable: true }, N>({
+    isBooleanInferable: true,
+  })(node);
 
 export const isBooleanInferable = (
   node: LuaExpression & { extras?: { isBooleanInferable?: boolean } }

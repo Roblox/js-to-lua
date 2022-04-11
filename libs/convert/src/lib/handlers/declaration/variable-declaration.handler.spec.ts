@@ -2,7 +2,9 @@ import {
   arrayPattern,
   assignmentPattern as babelAssignmentPattern,
   callExpression as babelCallExpression,
+  Expression,
   identifier as babelIdentifier,
+  isIdentifier,
   numericLiteral as babelNumericLiteral,
   objectPattern,
   objectProperty,
@@ -11,7 +13,11 @@ import {
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
-import { forwardHandlerRef, testUtils } from '@js-to-lua/handler-utils';
+import {
+  createHandlerFunction,
+  forwardHandlerRef,
+  testUtils,
+} from '@js-to-lua/handler-utils';
 import {
   objectAssign,
   objectNone,
@@ -29,6 +35,7 @@ import {
   identifier,
   ifClause,
   ifStatement,
+  LuaExpression,
   memberExpression,
   nilLiteral,
   nodeGroup,
@@ -42,6 +49,12 @@ import {
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { handleObjectField } from '../expression-statement.handler';
+import {
+  IdentifierHandlerFrom,
+  IdentifierHandlerTo,
+  IdentifierStrictHandlerFrom,
+  IdentifierStrictHandlerTo,
+} from '../expression/identifier-handler-types';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
 
 const { mockNodeWithValueHandler } = testUtils;
@@ -49,9 +62,18 @@ const { mockNodeWithValueHandler } = testUtils;
 const source = '';
 
 const handleVariableDeclaration = createVariableDeclarationHandler(
+  createHandlerFunction<LuaExpression, Expression>((source, config, node) =>
+    isIdentifier(node)
+      ? identifier(node.name)
+      : mockNodeWithValueHandler(source, config, node)
+  ),
   mockNodeWithValueHandler,
-  mockNodeWithValueHandler,
-  mockNodeWithValueHandler,
+  createHandlerFunction<IdentifierHandlerTo, IdentifierHandlerFrom>(
+    (source, config, node) => identifier(node.name)
+  ),
+  createHandlerFunction<IdentifierStrictHandlerTo, IdentifierStrictHandlerFrom>(
+    (source, config, node) => identifier(node.name)
+  ),
   mockNodeWithValueHandler,
   forwardHandlerRef(() => handleObjectField),
   mockNodeWithValueHandler
@@ -66,11 +88,7 @@ describe('Variable Declaration', () => {
       ]);
 
       const expected = variableDeclaration(
-        [
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier(name))
-          ),
-        ],
+        [variableDeclaratorIdentifier(identifier(name))],
         []
       );
 
@@ -91,11 +109,7 @@ describe('Variable Declaration', () => {
       ]);
 
       const expected = variableDeclaration(
-        [
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier(name))
-          ),
-        ],
+        [variableDeclaratorIdentifier(identifier(name))],
         [variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('abc')))]
       );
 
@@ -120,9 +134,9 @@ describe('Variable Declaration', () => {
 
     const expected = variableDeclaration(
       [
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('foo'))),
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('bar'))),
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('baz'))),
+        variableDeclaratorIdentifier(identifier('foo')),
+        variableDeclaratorIdentifier(identifier('bar')),
+        variableDeclaratorIdentifier(identifier('baz')),
       ],
       [
         variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('foo'))),
@@ -151,9 +165,9 @@ describe('Variable Declaration', () => {
 
     const expected = variableDeclaration(
       [
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('foo'))),
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('bar'))),
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('baz'))),
+        variableDeclaratorIdentifier(identifier('foo')),
+        variableDeclaratorIdentifier(identifier('bar')),
+        variableDeclaratorIdentifier(identifier('baz')),
       ],
       [
         variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('foo'))),
@@ -176,13 +190,13 @@ describe('Variable Declaration', () => {
 
     const expected = variableDeclaration(
       [
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('foo'))),
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('bar'))),
+        variableDeclaratorIdentifier(identifier('foo')),
+        variableDeclaratorIdentifier(identifier('bar')),
       ],
       [
         variableDeclaratorValue(
           tableUnpackCall(
-            mockNodeWithValue(babelIdentifier('baz')),
+            identifier('baz'),
             numericLiteral(1),
             numericLiteral(2)
           )
@@ -208,15 +222,11 @@ describe('Variable Declaration', () => {
 
     const expected = nodeGroup([
       variableDeclaration(
-        [
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier('foo'))
-          ),
-        ],
+        [variableDeclaratorIdentifier(identifier('foo'))],
         [
           variableDeclaratorValue(
             tableUnpackCall(
-              mockNodeWithValue(babelIdentifier('fizz')),
+              identifier('fizz'),
               numericLiteral(1),
               numericLiteral(1)
             )
@@ -225,18 +235,14 @@ describe('Variable Declaration', () => {
       ),
       variableDeclaration(
         [
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier('bar'))
-          ),
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier('baz'))
-          ),
+          variableDeclaratorIdentifier(identifier('bar')),
+          variableDeclaratorIdentifier(identifier('baz')),
         ],
         [
           variableDeclaratorValue(
             tableUnpackCall(
               tableUnpackCall(
-                mockNodeWithValue(babelIdentifier('fizz')),
+                identifier('fizz'),
                 numericLiteral(2),
                 numericLiteral(2)
               ),
@@ -266,15 +272,11 @@ describe('Variable Declaration', () => {
 
     const expected = nodeGroup([
       variableDeclaration(
-        [
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier('foo'))
-          ),
-        ],
+        [variableDeclaratorIdentifier(identifier('foo'))],
         [
           variableDeclaratorValue(
             tableUnpackCall(
-              mockNodeWithValue(babelIdentifier('baz')),
+              identifier('baz'),
               numericLiteral(1),
               numericLiteral(1)
             )
@@ -282,19 +284,10 @@ describe('Variable Declaration', () => {
         ]
       ),
       variableDeclaration(
-        [
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier('bar'))
-          ),
-        ],
+        [variableDeclaratorIdentifier(identifier('bar'))],
         [
           variableDeclaratorValue(
-            tablePackCall(
-              tableUnpackCall(
-                mockNodeWithValue(babelIdentifier('baz')),
-                numericLiteral(2)
-              )
-            )
+            tablePackCall(tableUnpackCall(identifier('baz'), numericLiteral(2)))
           ),
         ]
       ),
@@ -321,15 +314,11 @@ describe('Variable Declaration', () => {
 
     const expected = nodeGroup([
       variableDeclaration(
-        [
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier('foo'))
-          ),
-        ],
+        [variableDeclaratorIdentifier(identifier('foo'))],
         [
           variableDeclaratorValue(
             tableUnpackCall(
-              mockNodeWithValue(babelIdentifier('baz')),
+              identifier('baz'),
               numericLiteral(1),
               numericLiteral(1)
             )
@@ -337,11 +326,7 @@ describe('Variable Declaration', () => {
         ]
       ),
       variableDeclaration(
-        [
-          variableDeclaratorIdentifier(
-            mockNodeWithValue(babelIdentifier('bar'))
-          ),
-        ],
+        [variableDeclaratorIdentifier(identifier('bar'))],
         [
           variableDeclaratorValue(
             callExpression(
@@ -353,7 +338,7 @@ describe('Variable Declaration', () => {
                     [
                       variableDeclaratorValue(
                         tableUnpackCall(
-                          mockNodeWithValue(babelIdentifier('baz')),
+                          identifier('baz'),
                           numericLiteral(2),
                           numericLiteral(2)
                         )
@@ -410,18 +395,10 @@ describe('Variable Declaration', () => {
       ],
       [
         variableDeclaratorValue(
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('foo')
-          )
+          memberExpression(identifier('baz'), '.', identifier('foo'))
         ),
         variableDeclaratorValue(
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('bar')
-          )
+          memberExpression(identifier('baz'), '.', identifier('bar'))
         ),
       ]
     );
@@ -449,18 +426,10 @@ describe('Variable Declaration', () => {
       ],
       [
         variableDeclaratorValue(
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('foo')
-          )
+          memberExpression(identifier('baz'), '.', identifier('foo'))
         ),
         variableDeclaratorValue(
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('bar')
-          )
+          memberExpression(identifier('baz'), '.', identifier('bar'))
         ),
       ]
     );
@@ -484,20 +453,16 @@ describe('Variable Declaration', () => {
     const expected = variableDeclaration(
       [
         variableDeclaratorIdentifier(identifier('foo')),
-        variableDeclaratorIdentifier(mockNodeWithValue(babelIdentifier('bar'))),
+        variableDeclaratorIdentifier(identifier('bar')),
       ],
       [
         variableDeclaratorValue(
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('baz')),
-            '.',
-            identifier('foo')
-          )
+          memberExpression(identifier('baz'), '.', identifier('foo'))
         ),
         variableDeclaratorValue(
           callExpression(objectAssign(), [
             tableConstructor(),
-            mockNodeWithValue(babelIdentifier('baz')),
+            identifier('baz'),
             tableConstructor([
               tableNameKeyField(identifier('foo'), objectNone()),
             ]),
@@ -535,22 +500,14 @@ describe('Variable Declaration', () => {
       [
         variableDeclaratorValue(
           memberExpression(
-            memberExpression(
-              mockNodeWithValue(babelIdentifier('fizz')),
-              '.',
-              identifier('foo')
-            ),
+            memberExpression(identifier('fizz'), '.', identifier('foo')),
             '.',
             identifier('bar')
           )
         ),
         variableDeclaratorValue(
           memberExpression(
-            memberExpression(
-              mockNodeWithValue(babelIdentifier('fizz')),
-              '.',
-              identifier('foo')
-            ),
+            memberExpression(identifier('fizz'), '.', identifier('foo')),
             '.',
             identifier('baz')
           )
@@ -587,11 +544,7 @@ describe('Variable Declaration', () => {
       ],
       [
         variableDeclaratorValue(
-          memberExpression(
-            mockNodeWithValue(babelIdentifier('fizz')),
-            '.',
-            identifier('foo')
-          )
+          memberExpression(identifier('fizz'), '.', identifier('foo'))
         ),
         variableDeclaratorValue(
           callExpression(
@@ -602,7 +555,7 @@ describe('Variable Declaration', () => {
                   ifClause(
                     binaryExpression(
                       memberExpression(
-                        mockNodeWithValue(babelIdentifier('fizz')),
+                        identifier('fizz'),
                         '.',
                         identifier('bar')
                       ),
@@ -620,7 +573,7 @@ describe('Variable Declaration', () => {
                     nodeGroup([
                       returnStatement(
                         memberExpression(
-                          mockNodeWithValue(babelIdentifier('fizz')),
+                          identifier('fizz'),
                           '.',
                           identifier('bar')
                         )

@@ -1,6 +1,5 @@
 import {
   Expression,
-  Identifier as BabelIdentifier,
   isArrayPattern as isBabelArrayPattern,
   isIdentifier as isBabelIdentifier,
   isObjectPattern as isBabelObjectPattern,
@@ -26,6 +25,7 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
+import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { generateUniqueIdentifier } from '../generate-unique-identifier';
 import {
   createArrayPatternDestructuringHandler,
@@ -37,7 +37,7 @@ import {
 } from '../pattern/object-pattern-destructuring.handler';
 
 export const createExtractForOfAssignmentStatement = (
-  handleIdentifier: HandlerFunction<LuaIdentifier, BabelIdentifier>,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleLVal: HandlerFunction<LuaLVal, LVal>,
@@ -76,7 +76,7 @@ export const createExtractForOfAssignmentStatement = (
       return {
         identifier: refIdentifier,
         statement: assignmentOrDeclaration(
-          [handleIdentifier(source, config, left)],
+          [handleIdentifierStrict(source, config, left)],
           [refIdentifier]
         ),
       };
@@ -95,6 +95,7 @@ export const createExtractForOfAssignmentStatement = (
         createObjectPatternDestructuringHandler(
           handleExpression,
           handleLVal,
+          handleIdentifierStrict,
           handleObjectField
         );
       const destructured = objectPatternDestructuringHandler(

@@ -9,6 +9,7 @@ import {
   isIfStatement,
   isNodeGroup,
   LuaNode,
+  LuaNodeGroup,
   nodeGroup,
 } from '@js-to-lua/lua-types';
 import { dedent } from '@js-to-lua/shared-utils';
@@ -156,7 +157,9 @@ describe('Print if expression', () => {
   });
 
   it('should print if..then..elseif..else statement with multiple elseif and empty body', () => {
-    const withEmptyExtras = withExtras({ empty: true });
+    const withEmptyExtras = withExtras<{ empty: true }, LuaNodeGroup>({
+      empty: true,
+    });
     const given = ifStatement(
       ifClause(identifier('foo'), withEmptyExtras(nodeGroup([]))),
       [

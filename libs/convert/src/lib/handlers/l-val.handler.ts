@@ -7,21 +7,12 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import { defaultUnhandledIdentifierHandler } from '@js-to-lua/lua-conversion-utils';
-import {
-  LuaBinaryExpression,
-  LuaExpression,
-  LuaIdentifier,
-  LuaLVal,
-  LuaMemberExpression,
-  LuaNilLiteral,
-} from '@js-to-lua/lua-types';
+import { LuaExpression, LuaLVal } from '@js-to-lua/lua-types';
+import { IdentifierHandlerFunction } from './expression/identifier-handler-types';
 import { createMemberExpressionHandler } from './expression/member-expression.handler';
 
 export const createLValHandler = (
-  handleIdentifier: HandlerFunction<
-    LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression,
-    Identifier
-  >,
+  handleIdentifier: IdentifierHandlerFunction,
   handleExpression: HandlerFunction<LuaExpression, Expression>
 ): BaseNodeHandler<LuaLVal, LVal> => {
   const defaultLValHandler: HandlerFunction<LuaLVal, LVal> =
@@ -34,13 +25,17 @@ export const createLValHandler = (
 
   return combineHandlers<LuaLVal, LVal>(
     [
-      createHandler('Identifier', (source, config, node: Identifier) =>
-        handleIdentifier(source, config, node)
+      createHandler(
+        'Identifier',
+        (source, config, node: Identifier) =>
+          handleIdentifier(source, config, node),
+        { skipComments: true }
       ),
       createHandler(
         'MemberExpression',
         (source, config, node: MemberExpression) =>
-          handleMemberExpression(source, config, node)
+          handleMemberExpression(source, config, node),
+        { skipComments: true }
       ),
     ],
     defaultLValHandler

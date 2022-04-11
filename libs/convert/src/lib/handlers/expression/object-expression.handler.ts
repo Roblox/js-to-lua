@@ -59,14 +59,16 @@ export const createObjectExpressionHandler = (
       });
 
       return callExpression(objectAssign(), [tableConstructor([]), ...args]);
-    }
+    },
+    { skipComments: true }
   );
 
   const handleObjectExpressionWithoutSpread = createHandlerFunction(
     (source, config, expression: ObjectExpression): LuaTableConstructor =>
       tableConstructor(
         expression.properties.map(objectFieldHandlerFunction(source, config))
-      )
+      ),
+    { skipComments: true }
   );
 
   return createHandler(

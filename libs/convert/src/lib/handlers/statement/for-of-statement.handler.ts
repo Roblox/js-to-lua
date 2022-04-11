@@ -1,7 +1,6 @@
 import {
   Expression,
   ForOfStatement as BabelForOfStatement,
-  Identifier as BabelIdentifier,
   isVariableDeclaration as isBabelVariableDeclaration,
   LVal,
   ObjectMethod,
@@ -24,19 +23,19 @@ import {
   forGenericStatement,
   identifier,
   LuaExpression,
-  LuaIdentifier,
   LuaLVal,
   LuaStatement,
   LuaTableKeyField,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
+import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
 import { createExtractForOfDeclaration } from './for-of-statement-extract-declaration';
 import { createExtractForOfAssignmentStatement } from './for-of-statement-extract-statement';
 
 export const createForOfStatementHandler = (
-  handleIdentifier: HandlerFunction<LuaIdentifier, BabelIdentifier>,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleLVal: HandlerFunction<LuaLVal, LVal>,
@@ -61,7 +60,7 @@ export const createForOfStatementHandler = (
     );
     if (!isBabelVariableDeclaration(node.left)) {
       const result = createExtractForOfAssignmentStatement(
-        handleIdentifier,
+        handleIdentifierStrict,
         handleExpression,
         handleStatement,
         handleLVal,
@@ -95,7 +94,7 @@ export const createForOfStatementHandler = (
     }
 
     const { identifiers, statements } = createExtractForOfDeclaration(
-      handleIdentifier,
+      handleIdentifierStrict,
       handleExpression,
       handleStatement,
       handleLVal,

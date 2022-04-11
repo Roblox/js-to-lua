@@ -1024,7 +1024,9 @@ describe('Program handler', () => {
                           )
                         ),
                         tableExpressionKeyField(
-                          identifier('bar'),
+                          callExpression(identifier('tostring'), [
+                            identifier('bar'),
+                          ]),
                           memberExpression(
                             identifier('Object'),
                             '.',
@@ -1085,6 +1087,659 @@ describe('Program handler', () => {
                                   identifier('fizz'),
                                   '.',
                                   identifier('bar')
+                                )
+                              ),
+                            ])
+                          )
+                        ),
+                      ])
+                    ),
+                    []
+                  )
+                ),
+              ]
+            ),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+      });
+
+      describe('multiple props - with global Lua variables', () => {
+        it(`should handle object destructuring`, () => {
+          const given = getProgramNode(`
+            const {foo, bar, error, table} = baz;
+          `);
+
+          const expected: LuaProgram = program([
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('foo')),
+                variableDeclaratorIdentifier(identifier('bar')),
+                variableDeclaratorIdentifier(identifier('error_')),
+                variableDeclaratorIdentifier(identifier('table_')),
+              ],
+              [
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('foo'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('bar'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('error'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('table'))
+                ),
+              ]
+            ),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+
+        it(`should handle object destructuring from a call expression`, () => {
+          const given = getProgramNode(`
+            const {foo, bar, error, table} = baz();
+          `);
+
+          const expected: LuaProgram = program([
+            nodeGroup([
+              variableDeclaration(
+                [
+                  variableDeclaratorIdentifier(identifier('foo')),
+                  variableDeclaratorIdentifier(identifier('bar')),
+                  variableDeclaratorIdentifier(identifier('error_')),
+                  variableDeclaratorIdentifier(identifier('table_')),
+                ],
+                []
+              ),
+              blockStatement([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('ref'))],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('baz'), [])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    identifier('foo'),
+                    identifier('bar'),
+                    identifier('error_'),
+                    identifier('table_'),
+                  ],
+                  [
+                    memberExpression(identifier('ref'), '.', identifier('foo')),
+                    memberExpression(identifier('ref'), '.', identifier('bar')),
+                    memberExpression(
+                      identifier('ref'),
+                      '.',
+                      identifier('error')
+                    ),
+                    memberExpression(
+                      identifier('ref'),
+                      '.',
+                      identifier('table')
+                    ),
+                  ]
+                ),
+              ]),
+            ]),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+
+        it(`should handle object destructuring from a member expression`, () => {
+          const given = getProgramNode(`
+            const {foo, bar, error, table} = baz.fuzz;
+          `);
+
+          const expected: LuaProgram = program([
+            nodeGroup([
+              variableDeclaration(
+                [
+                  variableDeclaratorIdentifier(identifier('foo')),
+                  variableDeclaratorIdentifier(identifier('bar')),
+                  variableDeclaratorIdentifier(identifier('error_')),
+                  variableDeclaratorIdentifier(identifier('table_')),
+                ],
+                []
+              ),
+              blockStatement([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('ref'))],
+                  [
+                    variableDeclaratorValue(
+                      memberExpression(
+                        identifier('baz'),
+                        '.',
+                        identifier('fuzz')
+                      )
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    identifier('foo'),
+                    identifier('bar'),
+                    identifier('error_'),
+                    identifier('table_'),
+                  ],
+                  [
+                    memberExpression(identifier('ref'), '.', identifier('foo')),
+                    memberExpression(identifier('ref'), '.', identifier('bar')),
+                    memberExpression(
+                      identifier('ref'),
+                      '.',
+                      identifier('error')
+                    ),
+                    memberExpression(
+                      identifier('ref'),
+                      '.',
+                      identifier('table')
+                    ),
+                  ]
+                ),
+              ]),
+            ]),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+
+        it(`should handle object destructuring with aliases`, () => {
+          const given = getProgramNode(`
+            const {foo:fun, bar:bat, err: error, tbl: table } = baz;
+          `);
+
+          const expected: LuaProgram = program([
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('fun')),
+                variableDeclaratorIdentifier(identifier('bat')),
+                variableDeclaratorIdentifier(identifier('error_')),
+                variableDeclaratorIdentifier(identifier('table_')),
+              ],
+              [
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('foo'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('bar'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('err'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('tbl'))
+                ),
+              ]
+            ),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+
+        it(`should handle object destructuring with rest element`, () => {
+          const given = getProgramNode(`
+            const {error, ...table} = baz;
+          `);
+
+          const expected: LuaProgram = program([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Object'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Object')
+                  )
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('error_')),
+                variableDeclaratorIdentifier(identifier('table_')),
+              ],
+              [
+                variableDeclaratorValue(
+                  memberExpression(identifier('baz'), '.', identifier('error'))
+                ),
+                variableDeclaratorValue(
+                  callExpression(
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('assign')
+                    ),
+                    [
+                      tableConstructor(),
+                      identifier('baz'),
+                      tableConstructor([
+                        tableExpressionKeyField(
+                          stringLiteral('error'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                      ]),
+                    ]
+                  )
+                ),
+              ]
+            ),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+
+        it(`should handle object destructuring with nested object pattern`, () => {
+          const given = getProgramNode(`
+            const {until:{table,repeat}} = fizz;
+          `);
+
+          const expected: LuaProgram = program([
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('table_')),
+                variableDeclaratorIdentifier(identifier('repeat_')),
+              ],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    indexExpression(identifier('fizz'), stringLiteral('until')),
+                    '.',
+                    identifier('table')
+                  )
+                ),
+                variableDeclaratorValue(
+                  indexExpression(
+                    indexExpression(identifier('fizz'), stringLiteral('until')),
+                    stringLiteral('repeat')
+                  )
+                ),
+              ]
+            ),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+
+        it(`should handle object destructuring with rest element and aliases`, () => {
+          const given = getProgramNode(`
+            const { a, repeat, 'foo-bar': error, method1, ...until } = foo;
+          `);
+
+          const expected: LuaProgram = program([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Object'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Object')
+                  )
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('a')),
+                variableDeclaratorIdentifier(identifier('repeat_')),
+                variableDeclaratorIdentifier(identifier('error_')),
+                variableDeclaratorIdentifier(identifier('method1')),
+                variableDeclaratorIdentifier(identifier('until_')),
+              ],
+              [
+                variableDeclaratorValue(
+                  memberExpression(identifier('foo'), '.', identifier('a'))
+                ),
+                variableDeclaratorValue(
+                  indexExpression(identifier('foo'), stringLiteral('repeat'))
+                ),
+                variableDeclaratorValue(
+                  indexExpression(identifier('foo'), stringLiteral('foo-bar'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('foo'),
+                    '.',
+                    identifier('method1')
+                  )
+                ),
+                variableDeclaratorValue(
+                  callExpression(
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('assign')
+                    ),
+                    [
+                      tableConstructor(),
+                      identifier('foo'),
+                      tableConstructor([
+                        tableNameKeyField(
+                          identifier('a'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                        tableExpressionKeyField(
+                          stringLiteral('repeat'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                        tableExpressionKeyField(
+                          stringLiteral('foo-bar'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                        tableNameKeyField(
+                          identifier('method1'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                      ]),
+                    ]
+                  )
+                ),
+              ]
+            ),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+
+        it(`should handle object destructuring with rest element, aliases and computed properties`, () => {
+          const given = getProgramNode(`
+            const { a, repeat, 'foo-bar': until, method1, [error]: table, ...do } = foo;
+          `);
+
+          const expected: LuaProgram = program([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Object'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Object')
+                  )
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('a')),
+                variableDeclaratorIdentifier(identifier('repeat_')),
+                variableDeclaratorIdentifier(identifier('until_')),
+                variableDeclaratorIdentifier(identifier('method1')),
+                variableDeclaratorIdentifier(identifier('table_')),
+                variableDeclaratorIdentifier(identifier('do_')),
+              ],
+              [
+                variableDeclaratorValue(
+                  memberExpression(identifier('foo'), '.', identifier('a'))
+                ),
+                variableDeclaratorValue(
+                  indexExpression(identifier('foo'), stringLiteral('repeat'))
+                ),
+                variableDeclaratorValue(
+                  indexExpression(identifier('foo'), stringLiteral('foo-bar'))
+                ),
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('foo'),
+                    '.',
+                    identifier('method1')
+                  )
+                ),
+                variableDeclaratorValue(
+                  indexExpression(identifier('foo'), identifier('error_'))
+                ),
+                variableDeclaratorValue(
+                  callExpression(
+                    memberExpression(
+                      identifier('Object'),
+                      '.',
+                      identifier('assign')
+                    ),
+                    [
+                      tableConstructor(),
+                      identifier('foo'),
+                      tableConstructor([
+                        tableNameKeyField(
+                          identifier('a'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                        tableExpressionKeyField(
+                          stringLiteral('repeat'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                        tableExpressionKeyField(
+                          stringLiteral('foo-bar'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                        tableNameKeyField(
+                          identifier('method1'),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                        tableExpressionKeyField(
+                          callExpression(identifier('tostring'), [
+                            identifier('error_'),
+                          ]),
+                          memberExpression(
+                            identifier('Object'),
+                            '.',
+                            identifier('None')
+                          )
+                        ),
+                      ]),
+                    ]
+                  )
+                ),
+              ]
+            ),
+          ]);
+
+          const luaProgram = handleProgram.handler(source, {}, given);
+
+          expect(luaProgram).toEqual(expected);
+        });
+
+        it(`should handle object destructuring with assignment pattern property`, () => {
+          const given = getProgramNode(`
+            const { repeat, until = 3, table = 5 } = fizz;
+          `);
+
+          const expected: LuaProgram = program([
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(identifier('repeat_')),
+                variableDeclaratorIdentifier(identifier('until_')),
+                variableDeclaratorIdentifier(identifier('table_')),
+              ],
+              [
+                variableDeclaratorValue(
+                  indexExpression(identifier('fizz'), stringLiteral('repeat'))
+                ),
+                variableDeclaratorValue(
+                  callExpression(
+                    functionExpression(
+                      [],
+                      nodeGroup([
+                        ifStatement(
+                          ifClause(
+                            binaryExpression(
+                              indexExpression(
+                                identifier('fizz'),
+                                stringLiteral('until')
+                              ),
+                              '==',
+                              nilLiteral()
+                            ),
+                            nodeGroup([returnStatement(numericLiteral(3, '3'))])
+                          ),
+                          undefined,
+                          elseClause(
+                            nodeGroup([
+                              returnStatement(
+                                indexExpression(
+                                  identifier('fizz'),
+                                  stringLiteral('until')
+                                )
+                              ),
+                            ])
+                          )
+                        ),
+                      ])
+                    ),
+                    []
+                  )
+                ),
+                variableDeclaratorValue(
+                  callExpression(
+                    functionExpression(
+                      [],
+                      nodeGroup([
+                        ifStatement(
+                          ifClause(
+                            binaryExpression(
+                              memberExpression(
+                                identifier('fizz'),
+                                '.',
+                                identifier('table')
+                              ),
+                              '==',
+                              nilLiteral()
+                            ),
+                            nodeGroup([returnStatement(numericLiteral(5, '5'))])
+                          ),
+                          undefined,
+                          elseClause(
+                            nodeGroup([
+                              returnStatement(
+                                memberExpression(
+                                  identifier('fizz'),
+                                  '.',
+                                  identifier('table')
                                 )
                               ),
                             ])

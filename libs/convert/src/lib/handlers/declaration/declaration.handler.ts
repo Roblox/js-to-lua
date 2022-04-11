@@ -25,6 +25,10 @@ import {
   LuaTableKeyField,
   LuaType,
 } from '@js-to-lua/lua-types';
+import {
+  IdentifierHandlerFunction,
+  IdentifierStrictHandlerFunction,
+} from '../expression/identifier-handler-types';
 import { createExportHandler } from '../statement/export';
 import { createImportHandler } from '../statement/import';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
@@ -41,7 +45,8 @@ export const createDeclarationHandler = (
     LuaExpression | LuaStatement,
     Expression
   >,
-  handleIdentifier: HandlerFunction<LuaLVal, LVal>,
+  handleIdentifier: IdentifierHandlerFunction,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
@@ -75,6 +80,7 @@ export const createDeclarationHandler = (
       handleExpression,
       handleExpressionAsStatement,
       handleIdentifier,
+      handleIdentifierStrict,
       handleStatement,
       handleObjectField,
       forwardHandlerRef(() => declarationHandler)

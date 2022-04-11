@@ -31,8 +31,9 @@ export const createArrayPolyfilledMethodCallHandler = (
     const handleExpression = handleExpressionFunction(source, config);
 
     if (isAnyPolyfilledArrayMethodCall(expression)) {
-      return withExtras(
-        { target: expression.callee.object },
+      return withExtras<{ target: Expression }, LuaCallExpression>({
+        target: expression.callee.object,
+      })(
         applyTo(
           {
             calleeObject: handleExpression(expression.callee.object),
@@ -54,8 +55,9 @@ export const createArrayPolyfilledMethodCallHandler = (
           expression.arguments.map(handleExpression);
         return restArgs.length !== 1
           ? undefined
-          : withExtras(
-              { target: originalCalleeObject.object },
+          : withExtras<{ target: Expression }, LuaCallExpression>({
+              target: originalCalleeObject.object,
+            })(
               callExpression(arrayMethod(originalCalleeObject.property.name), [
                 thisArg,
                 tableUnpackCall(restArgs[0]),
@@ -66,8 +68,9 @@ export const createArrayPolyfilledMethodCallHandler = (
       if (matchesBabelMemberExpressionProperty('call', expression.callee)) {
         const [thisArg, ...restArgs] =
           expression.arguments.map(handleExpression);
-        return withExtras(
-          { target: originalCalleeObject.object },
+        return withExtras<{ target: Expression }, LuaCallExpression>({
+          target: originalCalleeObject.object,
+        })(
           callExpression(arrayMethod(originalCalleeObject.property.name), [
             thisArg,
             ...restArgs,

@@ -28,7 +28,9 @@ export const createImportExpressionHandler = () => {
       ]);
       return isRelative
         ? requireExpression
-        : withExtras({ needsPackages: true }, requireExpression);
+        : withExtras<{ needsPackages: true }, LuaCallExpression>({
+            needsPackages: true,
+          })(requireExpression);
     }
   );
 };

@@ -1,18 +1,18 @@
 import { LuaNode } from '@js-to-lua/lua-types';
-import { applyTo, curry, lensPath, set } from 'ramda';
+import { applyTo, lensPath, set } from 'ramda';
 
 export type WithExtras<N extends LuaNode, E> = N & { extras: E };
 export type WithoutExtras<N extends LuaNode> = N & { extras: undefined };
 
-export const withExtras = curry(
-  <N extends LuaNode, E>(extras: E, node: N): WithExtras<N, E> => ({
+export const withExtras =
+  <E, N extends LuaNode = LuaNode>(extras: E) =>
+  (node: N): WithExtras<N, E> => ({
     ...node,
     extras: {
       ...node.extras,
       ...extras,
     },
-  })
-);
+  });
 
 export const removeExtras = <N extends LuaNode>(
   extras: string[],

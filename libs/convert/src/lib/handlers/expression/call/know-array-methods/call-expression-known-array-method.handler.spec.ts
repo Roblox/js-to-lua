@@ -15,6 +15,7 @@ import {
 import {
   callExpression,
   identifier,
+  LuaIdentifier,
   memberExpression,
   numericLiteral,
   tableConstructor,
@@ -66,7 +67,9 @@ describe('Known Array method calls Handler', () => {
       const expected = arrayInferableExpression(
         callExpression(
           memberExpression(
-            withPolyfillExtra('Array')(identifier('Array')),
+            withPolyfillExtra<LuaIdentifier, 'Array'>('Array')(
+              identifier('Array')
+            ),
             '.',
             identifier('concat')
           ),
@@ -118,7 +121,9 @@ describe('Known Array method calls Handler', () => {
       const expected = arrayInferableExpression(
         callExpression(
           memberExpression(
-            withPolyfillExtra('Array')(identifier('Array')),
+            withPolyfillExtra<LuaIdentifier, 'Array'>('Array')(
+              identifier('Array')
+            ),
             '.',
             identifier('unshift')
           ),
@@ -202,7 +207,9 @@ describe('Known Array method calls Handler', () => {
         const expected = arrayInferableExpression(
           callExpression(
             memberExpression(
-              withPolyfillExtra('Array')(identifier('Array')),
+              withPolyfillExtra<LuaIdentifier, 'Array'>('Array')(
+                identifier('Array')
+              ),
               '.',
               identifier(methodName)
             ),
@@ -264,7 +271,9 @@ describe('Known Array method calls Handler', () => {
         withTrailingConversionComment(
           callExpression(
             memberExpression(
-              withPolyfillExtra('Array')(identifier('Array')),
+              withPolyfillExtra<LuaIdentifier, 'Array'>('Array')(
+                identifier('Array')
+              ),
               '.',
               identifier('concat')
             ),
@@ -332,7 +341,9 @@ describe('Known Array method calls Handler', () => {
         withTrailingConversionComment(
           callExpression(
             memberExpression(
-              withPolyfillExtra('Array')(identifier('Array')),
+              withPolyfillExtra<LuaIdentifier, 'Array'>('Array')(
+                identifier('Array')
+              ),
               '.',
               identifier('unshift')
             ),
@@ -368,7 +379,9 @@ describe('Known Array method calls Handler', () => {
           withTrailingConversionComment(
             callExpression(
               memberExpression(
-                withPolyfillExtra('Array')(identifier('Array')),
+                withPolyfillExtra<LuaIdentifier, 'Array'>('Array')(
+                  identifier('Array')
+                ),
                 '.',
                 identifier(methodName)
               ),

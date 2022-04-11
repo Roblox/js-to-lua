@@ -20,11 +20,13 @@ import {
   returnStatement,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
+import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
 
 export const createAssignmentExpressionHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleLVal: HandlerFunction<LuaLVal, LVal>,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
@@ -40,6 +42,7 @@ export const createAssignmentExpressionHandlerFunction = (
       const assignmentStatement = createAssignmentStatementHandlerFunction(
         handleExpression,
         handleLVal,
+        handleIdentifierStrict,
         handleObjectField,
         handleBinaryExpression
       ).handler(source, config, node);

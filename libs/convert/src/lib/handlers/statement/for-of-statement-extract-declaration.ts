@@ -1,6 +1,5 @@
 import {
   Expression,
-  Identifier as BabelIdentifier,
   isIdentifier as isBabelIdentifier,
   LVal,
   ObjectMethod,
@@ -18,10 +17,11 @@ import {
   LuaTableKeyField,
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
+import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { createExtractForOfAssignmentStatement } from './for-of-statement-extract-statement';
 
 export const createExtractForOfDeclaration = (
-  handleIdentifier: HandlerFunction<LuaIdentifier, BabelIdentifier>,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleLVal: HandlerFunction<LuaLVal, LVal>,
@@ -38,7 +38,7 @@ export const createExtractForOfDeclaration = (
     const results = declarations.map(
       ({ id }): { identifier: LuaIdentifier; statement?: LuaStatement } => {
         const extracted = createExtractForOfAssignmentStatement(
-          handleIdentifier,
+          handleIdentifierStrict,
           handleExpression,
           handleStatement,
           handleLVal,
@@ -46,7 +46,7 @@ export const createExtractForOfDeclaration = (
         )(source, config, id, true);
 
         return isBabelIdentifier(id)
-          ? { identifier: handleIdentifier(source, config, id) }
+          ? { identifier: handleIdentifierStrict(source, config, id) }
           : extracted
           ? {
               identifier: extracted.identifier,

@@ -31,6 +31,7 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
+import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import {
   createObjectPatternDestructuringHandler,
   hasUnhandledObjectDestructuringParam,
@@ -39,6 +40,7 @@ import {
 export const createObjectPatternDestructuringAssignmentHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleLVal: HandlerFunction<LuaLVal, LVal>,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
@@ -66,6 +68,7 @@ export const createObjectPatternDestructuringAssignmentHandlerFunction = (
       createObjectPatternDestructuringHandler(
         handleExpression,
         handleLVal,
+        handleIdentifierStrict,
         handleObjectField
       );
     if (isBabelIdentifier(node.right)) {

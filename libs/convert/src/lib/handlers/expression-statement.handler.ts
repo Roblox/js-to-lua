@@ -6,6 +6,7 @@ import {
   FunctionExpression,
   Identifier,
   isAssignmentPattern as isBabelAssignmentPattern_,
+  isIdentifier as isBabelIdentifier,
   ObjectExpression,
   ObjectMethod,
   ObjectProperty,
@@ -59,7 +60,10 @@ import { createBinaryExpressionHandler } from './expression/binary-expression/bi
 import { createCallExpressionHandler } from './expression/call/call-expression.handler';
 import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
 import { createFunctionBodyHandler } from './expression/function-body.handler';
-import { createIdentifierHandler } from './expression/identifier.handler';
+import {
+  createIdentifierHandler,
+  createIdentifierStrictHandler,
+} from './expression/identifier.handler';
 import { createLogicalExpressionHandler } from './expression/logical-expression.handler';
 import { createMemberExpressionHandler } from './expression/member-expression.handler';
 import { createNewExpressionHandler } from './expression/new-expression.handler';
@@ -124,6 +128,7 @@ export const handleExpressionStatement = createHandler(
         createAssignmentStatementHandlerFunction(
           forwardHandlerRef(() => handleExpression),
           handleLVal,
+          forwardHandlerRef(() => handleIdentifierStrict),
           forwardHandlerRef(() => handleObjectField),
           createBinaryExpressionHandler(
             forwardHandlerRef(() => handleExpression)
@@ -280,6 +285,7 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     createAssignmentExpressionHandlerFunction(
       forwardHandlerRef(() => handleExpression),
       handleLVal,
+      forwardHandlerRef(() => handleIdentifierStrict),
       forwardHandlerRef(() => handleObjectField),
       createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
         .handler
@@ -316,6 +322,10 @@ const handleIdentifier = createIdentifierHandler(
   forwardHandlerFunctionRef(() => typesHandler)
 );
 
+const handleIdentifierStrict = createIdentifierStrictHandler(
+  forwardHandlerFunctionRef(() => typesHandler)
+);
+
 const functionParamsHandler = createFunctionParamsHandler(
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerFunctionRef(() => typesHandler)
@@ -329,6 +339,7 @@ export const handleExpressionAsStatement: BaseNodeHandler<
     createAssignmentStatementHandlerFunction(
       forwardHandlerRef(() => handleExpression),
       handleLVal,
+      forwardHandlerRef(() => handleIdentifierStrict),
       forwardHandlerRef(() => handleObjectField),
       createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression))
         .handler
@@ -346,6 +357,7 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleExpressionAsStatement),
   forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleIdentifierStrict),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
   handleTypes,
@@ -427,18 +439,17 @@ export const handleObjectProperty: BaseNodeHandler<
 > = createHandler(
   'ObjectProperty',
   (source, config, { key, value, computed }) => {
-    switch (key.type) {
-      case 'Identifier':
-        return tableKeyField(
-          computed,
-          handleObjectPropertyIdentifier.handler(source, config, key),
-          handleObjectPropertyValue.handler(source, config, value)
-        );
-      default:
-        return tableExpressionKeyField(
-          handleObjectKeyExpression.handler(source, config, key),
-          handleObjectPropertyValue.handler(source, config, value)
-        );
+    if (isBabelIdentifier(key) && !computed) {
+      return tableKeyField(
+        computed,
+        handleObjectPropertyIdentifier.handler(source, config, key),
+        handleObjectPropertyValue.handler(source, config, value)
+      );
+    } else {
+      return tableExpressionKeyField(
+        handleObjectKeyExpression.handler(source, config, key),
+        handleObjectPropertyValue.handler(source, config, value)
+      );
     }
   }
 );
@@ -541,7 +552,7 @@ export const handleStatement: BaseNodeHandler<LuaStatement, Statement> =
       forwardHandlerRef(() => handleStatement)
     ),
     createForOfStatementHandler(
-      forwardHandlerRef(() => handleIdentifier),
+      forwardHandlerRef(() => handleIdentifierStrict),
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleStatement),
       handleLVal,

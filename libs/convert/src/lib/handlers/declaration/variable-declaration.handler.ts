@@ -10,7 +10,6 @@ import {
   isIdentifier,
   isObjectPattern,
   isObjectProperty,
-  LVal,
   ObjectMethod,
   ObjectPattern,
   ObjectProperty,
@@ -27,6 +26,7 @@ import {
 import {
   defaultStatementHandler,
   getNodeSource,
+  reassignComments,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -38,7 +38,6 @@ import {
   LuaExpression,
   LuaFunctionDeclaration,
   LuaIdentifier,
-  LuaLVal,
   LuaNodeGroup,
   LuaStatement,
   LuaTableKeyField,
@@ -53,6 +52,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
+import {
+  IdentifierHandlerFunction,
+  IdentifierStrictHandlerFunction,
+} from '../expression/identifier-handler-types';
 import { createLValHandler } from '../l-val.handler';
 import {
   createArrayPatternDestructuringHandler,
@@ -70,7 +73,8 @@ export const createVariableDeclarationHandler = (
     LuaExpression | LuaStatement,
     Expression
   >,
-  handleIdentifier: HandlerFunction<LuaLVal, LVal>,
+  handleIdentifier: IdentifierHandlerFunction,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
@@ -91,6 +95,7 @@ export const createVariableDeclarationHandler = (
       createObjectPatternDestructuringHandler(
         handleExpression,
         lValHandler,
+        handleIdentifierStrict,
         handleObjectField
       );
 
@@ -323,9 +328,12 @@ export const createVariableDeclarationHandler = (
         { identifiers: [], values: [] }
       );
 
-      return variableDeclaration(
-        varIdsAndValues.identifiers,
-        varIdsAndValues.values
+      return reassignComments(
+        variableDeclaration(
+          varIdsAndValues.identifiers,
+          varIdsAndValues.values
+        ),
+        ...declarationGroup
       );
     }
   });

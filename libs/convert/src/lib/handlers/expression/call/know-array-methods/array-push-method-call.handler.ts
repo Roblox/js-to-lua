@@ -1,11 +1,11 @@
 import { CallExpression, Expression, MemberExpression } from '@babel/types';
-import { withExtras, WithExtras } from '@js-to-lua/lua-conversion-utils';
-import { LuaCallExpression, LuaExpression } from '@js-to-lua/lua-types';
-import { applyTo } from 'ramda';
 import {
   createOptionalHandlerFunction,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
+import { withExtras, WithExtras } from '@js-to-lua/lua-conversion-utils';
+import { LuaCallExpression, LuaExpression } from '@js-to-lua/lua-types';
+import { applyTo } from 'ramda';
 import { isArrayMethod, isArrayMethodCall } from '../is-array-method';
 import { matchesBabelMemberExpressionProperty } from '../utils';
 import {
@@ -23,8 +23,9 @@ export const createArrayPushMethodCallHandler = (
   >((source, config, expression) => {
     const handleExpression = handleExpressionFunction(source, config);
     if (isArrayMethodCall('push', expression)) {
-      return withExtras(
-        { target: expression.callee.object },
+      return withExtras<{ target: Expression }, LuaCallExpression>({
+        target: expression.callee.object,
+      })(
         applyTo(
           {
             calleeObject: handleExpression(expression.callee.object),
@@ -42,16 +43,16 @@ export const createArrayPushMethodCallHandler = (
       if (matchesBabelMemberExpressionProperty('apply', expression.callee)) {
         const [thisArg, ...restArgs] =
           expression.arguments.map(handleExpression);
-        return withExtras(
-          { target: expression.callee.object.object },
-          concatArrays(thisArg, ...restArgs)
-        );
+        return withExtras<{ target: Expression }, LuaCallExpression>({
+          target: expression.callee.object.object,
+        })(concatArrays(thisArg, ...restArgs));
       }
       if (matchesBabelMemberExpressionProperty('call', expression.callee)) {
         const [thisArg, ...restArgs] =
           expression.arguments.map(handleExpression);
-        return withExtras(
-          { target: expression.callee.object.object },
+        return withExtras<{ target: Expression }, LuaCallExpression>({
+          target: expression.callee.object.object,
+        })(
           restArgs.length === 1
             ? insertSingleElement(thisArg, restArgs)
             : insertMultipleElements(thisArg, restArgs)

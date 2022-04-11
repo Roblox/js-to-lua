@@ -49,5 +49,8 @@ export default {
 
     // FIXME: StyLua issue: https://github.com/JohnnyMorganz/StyLua/issues/431
     'conformance-tests/statements/import/ts-import-equals/global-import-with-comments_m5.ts',
+
+    // FIXME: StyLua issue: https://github.com/JohnnyMorganz/StyLua/issues/433
+    'conformance-tests/expressions/call/date/date-now-with-comments_m5.js',
   ],
 };

@@ -19,7 +19,6 @@ import {
   callExpression,
   elseClause,
   functionExpression,
-  identifier,
   ifClause,
   ifStatement,
   LuaExpression,
@@ -34,12 +33,14 @@ import {
   tableConstructor,
 } from '@js-to-lua/lua-types';
 import { anyPass } from 'ramda';
+import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { createPropertyFromBaseHandler } from '../expression/property-from-base.handler';
 
 export const createObjectPatternDestructuringHandler =
   (
     handleExpression: HandlerFunction<LuaExpression, Expression>,
     handleLVal: HandlerFunction<LuaLVal, LVal>,
+    handleIdentifierStrict: IdentifierStrictHandlerFunction,
     handleObjectField: HandlerFunction<
       LuaTableKeyField,
       ObjectMethod | ObjectProperty
@@ -76,7 +77,12 @@ export const createObjectPatternDestructuringHandler =
       return properties.reduce(
         (obj, property) => {
           if (isObjectProperty(property) && isIdentifier(property.value)) {
-            obj.ids.push(identifier(property.value.name));
+            const valueIdentifier = handleIdentifierStrict(
+              source,
+              config,
+              property.value
+            );
+            obj.ids.push(valueIdentifier);
             obj.values.push(handlePropertyFromBase(property));
           } else if (
             isObjectProperty(property) &&
@@ -94,7 +100,12 @@ export const createObjectPatternDestructuringHandler =
             isAssignmentPattern(property.value) &&
             isIdentifier(property.value.left)
           ) {
-            obj.ids.push(identifier(property.value.left.name));
+            const propertyValueIdentifier = handleIdentifierStrict(
+              source,
+              config,
+              property.value.left
+            );
+            obj.ids.push(propertyValueIdentifier);
             obj.values.push(
               callExpression(
                 functionExpression(

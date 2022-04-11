@@ -1,6 +1,7 @@
 import { identifier as babelIdentifier } from '@babel/types';
 import { forwardHandlerRef } from '@js-to-lua/handler-utils';
 import {
+  createWithAlternativeExpressionExtras,
   createWithOriginalIdentifierNameExtras,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
@@ -11,6 +12,7 @@ import {
   memberExpression,
   nilLiteral,
   numericLiteral,
+  stringLiteral,
 } from '@js-to-lua/lua-types';
 import { handleExpression } from '../expression-statement.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
@@ -104,9 +106,9 @@ describe('Identifier Handler', () => {
   KEYWORDS.forEach((name) => {
     it(`should return Lua Identifier Node with '_' prepended when name is not undefined and is a keyword`, () => {
       const given = babelIdentifier(name);
-      const expected = createWithOriginalIdentifierNameExtras(name)(
-        identifier(`${name}_`)
-      );
+      const expected = createWithAlternativeExpressionExtras(
+        stringLiteral(name)
+      )(createWithOriginalIdentifierNameExtras(name)(identifier(`${name}_`)));
 
       expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
     });
