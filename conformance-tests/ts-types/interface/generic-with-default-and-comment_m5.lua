@@ -1,3 +1,5 @@
 type Foo<
-	T =  --[[leading]]string --[[trailing]]
+	T = --[[leading]]
+		string
+	--[[trailing]]
 > = { baz: T }

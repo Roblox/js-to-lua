@@ -1,1 +1,3 @@
-type Foo<--[[ Leading comment ]]T> = {}
+type Foo<--[[ Leading comment ]]
+	T
+> = {}

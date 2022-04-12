@@ -1,3 +1,4 @@
 type Bar<
-	T--[[ Trailing comment ]]
+	T
+	--[[ Trailing comment ]]
 > = {}
