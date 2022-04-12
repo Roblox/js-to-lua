@@ -1,13 +1,10 @@
 import {
-  isBinaryExpression,
   isFunctionDeclaration,
-  isLogicalExpression,
   isSameLineInnerComment,
   isSameLineLeadingAndTrailingComment,
   isSameLineLeadingComment,
   isSameLineTrailingComment,
   isUnaryExpression,
-  isUnaryNegation,
   LuaCallExpression,
   LuaExpression,
   LuaFunctionDeclaration,
@@ -16,6 +13,7 @@ import {
   LuaNodeGroup,
 } from '@js-to-lua/lua-types';
 import { anyPass, last } from 'ramda';
+import { checkPrecedence } from './check-precedence';
 import { createPrintPropertySignature } from './declaration/print-property-signature';
 import { createPrintTypeAliasDeclaration } from './declaration/print-type-declaration';
 import { createPrintTypeParameterDeclaration } from './declaration/print-type-parameter-declaration';
@@ -231,12 +229,11 @@ const _printNode = (node: LuaNode): string => {
     case 'LogicalExpression':
       return `${useParenthesis(node.left, checkPrecedence(node))} ${
         node.operator
-      } ${useParenthesis(node.right, checkPrecedence(node))}`;
+      } ${useParenthesis(node.right, checkPrecedence(node, 0))}`;
     case 'LuaUnaryExpression':
       return `${node.operator}${useParenthesis(
         node.argument,
-        (childNode: LuaNode) =>
-          anyPass([checkPrecedence(node), isUnaryExpression])(childNode)
+        anyPass([checkPrecedence(node), isUnaryExpression])
       )}`;
     case 'LuaUnaryVoidExpression':
       return `${printNode(node.argument)} and nil or nil`;
@@ -327,23 +324,6 @@ function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
   }end`;
 }
 
-function checkPrecedence(node: LuaNode) {
-  return (childNode: LuaNode) =>
-    anyPass([
-      isBinaryExpression,
-      isLogicalExpression,
-      isUnaryNegation,
-      isUnaryExpression,
-    ])(childNode) &&
-    anyPass([
-      isBinaryExpression,
-      isLogicalExpression,
-      isUnaryNegation,
-      isUnaryExpression,
-    ])(node) &&
-    getPrecedence(childNode) > getPrecedence(node);
-}
-
 function useParenthesis(
   node: LuaNode,
   conditionFn: (node: LuaNode) => boolean
@@ -353,36 +333,4 @@ function useParenthesis(
   }
 
   return printNode(node);
-}
-
-function getPrecedence(node: LuaNode) {
-  if (isBinaryExpression(node) && node.operator === '^') {
-    return 1;
-  }
-  if (
-    isUnaryNegation(node) ||
-    (isUnaryExpression(node) && node.operator === '-')
-  ) {
-    return 2;
-  }
-  if (isBinaryExpression(node) && ['*', '/'].includes(node.operator)) {
-    return 3;
-  }
-  if (isBinaryExpression(node) && ['+', '-'].includes(node.operator)) {
-    return 4;
-  }
-  if (
-    isBinaryExpression(node) &&
-    ['..', '<', '>', '<=', '>=', '~=', '=='].includes(node.operator)
-  ) {
-    return 5;
-  }
-  if (isLogicalExpression(node) && node.operator === 'and') {
-    return 6;
-  }
-  if (isLogicalExpression(node) && node.operator === 'or') {
-    return 7;
-  }
-
-  return 0;
 }
