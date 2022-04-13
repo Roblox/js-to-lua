@@ -10,6 +10,7 @@ import { LuaLVal, LuaType } from '@js-to-lua/lua-types';
 import { createFlowAnyTypeAnnotationHandler } from './any-type-annotation.handler';
 import { createFlowBooleanTypeAnnotationHandler } from './boolean-type-annotation.handler';
 import { createFlowGenericTypeAnnotationHandler } from './flow-generic-type-annotation.handler';
+import { createNullableTypeAnnotationHandler } from './nullable-type-annotation.handler';
 import { createFlowNumberTypeAnnotationHandler } from './number-type-annotation.handler';
 import { createFlowStringTypeAnnotationHandler } from './string-type-annotation.handler';
 
@@ -27,6 +28,9 @@ export const createFlowTypeHandler = (
       createFlowAnyTypeAnnotationHandler(),
       createFlowGenericTypeAnnotationHandler(
         handleIdentifier,
+        forwardHandlerRef(() => handleFlowTypes)
+      ),
+      createNullableTypeAnnotationHandler(
         forwardHandlerRef(() => handleFlowTypes)
       ),
     ],

@@ -1,0 +1,1 @@
+function myFunction(myParam: ?boolean) {}
