@@ -9,10 +9,12 @@ export interface LuaStringLiteral extends BaseLuaNode {
 }
 
 export const stringLiteral = (
-  value: LuaStringLiteral['value']
+  value: LuaStringLiteral['value'],
+  raw?: string
 ): LuaStringLiteral => ({
   type: 'StringLiteral',
   value,
+  ...(raw ? { extra: { raw } } : {}),
 });
 
 export const isStringLiteral = isNodeType<LuaStringLiteral>('StringLiteral');
