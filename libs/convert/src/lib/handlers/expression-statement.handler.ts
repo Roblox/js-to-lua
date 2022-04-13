@@ -1,17 +1,8 @@
 import {
   ArrowFunctionExpression,
-  AssignmentPattern,
   Expression,
   ExpressionStatement,
   FunctionExpression,
-  Identifier,
-  isAssignmentPattern as isBabelAssignmentPattern_,
-  isIdentifier as isBabelIdentifier,
-  ObjectExpression,
-  ObjectMethod,
-  ObjectProperty,
-  PatternLike,
-  SpreadElement,
   Statement,
   UpdateExpression,
 } from '@babel/types';
@@ -36,29 +27,24 @@ import {
   functionExpression,
   identifier,
   isExpression,
-  isIdentifier,
   LuaCallExpression,
   LuaExpression,
   LuaFunctionExpression,
   LuaStatement,
-  LuaTableKeyField,
   nodeGroup,
   numericLiteral,
   returnStatement,
-  stringLiteral,
-  tableExpressionKeyField,
-  tableKeyField,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { Unpacked } from '@js-to-lua/shared-utils';
 import { createDeclarationHandler } from './declaration/declaration.handler';
 import { createArrayExpressionHandler } from './expression/array-expression.handler';
 import { createAwaitExpressionHandler } from './expression/await-expression.handler';
 import { createBinaryExpressionHandler } from './expression/binary-expression/binary-expression.handler';
 import { createCallExpressionHandler } from './expression/call/call-expression.handler';
 import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
+import { createFlowTypeCastExpressionHandler } from './expression/flow-type-cast.handler';
 import { createFunctionBodyHandler } from './expression/function-body.handler';
 import {
   createIdentifierHandler,
@@ -68,6 +54,10 @@ import { createLogicalExpressionHandler } from './expression/logical-expression.
 import { createMemberExpressionHandler } from './expression/member-expression.handler';
 import { createNewExpressionHandler } from './expression/new-expression.handler';
 import { createObjectExpressionHandler } from './expression/object-expression.handler';
+import { createObjectFieldHandler } from './expression/object-field.handler';
+import { createObjectKeyExpressionHandler } from './expression/object-key-expression.handler';
+import { createObjectPropertyIdentifierHandler } from './expression/object-property-identifier.handler';
+import { createObjectPropertyValueHandler } from './expression/object-property-value.handler';
 import { createOptionalMemberExpressionHandler } from './expression/optional-member-expression.handler';
 import {
   createSequenceExpressionAsStatementHandler,
@@ -75,7 +65,6 @@ import {
 } from './expression/sequence-expression.handler';
 import { createTaggedTemplateExpressionHandler } from './expression/tagged-template-expression.handler';
 import { createThisExpressionHandler } from './expression/this-expression.handler';
-import { createFlowTypeCastExpressionHandler } from './expression/flow-type-cast.handler';
 import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
 import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expression.handler';
 import { createUnaryExpressionHandler } from './expression/unary-expression.handler';
@@ -108,13 +97,6 @@ import { createTryStatementHandler } from './statement/try-statement.handler';
 import { createTsImportEqualsDeclarationHandler } from './statement/ts-import-equals-declaration.handler';
 import { createWhileStatementHandler } from './statement/while-statement.handler';
 import { createTypeAnnotationHandler } from './type/type-annotation.handler';
-
-type NoSpreadObjectProperty = Exclude<
-  Unpacked<ObjectExpression['properties']>,
-  SpreadElement
->;
-const isBabelAssignmentPattern = (param: unknown): param is AssignmentPattern =>
-  isBabelAssignmentPattern_(param as any);
 
 const handleLVal = createLValHandler(
   forwardHandlerRef(() => handleIdentifier),
@@ -336,6 +318,40 @@ const functionParamsHandler = createFunctionParamsHandler(
   forwardHandlerFunctionRef(() => typesHandler)
 );
 
+const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
+  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => handleIdentifier)
+);
+
+export const handleObjectField = createObjectFieldHandler(
+  handleExpression,
+  forwardHandlerRef(() => handleStatement),
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleDeclaration),
+  handleAssignmentPattern,
+  handleLVal,
+  typesHandler
+);
+
+export const handleObjectKeyExpression = createObjectKeyExpressionHandler(
+  handleExpression.handler
+);
+
+export const handleObjectPropertyValue = createObjectPropertyValueHandler(
+  handleExpression,
+  forwardHandlerRef(() => handleStatement),
+  forwardHandlerRef(() => handleIdentifier),
+  forwardHandlerRef(() => handleDeclaration),
+  handleAssignmentPattern,
+  handleLVal,
+  typesHandler
+);
+
+export const handleObjectPropertyIdentifier =
+  createObjectPropertyIdentifierHandler(
+    forwardHandlerRef(() => handleIdentifier)
+  );
+
 export const handleExpressionAsStatement: BaseNodeHandler<
   LuaExpression | LuaStatement,
   Expression
@@ -366,155 +382,13 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
   handleTypes,
-  forwardHandlerRef(() => handleObjectPropertyIdentifier),
-  forwardHandlerRef(() => handleObjectKeyExpression),
-  forwardHandlerRef(() => handleObjectPropertyValue),
+  createObjectPropertyIdentifierHandler(
+    forwardHandlerRef(() => handleIdentifier)
+  ),
+  handleObjectKeyExpression,
+  handleObjectPropertyValue,
   handleLVal
 );
-
-const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
-  forwardHandlerRef(() => handleExpression),
-  forwardHandlerRef(() => handleIdentifier)
-);
-
-export const handleObjectValueFunctionExpression: BaseNodeHandler<
-  LuaFunctionExpression,
-  FunctionExpression
-> = createHandler('FunctionExpression', (source, config, node) => {
-  const params = [
-    identifier('self'),
-    ...functionParamsHandler(source, config, node),
-  ];
-
-  return functionExpression(
-    params,
-    nodeGroup([
-      ...node.params
-        .filter(isBabelAssignmentPattern)
-        .map((param) => handleAssignmentPattern(source, config, param)),
-      ...node.body.body.map<LuaStatement>(
-        handleStatement.handler(source, config)
-      ),
-    ]),
-    node.returnType ? typesHandler(source, config, node.returnType) : undefined
-  );
-});
-
-export const handleObjectPropertyValue: BaseNodeHandler<
-  LuaExpression,
-  Expression | PatternLike
-> = combineExpressionsHandlers([
-  handleObjectValueFunctionExpression,
-  handleExpression,
-]);
-
-export const handleObjectKeyExpression: BaseNodeHandler<
-  LuaExpression,
-  Expression
-> = createHandler([], (source, config, key: Expression) =>
-  key.type === 'StringLiteral'
-    ? handleExpression.handler(source, config, key)
-    : callExpression(
-        {
-          type: 'Identifier',
-          name: 'tostring',
-        },
-        [handleExpression.handler(source, config, key)]
-      )
-);
-
-export const handleObjectPropertyIdentifier = createHandler<
-  LuaExpression,
-  Identifier
->([], (source, config, node) => {
-  const identifierResult = handleIdentifier.handler(source, config, node);
-
-  if (typeof identifierResult?.extras?.originalIdentifierName === 'string') {
-    return stringLiteral(identifierResult.extras.originalIdentifierName);
-  }
-
-  return isIdentifier(identifierResult)
-    ? identifierResult
-    : defaultExpressionHandler(source, config, node);
-});
-
-export const handleObjectProperty: BaseNodeHandler<
-  LuaTableKeyField,
-  ObjectProperty
-> = createHandler(
-  'ObjectProperty',
-  (source, config, { key, value, computed }) => {
-    if (isBabelIdentifier(key) && !computed) {
-      return tableKeyField(
-        computed,
-        handleObjectPropertyIdentifier.handler(source, config, key),
-        handleObjectPropertyValue.handler(source, config, value)
-      );
-    } else {
-      return tableExpressionKeyField(
-        handleObjectKeyExpression.handler(source, config, key),
-        handleObjectPropertyValue.handler(source, config, value)
-      );
-    }
-  }
-);
-
-export const handleObjectMethod: BaseNodeHandler<
-  LuaTableKeyField,
-  ObjectMethod
-> = createHandler('ObjectMethod', (source, config, node): LuaTableKeyField => {
-  const { key, computed } = node;
-  const handleParamsBody = createFunctionParamsBodyHandler(
-    forwardHandlerRef(() => handleDeclaration),
-    handleAssignmentPattern,
-    handleLVal
-  );
-
-  const params = [
-    identifier('self'),
-    ...functionParamsHandler(source, config, node),
-  ];
-  switch (key.type) {
-    case 'Identifier':
-      return tableKeyField(
-        computed,
-        handleObjectPropertyIdentifier.handler(source, config, key),
-        functionExpression(
-          params,
-          nodeGroup([
-            ...handleParamsBody(source, config, node),
-            ...node.body.body.map<LuaStatement>(
-              handleStatement.handler(source, config)
-            ),
-          ]),
-          node.returnType
-            ? typesHandler(source, config, node.returnType)
-            : undefined
-        )
-      );
-    default:
-      return tableExpressionKeyField(
-        handleObjectKeyExpression.handler(source, config, node.key),
-        functionExpression(
-          params,
-          nodeGroup([
-            ...handleParamsBody(source, config, node),
-            ...node.body.body.map<LuaStatement>(
-              handleStatement.handler(source, config)
-            ),
-          ]),
-          node.returnType
-            ? typesHandler(source, config, node.returnType)
-            : undefined
-        )
-      );
-  }
-});
-
-export const handleObjectField = combineHandlers<
-  LuaTableKeyField,
-  NoSpreadObjectProperty
->([handleObjectProperty, handleObjectMethod], defaultExpressionHandler);
 
 export const handleStatement: BaseNodeHandler<LuaStatement, Statement> =
   combineStatementHandlers<LuaStatement, Statement>([

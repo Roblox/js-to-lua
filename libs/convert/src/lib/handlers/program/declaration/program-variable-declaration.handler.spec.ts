@@ -1355,8 +1355,8 @@ describe('Program handler', () => {
                       tableConstructor(),
                       identifier('baz'),
                       tableConstructor([
-                        tableExpressionKeyField(
-                          stringLiteral('error'),
+                        tableNameKeyField(
+                          identifier('error'),
                           memberExpression(
                             identifier('Object'),
                             '.',

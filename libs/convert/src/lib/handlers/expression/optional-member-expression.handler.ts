@@ -2,8 +2,7 @@ import { Expression, OptionalMemberExpression } from '@babel/types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   getNodeSource,
-  getOriginalIdentifierNameExtra,
-  isWithOriginalIdentifierNameExtras,
+  getObjectPropertyExpression,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -32,11 +31,7 @@ export const createOptionalMemberExpressionHandler = (
       const objectExpression = handleExpression(source, config, node.object);
       const propertyExpression = applyTo(
         handleExpression(source, config, node.property)
-      )((expression) =>
-        isWithOriginalIdentifierNameExtras(expression)
-          ? stringLiteral(getOriginalIdentifierNameExtra(expression))
-          : expression
-      );
+      )((expression) => getObjectPropertyExpression(expression) || expression);
 
       if (!node.optional) {
         return withTrailingConversionComment(

@@ -1,4 +1,12 @@
-import { MemberExpression } from '@babel/types';
+import {
+  binaryExpression as babelBinaryExpression,
+  booleanLiteral as babelBooleanLiteral,
+  identifier as babelIdentifier,
+  memberExpression as babelMemberExpression,
+  numericLiteral as babelNumericLiteral,
+  privateName,
+  stringLiteral as babelStringLiteral,
+} from '@babel/types';
 import { forwardHandlerRef } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -7,23 +15,13 @@ import {
   callExpression,
   identifier,
   indexExpression,
-  LuaIndexExpression,
-  LuaMemberExpression,
   memberExpression,
   numericLiteral,
   stringLiteral,
+  unhandledExpression,
 } from '@js-to-lua/lua-types';
 import { handleExpression } from '../expression-statement.handler';
 import { createMemberExpressionHandler } from './member-expression.handler';
-
-const DEFAULT_NODE = {
-  leadingComments: null,
-  innerComments: null,
-  trailingComments: null,
-  start: null,
-  end: null,
-  loc: null,
-};
 
 const handleMemberExpression = createMemberExpressionHandler(
   forwardHandlerRef(() => handleExpression)
@@ -33,48 +31,25 @@ const source = '';
 
 describe('Member Expression Handler', () => {
   it(`should convert handle computed index expression: string literal`, () => {
-    const given: MemberExpression = {
-      ...DEFAULT_NODE,
-      type: 'MemberExpression',
-      computed: true,
-      object: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      property: {
-        ...DEFAULT_NODE,
-        type: 'StringLiteral',
-        value: 'bar',
-      },
-    };
-
-    const expected: LuaIndexExpression = indexExpression(
-      identifier('foo'),
-      stringLiteral('bar')
+    const given = babelMemberExpression(
+      babelIdentifier('foo'),
+      babelStringLiteral('bar'),
+      true
     );
+
+    const expected = indexExpression(identifier('foo'), stringLiteral('bar'));
 
     expect(handleMemberExpression.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should convert handle computed index expression: number literal`, () => {
-    const given: MemberExpression = {
-      ...DEFAULT_NODE,
-      type: 'MemberExpression',
-      computed: true,
-      object: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      property: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 5,
-      },
-    };
+    const given = babelMemberExpression(
+      babelIdentifier('foo'),
+      babelNumericLiteral(5),
+      true
+    );
 
-    const expected: LuaIndexExpression = indexExpression(
+    const expected = indexExpression(
       identifier('foo'),
       withTrailingConversionComment(
         numericLiteral(6),
@@ -86,26 +61,13 @@ describe('Member Expression Handler', () => {
   });
 
   it(`should convert handle computed index expression: octal number literal`, () => {
-    const given: MemberExpression = {
-      ...DEFAULT_NODE,
-      type: 'MemberExpression',
-      computed: true,
-      object: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      property: {
-        ...DEFAULT_NODE,
-        type: 'NumericLiteral',
-        value: 12,
-        extra: {
-          raw: '0o14',
-        },
-      },
-    };
+    const given = babelMemberExpression(
+      babelIdentifier('foo'),
+      { ...babelNumericLiteral(12), extra: { raw: '0o14' } },
+      true
+    );
 
-    const expected: LuaIndexExpression = indexExpression(
+    const expected = indexExpression(
       identifier('foo'),
       withTrailingConversionComment(
         numericLiteral(13),
@@ -117,23 +79,13 @@ describe('Member Expression Handler', () => {
   });
 
   it(`should convert handle computed index expression: boolean literal`, () => {
-    const given: MemberExpression = {
-      ...DEFAULT_NODE,
-      type: 'MemberExpression',
-      computed: true,
-      object: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      property: {
-        ...DEFAULT_NODE,
-        type: 'BooleanLiteral',
-        value: true,
-      },
-    };
+    const given = babelMemberExpression(
+      babelIdentifier('foo'),
+      babelBooleanLiteral(true),
+      true
+    );
 
-    const expected: LuaIndexExpression = indexExpression(
+    const expected = indexExpression(
       identifier('foo'),
       callExpression(identifier('tostring'), [booleanLiteral(true)])
     );
@@ -142,23 +94,13 @@ describe('Member Expression Handler', () => {
   });
 
   it(`should convert handle computed index expression: expression`, () => {
-    const given: MemberExpression = {
-      ...DEFAULT_NODE,
-      type: 'MemberExpression',
-      computed: true,
-      object: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      property: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+    const given = babelMemberExpression(
+      babelIdentifier('foo'),
+      babelIdentifier('bar'),
+      true
+    );
 
-    const expected: LuaIndexExpression = indexExpression(
+    const expected = indexExpression(
       identifier('foo'),
       callExpression(identifier('tostring'), [identifier('bar')])
     );
@@ -167,33 +109,17 @@ describe('Member Expression Handler', () => {
   });
 
   it(`should convert handle computed index expression: binary expression, adding string literal`, () => {
-    const given: MemberExpression = {
-      ...DEFAULT_NODE,
-      type: 'MemberExpression',
-      computed: true,
-      object: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      property: {
-        ...DEFAULT_NODE,
-        type: 'BinaryExpression',
-        operator: '+',
-        left: {
-          ...DEFAULT_NODE,
-          type: 'StringLiteral',
-          value: 'bar',
-        },
-        right: {
-          ...DEFAULT_NODE,
-          type: 'Identifier',
-          name: 'baz',
-        },
-      },
-    };
+    const given = babelMemberExpression(
+      babelIdentifier('foo'),
+      babelBinaryExpression(
+        '+',
+        babelStringLiteral('bar'),
+        babelIdentifier('baz')
+      ),
+      true
+    );
 
-    const expected: LuaIndexExpression = indexExpression(
+    const expected = indexExpression(
       identifier('foo'),
       binaryExpression(
         stringLiteral('bar'),
@@ -205,29 +131,122 @@ describe('Member Expression Handler', () => {
     expect(handleMemberExpression.handler(source, {}, given)).toEqual(expected);
   });
 
-  it(`should convert handle not computed member expression`, () => {
-    const given: MemberExpression = {
-      ...DEFAULT_NODE,
-      type: 'MemberExpression',
-      computed: false,
-      object: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'foo',
-      },
-      property: {
-        ...DEFAULT_NODE,
-        type: 'Identifier',
-        name: 'bar',
-      },
-    };
+  it(`should convert handle computed index expression: binary expression, adding NOT string literals`, () => {
+    const given = babelMemberExpression(
+      babelIdentifier('foo'),
+      babelBinaryExpression(
+        '+',
+        babelIdentifier('bar'),
+        babelIdentifier('baz')
+      ),
+      true
+    );
 
-    const expected: LuaMemberExpression = memberExpression(
+    const expected = indexExpression(
+      identifier('foo'),
+      callExpression(identifier('tostring'), [
+        binaryExpression(identifier('bar'), '+', identifier('baz')),
+      ])
+    );
+
+    expect(handleMemberExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should convert handle not computed member expression`, () => {
+    const given = babelMemberExpression(
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
+
+    const expected = memberExpression(
       identifier('foo'),
       '.',
       identifier('bar')
     );
 
     expect(handleMemberExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it.each(['string', 'error', 'table', 'ipairs'])(
+    `should convert handle not computed member expression with lua global as key`,
+    (idName) => {
+      const given = babelMemberExpression(
+        babelIdentifier('foo'),
+        babelIdentifier(idName)
+      );
+
+      const expected = memberExpression(
+        identifier('foo'),
+        '.',
+        identifier(idName)
+      );
+
+      expect(handleMemberExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
+    }
+  );
+
+  it.each(['repeat', 'until', 'not', 'end'])(
+    `should convert handle not computed member expression with lua reserved keyword as key`,
+    (idName) => {
+      const given = babelMemberExpression(
+        babelIdentifier('foo'),
+        babelIdentifier(idName)
+      );
+
+      const expected = indexExpression(
+        identifier('foo'),
+        stringLiteral(idName)
+      );
+
+      expect(handleMemberExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
+    }
+  );
+
+  describe('unhandled cases', () => {
+    it('should NOT YET handle expression with private name as key', () => {
+      const given = babelMemberExpression(
+        babelIdentifier('foo'),
+        privateName(babelIdentifier('bar'))
+      );
+
+      const expected = indexExpression(
+        identifier('foo'),
+        withTrailingConversionComment(
+          unhandledExpression(),
+          'ROBLOX TODO: Unhandled node for type: PrivateName'
+        )
+      );
+
+      expect(handleMemberExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
+    });
+
+    it('should NOT YET handle expression with private name as key', () => {
+      const given = {
+        ...babelMemberExpression(
+          babelIdentifier('foo'),
+          privateName(babelIdentifier('bar'))
+        ),
+        // babelMemberExpression doesn't allow PrivateName and computed combination
+        computed: true,
+      };
+
+      const expected = indexExpression(
+        identifier('foo'),
+        withTrailingConversionComment(
+          unhandledExpression(),
+          'ROBLOX TODO: Unhandled node for type: PrivateName'
+        )
+      );
+
+      expect(handleMemberExpression.handler(source, {}, given)).toEqual(
+        expected
+      );
+    });
   });
 });

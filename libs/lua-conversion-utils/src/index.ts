@@ -7,6 +7,7 @@ export * from './lib/create-expression-statement';
 export * from './lib/creators';
 export * from './lib/get-module-path';
 export * from './lib/get-node-source';
+export * from './lib/get-object-property-expression';
 export * from './lib/get-return-expressions';
 export * from './lib/handlers';
 export * from './lib/is-lua-truthy';

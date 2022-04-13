@@ -1,5 +1,5 @@
 local function func()
-	return { ["repeat"] = "repeat", ["error"] = "error", ["table"] = "table" }
+	return { ["repeat"] = "repeat", error = "error", table = "table" }
 end
 local repeat_, error_, table_
 do

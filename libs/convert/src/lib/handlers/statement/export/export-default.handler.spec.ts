@@ -71,9 +71,9 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
   handleTypes,
-  forwardHandlerRef(() => handleObjectPropertyIdentifier),
-  forwardHandlerRef(() => handleObjectKeyExpression),
-  forwardHandlerRef(() => handleObjectPropertyValue),
+  handleObjectPropertyIdentifier,
+  handleObjectKeyExpression,
+  handleObjectPropertyValue,
   forwardHandlerRef(() => handleLVal)
 );
 

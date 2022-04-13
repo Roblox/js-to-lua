@@ -4,6 +4,11 @@ import {
   ObjectExpression,
   SpreadElement,
 } from '@babel/types';
+import {
+  createHandler,
+  createHandlerFunction,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
@@ -15,20 +20,11 @@ import {
   LuaTableKeyField,
   tableConstructor,
 } from '@js-to-lua/lua-types';
-import { splitBy, Unpacked } from '@js-to-lua/shared-utils';
+import { splitBy } from '@js-to-lua/shared-utils';
 import {
-  createHandler,
-  createHandlerFunction,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
-
-type ObjectExpressionProperty = Unpacked<ObjectExpression['properties']>;
-
-// TODO deduplicate
-type NoSpreadObjectProperty = Exclude<
-  Unpacked<ObjectExpression['properties']>,
-  SpreadElement
->;
+  NoSpreadObjectProperty,
+  ObjectExpressionProperty,
+} from './object-expression.types';
 
 export const createObjectExpressionHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,

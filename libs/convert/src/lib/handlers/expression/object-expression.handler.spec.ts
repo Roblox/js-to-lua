@@ -6,6 +6,7 @@ import {
   nullLiteral as babelNullLiteral,
   numericLiteral as babelNumericLiteral,
   objectExpression as babelObjectExpression,
+  objectMethod,
   objectProperty as babelObjectProperty,
   spreadElement as babelSpreadElement,
   stringLiteral as babelStringLiteral,
@@ -165,7 +166,7 @@ describe('Object Expression Handler', () => {
     expect(handleObjectExpression.handler(source, {}, given)).toEqual(expected);
   });
 
-  it(`should handle object with methods`, () => {
+  it(`should handle object with function properties`, () => {
     const given = babelObjectExpression([
       babelObjectProperty(babelIdentifier('sound'), babelStringLiteral('bla')),
       babelObjectProperty(
@@ -190,6 +191,75 @@ describe('Object Expression Handler', () => {
       ),
       tableNameKeyField(
         identifier('method2'),
+        functionExpression([identifier('self'), identifier('name')])
+      ),
+    ]);
+
+    expect(handleObjectExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle object with methods`, () => {
+    const given = babelObjectExpression([
+      babelObjectProperty(babelIdentifier('sound'), babelStringLiteral('bla')),
+      objectMethod(
+        'method',
+        babelIdentifier('method1'),
+        [],
+        babelBlockStatement([])
+      ),
+      babelObjectProperty(
+        babelIdentifier('method2'),
+        babelFunctionExpression(
+          undefined,
+          [babelIdentifier('name')],
+          babelBlockStatement([])
+        )
+      ),
+    ]);
+
+    const expected = tableConstructor([
+      tableNameKeyField(identifier('sound'), stringLiteral('bla')),
+      tableNameKeyField(
+        identifier('method1'),
+        functionExpression([identifier('self')])
+      ),
+      tableNameKeyField(
+        identifier('method2'),
+        functionExpression([identifier('self'), identifier('name')])
+      ),
+    ]);
+
+    expect(handleObjectExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle object with methods with string literal as key`, () => {
+    const given = babelObjectExpression([
+      babelObjectProperty(
+        babelStringLiteral('sound'),
+        babelStringLiteral('bla')
+      ),
+      objectMethod(
+        'method',
+        babelStringLiteral('method1'),
+        [],
+        babelBlockStatement([])
+      ),
+      objectMethod(
+        'method',
+        babelStringLiteral('method2'),
+        [babelIdentifier('name')],
+        babelBlockStatement([])
+      ),
+    ]);
+
+    const expected = tableConstructor([
+      tableExpressionKeyField(stringLiteral('sound'), stringLiteral('bla')),
+      tableExpressionKeyField(
+        stringLiteral('method1'),
+        functionExpression([identifier('self')])
+      ),
+      tableExpressionKeyField(
+        stringLiteral('method2'),
         functionExpression([identifier('self'), identifier('name')])
       ),
     ]);

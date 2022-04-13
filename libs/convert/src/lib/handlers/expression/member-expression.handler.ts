@@ -12,8 +12,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   defaultExpressionHandler,
-  getOriginalIdentifierNameExtra,
-  isWithOriginalIdentifierNameExtras,
+  getObjectPropertyExpression,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -27,7 +26,6 @@ import {
   LuaNumericLiteral,
   LuaStringLiteral,
   memberExpression,
-  stringLiteral,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
@@ -99,9 +97,7 @@ export const createMemberExpressionHandler = (
           ? defaultExpressionHandler(source, config, node.property)
           : applyTo(handleExpression(source, config, node.property))(
               (expression) =>
-                isWithOriginalIdentifierNameExtras(expression)
-                  ? stringLiteral(getOriginalIdentifierNameExtra(expression))
-                  : expression
+                getObjectPropertyExpression(expression) || expression
             );
 
         return isIdentifier(propertyExpression)
