@@ -1,6 +1,5 @@
 import {
   Expression,
-  Identifier,
   isIdentifier as isBabelIdentifier,
   isNumericLiteral,
   isTSLiteralType,
@@ -37,7 +36,6 @@ import {
 import {
   identifier,
   LuaExpression,
-  LuaIdentifier,
   LuaType,
   LuaTypeAnnotation,
   LuaTypeAny,
@@ -60,6 +58,7 @@ import {
   typeVoid,
 } from '@js-to-lua/lua-types';
 import { uniqWith } from 'ramda';
+import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
 import { createTsLiteralTypeHandler } from './ts-literal-type.handler';
@@ -69,8 +68,8 @@ import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
 import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
 
 export const createTsTypeAnnotationHandler = (
-  expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
-  identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>
+  handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction
 ) => {
   const handleTsTypeAnnotation: BaseNodeHandler<
     LuaTypeAnnotation,
@@ -109,7 +108,7 @@ export const createTsTypeAnnotationHandler = (
       const exprName = node.exprName;
       return typeQuery(
         isBabelIdentifier(exprName)
-          ? identifierHandlerFunction(source, config, exprName)
+          ? handleIdentifierStrict(source, config, exprName)
           : defaultUnhandledIdentifierHandler(source, config, exprName)
       );
     });
@@ -172,23 +171,23 @@ export const createTsTypeAnnotationHandler = (
       handleTsTypeQuery,
       handleTsTypePredicate,
       createTsTypeLiteralHandler(
-        expressionHandlerFunction,
+        handleExpression,
         handleTsTypeAnnotation.handler
       ),
       handleTsTypeUnion,
       handleTsTypeIntersection,
       createTsTypeReferenceHandler(
-        identifierHandlerFunction,
+        handleIdentifierStrict,
         createTsQualifiedNameHandler(),
         forwardHandlerRef(() => handleTsTypes)
       ),
       createTsArrayTypeHandler(forwardHandlerRef(() => handleTsTypes)),
       createTsTupleTypeHandler(forwardHandlerRef(() => handleTsTypes)),
       createTsFunctionTypeHandler(
-        expressionHandlerFunction,
+        handleIdentifierStrict,
         forwardHandlerRef(() => handleTsTypes)
       ),
-      createTsLiteralTypeHandler(expressionHandlerFunction),
+      createTsLiteralTypeHandler(handleExpression),
     ],
     defaultTypeHandler
   );

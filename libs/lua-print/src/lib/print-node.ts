@@ -219,6 +219,12 @@ const _printNode = (node: LuaNode): string => {
       return createPrintTypeLiteral(printNode, getPrintSections)(node);
     case 'LuaTypeFunction':
       return createPrintTypeFunction(printNode)(node);
+    case 'LuaFunctionTypeParam': {
+      const typeAnnotationString = printNode(node.typeAnnotation);
+      return node.name
+        ? `${printNode(node.name)}:${typeAnnotationString}`
+        : typeAnnotationString;
+    }
     case 'LuaLiteralType':
       return printNode(node.literal);
     case 'LuaPropertySignature':

@@ -1,0 +1,1 @@
+type Fn = (foo:string, ...bar: RestType) => boolean

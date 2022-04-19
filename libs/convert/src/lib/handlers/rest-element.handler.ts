@@ -4,24 +4,14 @@ import {
   RestElement,
   TSType,
 } from '@babel/types';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
-import {
-  identifier,
-  LuaIdentifier,
-  LuaType,
-  typeAnnotation,
-  typeAny,
-} from '@js-to-lua/lua-types';
 import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import { LuaType, typeAnnotation, typeAny } from '@js-to-lua/lua-types';
 
 export const createRestElementHandler =
   (
     typesHandlerFunction: HandlerFunction<LuaType, TSType>
-  ): ((
-    source: string,
-    config: EmptyConfig,
-    node: RestElement
-  ) => LuaIdentifier) =>
+  ): ((source: string, config: EmptyConfig, node: RestElement) => LuaType) =>
   (source, config, node) => {
     let knownType;
     if (
@@ -38,11 +28,10 @@ export const createRestElementHandler =
       );
     }
 
-    const res = identifier('...', knownType || typeAnnotation(typeAny()));
     return knownType
-      ? res
+      ? knownType.typeAnnotation
       : withTrailingConversionComment(
-          res,
+          typeAny(),
           `ROBLOX CHECK: check correct type of elements.${
             node.typeAnnotation
               ? ' Upstream type: <' +

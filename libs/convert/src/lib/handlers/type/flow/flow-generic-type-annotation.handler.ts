@@ -2,25 +2,24 @@ import {
   FlowType,
   GenericTypeAnnotation,
   isIdentifier as isBabelIdentifier,
-  LVal,
 } from '@babel/types';
-import {
-  isIdentifier,
-  LuaLVal,
-  LuaType,
-  typeAny,
-  typeReference,
-} from '@js-to-lua/lua-types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   defaultTypeHandler,
   getNodeSource,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
+import {
+  isIdentifier,
+  LuaType,
+  typeAny,
+  typeReference,
+} from '@js-to-lua/lua-types';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 
 export const createFlowGenericTypeAnnotationHandler = (
-  handleIdentifier: HandlerFunction<LuaLVal, LVal>,
+  handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleFlowTypes: HandlerFunction<LuaType, FlowType>
 ) => {
   return createHandler<LuaType, GenericTypeAnnotation>(
@@ -41,7 +40,7 @@ export const createFlowGenericTypeAnnotationHandler = (
         );
       }
 
-      const id = handleIdentifier(source, config, node.id);
+      const id = handleIdentifierStrict(source, config, node.id);
 
       if (isIdentifier(id)) {
         return params.length

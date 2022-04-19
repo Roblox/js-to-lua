@@ -302,7 +302,7 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
 
 const { typesHandler, handleTypes } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression),
-  forwardHandlerRef(() => handleIdentifier)
+  forwardHandlerRef(() => handleIdentifierStrict)
 );
 
 const handleIdentifier = createIdentifierHandler(

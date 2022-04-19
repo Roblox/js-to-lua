@@ -16,7 +16,10 @@ import {
 } from '@js-to-lua/lua-types';
 import { handleExpression } from '../expression-statement.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
-import { createIdentifierHandler } from './identifier.handler';
+import {
+  createIdentifierHandler,
+  createIdentifierStrictHandler,
+} from './identifier.handler';
 
 const source = '';
 
@@ -50,10 +53,14 @@ const UNHANDLED_CHARS_IDENTIFIERS = [
   { givenName: '$$foo$$', expectedName: '__foo__' },
 ];
 
+const handleIdentifierStrict = createIdentifierStrictHandler(
+  forwardHandlerRef(() => handleExpression)
+);
+
 const handleIdentifier = createIdentifierHandler(
   createTypeAnnotationHandler(
     forwardHandlerRef(() => handleExpression),
-    forwardHandlerRef(() => handleIdentifier)
+    forwardHandlerRef(() => handleIdentifierStrict)
   ).typesHandler
 );
 

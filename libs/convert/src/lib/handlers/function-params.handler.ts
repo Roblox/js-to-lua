@@ -138,7 +138,10 @@ export const createFunctionParamsHandler = (
               params: [param.parameter],
             } as FunctionTypes);
           } else {
-            return restHandler(source, config, param);
+            return identifier(
+              '...',
+              typeAnnotation(restHandler(source, config, param))
+            );
           }
         })
         .flat();

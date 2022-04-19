@@ -1,4 +1,6 @@
 import { ContinueStatement } from '@js-to-lua/lua-types';
+import { PrinterFunction } from '../printer-function';
 
-export const createPrintContinueStatement = () => (_node: ContinueStatement) =>
-  'continue';
+export const createPrintContinueStatement =
+  (): PrinterFunction<ContinueStatement> => () =>
+    'continue';

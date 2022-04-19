@@ -69,7 +69,7 @@ export const createDeclarationHandler = (
 ): BaseNodeHandler<LuaNodeGroup | LuaDeclaration, Declaration> => {
   const { typesHandler } = createTypeAnnotationHandler(
     handleExpression,
-    handleIdentifier
+    handleIdentifierStrict
   );
 
   const declarationHandler: BaseNodeHandler<

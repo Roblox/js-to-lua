@@ -15,12 +15,13 @@ import {
 } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
+  functionTypeParam,
   identifier,
-  typeAnnotation,
   typeAny,
   typeBoolean,
   typeFunction,
   typeString,
+  typeVariadicFunction,
 } from '@js-to-lua/lua-types';
 import { handleExpression } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
@@ -64,7 +65,7 @@ describe('TSFunctionType handler', () => {
       tsTypeAnnotation(tsAnyKeyword())
     );
     const expected = typeFunction(
-      [identifier('foo', typeAnnotation(typeBoolean()))],
+      [functionTypeParam(identifier('foo'), typeBoolean())],
       typeAny()
     );
 
@@ -86,11 +87,9 @@ describe('TSFunctionType handler', () => {
       ],
       tsTypeAnnotation(tsAnyKeyword())
     );
-    const expected = typeFunction(
-      [
-        identifier('foo', typeAnnotation(typeBoolean())),
-        identifier('...', typeAnnotation(typeString())),
-      ],
+    const expected = typeVariadicFunction(
+      [functionTypeParam(identifier('foo'), typeBoolean())],
+      typeString(),
       typeAny()
     );
 
@@ -117,14 +116,12 @@ describe('TSFunctionType handler', () => {
       ],
       tsTypeAnnotation(tsAnyKeyword())
     );
-    const expected = typeFunction(
-      [
-        identifier('foo', typeAnnotation(typeBoolean())),
-        withTrailingConversionComment(
-          identifier('...', typeAnnotation(typeAny())),
-          'ROBLOX CHECK: check correct type of elements. Upstream type: <Args>'
-        ),
-      ],
+    const expected = typeVariadicFunction(
+      [functionTypeParam(identifier('foo'), typeBoolean())],
+      withTrailingConversionComment(
+        typeAny(),
+        'ROBLOX CHECK: check correct type of elements. Upstream type: <Args>'
+      ),
       typeAny()
     );
 

@@ -1,1 +1,1 @@
-type Fn = (foo: string, ...: number) -> boolean
+type Fn = (foo: string, ...number) -> boolean
