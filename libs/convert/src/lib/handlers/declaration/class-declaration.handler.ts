@@ -7,6 +7,7 @@ import {
   ClassProperty,
   Declaration,
   Expression,
+  FlowType,
   isClassMethod,
   isClassPrivateMethod,
   isClassPrivateProperty,
@@ -16,10 +17,13 @@ import {
   isTSDeclareMethod,
   isTSParameterProperty,
   LVal,
+  Noop,
   Statement,
   TSDeclareMethod,
   TSParameterProperty,
   TSType,
+  TSTypeAnnotation,
+  TypeAnnotation,
 } from '@babel/types';
 import {
   BaseNodeHandler,
@@ -47,6 +51,7 @@ import {
   LuaPropertySignature,
   LuaStatement,
   LuaType,
+  LuaTypeAnnotation,
   memberExpression,
   nodeGroup,
   returnStatement,
@@ -55,8 +60,10 @@ import {
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
+  typeCastExpression,
   typeLiteral,
   typePropertySignature,
+  typeReference,
   unhandledStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -83,7 +90,11 @@ export const createClassDeclarationHandler = (
     Declaration
   >,
   handleLVal: HandlerFunction<LuaLVal, LVal>,
-  typesHandlerFunction: HandlerFunction<LuaType, TSType>
+  handleTypeAnnotation: HandlerFunction<
+    LuaTypeAnnotation,
+    TypeAnnotation | TSTypeAnnotation | Noop
+  >,
+  handleType: HandlerFunction<LuaType, FlowType | TSType>
 ): BaseNodeHandler<LuaNodeGroup, ClassDeclaration> =>
   createHandler('ClassDeclaration', (source, config, node) => {
     let unhandledAssignments = 0;
@@ -94,7 +105,8 @@ export const createClassDeclarationHandler = (
 
     const functionParamsHandler = createFunctionParamsHandler(
       handleIdentifier,
-      typesHandlerFunction
+      handleTypeAnnotation,
+      handleType
     );
 
     const handleParamsBody = createFunctionParamsBodyHandler(
@@ -186,15 +198,16 @@ export const createClassDeclarationHandler = (
       } as T;
     }
 
-    const classNodeIdentifier = handleIdentifier(source, config, node.id);
+    const classNodeMaybeIdentifier = handleIdentifier(source, config, node.id);
 
-    if (!isIdentifier(classNodeIdentifier)) {
+    if (!isIdentifier(classNodeMaybeIdentifier)) {
       return withTrailingConversionComment(
         unhandledStatement(),
-        `ROBLOX comment: unhandled class with identifier of type ${classNodeIdentifier.type}`,
+        `ROBLOX comment: unhandled class with identifier of type ${classNodeMaybeIdentifier.type}`,
         getNodeSource(source, node)
       );
     }
+    const classNodeIdentifier = classNodeMaybeIdentifier;
 
     const publicTypes: LuaPropertySignature[] = [
       ...constructorPublicTsParameters.map((n) => {
@@ -346,7 +359,7 @@ export const createClassDeclarationHandler = (
       return constructorMethod
         ? [
             functionDeclaration(
-              identifier(`${(classNodeIdentifier as LuaIdentifier).name}.new`),
+              identifier(`${classNodeIdentifier.name}.new`),
               [...functionParamsHandler(source, config, constructorMethod)],
               nodeGroup([
                 node.superClass
@@ -375,9 +388,14 @@ export const createClassDeclarationHandler = (
                   )
                 ),
                 ...functionBodyHandler(source, config, constructorMethod),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(classNodeIdentifier)
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(classNodeIdentifier)),
               false
             ),
           ]
@@ -392,9 +410,14 @@ export const createClassDeclarationHandler = (
                       `ROBLOX TODO: super constructor may be used`
                     )
                   : defaultSelfDeclaration,
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(classNodeIdentifier)
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(classNodeIdentifier)),
               false
             ),
           ];
@@ -424,7 +447,9 @@ export const createClassDeclarationHandler = (
               ...handleParamsBody(source, config, node),
               ...functionBodyHandler(source, config, node),
             ]),
-            undefined,
+            node.returnType
+              ? handleTypeAnnotation(source, config, node.returnType)
+              : undefined,
             false
           )
         : withTrailingConversionComment(

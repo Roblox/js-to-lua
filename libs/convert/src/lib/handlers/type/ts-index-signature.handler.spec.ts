@@ -24,16 +24,17 @@ import { createTsIndexSignatureHandler } from './ts-index-signature.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 
 describe('TSIndesSignature handler', () => {
-  const { typesHandler } = createTypeAnnotationHandler(
+  const { handleTypeAnnotation } = createTypeAnnotationHandler(
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleIdentifier)
   );
 
   const handleIdentifier = createIdentifierHandler(
-    forwardHandlerFunctionRef(() => typesHandler)
+    forwardHandlerFunctionRef(() => handleTypeAnnotation)
   );
 
-  const indexSignatureHandler = createTsIndexSignatureHandler(typesHandler);
+  const indexSignatureHandler =
+    createTsIndexSignatureHandler(handleTypeAnnotation);
   const source = '';
 
   it('should handle Valid TSIndexSignature', () => {

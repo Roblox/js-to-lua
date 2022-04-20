@@ -33,6 +33,7 @@ describe('Try Statement Handler', () => {
   const handleTryStatement = createTryStatementHandler(
     mockNodeWithValueHandler,
     mockNodeWithValueHandler,
+    mockNodeWithValueHandler,
     mockNodeWithValueHandler
   ).handler;
 

@@ -17,6 +17,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   defaultStatementHandler,
+  removeIdTypeAnnotation,
   unwrapNodeGroup,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -121,10 +122,7 @@ export const createExportDefaultHandler = (
                 return exportTypeStatement(id);
               }
               const idWithoutTypeAnnotation: typeof id = isIdentifier(id)
-                ? {
-                    ...id,
-                    typeAnnotation: undefined,
-                  }
+                ? removeIdTypeAnnotation(id)
                 : id;
               return assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,

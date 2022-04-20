@@ -63,7 +63,7 @@ const handleIdentifier = createIdentifierHandler(
   createTypeAnnotationHandler(
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleIdentifierStrict)
-  ).typesHandler
+  ).handleTypeAnnotation
 );
 
 describe('Identifier Handler', () => {

@@ -2,9 +2,11 @@ import {
   AssignmentPattern,
   ExportDefaultDeclaration,
   Expression,
+  FlowType,
   LVal,
   Noop,
   Statement,
+  TSType,
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
@@ -22,6 +24,7 @@ import {
   LuaNodeGroup,
   LuaStatement,
   LuaTableKeyField,
+  LuaType,
   LuaTypeAnnotation,
 } from '@js-to-lua/lua-types';
 import { IdentifierHandlerFunction } from './identifier-handler-types';
@@ -45,7 +48,8 @@ export const createObjectFieldHandler = (
   handleTypeAnnotation: HandlerFunction<
     LuaTypeAnnotation,
     TypeAnnotation | TSTypeAnnotation | Noop
-  >
+  >,
+  handleType: HandlerFunction<LuaType, FlowType | TSType>
 ) => {
   const handleObjectProperty = createObjectPropertyHandler(
     handleExpression,
@@ -54,7 +58,8 @@ export const createObjectFieldHandler = (
     handleDeclaration,
     handleAssignmentPattern,
     handleLVal,
-    handleTypeAnnotation
+    handleTypeAnnotation,
+    handleType
   );
   const handleObjectMethod = createObjectMethodHandler(
     handleExpression,
@@ -63,7 +68,8 @@ export const createObjectFieldHandler = (
     handleDeclaration,
     handleAssignmentPattern,
     handleLVal,
-    handleTypeAnnotation
+    handleTypeAnnotation,
+    handleType
   );
 
   return combineHandlers<LuaTableKeyField, NoSpreadObjectProperty>(

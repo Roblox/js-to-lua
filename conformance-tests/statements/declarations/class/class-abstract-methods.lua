@@ -1,9 +1,9 @@
 type BaseClass = { method: any, abstractMethod: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
 local BaseClass = {}
 BaseClass.__index = BaseClass
-function BaseClass.new()
+function BaseClass.new(): BaseClass
 	local self = setmetatable({}, BaseClass)
-	return self
+	return (self :: any) :: BaseClass
 end
 function BaseClass:method() end
 function BaseClass.staticMethod() end
@@ -13,9 +13,9 @@ end
 type MyClass = { method: any, abstractMethod: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
-function MyClass.new()
+function MyClass.new(): MyClass
 	local self = setmetatable({}, MyClass) --[[ ROBLOX TODO: super constructor may be used ]]
-	return self
+	return (self :: any) :: MyClass
 end
 function MyClass:method() end
 function MyClass.staticMethod() end

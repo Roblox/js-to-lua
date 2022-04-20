@@ -1,9 +1,12 @@
 import {
+  FlowType,
   FunctionDeclaration,
   Identifier,
   Statement,
   TryStatement,
   TSType,
+  TSTypeAnnotation,
+  TypeAnnotation,
 } from '@babel/types';
 import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -38,7 +41,11 @@ import { createFunctionParamsHandler } from '../function-params.handler';
 export const createTryStatementHandler = (
   statementHandlerFunction: HandlerFunction<LuaStatement, Statement>,
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>,
-  typesHandlerFunction: HandlerFunction<LuaType, TSType>
+  typesAnnotationHandlerFunction: HandlerFunction<
+    LuaType,
+    TypeAnnotation | TSTypeAnnotation
+  >,
+  typesHandlerFunction: HandlerFunction<LuaType, FlowType | TSType>
 ): BaseNodeHandler<LuaStatement, TryStatement> =>
   createHandler('TryStatement', (source, config, node) => {
     const handleStatement = statementHandlerFunction(source, config);
@@ -54,6 +61,7 @@ export const createTryStatementHandler = (
     );
     const functionParamsHandler = createFunctionParamsHandler(
       identifierHandlerFunction,
+      typesAnnotationHandlerFunction,
       typesHandlerFunction
     );
 

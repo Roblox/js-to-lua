@@ -1,14 +1,12 @@
 import {
   Declaration,
   Expression,
-  FlowType,
   Identifier,
   LVal,
   ObjectMethod,
   ObjectProperty,
   PatternLike,
   Statement,
-  TSType,
 } from '@babel/types';
 import {
   BaseNodeHandler,
@@ -23,7 +21,6 @@ import {
   LuaNodeGroup,
   LuaStatement,
   LuaTableKeyField,
-  LuaType,
 } from '@js-to-lua/lua-types';
 import {
   IdentifierHandlerFunction,
@@ -52,7 +49,6 @@ export const createDeclarationHandler = (
     LuaTableKeyField,
     ObjectMethod | ObjectProperty
   >,
-  handleTypes: BaseNodeHandler<LuaType, TSType | FlowType>,
   objectPropertyIdentifierHandlerFunction: HandlerFunction<
     LuaExpression,
     Identifier
@@ -67,7 +63,7 @@ export const createDeclarationHandler = (
   >,
   handleLVal: HandlerFunction<LuaLVal, LVal>
 ): BaseNodeHandler<LuaNodeGroup | LuaDeclaration, Declaration> => {
-  const { typesHandler } = createTypeAnnotationHandler(
+  const { handleTypeAnnotation, handleType } = createTypeAnnotationHandler(
     handleExpression,
     handleIdentifierStrict
   );
@@ -93,15 +89,12 @@ export const createDeclarationHandler = (
       forwardHandlerRef(() => declarationHandler),
       handleLVal
     ),
-    createTypeAliasDeclarationHandler(
-      handleIdentifier,
-      forwardHandlerRef(() => handleTypes)
-    ),
+    createTypeAliasDeclarationHandler(handleIdentifier, handleType.handler),
     createTsInterfaceHandler(
       handleIdentifier,
       handleExpression,
-      typesHandler,
-      forwardHandlerRef(() => handleTypes)
+      handleTypeAnnotation,
+      handleType.handler
     ),
     createTsEnumHandler(
       handleIdentifier,
@@ -122,7 +115,8 @@ export const createDeclarationHandler = (
       handleStatement,
       forwardHandlerRef(() => declarationHandler),
       handleLVal,
-      forwardHandlerRef(() => handleTypes)
+      handleTypeAnnotation,
+      handleType.handler
     ),
   ]);
 

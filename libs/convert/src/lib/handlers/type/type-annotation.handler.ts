@@ -44,18 +44,18 @@ export const createTypeAnnotationHandler = (
     handleFlowTypes.handler
   );
 
-  const typesHandler = combineTypeAnnotationHandlers<
+  const handleTypeAnnotation = combineTypeAnnotationHandlers<
     LuaTypeAnnotation,
     TypeAnnotation | TSTypeAnnotation | Noop
   >([handleTsTypeAnnotation, handleFlowTypeAnnotation, handleNoop]).handler;
 
-  const handleTypes = combineHandlers(
+  const handleType = combineHandlers(
     [handleTsTypes, handleFlowTypes],
     defaultTypeHandler
   );
 
   return {
-    typesHandler,
-    handleTypes,
+    handleTypeAnnotation,
+    handleType,
   };
 };

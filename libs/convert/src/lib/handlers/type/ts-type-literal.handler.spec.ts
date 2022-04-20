@@ -31,19 +31,19 @@ import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 
-describe('TSIndesSignature handler', () => {
-  const { typesHandler } = createTypeAnnotationHandler(
+describe('TSIndexSignature handler', () => {
+  const { handleTypeAnnotation } = createTypeAnnotationHandler(
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleIdentifier)
   );
 
   const handleIdentifier = createIdentifierHandler(
-    forwardHandlerFunctionRef(() => typesHandler)
+    forwardHandlerFunctionRef(() => handleTypeAnnotation)
   );
 
   const tsTypeLiteralHandler = createTsTypeLiteralHandler(
     forwardHandlerRef(() => handleExpression),
-    typesHandler
+    handleTypeAnnotation
   );
   const source = '';
 

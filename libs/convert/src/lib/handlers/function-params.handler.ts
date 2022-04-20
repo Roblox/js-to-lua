@@ -5,6 +5,7 @@ import {
   ClassMethod,
   ClassPrivateMethod,
   Declaration,
+  FlowType,
   FunctionDeclaration,
   FunctionExpression,
   identifier as babelIdentifier,
@@ -20,6 +21,7 @@ import {
   ObjectMethod,
   ObjectPattern,
   TSDeclareMethod,
+  TSType,
   TSTypeAnnotation,
   TypeAnnotation,
   variableDeclaration as babelVariableDeclaration,
@@ -38,6 +40,7 @@ import {
   LuaMemberExpression,
   LuaNilLiteral,
   LuaNodeGroup,
+  LuaType,
   LuaTypeAnnotation,
   makeOptional,
   makeOptionalAnnotation,
@@ -68,16 +71,17 @@ export const createFunctionParamsHandler = (
     LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression,
     Identifier
   >,
-  typesHandlerFunction: HandlerFunction<
+  handleTypeAnnotation: HandlerFunction<
     LuaTypeAnnotation,
     TypeAnnotation | TSTypeAnnotation | Noop
-  >
+  >,
+  handleType: HandlerFunction<LuaType, FlowType | TSType>
 ): ((
   source: string,
   config: EmptyConfig,
   node: FunctionTypes
 ) => LuaIdentifier[]) => {
-  const restHandler = createRestElementHandler(typesHandlerFunction);
+  const restHandler = createRestElementHandler(handleType);
   return (
     source: string,
     config: EmptyConfig,
@@ -89,14 +93,14 @@ export const createFunctionParamsHandler = (
       makeOptionalAnnotation(true)(
         left.type === 'MemberExpression' || !left.typeAnnotation
           ? typeAnnotation(inferType(left))
-          : typesHandlerFunction(source, config, left.typeAnnotation)
+          : handleTypeAnnotation(source, config, left.typeAnnotation)
       );
 
     const handleArrayOrObjectPatternTypeAnnotation = ({
       typeAnnotation,
     }: ArrayPattern | ObjectPattern): LuaTypeAnnotation | undefined =>
       typeAnnotation
-        ? typesHandlerFunction(source, config, typeAnnotation)
+        ? handleTypeAnnotation(source, config, typeAnnotation)
         : undefined;
 
     let paramRefIdCount = 0;

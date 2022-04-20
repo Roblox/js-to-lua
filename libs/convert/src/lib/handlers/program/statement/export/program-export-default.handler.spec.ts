@@ -1,4 +1,7 @@
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  selfIdentifier,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -18,8 +21,10 @@ import {
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
+  typeCastExpression,
   typeLiteral,
   typePropertySignature,
+  typeReference,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -176,9 +181,14 @@ describe('Program handler', () => {
                   ),
                 ]
               ),
-              returnStatement(identifier('self')),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('Foo'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('Foo'))),
             false
           ),
           assignmentStatement(

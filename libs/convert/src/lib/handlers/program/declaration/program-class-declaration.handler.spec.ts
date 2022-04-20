@@ -20,8 +20,10 @@ import {
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
+  typeCastExpression,
   typeLiteral,
   typePropertySignature,
+  typeReference,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -53,8 +55,8 @@ describe('Program handler', () => {
       ];
       it('should convert class', () => {
         const given = getProgramNode(`
-     class BaseClass {}
-    `);
+          class BaseClass {}
+        `);
 
         const expected: LuaProgram = program([
           nodeGroup([
@@ -78,9 +80,14 @@ describe('Program handler', () => {
                     ),
                   ]
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('BaseClass'))),
               false
             ),
           ]),
@@ -91,10 +98,10 @@ describe('Program handler', () => {
 
       it('should convert class constructor to <ClassId>.new function', () => {
         const given = getProgramNode(`
-        class BaseClass{
+          class BaseClass{
             constructor(){}
-        }
-       `);
+          }
+        `);
 
         const expected: LuaProgram = program([
           nodeGroup([
@@ -118,9 +125,14 @@ describe('Program handler', () => {
                     ),
                   ]
                 ),
-                returnStatement(identifier('self')),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('BaseClass'))),
               false
             ),
           ]),
@@ -166,9 +178,14 @@ describe('Program handler', () => {
                     ),
                   ]
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('BaseClass'))),
               false
             ),
             functionDeclaration(
@@ -213,9 +230,14 @@ describe('Program handler', () => {
                     ),
                   ]
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('BaseClass'))),
               false
             ),
             functionDeclaration(
@@ -271,9 +293,14 @@ describe('Program handler', () => {
                     ),
                   ]
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('BaseClass'))),
               false
             ),
           ]),
@@ -319,9 +346,14 @@ describe('Program handler', () => {
                     ),
                   ]
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('BaseClass'))),
               false
             ),
             functionDeclaration(
@@ -404,9 +436,14 @@ describe('Program handler', () => {
                   ),
                   `ROBLOX TODO: super constructor may be used`
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('SubClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('SubClass'))),
               false
             ),
           ]),
@@ -447,9 +484,14 @@ describe('Program handler', () => {
                   ),
                   `ROBLOX TODO: super constructor may be used`
                 ),
-                returnStatement(identifier('self')),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('SubClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('SubClass'))),
               false
             ),
           ]),
@@ -498,9 +540,14 @@ describe('Program handler', () => {
                   ),
                   `ROBLOX TODO: super constructor may be used`
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('SubClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('SubClass'))),
               false
             ),
             functionDeclaration(
@@ -547,9 +594,14 @@ describe('Program handler', () => {
                   ),
                   `ROBLOX TODO: super constructor may be used`
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('SubClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('SubClass'))),
               false
             ),
             functionDeclaration(
@@ -608,9 +660,14 @@ describe('Program handler', () => {
                   ),
                   `ROBLOX TODO: super constructor may be used`
                 ),
-                returnStatement(selfIdentifier()),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('SubClass'))
+                  )
+                ),
               ]),
-              undefined,
+              typeAnnotation(typeReference(identifier('SubClass'))),
               false
             ),
           ]),

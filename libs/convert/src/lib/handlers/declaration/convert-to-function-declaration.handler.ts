@@ -10,7 +10,10 @@ import {
   Statement,
 } from '@babel/types';
 import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
-import { defaultElementHandler } from '@js-to-lua/lua-conversion-utils';
+import {
+  defaultElementHandler,
+  removeIdTypeAnnotation,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   functionDeclaration,
   LuaDeclaration,
@@ -51,13 +54,14 @@ export function createConvertToFunctionDeclarationHandler(
     handleExpression,
     handleIdentifier
   );
-  const { typesHandler } = createTypeAnnotationHandler(
+  const { handleTypeAnnotation, handleType } = createTypeAnnotationHandler(
     handleExpression,
     handleIdentifier
   );
   const functionParamsHandler = createFunctionParamsHandler(
     handleIdentifier,
-    typesHandler
+    handleTypeAnnotation,
+    handleType.handler
   );
 
   return function (
@@ -67,7 +71,7 @@ export function createConvertToFunctionDeclarationHandler(
     id: LuaIdentifier
   ): LuaFunctionDeclaration | LuaNodeGroup {
     const handleTsTypeParameterDeclaration =
-      createTsTypeParameterDeclarationHandler(typesHandler).handler(
+      createTsTypeParameterDeclarationHandler(handleTypeAnnotation).handler(
         source,
         config
       );
@@ -93,14 +97,14 @@ export function createConvertToFunctionDeclarationHandler(
       ? nodeGroup([
           variableDeclaration([variableDeclaratorIdentifier(id)], []),
           functionDeclaration(
-            { ...id, typeAnnotation: undefined },
+            removeIdTypeAnnotation(id),
             functionParamsHandler(source, config, node),
             nodeGroup([
               ...handleParamsBody(source, config, node),
               ...handleFunctionBody(node),
             ]),
             node.returnType
-              ? typesHandler(source, config, node.returnType)
+              ? handleTypeAnnotation(source, config, node.returnType)
               : undefined,
             false,
             typeParameters
@@ -114,7 +118,7 @@ export function createConvertToFunctionDeclarationHandler(
             ...handleFunctionBody(node),
           ]),
           node.returnType
-            ? typesHandler(source, config, node.returnType)
+            ? handleTypeAnnotation(source, config, node.returnType)
             : undefined,
           true,
           typeParameters

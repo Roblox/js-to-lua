@@ -12,6 +12,7 @@ export * from './lib/get-return-expressions';
 export * from './lib/handlers';
 export * from './lib/is-lua-truthy';
 export * from './lib/member-expression-from-path';
+export * from './lib/remove-id-type-annotation';
 export * from './lib/extras';
 export * from './lib/string-inferable';
 export * from './lib/unwrap-node-group';

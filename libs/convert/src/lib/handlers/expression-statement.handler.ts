@@ -150,7 +150,9 @@ export const handleFunctionExpression: BaseNodeHandler<
       ...handleParamsBody(source, config, node),
       ...handleFunctionBody(node),
     ]),
-    node.returnType ? typesHandler(source, config, node.returnType) : undefined
+    node.returnType
+      ? handleTypeAnnotation(source, config, node.returnType)
+      : undefined
   );
 });
 
@@ -173,7 +175,9 @@ export const handleArrowFunctionExpression: BaseNodeHandler<
       ...handleParamsBody(source, config, node),
       ...handleFunctionBody(node),
     ]),
-    node.returnType ? typesHandler(source, config, node.returnType) : undefined
+    node.returnType
+      ? handleTypeAnnotation(source, config, node.returnType)
+      : undefined
   );
 });
 
@@ -254,7 +258,9 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
       forwardHandlerRef(() => handleExpression),
       forwardHandlerRef(() => handleObjectField)
     ),
-    createIdentifierHandler(forwardHandlerFunctionRef(() => typesHandler)),
+    createIdentifierHandler(
+      forwardHandlerFunctionRef(() => handleTypeAnnotation)
+    ),
     createUnaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createBinaryExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createLogicalExpressionHandler(forwardHandlerRef(() => handleExpression)),
@@ -284,11 +290,11 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     createNewExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createTsAsExpressionHandler(
       forwardHandlerRef(() => handleExpression),
-      forwardHandlerRef(() => handleTypes)
+      forwardHandlerRef(() => handleType)
     ),
     createFlowTypeCastExpressionHandler(
       forwardHandlerRef(() => handleExpression),
-      forwardHandlerRef(() => handleTypes)
+      forwardHandlerRef(() => handleType)
     ),
     createTsNonNullExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createTaggedTemplateExpressionHandler(
@@ -300,22 +306,23 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     createAwaitExpressionHandler(forwardHandlerRef(() => handleExpression)),
   ]);
 
-const { typesHandler, handleTypes } = createTypeAnnotationHandler(
+const { handleTypeAnnotation, handleType } = createTypeAnnotationHandler(
   forwardHandlerRef(() => handleExpression),
   forwardHandlerRef(() => handleIdentifierStrict)
 );
 
 const handleIdentifier = createIdentifierHandler(
-  forwardHandlerFunctionRef(() => typesHandler)
+  forwardHandlerFunctionRef(() => handleTypeAnnotation)
 );
 
 const handleIdentifierStrict = createIdentifierStrictHandler(
-  forwardHandlerFunctionRef(() => typesHandler)
+  forwardHandlerFunctionRef(() => handleTypeAnnotation)
 );
 
 const functionParamsHandler = createFunctionParamsHandler(
   forwardHandlerRef(() => handleIdentifier),
-  forwardHandlerFunctionRef(() => typesHandler)
+  forwardHandlerFunctionRef(() => handleTypeAnnotation),
+  forwardHandlerRef(() => handleType)
 );
 
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
@@ -330,7 +337,8 @@ export const handleObjectField = createObjectFieldHandler(
   forwardHandlerRef(() => handleDeclaration),
   handleAssignmentPattern,
   handleLVal,
-  typesHandler
+  handleTypeAnnotation,
+  handleType.handler
 );
 
 export const handleObjectKeyExpression = createObjectKeyExpressionHandler(
@@ -344,7 +352,8 @@ export const handleObjectPropertyValue = createObjectPropertyValueHandler(
   forwardHandlerRef(() => handleDeclaration),
   handleAssignmentPattern,
   handleLVal,
-  typesHandler
+  handleTypeAnnotation,
+  handleType.handler
 );
 
 export const handleObjectPropertyIdentifier =
@@ -381,7 +390,6 @@ const handleDeclaration = createDeclarationHandler(
   forwardHandlerRef(() => handleIdentifierStrict),
   forwardHandlerRef(() => handleStatement),
   forwardHandlerRef(() => handleObjectField),
-  handleTypes,
   createObjectPropertyIdentifierHandler(
     forwardHandlerRef(() => handleIdentifier)
   ),
@@ -414,7 +422,8 @@ export const handleStatement: BaseNodeHandler<LuaStatement, Statement> =
     createTryStatementHandler(
       forwardHandlerRef(() => handleStatement),
       forwardHandlerRef(() => handleIdentifier),
-      forwardHandlerFunctionRef(() => typesHandler)
+      forwardHandlerFunctionRef(() => handleTypeAnnotation),
+      forwardHandlerRef(() => handleType)
     ),
     createSwitchStatementHandler(
       forwardHandlerRef(() => handleStatement),

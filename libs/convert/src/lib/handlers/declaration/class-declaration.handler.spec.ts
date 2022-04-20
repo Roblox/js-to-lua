@@ -8,6 +8,10 @@ import {
   identifier as babelIdentifier,
   stringLiteral as babelStringLiteral,
   tsDeclareMethod,
+  tsStringKeyword,
+  tsTypeAnnotation,
+  tsVoidKeyword,
+  returnStatement as babelReturnStatement,
 } from '@babel/types';
 import {
   selfIdentifier,
@@ -33,9 +37,13 @@ import {
   typeAny,
   typeLiteral,
   typePropertySignature,
+  typeString,
+  typeVoid,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
+  typeReference,
+  typeCastExpression,
 } from '@js-to-lua/lua-types';
 import { handleStatement } from '../expression-statement.handler';
 
@@ -83,9 +91,14 @@ describe('Class Declaration', () => {
                   ),
                 ]
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('BaseClass'))),
             false
           ),
         ])
@@ -130,9 +143,14 @@ describe('Class Declaration', () => {
                   ),
                 ]
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('BaseClass'))),
             false
           ),
         ])
@@ -185,9 +203,14 @@ describe('Class Declaration', () => {
                   ),
                 ]
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('BaseClass'))),
             false
           ),
           functionDeclaration(
@@ -195,6 +218,148 @@ describe('Class Declaration', () => {
             [],
             nodeGroup([]),
             undefined,
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert class methods to <ClassId>:<methodName> function with an explicit void return type', () => {
+      const given: ClassDeclaration = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          {
+            ...classMethod(
+              'method',
+              babelIdentifier('myMethod'),
+              [],
+              babelBlockStatement([])
+            ),
+            returnType: tsTypeAnnotation(tsVoidKeyword()),
+          },
+        ])
+      );
+
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
+        nodeGroup([
+          withTrailingConversionComment(
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(typeAny())
+                ),
+              ])
+            ),
+            `ROBLOX TODO: replace 'any' type/ add missing`
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+          functionDeclaration(
+            identifier('BaseClass:myMethod'),
+            [],
+            nodeGroup([]),
+            typeAnnotation(typeVoid()),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert class methods to <ClassId>:<methodName> function with an explicit string return type', () => {
+      const given: ClassDeclaration = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          {
+            ...classMethod(
+              'method',
+              babelIdentifier('myMethod'),
+              [],
+              babelBlockStatement([
+                babelReturnStatement(babelStringLiteral('foo')),
+              ])
+            ),
+            returnType: tsTypeAnnotation(tsStringKeyword()),
+          },
+        ])
+      );
+
+      const expected: LuaNodeGroup = withClassDeclarationExtra(
+        nodeGroup([
+          withTrailingConversionComment(
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(typeAny())
+                ),
+              ])
+            ),
+            `ROBLOX TODO: replace 'any' type/ add missing`
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+          functionDeclaration(
+            identifier('BaseClass:myMethod'),
+            [],
+            nodeGroup([nodeGroup([returnStatement(stringLiteral('foo'))])]),
+            typeAnnotation(typeString()),
             false
           ),
         ])
@@ -241,9 +406,14 @@ describe('Class Declaration', () => {
                   ),
                 ]
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('BaseClass'))),
             false
           ),
           functionDeclaration(
@@ -308,9 +478,14 @@ describe('Class Declaration', () => {
                   ),
                 ]
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('BaseClass'))),
             false
           ),
         ])
@@ -361,9 +536,14 @@ describe('Class Declaration', () => {
                   ),
                 ]
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('BaseClass'))),
             false
           ),
           functionDeclaration(
@@ -442,9 +622,14 @@ describe('Class Declaration', () => {
                 ),
                 `ROBLOX TODO: super constructor may be used`
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('SubClass'))),
             false
           ),
         ])
@@ -492,9 +677,14 @@ describe('Class Declaration', () => {
                 ),
                 `ROBLOX TODO: super constructor may be used`
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('SubClass'))),
             false
           ),
         ])
@@ -550,9 +740,14 @@ describe('Class Declaration', () => {
                 ),
                 `ROBLOX TODO: super constructor may be used`
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('SubClass'))),
             false
           ),
           functionDeclaration(
@@ -608,9 +803,14 @@ describe('Class Declaration', () => {
                 ),
                 `ROBLOX TODO: super constructor may be used`
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('SubClass'))),
             false
           ),
           functionDeclaration(
@@ -678,9 +878,14 @@ describe('Class Declaration', () => {
                 ),
                 `ROBLOX TODO: super constructor may be used`
               ),
-              returnStatement(selfIdentifier()),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'))
+                )
+              ),
             ]),
-            undefined,
+            typeAnnotation(typeReference(identifier('SubClass'))),
             false
           ),
         ])

@@ -2,12 +2,14 @@ import {
   AssignmentPattern,
   ExportDefaultDeclaration,
   Expression,
+  FlowType,
   FunctionExpression,
   isAssignmentPattern as isBabelAssignmentPattern_,
   LVal,
   Noop,
   PatternLike,
   Statement,
+  TSType,
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
@@ -27,6 +29,7 @@ import {
   LuaLVal,
   LuaNodeGroup,
   LuaStatement,
+  LuaType,
   LuaTypeAnnotation,
   nodeGroup,
 } from '@js-to-lua/lua-types';
@@ -52,7 +55,8 @@ export const createObjectPropertyValueHandler = (
   handleTypeAnnotation: HandlerFunction<
     LuaTypeAnnotation,
     TypeAnnotation | TSTypeAnnotation | Noop
-  >
+  >,
+  handleType: HandlerFunction<LuaType, FlowType | TSType>
 ) => {
   const handleObjectValueFunctionExpression: BaseNodeHandler<
     LuaFunctionExpression,
@@ -60,7 +64,8 @@ export const createObjectPropertyValueHandler = (
   > = createHandler('FunctionExpression', (source, config, node) => {
     const functionParamsHandler = createFunctionParamsHandler(
       handleIdentifier,
-      handleTypeAnnotation
+      handleTypeAnnotation,
+      handleType
     );
 
     const params = [

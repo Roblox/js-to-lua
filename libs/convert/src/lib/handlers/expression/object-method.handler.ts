@@ -2,10 +2,12 @@ import {
   AssignmentPattern,
   ExportDefaultDeclaration,
   Expression,
+  FlowType,
   LVal,
   Noop,
   ObjectMethod,
   Statement,
+  TSType,
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
@@ -24,6 +26,7 @@ import {
   LuaNodeGroup,
   LuaStatement,
   LuaTableKeyField,
+  LuaType,
   LuaTypeAnnotation,
   nodeGroup,
   tableExpressionKeyField,
@@ -53,7 +56,8 @@ export const createObjectMethodHandler = (
   handleTypeAnnotation: HandlerFunction<
     LuaTypeAnnotation,
     TypeAnnotation | TSTypeAnnotation | Noop
-  >
+  >,
+  handleType: HandlerFunction<LuaType, FlowType | TSType>
 ) => {
   const handleObjectPropertyIdentifier =
     createObjectPropertyIdentifierHandler(handleIdentifier);
@@ -73,7 +77,8 @@ export const createObjectMethodHandler = (
 
       const functionParamsHandler = createFunctionParamsHandler(
         handleIdentifier,
-        handleTypeAnnotation
+        handleTypeAnnotation,
+        handleType
       );
 
       const params = [

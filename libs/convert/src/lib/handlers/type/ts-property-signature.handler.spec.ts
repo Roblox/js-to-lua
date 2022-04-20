@@ -24,18 +24,18 @@ import { createTsPropertySignatureHandler } from './ts-property-signature.handle
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 
 describe('TSIndesSignature handler', () => {
-  const { typesHandler } = createTypeAnnotationHandler(
+  const { handleTypeAnnotation } = createTypeAnnotationHandler(
     forwardHandlerRef(() => handleExpression),
     forwardHandlerRef(() => handleIdentifier)
   );
 
   const handleIdentifier = createIdentifierHandler(
-    forwardHandlerFunctionRef(() => typesHandler)
+    forwardHandlerFunctionRef(() => handleTypeAnnotation)
   );
 
   const propertySignatureHandler = createTsPropertySignatureHandler(
     forwardHandlerRef(() => handleExpression),
-    typesHandler
+    handleTypeAnnotation
   );
   const source = '';
 
