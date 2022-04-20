@@ -12,8 +12,10 @@ import { createFlowBooleanTypeAnnotationHandler } from './boolean-type-annotatio
 import { createFlowGenericTypeAnnotationHandler } from './flow-generic-type-annotation.handler';
 import { createFunctionTypeAnnotationHandler } from './function-type-annotation.handler';
 import { createNullableTypeAnnotationHandler } from './nullable-type-annotation.handler';
+import { createFlowNumberLiteralTypeAnnotationHandler } from './number-literal-type-annotation.handler';
 import { createFlowNumberTypeAnnotationHandler } from './number-type-annotation.handler';
 import { createFlowStringTypeAnnotationHandler } from './string-type-annotation.handler';
+import { createUnionTypeAnnotationHandler } from './union-type-annotation.handler';
 
 export const createFlowTypeHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction
@@ -27,6 +29,7 @@ export const createFlowTypeHandler = (
       createFlowStringTypeAnnotationHandler(),
       createFlowBooleanTypeAnnotationHandler(),
       createFlowAnyTypeAnnotationHandler(),
+      createFlowNumberLiteralTypeAnnotationHandler(),
       createFlowGenericTypeAnnotationHandler(
         handleIdentifierStrict,
         forwardHandlerRef(() => handleFlowTypes)
@@ -36,6 +39,9 @@ export const createFlowTypeHandler = (
       ),
       createFunctionTypeAnnotationHandler(
         handleIdentifierStrict,
+        forwardHandlerRef(() => handleFlowTypes)
+      ),
+      createUnionTypeAnnotationHandler(
         forwardHandlerRef(() => handleFlowTypes)
       ),
     ],

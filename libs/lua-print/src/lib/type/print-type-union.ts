@@ -11,4 +11,4 @@ export const createPrintTypeUnion =
         }
         return printNode(n);
       })
-      .join(' | ');
+      .join('\n| ');

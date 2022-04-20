@@ -8,6 +8,7 @@ import {
   typeUnion,
   typeVoid,
 } from '@js-to-lua/lua-types';
+import { dedent } from '@js-to-lua/shared-utils';
 import { createPrintTypeUnion } from './print-type-union';
 
 describe('Print type union', () => {
@@ -31,7 +32,9 @@ describe('Print type union', () => {
   it('should print type union with two union type', () => {
     const given = typeUnion([typeNumber(), typeString()]);
 
-    const expected = 'LuaTypeNumber | LuaTypeString';
+    const expected = dedent`
+      LuaTypeNumber
+      | LuaTypeString`;
 
     expect(printTypeUnion(given)).toEqual(expected);
   });
@@ -44,7 +47,11 @@ describe('Print type union', () => {
       typeVoid(),
     ]);
 
-    const expected = 'LuaTypeNumber | LuaTypeString | LuaTypeAny | LuaTypeVoid';
+    const expected = dedent`
+      LuaTypeNumber
+      | LuaTypeString
+      | LuaTypeAny
+      | LuaTypeVoid`;
 
     expect(printTypeUnion(given)).toEqual(expected);
   });
@@ -56,7 +63,11 @@ describe('Print type union', () => {
       typeUnion([typeAny(), typeVoid()]),
     ]);
 
-    const expected = 'LuaTypeNumber | LuaTypeString | LuaTypeAny | LuaTypeVoid';
+    const expected = dedent`
+      LuaTypeNumber
+      | LuaTypeString
+      | LuaTypeAny
+      | LuaTypeVoid`;
 
     expect(printTypeUnion(given)).toEqual(expected);
   });
@@ -68,7 +79,10 @@ describe('Print type union', () => {
       typeIntersection([typeAny(), typeVoid()]),
     ]);
 
-    const expected = 'LuaTypeNumber | LuaTypeString | (LuaTypeIntersection)';
+    const expected = dedent`
+      LuaTypeNumber
+      | LuaTypeString
+      | (LuaTypeIntersection)`;
 
     expect(printTypeUnion(given)).toEqual(expected);
   });
