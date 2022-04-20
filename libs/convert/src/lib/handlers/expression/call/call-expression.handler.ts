@@ -57,7 +57,7 @@ export const createCallExpressionHandler = (
       if (isBabelMemberExpression(callee)) {
         const propertyExpression = isPrivateName(callee.property)
           ? defaultExpressionHandler(source, config, callee.property)
-          : handleExpression(source, config, callee.property as Expression);
+          : handleExpression(source, config, callee.property);
 
         const objectExpression = handleExpression(
           source,

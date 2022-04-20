@@ -1,11 +1,11 @@
 import { Noop, TSTypeAnnotation, TypeAnnotation } from '@babel/types';
 import {
+  combineOptionalHandlerFunctions,
   createHandler,
   CreateHandlerFunctionOptions,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
-  createWithAlternativeExpressionExtras,
   createWithOriginalIdentifierNameExtras,
   getNodeSource,
   isValidIdentifier,
@@ -20,11 +20,11 @@ import {
   memberExpression,
   nilLiteral,
   numericLiteral,
-  stringLiteral,
   typeAnnotation,
   typeAny,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
+import { createGlobalLuaIdentifierOptionalHandler } from './identifier-global-lua.handler';
 import {
   IdentifierHandler,
   IdentifierHandlerFrom,
@@ -33,6 +33,7 @@ import {
   IdentifierStrictHandlerFrom,
   IdentifierStrictHandlerTo,
 } from './identifier-handler-types';
+import { createReservedKeywordIdentifierOptionalHandler } from './identifier-reserved-keyword.handler';
 
 export const createIdentifierHandler = (
   handleType: HandlerFunction<
@@ -72,64 +73,40 @@ export const createIdentifierStrictHandler = (
   createHandler<IdentifierStrictHandlerTo, IdentifierStrictHandlerFrom>(
     'Identifier',
     (source, config, node) => {
+      const resultIdentifier = combineOptionalHandlerFunctions([
+        createReservedKeywordIdentifierOptionalHandler(),
+        createGlobalLuaIdentifierOptionalHandler(),
+      ])(source, config, node);
+
+      if (resultIdentifier) {
+        return resultIdentifier;
+      }
+
+      const optional = !!node.optional;
+      const annotation =
+        node.typeAnnotation || optional
+          ? applyTo(
+              node.typeAnnotation
+                ? handleType(source, config, node.typeAnnotation)
+                : typeAnnotation(typeAny()),
+              makeOptionalAnnotation(optional)
+            )
+          : undefined;
+
       const withOriginalIdentifierNameExtras =
         createWithOriginalIdentifierNameExtras(node.name);
-      const withAlternativeStringLiteral =
-        createWithAlternativeExpressionExtras(stringLiteral(node.name));
 
-      switch (node.name) {
-        case 'and':
-        case 'break':
-        case 'do':
-        case 'else':
-        case 'elseif':
-        case 'end':
-        case 'false':
-        case 'for':
-        case 'function':
-        case 'if':
-        case 'in':
-        case 'local':
-        case 'nil':
-        case 'not':
-        case 'or':
-        case 'repeat':
-        case 'return':
-        case 'then':
-        case 'true':
-        case 'until':
-        case 'while':
-          return withAlternativeStringLiteral(
-            withOriginalIdentifierNameExtras(identifier(`${node.name}_`))
+      return isValidIdentifier(node.name)
+        ? identifier(node.name, annotation)
+        : withTrailingConversionComment(
+            withOriginalIdentifierNameExtras(
+              identifier(toValidIdentifier(node.name), annotation)
+            ),
+            `ROBLOX CHECK: replaced unhandled characters in identifier. Original identifier: ${getNodeSource(
+              source,
+              node
+            )}`
           );
-        case 'error':
-        case 'table':
-          return withOriginalIdentifierNameExtras(identifier(`${node.name}_`));
-        default: {
-          const optional = !!node.optional;
-          const annotation =
-            node.typeAnnotation || optional
-              ? applyTo(
-                  node.typeAnnotation
-                    ? handleType(source, config, node.typeAnnotation)
-                    : typeAnnotation(typeAny()),
-                  makeOptionalAnnotation(optional)
-                )
-              : undefined;
-
-          return !isValidIdentifier(node.name)
-            ? withTrailingConversionComment(
-                withOriginalIdentifierNameExtras(
-                  identifier(toValidIdentifier(node.name), annotation)
-                ),
-                `ROBLOX CHECK: replaced unhandled characters in identifier. Original identifier: ${getNodeSource(
-                  source,
-                  node
-                )}`
-              )
-            : identifier(node.name, annotation);
-        }
-      }
     },
     options
   );

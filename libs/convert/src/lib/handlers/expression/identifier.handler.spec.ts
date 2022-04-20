@@ -47,6 +47,8 @@ const KEYWORDS = [
   'while',
 ];
 
+const GLOBALS = ['error', 'table', 'string', 'tostring', 'version'];
+
 const UNHANDLED_CHARS_IDENTIFIERS = [
   { givenName: '$foo', expectedName: '_foo' },
   { givenName: '$$foo', expectedName: '__foo' },
@@ -116,6 +118,17 @@ describe('Identifier Handler', () => {
       const expected = createWithAlternativeExpressionExtras(
         stringLiteral(name)
       )(createWithOriginalIdentifierNameExtras(name)(identifier(`${name}_`)));
+
+      expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
+    });
+  });
+
+  GLOBALS.forEach((name) => {
+    it(`should return Lua Identifier Node with '_' prepended when name is not undefined and is a global`, () => {
+      const given = babelIdentifier(name);
+      const expected = createWithOriginalIdentifierNameExtras(name)(
+        identifier(`${name}_`)
+      );
 
       expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
     });

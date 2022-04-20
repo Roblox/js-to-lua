@@ -1,1 +1,1 @@
-type FnFnFn = () -> (foo: (string: any) -> boolean) -> number
+type FnFnFn = () -> (foo: (bar: string) -> boolean) -> number
