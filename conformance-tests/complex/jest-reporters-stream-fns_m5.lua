@@ -1,4 +1,4 @@
-type DefaultReporter = {} --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type DefaultReporter = {}
 local DefaultReporter = {}
 DefaultReporter.__index = DefaultReporter
 function DefaultReporter.new(): DefaultReporter
