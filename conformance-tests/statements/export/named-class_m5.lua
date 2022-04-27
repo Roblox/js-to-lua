@@ -1,5 +1,5 @@
 local exports = {}
-export type Foo = { prop: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+export type Foo = { prop: string }
 local Foo = {}
 Foo.__index = Foo
 function Foo.new(): Foo

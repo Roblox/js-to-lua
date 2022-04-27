@@ -260,17 +260,14 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           exportTypeStatement(
-            withTrailingConversionComment(
-              typeAliasDeclaration(
-                identifier('Foo'),
-                typeLiteral([
-                  typePropertySignature(
-                    identifier('prop'),
-                    typeAnnotation(typeAny())
-                  ),
-                ])
-              ),
-              "ROBLOX TODO: replace 'any' type/ add missing"
+            typeAliasDeclaration(
+              identifier('Foo'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('prop'),
+                  typeAnnotation(typeString())
+                ),
+              ])
             )
           ),
           variableDeclaration(

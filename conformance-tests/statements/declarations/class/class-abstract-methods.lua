@@ -1,4 +1,4 @@
-type BaseClass = { method: any, abstractMethod: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type BaseClass = { method: (self: BaseClass) -> any, abstractMethod: (self: BaseClass) -> any }
 local BaseClass = {}
 BaseClass.__index = BaseClass
 function BaseClass.new(): BaseClass
@@ -10,7 +10,7 @@ function BaseClass.staticMethod() end
 function BaseClass:abstractMethod()
 	error("not implemented abstract method")
 end
-type MyClass = { method: any, abstractMethod: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type MyClass = { method: (self: MyClass) -> any, abstractMethod: (self: MyClass) -> any }
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 function MyClass.new(): MyClass

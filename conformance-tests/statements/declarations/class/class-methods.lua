@@ -1,4 +1,4 @@
-type BaseClass = { method: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type BaseClass = { method: (self: BaseClass) -> any }
 local BaseClass = {}
 BaseClass.__index = BaseClass
 function BaseClass.new(): BaseClass
@@ -7,7 +7,7 @@ function BaseClass.new(): BaseClass
 end
 function BaseClass:method() end
 function BaseClass.staticMethod() end
-type MyClass = { method: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type MyClass = { method: (self: MyClass) -> any }
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 function MyClass.new(): MyClass

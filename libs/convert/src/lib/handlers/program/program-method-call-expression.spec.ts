@@ -233,9 +233,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(
-      JSON.stringify(handleProgram.handler(source, {}, given), undefined, 2)
-    ).toEqual(JSON.stringify(expected, undefined, 2));
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle not computed member expressions with spread element`, () => {

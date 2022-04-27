@@ -1,13 +1,13 @@
 class BaseClass {
     initializedProperty = true;
-    notInitializedProperty; // should be ignored when converted
+    notInitializedProperty;
     static staticProperty = false
     constructor(){}
 }
 
 class MyClass extends BaseClass {
     initializedProperty = true;
-    notInitializedProperty; // should be ignored when converted
+    notInitializedProperty;
     static staticProperty = false
     constructor(){}
 }

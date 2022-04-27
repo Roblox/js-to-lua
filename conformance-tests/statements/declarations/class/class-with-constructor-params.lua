@@ -1,4 +1,4 @@
-type BaseClass = { publicConstructorParam: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type BaseClass = { publicConstructorParam: any }
 local BaseClass = {}
 BaseClass.__index = BaseClass
 function BaseClass.new(notAssignedParam, publicConstructorParam, privateConstructorParam): BaseClass
@@ -7,7 +7,7 @@ function BaseClass.new(notAssignedParam, publicConstructorParam, privateConstruc
 	self.privateConstructorParam = privateConstructorParam
 	return (self :: any) :: BaseClass
 end
-type MyClass = { publicConstructorParam: any } --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+type MyClass = { publicConstructorParam: any }
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 function MyClass.new(notAssignedParam, publicConstructorParam, privateConstructorParam): MyClass

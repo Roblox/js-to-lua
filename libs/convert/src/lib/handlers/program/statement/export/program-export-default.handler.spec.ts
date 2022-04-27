@@ -1,7 +1,4 @@
-import {
-  selfIdentifier,
-  withTrailingConversionComment,
-} from '@js-to-lua/lua-conversion-utils';
+import { selfIdentifier } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -25,6 +22,7 @@ import {
   typeLiteral,
   typePropertySignature,
   typeReference,
+  typeString,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -144,17 +142,14 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           exportTypeStatement(
-            withTrailingConversionComment(
-              typeAliasDeclaration(
-                identifier('Foo'),
-                typeLiteral([
-                  typePropertySignature(
-                    identifier('prop'),
-                    typeAnnotation(typeAny())
-                  ),
-                ])
-              ),
-              "ROBLOX TODO: replace 'any' type/ add missing"
+            typeAliasDeclaration(
+              identifier('Foo'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('prop'),
+                  typeAnnotation(typeString())
+                ),
+              ])
             )
           ),
           variableDeclaration(

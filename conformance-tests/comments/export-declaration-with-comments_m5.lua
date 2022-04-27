@@ -6,7 +6,7 @@ exports.thisIsTest = thisIsTest
 local foo = "foo"
 exports.foo = foo
 --[[ Comment 3 ]]
-export type Foo = {} --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+export type Foo = {}
 local Foo = {}
 Foo.__index = Foo
 function Foo.new(): Foo

@@ -8,11 +8,13 @@ import {
   Declaration,
   Expression,
   FlowType,
+  isAssignmentPattern,
   isClassMethod,
   isClassPrivateMethod,
   isClassPrivateProperty,
   isClassProperty,
   isIdentifier as isBabelIdentifier,
+  isMemberExpression as isBabelMemberExpression,
   isPrivateName,
   isTSDeclareMethod,
   isTSParameterProperty,
@@ -31,7 +33,10 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
+  defaultUnhandledIdentifierHandlerWithComment,
   getNodeSource,
+  reassignComments,
+  removeIdTypeAnnotation,
   selfIdentifier,
   withClassDeclarationExtra,
   withTrailingConversionComment,
@@ -41,7 +46,9 @@ import {
   AssignmentStatementOperatorEnum,
   callExpression,
   functionDeclaration,
+  functionTypeParam,
   identifier,
+  indexExpression,
   isIdentifier,
   LuaDeclaration,
   LuaExpression,
@@ -53,6 +60,7 @@ import {
   LuaType,
   LuaTypeAnnotation,
   memberExpression,
+  nilLiteral,
   nodeGroup,
   returnStatement,
   tableConstructor,
@@ -61,6 +69,7 @@ import {
   typeAnnotation,
   typeAny,
   typeCastExpression,
+  typeFunction,
   typeLiteral,
   typePropertySignature,
   typeReference,
@@ -70,12 +79,14 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { Unpacked } from '@js-to-lua/shared-utils';
+import { applyTo } from 'ramda';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from '../function-params.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
+import { inferType } from '../type/infer-type';
 
 export const createClassDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -132,35 +143,7 @@ export const createClassDeclarationHandler = (
         ])
       : tableConstructor();
 
-    type ClassBodyNode = Unpacked<ClassBody['body']>;
-
-    const isClassConstructor = (node: ClassBodyNode): node is ClassMethod =>
-      isClassMethod(node) &&
-      isBabelIdentifier(node.key) &&
-      node.key.name === 'constructor';
-
     const constructorMethod = node.body.body.find(isClassConstructor);
-
-    const isAnyClassProperty = (
-      node: ClassBodyNode
-    ): node is ClassProperty | ClassPrivateProperty =>
-      isClassProperty(node) || isClassPrivateProperty(node);
-
-    const isAnyClassMethod = (
-      node: ClassBodyNode
-    ): node is ClassMethod | ClassPrivateMethod | TSDeclareMethod =>
-      isClassMethod(node) ||
-      isClassPrivateMethod(node) ||
-      isTSDeclareMethod(node);
-
-    const isPublic = (node: {
-      accessibility?: 'public' | 'private' | 'protected' | null;
-    }): boolean => !node.accessibility || node.accessibility === 'public';
-
-    const isPublicClassMethod = (
-      node: ClassBodyNode
-    ): node is ClassMethod | TSDeclareMethod =>
-      (isClassMethod(node) || isTSDeclareMethod(node)) && isPublic(node);
 
     const nonStaticInitializedClassProperties = node.body.body
       .filter(isAnyClassProperty)
@@ -192,10 +175,9 @@ export const createClassDeclarationHandler = (
     ];
 
     function removeTypeAnnotations<T>(node: T) {
-      return {
-        ...node,
-        ...((node as any).typeAnnotation ? { typeAnnotation: null } : {}),
-      } as T;
+      const newNode: T = { ...node };
+      delete (newNode as any).typeAnnotation;
+      return newNode;
     }
 
     const classNodeMaybeIdentifier = handleIdentifier(source, config, node.id);
@@ -210,31 +192,19 @@ export const createClassDeclarationHandler = (
     const classNodeIdentifier = classNodeMaybeIdentifier;
 
     const publicTypes: LuaPropertySignature[] = [
-      ...constructorPublicTsParameters.map((n) => {
-        let id: LuaIdentifier;
-        if (isBabelIdentifier(n.parameter)) {
-          id = handleIdentifier(source, config, n.parameter);
-        } else {
-          if (isBabelIdentifier(n.parameter.left)) {
-            id = handleIdentifier(source, config, n.parameter.left);
-          } else {
-            id = withTrailingConversionComment(
-              identifier(`__unhandled__${'_'.repeat(unhandledAssignments++)}`),
-              getNodeSource(source, n.parameter.left)
-            );
-          }
-        }
+      ...constructorPublicTsParameters.map((property) => {
+        const id = getParameterPropertyIdentifier(property);
         return typePropertySignature(
           removeTypeAnnotations(id),
-          typeAnnotation(typeAny())
+          handleClassTsParameterProperty(property)
         );
       }),
-      ...publicMethodsAndProperties.map((n) => {
-        return typePropertySignature(
+      ...publicMethodsAndProperties.map((n) =>
+        typePropertySignature(
           removeTypeAnnotations(handleExpression(source, config, n.key)),
-          typeAnnotation(typeAny())
-        );
-      }),
+          handleClassMethodOrPropertyTypeAnnotation(n)
+        )
+      ),
     ];
 
     const classConversion = [
@@ -266,25 +236,29 @@ export const createClassDeclarationHandler = (
 
     return withClassDeclarationExtra(
       nodeGroup([
-        withTrailingConversionComment(
-          typeAliasDeclaration(classNodeIdentifier, typeLiteral(publicTypes)),
-          `ROBLOX TODO: replace 'any' type/ add missing`
-        ),
+        typeAliasDeclaration(classNodeIdentifier, typeLiteral(publicTypes)),
         ...classConversion,
       ])
     );
 
     function handleStaticProps(property: ClassProperty | ClassPrivateProperty) {
+      const propertyKey = !isPrivateName(property.key)
+        ? handleExpression(source, config, property.key)
+        : defaultUnhandledIdentifierHandlerWithComment(
+            `ROBLOX comment: unhandled class body node type ${property.key.type}`
+          )(source, config, property.key);
       return assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [
-          memberExpression(
-            classNodeIdentifier,
-            '.',
-            handleExpression(source, config, property.key as Expression)
-          ),
+          isIdentifier(propertyKey)
+            ? memberExpression(classNodeIdentifier, '.', propertyKey)
+            : indexExpression(classNodeIdentifier, propertyKey),
         ],
-        [handleExpression(source, config, property.value!)]
+        [
+          property.value
+            ? handleExpression(source, config, property.value)
+            : nilLiteral(),
+        ]
       );
     }
 
@@ -356,6 +330,23 @@ export const createClassDeclarationHandler = (
         ]
       );
 
+      const nonStaticPropertiesConstructorInitializers =
+        nonStaticInitializedClassProperties.map((n) => {
+          const propertyKey = !isPrivateName(n.key)
+            ? handleExpression(source, config, n.key)
+            : defaultUnhandledIdentifierHandlerWithComment(
+                `ROBLOX comment: unhandled class body node type ${n.key.type}`
+              )(source, config, n.key);
+          return assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [
+              isIdentifier(propertyKey)
+                ? memberExpression(selfIdentifier(), '.', propertyKey)
+                : indexExpression(selfIdentifier(), propertyKey),
+            ],
+            [n.value ? handleExpression(source, config, n.value) : nilLiteral()]
+          );
+        });
       return constructorMethod
         ? [
             functionDeclaration(
@@ -374,19 +365,7 @@ export const createClassDeclarationHandler = (
                     isTSParameterProperty(n)
                   )
                   .map(handleConstructorTsParameterProp),
-                ...nonStaticInitializedClassProperties.map((n) =>
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.EQ,
-                    [
-                      memberExpression(
-                        selfIdentifier(),
-                        '.',
-                        handleExpression(source, config, n.key as Expression)
-                      ),
-                    ],
-                    [handleExpression(source, config, n.value!)]
-                  )
-                ),
+                ...nonStaticPropertiesConstructorInitializers,
                 ...functionBodyHandler(source, config, constructorMethod),
                 returnStatement(
                   typeCastExpression(
@@ -401,7 +380,7 @@ export const createClassDeclarationHandler = (
           ]
         : [
             functionDeclaration(
-              identifier(`${(classNodeIdentifier as LuaIdentifier).name}.new`),
+              identifier(`${classNodeIdentifier.name}.new`),
               [],
               nodeGroup([
                 node.superClass
@@ -410,6 +389,7 @@ export const createClassDeclarationHandler = (
                       `ROBLOX TODO: super constructor may be used`
                     )
                   : defaultSelfDeclaration,
+                ...nonStaticPropertiesConstructorInitializers,
                 returnStatement(
                   typeCastExpression(
                     typeCastExpression(selfIdentifier(), typeAny()),
@@ -438,9 +418,7 @@ export const createClassDeclarationHandler = (
       return isBabelIdentifier(node.key) && isIdentifier(id)
         ? functionDeclaration(
             identifier(
-              `${(classNodeIdentifier as LuaIdentifier).name}${
-                node.static ? '.' : ':'
-              }${id.name}`
+              `${classNodeIdentifier.name}${node.static ? '.' : ':'}${id.name}`
             ),
             [...functionParamsHandler(source, config, node)],
             nodeGroup([
@@ -458,4 +436,108 @@ export const createClassDeclarationHandler = (
             getNodeSource(source, node.key)
           );
     }
+
+    function handleClassMethodOrPropertyTypeAnnotation(
+      node: ClassMethod | TSDeclareMethod | ClassProperty
+    ): LuaTypeAnnotation {
+      if (isClassMethod(node) || isTSDeclareMethod(node)) {
+        const fnParams = functionParamsHandler(source, config, node).map(
+          (param) =>
+            functionTypeParam(
+              removeIdTypeAnnotation(param),
+              param.typeAnnotation
+                ? param.typeAnnotation.typeAnnotation
+                : typeAny()
+            )
+        );
+
+        return typeAnnotation(
+          typeFunction(
+            [
+              functionTypeParam(
+                identifier('self'),
+                typeReference(classNodeIdentifier)
+              ),
+              ...fnParams,
+            ],
+            node.returnType
+              ? applyTo(
+                  handleTypeAnnotation(source, config, node.returnType),
+                  (typeAnnotationNode) =>
+                    reassignComments(
+                      typeAnnotationNode.typeAnnotation,
+                      typeAnnotationNode
+                    )
+                )
+              : typeAny()
+          )
+        );
+      }
+
+      return node.typeAnnotation
+        ? handleTypeAnnotation(source, config, node.typeAnnotation)
+        : node.value
+        ? typeAnnotation(inferType(node.value))
+        : typeAnnotation(typeAny());
+    }
+
+    function handleClassTsParameterProperty(
+      property: TSParameterProperty
+    ): LuaTypeAnnotation {
+      return property.parameter.typeAnnotation
+        ? handleTypeAnnotation(
+            source,
+            config,
+            property.parameter.typeAnnotation
+          )
+        : isAssignmentPattern(property.parameter)
+        ? !isBabelMemberExpression(property.parameter.left) &&
+          property.parameter.left.typeAnnotation
+          ? handleTypeAnnotation(
+              source,
+              config,
+              property.parameter.left.typeAnnotation
+            )
+          : typeAnnotation(inferType(property.parameter.right))
+        : typeAnnotation(typeAny());
+    }
+
+    function getParameterPropertyIdentifier({
+      parameter,
+    }: TSParameterProperty): LuaIdentifier {
+      if (isBabelIdentifier(parameter)) {
+        return handleIdentifier(source, config, parameter);
+      } else if (isBabelIdentifier(parameter.left)) {
+        return handleIdentifier(source, config, parameter.left);
+      } else {
+        return withTrailingConversionComment(
+          identifier(`__unhandled__${'_'.repeat(unhandledAssignments++)}`),
+          getNodeSource(source, parameter.left)
+        );
+      }
+    }
   });
+
+type ClassBodyNode = Unpacked<ClassBody['body']>;
+
+const isClassConstructor = (node: ClassBodyNode): node is ClassMethod =>
+  isClassMethod(node) &&
+  isBabelIdentifier(node.key) &&
+  node.key.name === 'constructor';
+const isAnyClassProperty = (
+  node: ClassBodyNode
+): node is ClassProperty | ClassPrivateProperty =>
+  isClassProperty(node) || isClassPrivateProperty(node);
+
+const isAnyClassMethod = (
+  node: ClassBodyNode
+): node is ClassMethod | ClassPrivateMethod | TSDeclareMethod =>
+  isClassMethod(node) || isClassPrivateMethod(node) || isTSDeclareMethod(node);
+const isPublic = (node: {
+  accessibility?: 'public' | 'private' | 'protected' | null;
+}): boolean => !node.accessibility || node.accessibility === 'public';
+
+const isPublicClassMethod = (
+  node: ClassBodyNode
+): node is ClassMethod | TSDeclareMethod =>
+  (isClassMethod(node) || isTSDeclareMethod(node)) && isPublic(node);

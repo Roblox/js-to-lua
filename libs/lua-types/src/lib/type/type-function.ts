@@ -1,14 +1,14 @@
-import { LuaTypeAnnotation, LuaTypeParameterDeclaration } from '.';
 import { LuaIdentifier } from '../expression';
 import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaType } from './type';
+import { LuaTypeParameterDeclaration } from './type-parameter-declaration';
 
 export interface LuaTypeFunction extends BaseLuaNode {
   type: 'LuaTypeFunction';
   typeParameters?: LuaTypeParameterDeclaration;
   parameters: Array<LuaFunctionTypeParam>;
   rest?: LuaType;
-  returnType: LuaType | LuaTypeAnnotation;
+  returnType: LuaType;
 }
 
 export const typeFunction = (

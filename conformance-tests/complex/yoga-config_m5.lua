@@ -1,10 +1,10 @@
 type Config = {
-	config: any,
-	free: any,
-	setExperimentalFeatureEnabled: any,
-	setPointScaleFactor: any,
-	isExperimentalFeatureEnabled: any,
-} --[[ ROBLOX TODO: replace 'any' type/ add missing ]]
+	config: YGConfig,
+	free: (self: Config) -> (),
+	setExperimentalFeatureEnabled: (self: Config, feature: number, enabled: boolean) -> (),
+	setPointScaleFactor: (self: Config, pixelsInPoint: number) -> (),
+	isExperimentalFeatureEnabled: (self: Config, feature: number) -> boolean,
+}
 local Config = {}
 Config.__index = Config
 function Config.new(): Config

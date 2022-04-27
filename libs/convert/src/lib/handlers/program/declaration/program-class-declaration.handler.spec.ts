@@ -5,25 +5,33 @@ import {
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  booleanLiteral,
   callExpression,
   expressionStatement,
   functionDeclaration,
+  functionTypeParam,
   identifier,
-  LuaProgram,
   memberExpression,
   nodeGroup,
+  numericLiteral,
   program,
   returnStatement,
   stringLiteral,
   tableConstructor,
   tableNameKeyField,
+  tableNoKeyField,
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
+  typeBoolean,
   typeCastExpression,
+  typeFunction,
   typeLiteral,
+  typeNumber,
   typePropertySignature,
   typeReference,
+  typeString,
+  typeVoid,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -58,12 +66,9 @@ describe('Program handler', () => {
           class BaseClass {}
         `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-              `ROBLOX TODO: replace 'any' type/ add missing`
-            ),
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -103,12 +108,9 @@ describe('Program handler', () => {
           }
         `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-              `ROBLOX TODO: replace 'any' type/ add missing`
-            ),
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier('BaseClass.new'),
@@ -148,19 +150,26 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(
-                identifier('BaseClass'),
-                typeLiteral([
-                  typePropertySignature(
-                    identifier('myMethod'),
-                    typeAnnotation(typeAny())
-                  ),
-                ])
-              ),
-              `ROBLOX TODO: replace 'any' type/ add missing`
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionTypeParam(
+                          identifier('self'),
+                          typeReference(identifier('BaseClass'))
+                        ),
+                      ],
+                      typeAny()
+                    )
+                  )
+                ),
+              ])
             ),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
@@ -201,6 +210,145 @@ describe('Program handler', () => {
         expect(handleProgram.handler(source, {}, given)).toEqual(expected);
       });
 
+      it('should convert class methods to <ClassId>:<methodName> function with explicit return type', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            myMethod(): void {}
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionTypeParam(
+                          identifier('self'),
+                          typeReference(identifier('BaseClass'))
+                        ),
+                      ],
+                      typeVoid()
+                    )
+                  )
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+            functionDeclaration(
+              identifier('BaseClass:myMethod'),
+              [],
+              nodeGroup([]),
+              typeAnnotation(typeVoid()),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class methods to <ClassId>:<methodName> function with params and explicit return type', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            myMethod(p1: string, p2: number): void {}
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionTypeParam(
+                          identifier('self'),
+                          typeReference(identifier('BaseClass'))
+                        ),
+                        functionTypeParam(identifier('p1'), typeString()),
+                        functionTypeParam(identifier('p2'), typeNumber()),
+                      ],
+                      typeVoid()
+                    )
+                  )
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+            functionDeclaration(
+              identifier('BaseClass:myMethod'),
+              [
+                identifier('p1', typeAnnotation(typeString())),
+                identifier('p2', typeAnnotation(typeNumber())),
+              ],
+              nodeGroup([]),
+              typeAnnotation(typeVoid()),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
       it('should convert static class methods to <ClassId>.<methodName> function', () => {
         const given = getProgramNode(`
         class BaseClass{
@@ -208,12 +356,9 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-              `ROBLOX TODO: replace 'any' type/ add missing`
-            ),
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -260,12 +405,9 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-              `ROBLOX TODO: replace 'any' type/ add missing`
-            ),
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
             ...baseClassDefaultExpectedNodes,
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
@@ -316,19 +458,26 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(
-                identifier('BaseClass'),
-                typeLiteral([
-                  typePropertySignature(
-                    identifier('myMethod'),
-                    typeAnnotation(typeAny())
-                  ),
-                ])
-              ),
-              `ROBLOX TODO: replace 'any' type/ add missing`
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionTypeParam(
+                          identifier('self'),
+                          typeReference(identifier('BaseClass'))
+                        ),
+                      ],
+                      typeAny()
+                    )
+                  )
+                ),
+              ])
             ),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
@@ -374,6 +523,634 @@ describe('Program handler', () => {
 
         expect(handleProgram.handler(source, {}, given)).toEqual(expected);
       });
+
+      it('should convert class abstract methods to <ClassId>:<methodName> function with explicit return type', () => {
+        const given = getProgramNode(`
+        abstract class BaseClass{
+            abstract myMethod(): string;
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionTypeParam(
+                          identifier('self'),
+                          typeReference(identifier('BaseClass'))
+                        ),
+                      ],
+                      typeString()
+                    )
+                  )
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+            functionDeclaration(
+              identifier('BaseClass:myMethod'),
+              [],
+              nodeGroup([
+                expressionStatement(
+                  callExpression(identifier('error'), [
+                    stringLiteral('not implemented abstract method'),
+                  ])
+                ),
+              ]),
+              typeAnnotation(typeString()),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class abstract methods to <ClassId>:<methodName> function with params and explicit return type', () => {
+        const given = getProgramNode(`
+        abstract class BaseClass{
+            abstract myMethod(p1: number, p2: boolean): string;
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionTypeParam(
+                          identifier('self'),
+                          typeReference(identifier('BaseClass'))
+                        ),
+                        functionTypeParam(identifier('p1'), typeNumber()),
+                        functionTypeParam(identifier('p2'), typeBoolean()),
+                      ],
+                      typeString()
+                    )
+                  )
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+            functionDeclaration(
+              identifier('BaseClass:myMethod'),
+              [
+                identifier('p1', typeAnnotation(typeNumber())),
+                identifier('p2', typeAnnotation(typeBoolean())),
+              ],
+              nodeGroup([
+                expressionStatement(
+                  callExpression(identifier('error'), [
+                    stringLiteral('not implemented abstract method'),
+                  ])
+                ),
+              ]),
+              typeAnnotation(typeString()),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class properties without explicit typing', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            property
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('property'),
+                  typeAnnotation(typeAny())
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class properties with explicit typing', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            property: string
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('property'),
+                  typeAnnotation(typeString())
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class properties without explicit typing and with inferrable assignment - string', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            property = 'some string'
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('property'),
+                  typeAnnotation(typeString())
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('property')
+                    ),
+                  ],
+                  [stringLiteral('some string')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class properties without explicit typing and with inferrable assignment - boolean', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            property = true
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('property'),
+                  typeAnnotation(typeBoolean())
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('property')
+                    ),
+                  ],
+                  [booleanLiteral(true)]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class properties without explicit typing and with inferrable assignment - number', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            property = 1
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('property'),
+                  typeAnnotation(typeNumber())
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('property')
+                    ),
+                  ],
+                  [numericLiteral(1, '1')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class properties without explicit typing and with inferrable assignment - object', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            property = {
+              someObjProp: foo
+            }
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('property'),
+                  typeAnnotation(typeReference(identifier('Object')))
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('property')
+                    ),
+                  ],
+                  [
+                    tableConstructor([
+                      tableNameKeyField(
+                        identifier('someObjProp'),
+                        identifier('foo')
+                      ),
+                    ]),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class properties without explicit typing and with inferrable assignment - array', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            property = [foo]
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('property'),
+                  typeAnnotation(
+                    typeReference(identifier('Array'), [typeAny()])
+                  )
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('property')
+                    ),
+                  ],
+                  [tableConstructor([tableNoKeyField(identifier('foo'))])]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert class properties without explicit typing and with non inferrable assignment', () => {
+        const given = getProgramNode(`
+        class BaseClass{
+            property = foo
+        }
+       `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('property'),
+                  typeAnnotation(typeAny())
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('property')
+                    ),
+                  ],
+                  [identifier('foo')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+          ]),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
     });
 
     describe('SubClass', () => {
@@ -411,12 +1188,9 @@ describe('Program handler', () => {
         class SubClass extends BaseClass{}
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
-              `ROBLOX TODO: replace 'any' type/ add missing`
-            ),
+            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`SubClass.new`),
@@ -459,12 +1233,9 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
-              `ROBLOX TODO: replace 'any' type/ add missing`
-            ),
+            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier('SubClass.new'),
@@ -507,19 +1278,26 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(
-                identifier('SubClass'),
-                typeLiteral([
-                  typePropertySignature(
-                    identifier('myMethod'),
-                    typeAnnotation(typeAny())
-                  ),
-                ])
-              ),
-              `ROBLOX TODO: replace 'any' type/ add missing`
+            typeAliasDeclaration(
+              identifier('SubClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionTypeParam(
+                          identifier('self'),
+                          typeReference(identifier('SubClass'))
+                        ),
+                      ],
+                      typeAny()
+                    )
+                  )
+                ),
+              ])
             ),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
@@ -569,12 +1347,9 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
-              `ROBLOX TODO: replace 'any' type/ add missing`
-            ),
+            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`SubClass.new`),
@@ -624,12 +1399,9 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           nodeGroup([
-            withTrailingConversionComment(
-              typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
-              `ROBLOX TODO: replace 'any' type/ add missing`
-            ),
+            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
             ...subClassDefaultExpectedNodes,
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,

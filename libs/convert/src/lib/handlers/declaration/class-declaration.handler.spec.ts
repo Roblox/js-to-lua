@@ -1,17 +1,21 @@
 import {
+  assignmentPattern,
   blockStatement as babelBlockStatement,
   classBody,
   classDeclaration,
-  ClassDeclaration,
   classMethod,
   classProperty,
   identifier as babelIdentifier,
+  returnStatement as babelReturnStatement,
   stringLiteral as babelStringLiteral,
   tsDeclareMethod,
+  tSNumberKeyword,
+  tsParameterProperty,
   tsStringKeyword,
+  tSTypeAnnotation,
   tsTypeAnnotation,
+  tSUnionType,
   tsVoidKeyword,
-  returnStatement as babelReturnStatement,
 } from '@babel/types';
 import {
   selfIdentifier,
@@ -21,12 +25,16 @@ import {
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  binaryExpression,
   callExpression,
   expressionStatement,
   functionDeclaration,
+  functionTypeParam,
   identifier,
-  LuaNodeGroup,
+  ifClause,
+  ifStatement,
   memberExpression,
+  nilLiteral,
   nodeGroup,
   returnStatement,
   stringLiteral,
@@ -35,15 +43,19 @@ import {
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
+  typeCastExpression,
+  typeFunction,
   typeLiteral,
+  typeNumber,
+  typeOptional,
   typePropertySignature,
+  typeReference,
   typeString,
+  typeUnion,
   typeVoid,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  typeReference,
-  typeCastExpression,
 } from '@js-to-lua/lua-types';
 import { handleStatement } from '../expression-statement.handler';
 
@@ -63,18 +75,15 @@ describe('Class Declaration', () => {
       ),
     ];
     it('should convert class', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('BaseClass'),
         null,
         classBody([])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-            `ROBLOX TODO: replace 'any' type/ add missing`
-          ),
+          typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -108,7 +117,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class constructor to <ClassId>.new function', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('BaseClass'),
         null,
         classBody([
@@ -121,12 +130,9 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-            `ROBLOX TODO: replace 'any' type/ add missing`
-          ),
+          typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier('BaseClass.new'),
@@ -160,7 +166,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class methods to <ClassId>:<methodName> function', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('BaseClass'),
         null,
         classBody([
@@ -173,19 +179,26 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(
-              identifier('BaseClass'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('myMethod'),
-                  typeAnnotation(typeAny())
-                ),
-              ])
-            ),
-            `ROBLOX TODO: replace 'any' type/ add missing`
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('myMethod'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionTypeParam(
+                        identifier('self'),
+                        typeReference(identifier('BaseClass'))
+                      ),
+                    ],
+                    typeAny()
+                  )
+                )
+              ),
+            ])
           ),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
@@ -227,7 +240,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class methods to <ClassId>:<methodName> function with an explicit void return type', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('BaseClass'),
         null,
         classBody([
@@ -243,19 +256,26 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(
-              identifier('BaseClass'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('myMethod'),
-                  typeAnnotation(typeAny())
-                ),
-              ])
-            ),
-            `ROBLOX TODO: replace 'any' type/ add missing`
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('myMethod'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionTypeParam(
+                        identifier('self'),
+                        typeReference(identifier('BaseClass'))
+                      ),
+                    ],
+                    typeVoid()
+                  )
+                )
+              ),
+            ])
           ),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
@@ -297,7 +317,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class methods to <ClassId>:<methodName> function with an explicit string return type', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('BaseClass'),
         null,
         classBody([
@@ -315,19 +335,26 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(
-              identifier('BaseClass'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('myMethod'),
-                  typeAnnotation(typeAny())
-                ),
-              ])
-            ),
-            `ROBLOX TODO: replace 'any' type/ add missing`
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('myMethod'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionTypeParam(
+                        identifier('self'),
+                        typeReference(identifier('BaseClass'))
+                      ),
+                    ],
+                    typeString()
+                  )
+                )
+              ),
+            ])
           ),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
@@ -369,7 +396,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert static class methods to <ClassId>.<methodName> function', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('BaseClass'),
         null,
         classBody([
@@ -384,12 +411,9 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-            `ROBLOX TODO: replace 'any' type/ add missing`
-          ),
+          typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -429,8 +453,249 @@ describe('Class Declaration', () => {
       expect(handleStatement.handler(source, {}, given)).toEqual(expected);
     });
 
+    it('should convert non-static properties', () => {
+      const given = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([classProperty(babelIdentifier('nonStaticProperty'))])
+      );
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('nonStaticProperty'),
+                typeAnnotation(typeAny())
+              ),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert non-static properties with explicit type', () => {
+      const given = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          classProperty(
+            babelIdentifier('nonStaticProperty'),
+            null,
+            tsTypeAnnotation(tSNumberKeyword())
+          ),
+        ])
+      );
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('nonStaticProperty'),
+                typeAnnotation(typeNumber())
+              ),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert non-static properties with type and initial value', () => {
+      const given = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          classProperty(
+            babelIdentifier('nonStaticProperty'),
+            babelStringLiteral('foo'),
+            tsTypeAnnotation(
+              tSUnionType([tsStringKeyword(), tSNumberKeyword()])
+            )
+          ),
+        ])
+      );
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('nonStaticProperty'),
+                typeAnnotation(typeUnion([typeString(), typeNumber()]))
+              ),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    selfIdentifier(),
+                    '.',
+                    identifier('nonStaticProperty')
+                  ),
+                ],
+                [stringLiteral('foo')]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert non-static properties with initial value', () => {
+      const given = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          classProperty(
+            babelIdentifier('nonStaticProperty'),
+            babelStringLiteral('foo')
+          ),
+        ])
+      );
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('nonStaticProperty'),
+                typeAnnotation(typeString())
+              ),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    selfIdentifier(),
+                    '.',
+                    identifier('nonStaticProperty')
+                  ),
+                ],
+                [stringLiteral('foo')]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
     it('should convert static properties to <ClassId>.<property>', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('BaseClass'),
         null,
         classBody([
@@ -445,12 +710,9 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-            `ROBLOX TODO: replace 'any' type/ add missing`
-          ),
+          typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
           ...baseClassDefaultExpectedNodes,
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -495,7 +757,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class abstract methods to <ClassId>:<methodName> function', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('BaseClass'),
         null,
         classBody([
@@ -506,19 +768,26 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(
-              identifier('BaseClass'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('myMethod'),
-                  typeAnnotation(typeAny())
-                ),
-              ])
-            ),
-            `ROBLOX TODO: replace 'any' type/ add missing`
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('myMethod'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionTypeParam(
+                        identifier('self'),
+                        typeReference(identifier('BaseClass'))
+                      ),
+                    ],
+                    typeAny()
+                  )
+                )
+              ),
+            ])
           ),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
@@ -564,6 +833,360 @@ describe('Class Declaration', () => {
 
       expect(handleStatement.handler(source, {}, given)).toEqual(expected);
     });
+
+    it('should convert constructor params with public modifier', () => {
+      const given = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          classMethod(
+            'constructor',
+            babelIdentifier('constructor'),
+            [
+              {
+                ...tsParameterProperty(babelIdentifier('publicProperty')),
+                accessibility: 'public',
+              },
+            ],
+            babelBlockStatement([])
+          ),
+        ])
+      );
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('publicProperty'),
+                typeAnnotation(typeAny())
+              ),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [identifier('publicProperty')],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    selfIdentifier(),
+                    '.',
+                    identifier('publicProperty')
+                  ),
+                ],
+                [identifier('publicProperty')]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert constructor params with public modifier with type annotation', () => {
+      const given = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          classMethod(
+            'constructor',
+            babelIdentifier('constructor'),
+            [
+              {
+                ...tsParameterProperty({
+                  ...babelIdentifier('publicProperty'),
+                  typeAnnotation: tsTypeAnnotation(tsStringKeyword()),
+                }),
+                accessibility: 'public',
+              },
+            ],
+            babelBlockStatement([])
+          ),
+        ])
+      );
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('publicProperty'),
+                typeAnnotation(typeString())
+              ),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [identifier('publicProperty', typeAnnotation(typeString()))],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    selfIdentifier(),
+                    '.',
+                    identifier('publicProperty')
+                  ),
+                ],
+                [identifier('publicProperty')]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert constructor params with public modifier with default value', () => {
+      const given = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          classMethod(
+            'constructor',
+            babelIdentifier('constructor'),
+            [
+              {
+                ...tsParameterProperty(
+                  assignmentPattern(
+                    babelIdentifier('publicProperty'),
+                    babelStringLiteral('foo')
+                  )
+                ),
+                accessibility: 'public',
+              },
+            ],
+            babelBlockStatement([])
+          ),
+        ])
+      );
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('publicProperty'),
+                typeAnnotation(typeString())
+              ),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [
+              identifier(
+                'publicProperty',
+                typeAnnotation(typeOptional(typeString()))
+              ),
+            ],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              ifStatement(
+                ifClause(
+                  binaryExpression(
+                    identifier('publicProperty'),
+                    '==',
+                    nilLiteral()
+                  ),
+                  nodeGroup([
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
+                      [identifier('publicProperty')],
+                      [stringLiteral('foo')]
+                    ),
+                  ])
+                )
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    selfIdentifier(),
+                    '.',
+                    identifier('publicProperty')
+                  ),
+                ],
+                [identifier('publicProperty')]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert constructor params with public modifier with default value and explicit type annotation', () => {
+      const given = classDeclaration(
+        babelIdentifier('BaseClass'),
+        null,
+        classBody([
+          classMethod(
+            'constructor',
+            babelIdentifier('constructor'),
+            [
+              {
+                ...tsParameterProperty(
+                  assignmentPattern(
+                    {
+                      ...babelIdentifier('publicProperty'),
+                      typeAnnotation: tSTypeAnnotation(
+                        tSUnionType([tsStringKeyword(), tSNumberKeyword()])
+                      ),
+                    },
+                    babelStringLiteral('foo')
+                  )
+                ),
+                accessibility: 'public',
+              },
+            ],
+            babelBlockStatement([])
+          ),
+        ])
+      );
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('publicProperty'),
+                typeAnnotation(typeUnion([typeString(), typeNumber()]))
+              ),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [
+              identifier(
+                'publicProperty',
+                typeAnnotation(
+                  typeOptional(typeUnion([typeString(), typeNumber()]))
+                )
+              ),
+            ],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              ifStatement(
+                ifClause(
+                  binaryExpression(
+                    identifier('publicProperty'),
+                    '==',
+                    nilLiteral()
+                  ),
+                  nodeGroup([
+                    assignmentStatement(
+                      AssignmentStatementOperatorEnum.EQ,
+                      [identifier('publicProperty')],
+                      [stringLiteral('foo')]
+                    ),
+                  ])
+                )
+              ),
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    selfIdentifier(),
+                    '.',
+                    identifier('publicProperty')
+                  ),
+                ],
+                [identifier('publicProperty')]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    });
   });
 
   describe('SubClass', () => {
@@ -591,18 +1214,15 @@ describe('Class Declaration', () => {
       ),
     ];
     it('should convert class', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('SubClass'),
         babelIdentifier('BaseClass'),
         classBody([])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
-            `ROBLOX TODO: replace 'any' type/ add missing`
-          ),
+          typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -639,7 +1259,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class constructor to <ClassId>.new function', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('SubClass'),
         babelIdentifier('BaseClass'),
         classBody([
@@ -652,12 +1272,9 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
-            `ROBLOX TODO: replace 'any' type/ add missing`
-          ),
+          typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier('SubClass.new'),
@@ -694,7 +1311,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class methods to <ClassId>:<methodName> function', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('SubClass'),
         babelIdentifier('BaseClass'),
         classBody([
@@ -707,19 +1324,26 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(
-              identifier('SubClass'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('myMethod'),
-                  typeAnnotation(typeAny())
-                ),
-              ])
-            ),
-            `ROBLOX TODO: replace 'any' type/ add missing`
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('myMethod'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionTypeParam(
+                        identifier('self'),
+                        typeReference(identifier('SubClass'))
+                      ),
+                    ],
+                    typeAny()
+                  )
+                )
+              ),
+            ])
           ),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
@@ -763,7 +1387,7 @@ describe('Class Declaration', () => {
       expect(handleStatement.handler(source, {}, given)).toEqual(expected);
     });
     it('should convert static class methods to <ClassId>.<methodName> function', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('SubClass'),
         babelIdentifier('BaseClass'),
         classBody([
@@ -778,12 +1402,9 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
-            `ROBLOX TODO: replace 'any' type/ add missing`
-          ),
+          typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -827,7 +1448,7 @@ describe('Class Declaration', () => {
     });
 
     it('should convert static properties to <ClassId>.<property>', () => {
-      const given: ClassDeclaration = classDeclaration(
+      const given = classDeclaration(
         babelIdentifier('SubClass'),
         babelIdentifier('BaseClass'),
         classBody([
@@ -842,12 +1463,9 @@ describe('Class Declaration', () => {
         ])
       );
 
-      const expected: LuaNodeGroup = withClassDeclarationExtra(
+      const expected = withClassDeclarationExtra(
         nodeGroup([
-          withTrailingConversionComment(
-            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
-            `ROBLOX TODO: replace 'any' type/ add missing`
-          ),
+          typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
           ...subClassDefaultExpectedNodes,
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
