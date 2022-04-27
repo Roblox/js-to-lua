@@ -13,6 +13,7 @@ import {
   isArrayPattern,
   isAssignmentPattern,
   isIdentifier,
+  isMemberExpression as isBabelMemberExpression,
   isObjectPattern,
   isRestElement,
   isTSParameterProperty,
@@ -32,13 +33,10 @@ import { defaultStatementHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatement,
   identifier,
-  LuaBinaryExpression,
   LuaDeclaration,
   LuaFunctionParam,
   LuaIdentifier,
   LuaLVal,
-  LuaMemberExpression,
-  LuaNilLiteral,
   LuaNodeGroup,
   LuaType,
   LuaTypeAnnotation,
@@ -48,12 +46,17 @@ import {
   tableConstructor,
   tableNoKeyField,
   typeAnnotation,
+  typeAny,
   UnhandledStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { anyPass, applyTo } from 'ramda';
+import { AssignedToConfig } from '../config/assigned-to.config';
+import { NoShadowIdentifiersConfig } from '../config/no-shadow-identifiers.config';
+import { IdentifierHandlerFunction } from './expression/identifier-handler-types';
+import { generateUniqueIdentifier } from './generate-unique-identifier';
 import { createRestElementHandler } from './rest-element.handler';
 import { inferType } from './type/infer-type';
 
@@ -67,10 +70,7 @@ type FunctionTypes =
   | TSDeclareMethod;
 
 export const createFunctionParamsHandler = (
-  handleIdentifier: HandlerFunction<
-    LuaNilLiteral | LuaIdentifier | LuaMemberExpression | LuaBinaryExpression,
-    Identifier
-  >,
+  handleIdentifier: IdentifierHandlerFunction,
   handleTypeAnnotation: HandlerFunction<
     LuaTypeAnnotation,
     TypeAnnotation | TSTypeAnnotation | Noop
@@ -78,15 +78,12 @@ export const createFunctionParamsHandler = (
   handleType: HandlerFunction<LuaType, FlowType | TSType>
 ): ((
   source: string,
-  config: EmptyConfig,
+  config: AssignedToConfig & NoShadowIdentifiersConfig,
   node: FunctionTypes
 ) => LuaIdentifier[]) => {
   const restHandler = createRestElementHandler(handleType);
-  return (
-    source: string,
-    config: EmptyConfig,
-    node: FunctionTypes
-  ): LuaIdentifier[] => {
+
+  return (source, config, node): LuaIdentifier[] => {
     const handleAssignmentPatternTypeAnnotation = ({
       left,
     }: AssignmentPattern): LuaTypeAnnotation =>
@@ -149,7 +146,23 @@ export const createFunctionParamsHandler = (
           }
         })
         .flat();
-    return mapFn(node);
+
+    const needsSelf = isBabelMemberExpression(config.assignedTo);
+    return applyTo(mapFn(node), (identifiers) =>
+      needsSelf
+        ? [
+            identifier(
+              generateUniqueIdentifier(
+                config.noShadowIdentifiers || [],
+                'self',
+                true
+              ),
+              typeAnnotation(typeAny())
+            ),
+            ...identifiers,
+          ]
+        : identifiers
+    );
   };
 };
 

@@ -8,6 +8,9 @@ import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   callExpression,
+  expressionStatement,
+  functionDeclaration,
+  functionExpression,
   identifier,
   indexExpression,
   memberExpression,
@@ -15,6 +18,9 @@ import {
   numericLiteral,
   program,
   stringLiteral,
+  typeAnnotation,
+  typeAny,
+  typeString,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
@@ -95,6 +101,170 @@ describe('Program handler', () => {
             AssignmentStatementOperatorEnum.EQ,
             [indexExpression(identifier('foo'), stringLiteral('bar'))],
             [identifier('baz')]
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement of a function expression to a member expression', () => {
+        const given = getProgramNode(`
+          foo.bar = function(arg: string) {
+            this.baz(arg)
+          }
+        `);
+        const expected = program([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [memberExpression(identifier('foo'), '.', identifier('bar'))],
+            [
+              functionExpression(
+                [
+                  identifier('self', typeAnnotation(typeAny())),
+                  identifier('arg', typeAnnotation(typeString())),
+                ],
+                nodeGroup([
+                  nodeGroup([
+                    expressionStatement(
+                      callExpression(
+                        memberExpression(
+                          identifier('self'),
+                          ':',
+                          identifier('baz')
+                        ),
+                        [identifier('arg')]
+                      )
+                    ),
+                  ]),
+                ])
+              ),
+            ]
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement of a arrow expression to a member expression', () => {
+        const given = getProgramNode(`
+          foo.bar = (arg: string) => {
+            this.baz(arg)
+          }
+        `);
+        const expected = program([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [memberExpression(identifier('foo'), '.', identifier('bar'))],
+            [
+              functionExpression(
+                [
+                  identifier('_self', typeAnnotation(typeAny())),
+                  identifier('arg', typeAnnotation(typeString())),
+                ],
+                nodeGroup([
+                  nodeGroup([
+                    expressionStatement(
+                      callExpression(
+                        memberExpression(
+                          identifier('self'),
+                          ':',
+                          identifier('baz')
+                        ),
+                        [identifier('arg')]
+                      )
+                    ),
+                  ]),
+                ])
+              ),
+            ]
+          ),
+        ]);
+
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should handle AssignmentStatement of a function expression to a member expression and not propagate self in inner functions', () => {
+        const given = getProgramNode(`
+          foo.bar = function(arg: string) {
+            this.baz(arg)
+
+            const test = function(testArg) {}
+          }
+        `);
+        const expected = program([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [memberExpression(identifier('foo'), '.', identifier('bar'))],
+            [
+              functionExpression(
+                [
+                  identifier('self', typeAnnotation(typeAny())),
+                  identifier('arg', typeAnnotation(typeString())),
+                ],
+                nodeGroup([
+                  nodeGroup([
+                    expressionStatement(
+                      callExpression(
+                        memberExpression(
+                          identifier('self'),
+                          ':',
+                          identifier('baz')
+                        ),
+                        [identifier('arg')]
+                      )
+                    ),
+                    functionDeclaration(identifier('test'), [
+                      identifier('testArg'),
+                    ]),
+                  ]),
+                ])
+              ),
+            ]
+          ),
+        ]);
+
+        expect(
+          JSON.stringify(handleProgram.handler(source, {}, given), undefined, 2)
+        ).toEqual(JSON.stringify(expected, undefined, 2));
+      });
+
+      it('should handle AssignmentStatement of a arrow expression to a member expression and not propagate self in inner functions', () => {
+        const given = getProgramNode(`
+          foo.bar = (arg: string) => {
+            this.baz(arg)
+
+            const test = function(testArg) {}
+          }
+        `);
+        const expected = program([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [memberExpression(identifier('foo'), '.', identifier('bar'))],
+            [
+              functionExpression(
+                [
+                  identifier('_self', typeAnnotation(typeAny())),
+                  identifier('arg', typeAnnotation(typeString())),
+                ],
+                nodeGroup([
+                  nodeGroup([
+                    expressionStatement(
+                      callExpression(
+                        memberExpression(
+                          identifier('self'),
+                          ':',
+                          identifier('baz')
+                        ),
+                        [identifier('arg')]
+                      )
+                    ),
+                    functionDeclaration(identifier('test'), [
+                      identifier('testArg'),
+                    ]),
+                  ]),
+                ])
+              ),
+            ]
           ),
         ]);
 

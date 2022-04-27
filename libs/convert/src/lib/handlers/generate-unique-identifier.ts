@@ -1,12 +1,31 @@
-import { Expression, Identifier } from '@babel/types';
+import {
+  Expression as BabelExpression,
+  Identifier as BabelIdentifier,
+  isIdentifier as isBabelIdentifier,
+} from '@babel/types';
 
 export function generateUniqueIdentifier(
-  nodes: Expression[],
-  defaultValue: string
+  nodes: Array<string | BabelExpression>,
+  defaultValue: string,
+  prepend = false
 ): string {
   return nodes
-    .filter((node) => node.type === 'Identifier')
-    .some((node) => (node as Identifier).name === defaultValue)
-    ? generateUniqueIdentifier(nodes, `${defaultValue}_`)
+    .filter(isStringOrBabelIdentifier)
+    .map((stringOrIdentifier) =>
+      typeof stringOrIdentifier === 'string'
+        ? stringOrIdentifier
+        : stringOrIdentifier.name
+    )
+    .some((name) => name === defaultValue)
+    ? generateUniqueIdentifier(
+        nodes,
+        prepend ? `_${defaultValue}` : `${defaultValue}_`,
+        prepend
+      )
     : defaultValue;
 }
+
+const isStringOrBabelIdentifier = (
+  nodeOrExpression: string | BabelExpression
+): nodeOrExpression is string | BabelIdentifier =>
+  typeof nodeOrExpression === 'string' || isBabelIdentifier(nodeOrExpression);

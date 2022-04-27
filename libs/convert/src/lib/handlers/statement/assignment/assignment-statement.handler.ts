@@ -5,8 +5,10 @@ import {
   BinaryExpression,
   Expression,
   isArrayPattern as isBabelArrayPattern,
+  isArrowFunctionExpression as isBabelArrowFunctionExpression,
   isAssignmentExpression as isBabelAssignmentExpression,
   isAssignmentPattern,
+  isFunctionExpression as isBabelFunctionExpression,
   isObjectPattern as isBabelObjectPattern,
   isRestElement as isBabelRestElement,
   isTSParameterProperty,
@@ -43,7 +45,8 @@ import {
   UnhandledStatement,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
-import { equals } from 'ramda';
+import { anyPass, equals } from 'ramda';
+import { assignedToConfig } from '../../../config/assigned-to.config';
 import { createExpressionAsNumericHandler } from '../../expression/handle-expression-as-numeric';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createArrayPatternDestructuringAssignmentHandlerFunction } from './assignment-statement-array-pattern-destructuring.handler';
@@ -69,9 +72,20 @@ export const createAssignmentStatementHandlerFunction = (
   > = createHandler(
     'AssignmentExpression',
     (source, config: EmptyConfig, node: AssignmentExpression) => {
+      const rightConfig = anyPass([
+        isBabelFunctionExpression,
+        isBabelArrowFunctionExpression,
+      ])(node.right, undefined)
+        ? assignedToConfig(node.left)(config)
+        : config;
+      const defaultRightExpression = handleExpression(
+        source,
+        rightConfig,
+        node.right
+      );
       const { operator, binary } = createGetAssignmentStatementOperator(
-        handleExpression
-      )(source, config, node);
+        defaultRightExpression
+      )(node);
 
       if (!operator) {
         return defaultExpressionHandler(source, config, node);
@@ -158,15 +172,15 @@ export const createAssignmentStatementHandlerFunction = (
       ].some(equals(operator))
         ? createExpressionAsNumericHandler(handleExpression)(
             source,
-            config,
+            rightConfig,
             node.right
           )
-        : handleExpression(source, config, node.right);
+        : defaultRightExpression;
 
       if (isBabelAssignmentExpression(node.right)) {
         const rightAssignmentStatement = assignmentStatementHandler.handler(
           source,
-          config,
+          rightConfig,
           node.right
         );
 

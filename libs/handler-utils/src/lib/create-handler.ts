@@ -13,11 +13,11 @@ export const createHandler = <
 >(
   type: BaseNodeHandler<R, T, Config>['type'],
   handler: NonCurriedHandlerFunction<R, T, Config>,
-  config: CreateHandlerFunctionOptions = {}
+  handleConfig: CreateHandlerFunctionOptions = {}
 ): BaseNodeHandler<R, T, Config> => ({
   type,
   handler: createHandlerFunction(
     (source, config: Config, node: T): R => handler(source, config, node),
-    config
+    handleConfig
   ),
 });

@@ -1,9 +1,4 @@
-import {
-  AssignmentExpression,
-  BinaryExpression,
-  Expression,
-} from '@babel/types';
-import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import { AssignmentExpression, BinaryExpression } from '@babel/types';
 import { isStringInferable } from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatementOperatorEnum,
@@ -11,17 +6,14 @@ import {
 } from '@js-to-lua/lua-types';
 
 export const createGetAssignmentStatementOperator = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  rightExpression: LuaExpression
 ) => {
   return (
-    source: string,
-    config: EmptyConfig,
     node: AssignmentExpression
   ): {
     operator?: AssignmentStatementOperatorEnum;
     binary?: BinaryExpression['operator'];
   } => {
-    const rightExpression = handleExpression(source, config, node.right);
     switch (node.operator) {
       case '=':
         return { operator: AssignmentStatementOperatorEnum.EQ };

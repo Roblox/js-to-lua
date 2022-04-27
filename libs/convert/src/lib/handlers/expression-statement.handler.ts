@@ -1,8 +1,6 @@
 import {
-  ArrowFunctionExpression,
   Expression,
   ExpressionStatement,
-  FunctionExpression,
   Statement,
   UpdateExpression,
 } from '@babel/types';
@@ -29,7 +27,6 @@ import {
   isExpression,
   LuaCallExpression,
   LuaExpression,
-  LuaFunctionExpression,
   LuaStatement,
   nodeGroup,
   numericLiteral,
@@ -40,12 +37,13 @@ import {
 } from '@js-to-lua/lua-types';
 import { createDeclarationHandler } from './declaration/declaration.handler';
 import { createArrayExpressionHandler } from './expression/array-expression.handler';
+import { createArrowExpressionHandler } from './expression/arrow-expression.handler';
 import { createAwaitExpressionHandler } from './expression/await-expression.handler';
 import { createBinaryExpressionHandler } from './expression/binary-expression/binary-expression.handler';
 import { createCallExpressionHandler } from './expression/call/call-expression.handler';
 import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
 import { createFlowTypeCastExpressionHandler } from './expression/flow-type-cast.handler';
-import { createFunctionBodyHandler } from './expression/function-body.handler';
+import { createFunctionExpressionHandler } from './expression/function-expression.handler';
 import {
   createIdentifierHandler,
   createIdentifierStrictHandler,
@@ -68,10 +66,6 @@ import { createThisExpressionHandler } from './expression/this-expression.handle
 import { createTsAsExpressionHandler } from './expression/ts-as-expression.handler';
 import { createTsNonNullExpressionHandler } from './expression/ts-non-null-expression.handler';
 import { createUnaryExpressionHandler } from './expression/unary-expression.handler';
-import {
-  createFunctionParamsBodyHandler,
-  createFunctionParamsHandler,
-} from './function-params.handler';
 import { generateUniqueIdentifier } from './generate-unique-identifier';
 import { createLValHandler } from './l-val.handler';
 import { handleBigIntLiteral } from './primitives/big-int.handler';
@@ -106,7 +100,7 @@ const handleLVal = createLValHandler(
 export const handleExpressionStatement = createHandler(
   'ExpressionStatement',
   (source, config, statement: ExpressionStatement): LuaStatement => {
-    const expression = combineHandlers(
+    const { handler: handleExpressionStatementExpression } = combineHandlers(
       [
         createAssignmentStatementHandlerFunction(
           forwardHandlerRef(() => handleExpression),
@@ -121,7 +115,12 @@ export const handleExpressionStatement = createHandler(
         handleExpressionAsStatement,
       ],
       defaultExpressionHandler
-    ).handler(source, config, statement.expression);
+    );
+    const expression = handleExpressionStatementExpression(
+      source,
+      config,
+      statement.expression
+    );
 
     const babelExpression = statement.expression;
     return isExpression(expression)
@@ -130,61 +129,10 @@ export const handleExpressionStatement = createHandler(
   }
 );
 
-export const handleFunctionExpression: BaseNodeHandler<
-  LuaFunctionExpression,
-  FunctionExpression
-> = createHandler('FunctionExpression', (source, config, node) => {
-  const handleFunctionBody = createFunctionBodyHandler(
-    handleStatement.handler,
-    handleExpressionAsStatement.handler
-  )(source, config);
-  const handleParamsBody = createFunctionParamsBodyHandler(
-    forwardHandlerRef(() => handleDeclaration),
-    handleAssignmentPattern,
-    handleLVal
-  );
-
-  return functionExpression(
-    functionParamsHandler(source, config, node),
-    nodeGroup([
-      ...handleParamsBody(source, config, node),
-      ...handleFunctionBody(node),
-    ]),
-    node.returnType
-      ? handleTypeAnnotation(source, config, node.returnType)
-      : undefined
-  );
-});
-
-export const handleArrowFunctionExpression: BaseNodeHandler<
-  LuaFunctionExpression,
-  ArrowFunctionExpression
-> = createHandler('ArrowFunctionExpression', (source, config, node) => {
-  const handleFunctionBody = createFunctionBodyHandler(
-    handleStatement.handler,
-    handleExpressionAsStatement.handler
-  )(source, config);
-  const handleParamsBody = createFunctionParamsBodyHandler(
-    forwardHandlerRef(() => handleDeclaration),
-    handleAssignmentPattern,
-    handleLVal
-  );
-  return functionExpression(
-    functionParamsHandler(source, config, node),
-    nodeGroup([
-      ...handleParamsBody(source, config, node),
-      ...handleFunctionBody(node),
-    ]),
-    node.returnType
-      ? handleTypeAnnotation(source, config, node.returnType)
-      : undefined
-  );
-});
-
-export const handleUpdateExpression: BaseNodeHandler<
+export const handleUpdateExpression = createHandler<
   LuaCallExpression,
   UpdateExpression
-> = createHandler('UpdateExpression', (source, config, node) => {
+>('UpdateExpression', (source, config, node) => {
   const resultName = generateUniqueIdentifier([node.argument], 'result');
   return callExpression(
     node.prefix
@@ -228,10 +176,10 @@ export const handleUpdateExpression: BaseNodeHandler<
   );
 });
 
-export const handleUpdateExpressionAsStatement: BaseNodeHandler<
-  LuaCallExpression,
+export const handleUpdateExpressionAsStatement = createHandler<
+  LuaStatement,
   UpdateExpression
-> = createHandler('UpdateExpression', (source, config, node) => {
+>('UpdateExpression', (source, config, node) => {
   return assignmentStatement(
     node.operator === '++'
       ? AssignmentStatementOperatorEnum.ADD
@@ -267,8 +215,22 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
     createOptionalMemberExpressionHandler(
       forwardHandlerRef(() => handleExpression)
     ),
-    handleFunctionExpression,
-    handleArrowFunctionExpression,
+    createFunctionExpressionHandler(
+      forwardHandlerRef(() => handleDeclaration),
+      forwardHandlerFunctionRef(() => handleAssignmentPattern),
+      handleLVal,
+      forwardHandlerRef(() => handleIdentifier),
+      forwardHandlerFunctionRef(() => handleTypeAnnotation),
+      forwardHandlerRef(() => handleType)
+    ),
+    createArrowExpressionHandler(
+      forwardHandlerRef(() => handleDeclaration),
+      forwardHandlerFunctionRef(() => handleAssignmentPattern),
+      handleLVal,
+      forwardHandlerRef(() => handleIdentifier),
+      forwardHandlerFunctionRef(() => handleTypeAnnotation),
+      forwardHandlerRef(() => handleType)
+    ),
     handleUpdateExpression,
     createMemberExpressionHandler(forwardHandlerRef(() => handleExpression)),
     createAssignmentExpressionHandlerFunction(
@@ -317,12 +279,6 @@ const handleIdentifier = createIdentifierHandler(
 
 const handleIdentifierStrict = createIdentifierStrictHandler(
   forwardHandlerFunctionRef(() => handleTypeAnnotation)
-);
-
-const functionParamsHandler = createFunctionParamsHandler(
-  forwardHandlerRef(() => handleIdentifier),
-  forwardHandlerFunctionRef(() => handleTypeAnnotation),
-  forwardHandlerRef(() => handleType)
 );
 
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
