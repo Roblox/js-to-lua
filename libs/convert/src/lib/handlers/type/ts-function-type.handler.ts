@@ -21,6 +21,7 @@ import {
 import { last } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { createRestElementHandler } from '../rest-element.handler';
+import { createTsTypeParameterDeclarationHandler } from './ts-type-parameter-declaration.handler';
 
 export const createTsFunctionTypeHandler = (
   handleIdentifier: IdentifierStrictHandlerFunction,
@@ -37,6 +38,14 @@ export const createTsFunctionTypeHandler = (
         obj: object | null | undefined
       ): obj is RestElement => isRestElement_(obj);
 
+      const handleTsTypeParameterDeclaration =
+        createTsTypeParameterDeclarationHandler(typesHandlerFunction).handler(
+          source,
+          config
+        );
+      const typeParameters = node.typeParameters
+        ? handleTsTypeParameterDeclaration(node.typeParameters)
+        : undefined;
       const nonRestParams = node.parameters.filter(isNotRestElement);
       const restParam = last(node.parameters.filter(isRestElement));
       const parameters = nonRestParams.map((param) => {
@@ -44,6 +53,7 @@ export const createTsFunctionTypeHandler = (
         const paramType = paramId.typeAnnotation?.typeAnnotation || typeAny();
         return functionTypeParam(paramId, paramType);
       });
+
       const returnType = node.typeAnnotation
         ? typesHandlerFunction(
             source,
@@ -56,9 +66,10 @@ export const createTsFunctionTypeHandler = (
         ? typeVariadicFunction(
             parameters,
             restHandler(source, config, restParam),
-            returnType
+            returnType,
+            typeParameters
           )
-        : typeFunction(parameters, returnType);
+        : typeFunction(parameters, returnType, typeParameters);
     });
 
   return handleTsTypeFunction;

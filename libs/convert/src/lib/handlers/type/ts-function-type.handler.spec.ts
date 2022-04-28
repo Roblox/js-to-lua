@@ -7,6 +7,8 @@ import {
   tsFunctionType,
   tsStringKeyword,
   tsTypeAnnotation,
+  tsTypeParameter,
+  tsTypeParameterDeclaration,
   tsTypeReference,
 } from '@babel/types';
 import {
@@ -20,6 +22,8 @@ import {
   typeAny,
   typeBoolean,
   typeFunction,
+  typeParameterDeclaration,
+  typeReference,
   typeString,
   typeVariadicFunction,
 } from '@js-to-lua/lua-types';
@@ -123,6 +127,32 @@ describe('TSFunctionType handler', () => {
         'ROBLOX CHECK: check correct type of elements. Upstream type: <Args>'
       ),
       typeAny()
+    );
+
+    expect(tsFunctionTypeHandler(source, {}, given)).toEqual(expected);
+  });
+
+  it('should handle TSTypeDeclaration type parameters', () => {
+    const given = tsFunctionType(
+      tsTypeParameterDeclaration([
+        tsTypeParameter(undefined, undefined, 'T'),
+        tsTypeParameter(undefined, undefined, 'U'),
+      ]),
+      [
+        {
+          ...babelIdentifier('foo'),
+          typeAnnotation: tsTypeAnnotation(tsBooleanKeyword()),
+        },
+      ],
+      tsTypeAnnotation(tsAnyKeyword())
+    );
+    const expected = typeFunction(
+      [functionTypeParam(identifier('foo'), typeBoolean())],
+      typeAny(),
+      typeParameterDeclaration([
+        typeReference(identifier('T')),
+        typeReference(identifier('U')),
+      ])
     );
 
     expect(tsFunctionTypeHandler(source, {}, given)).toEqual(expected);
