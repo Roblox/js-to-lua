@@ -33,6 +33,7 @@ import {
   AssignmentStatementOperatorEnum,
   blockStatement,
   identifier,
+  indexExpression,
   LuaIdentifier,
   LuaNodeGroup,
   memberExpression,
@@ -176,13 +177,7 @@ describe('Assignment Statement Handler', () => {
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
-          [
-            tableUnpackCall(
-              identifier('fizz'),
-              numericLiteral(1),
-              numericLiteral(1)
-            ),
-          ]
+          [indexExpression(identifier('fizz'), numericLiteral(1))]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
@@ -220,13 +215,7 @@ describe('Assignment Statement Handler', () => {
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
-          [
-            tableUnpackCall(
-              identifier('baz'),
-              numericLiteral(1),
-              numericLiteral(1)
-            ),
-          ]
+          [indexExpression(identifier('baz'), numericLiteral(1))]
         ),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,

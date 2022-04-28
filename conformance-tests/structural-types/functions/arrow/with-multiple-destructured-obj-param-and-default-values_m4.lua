@@ -7,6 +7,6 @@ local function reduce(ref: Object?, ref_: Array<any>?)
 	if ref_ == nil then
 		ref_ = fuzz
 	end
-	local bar = table.unpack(ref_, 1, 1)
+	local bar = ref_[1]
 	return { foo, bar }
 end

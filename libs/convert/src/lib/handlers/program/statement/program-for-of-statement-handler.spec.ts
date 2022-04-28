@@ -10,6 +10,7 @@ import {
   expressionStatement,
   forGenericStatement,
   identifier,
+  indexExpression,
   memberExpression,
   nodeGroup,
   numericLiteral,
@@ -329,25 +330,18 @@ describe('Program handler', () => {
               assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,
                 [identifier('foo')],
-                [
-                  tableUnpackCall(
-                    identifier('ref'),
-                    numericLiteral(1),
-                    numericLiteral(1)
-                  ),
-                ]
+                [indexExpression(identifier('ref'), numericLiteral(1))]
               ),
               assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,
                 [identifier('bar')],
                 [
-                  tableUnpackCall(
+                  indexExpression(
                     tableUnpackCall(
                       identifier('ref'),
                       numericLiteral(2),
                       numericLiteral(2)
                     ),
-                    numericLiteral(1),
                     numericLiteral(1)
                   ),
                 ]

@@ -9,6 +9,7 @@ import {
   identifier,
   ifClause,
   ifStatement,
+  indexExpression,
   LuaExpression,
   LuaProgram,
   LuaStatement,
@@ -450,11 +451,7 @@ describe('Program handler', () => {
                 [variableDeclaratorIdentifier(identifier('bar'))],
                 [
                   variableDeclaratorValue(
-                    tableUnpackCall(
-                      identifier('ref_'),
-                      numericLiteral(1),
-                      numericLiteral(1)
-                    )
+                    indexExpression(identifier('ref_'), numericLiteral(1))
                   ),
                 ]
               ),

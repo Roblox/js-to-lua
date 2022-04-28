@@ -262,11 +262,7 @@ describe('Program handler', () => {
             [variableDeclaratorIdentifier(identifier('foo'))],
             [
               variableDeclaratorValue(
-                tableUnpackCall(
-                  identifier('fizz'),
-                  numericLiteral(1),
-                  numericLiteral(1)
-                )
+                indexExpression(identifier('fizz'), numericLiteral(1))
               ),
             ]
           ),
@@ -308,11 +304,7 @@ describe('Program handler', () => {
             [variableDeclaratorIdentifier(identifier('foo'))],
             [
               variableDeclaratorValue(
-                tableUnpackCall(
-                  identifier('baz'),
-                  numericLiteral(1),
-                  numericLiteral(1)
-                )
+                indexExpression(identifier('baz'), numericLiteral(1))
               ),
             ]
           ),
@@ -345,11 +337,7 @@ describe('Program handler', () => {
             [variableDeclaratorIdentifier(identifier('foo'))],
             [
               variableDeclaratorValue(
-                tableUnpackCall(
-                  identifier('baz'),
-                  numericLiteral(1),
-                  numericLiteral(1)
-                )
+                indexExpression(identifier('baz'), numericLiteral(1))
               ),
             ]
           ),

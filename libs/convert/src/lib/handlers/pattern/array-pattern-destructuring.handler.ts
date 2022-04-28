@@ -23,8 +23,10 @@ import {
   identifier,
   ifClause,
   ifStatement,
+  indexExpression,
   LuaCallExpression,
   LuaExpression,
+  LuaIndexExpression,
   nilLiteral,
   nodeGroup,
   numericLiteral,
@@ -38,7 +40,7 @@ import { anyPass, last } from 'ramda';
 
 interface DestructuredArrayPattern {
   ids: LVal[];
-  values: LuaCallExpression[];
+  values: (LuaIndexExpression | LuaCallExpression)[];
 }
 type NotIdentifier = Exclude<PatternLike, Identifier>;
 interface DestructuredGroup {
@@ -92,15 +94,19 @@ export const createArrayPatternDestructuringHandler =
         startIndex: number,
         endIndex: number
       ): DestructuredArrayPattern {
+        const values = [
+          group.length === 1
+            ? indexExpression(init, numericLiteral(startIndex))
+            : tableUnpackCall(
+                init,
+                numericLiteral(startIndex),
+                numericLiteral(endIndex)
+              ),
+        ];
+
         return {
           ids: group,
-          values: [
-            tableUnpackCall(
-              init,
-              numericLiteral(startIndex),
-              numericLiteral(endIndex)
-            ),
-          ],
+          values,
         };
       }
 
