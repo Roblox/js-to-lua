@@ -3,20 +3,12 @@ import {
   GenericTypeAnnotation,
   isIdentifier as isBabelIdentifier,
 } from '@babel/types';
+import { isIdentifier, LuaType, typeReference } from '@js-to-lua/lua-types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
-import {
-  defaultTypeHandler,
-  getNodeSource,
-  withTrailingConversionComment,
-} from '@js-to-lua/lua-conversion-utils';
-import {
-  isIdentifier,
-  LuaType,
-  typeAny,
-  typeReference,
-} from '@js-to-lua/lua-types';
+import { defaultTypeHandler } from '@js-to-lua/lua-conversion-utils';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
+import { createFlowQualifiedTypeIdentifierHandler } from './qualified-identifer.handler';
 
 export const createFlowGenericTypeAnnotationHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction,
@@ -25,14 +17,6 @@ export const createFlowGenericTypeAnnotationHandler = (
   return createHandler<LuaType, GenericTypeAnnotation>(
     'GenericTypeAnnotation',
     (source, config, node) => {
-      if (!isBabelIdentifier(node.id)) {
-        return withTrailingConversionComment(
-          typeAny(),
-          `ROBLOX TODO: Unhandled node for type: ${node.type} when id of type ${node.id.type}`,
-          getNodeSource(source, node)
-        );
-      }
-
       let params = Array<LuaType>();
       if (node.typeParameters) {
         params = node.typeParameters.params.map((param) =>
@@ -40,7 +24,12 @@ export const createFlowGenericTypeAnnotationHandler = (
         );
       }
 
-      const id = handleIdentifierStrict(source, config, node.id);
+      const handleFlowQualifiedTypeIdentifier =
+        createFlowQualifiedTypeIdentifierHandler(handleIdentifierStrict);
+
+      const id = isBabelIdentifier(node.id)
+        ? handleIdentifierStrict(source, config, node.id)
+        : handleFlowQualifiedTypeIdentifier(source, config, node.id);
 
       if (isIdentifier(id)) {
         return params.length

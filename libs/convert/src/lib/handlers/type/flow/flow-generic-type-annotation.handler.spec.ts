@@ -80,14 +80,22 @@ describe('Flow - GenericAnnotationType handler', () => {
     expect(handler(source, {}, given)).toEqual(expected);
   });
 
-  it('should gracefully handle unhandled QualifiedTypeIdentifier', () => {
+  it('should handle node of type QualifiedTypeIdentifier', () => {
     const given = babelGenericTypeAnnotation(
       qualifiedTypeIdentifier(babelIdentifier('A'), babelIdentifier('B'))
     );
-    const expected = withTrailingConversionComment(
-      typeAny(),
-      'ROBLOX TODO: Unhandled node for type: GenericTypeAnnotation when id of type QualifiedTypeIdentifier'
+    const expected = typeReference(identifier('B_A'));
+
+    expect(handler(source, {}, given)).toEqual(expected);
+  });
+  it('should handle node of type QualifiedTypeIdentifier with nested QualifiedTypeIdentifiers', () => {
+    const given = babelGenericTypeAnnotation(
+      qualifiedTypeIdentifier(
+        babelIdentifier('A'),
+        qualifiedTypeIdentifier(babelIdentifier('B'), babelIdentifier('C'))
+      )
     );
+    const expected = typeReference(identifier('C_B_A'));
 
     expect(handler(source, {}, given)).toEqual(expected);
   });
