@@ -1,9 +1,13 @@
 import {
   binaryExpression,
+  elseExpressionClause,
   identifier,
+  ifElseExpression,
+  ifExpressionClause,
   logicalExpression,
   LuaBinaryExpression,
   LuaExpression,
+  LuaIfExpression,
   LuaLogicalExpression,
   LuaLogicalExpressionOperatorEnum,
   LuaUnaryExpression,
@@ -13,7 +17,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { checkPrecedence } from './check-precedence';
 
-type PrecedenceValue = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+type PrecedenceValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 const precedenceExpressionsMap: Record<
   PrecedenceValue,
   Array<
@@ -25,6 +29,7 @@ const precedenceExpressionsMap: Record<
       | LuaLogicalExpression
       | LuaUnaryExpression
       | LuaUnaryNegationExpression
+      | LuaIfExpression
   >
 > = {
   1: [(left, right) => binaryExpression(left, '^', right)],
@@ -57,6 +62,13 @@ const precedenceExpressionsMap: Record<
     (left, right) =>
       logicalExpression(LuaLogicalExpressionOperatorEnum.OR, left, right),
   ],
+  8: [
+    (left, right) =>
+      ifElseExpression(
+        ifExpressionClause(identifier('condition'), left),
+        elseExpressionClause(right)
+      ),
+  ],
 };
 
 describe('Check precedence', () => {
@@ -73,6 +85,10 @@ describe('Check precedence', () => {
     lowerPrecedence: PrecedenceValue;
     higherPrecedence: Array<PrecedenceValue>;
   }>(
+    {
+      lowerPrecedence: 8,
+      higherPrecedence: [1, 2, 3, 4, 5, 6, 7],
+    },
     {
       lowerPrecedence: 7,
       higherPrecedence: [1, 2, 3, 4, 5, 6],

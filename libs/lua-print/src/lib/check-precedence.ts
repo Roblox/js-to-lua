@@ -1,9 +1,11 @@
 import {
   isBinaryExpression,
+  isIfExpression,
   isLogicalExpression,
   isUnaryExpression,
   isUnaryNegation,
   LuaBinaryExpression,
+  LuaIfExpression,
   LuaLogicalExpression,
   LuaNode,
   LuaUnaryExpression,
@@ -16,7 +18,8 @@ export const checkPrecedence =
       | LuaBinaryExpression
       | LuaLogicalExpression
       | LuaUnaryExpression
-      | LuaUnaryNegationExpression,
+      | LuaUnaryNegationExpression
+      | LuaIfExpression,
     minPrecedence = 1
   ) =>
   (childNode: LuaNode) =>
@@ -49,6 +52,9 @@ function getPrecedence(node: LuaNode) {
   }
   if (isLogicalExpression(node) && node.operator === 'or') {
     return 7;
+  }
+  if (isIfExpression(node)) {
+    return 8;
   }
 
   return 0;
