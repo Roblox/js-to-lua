@@ -12,6 +12,7 @@ import {
   LuaIndexSignature,
   LuaPropertySignature,
   LuaType,
+  LuaTypeElement,
   TypeAnnotation,
 } from './type';
 import { UnhandledElement } from './unhandled';
@@ -31,4 +32,5 @@ export type LuaNode =
   | LuaClause
   | LuaExpressionClause
   | LuaFunctionTypeParam
+  | LuaTypeElement
   | UnhandledElement;

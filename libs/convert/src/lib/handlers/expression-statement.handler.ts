@@ -73,7 +73,7 @@ import { handleBooleanLiteral } from './primitives/boolean.handler';
 import { createMultilineStringLiteralHandler } from './primitives/multiline-string.handler';
 import { handleNullLiteral } from './primitives/null.handler';
 import { handleNumericLiteral } from './primitives/numeric.handler';
-import { handleStringLiteral } from './primitives/string.handler';
+import { createStringLiteralHandler } from './primitives/string.handler';
 import { createAssignmentExpressionHandlerFunction } from './statement/assignment/assignment-expression.handler';
 import { createAssignmentPatternHandlerFunction } from './statement/assignment/assignment-pattern.handler';
 import { createAssignmentStatementHandlerFunction } from './statement/assignment/assignment-statement.handler';
@@ -193,7 +193,7 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
   combineExpressionsHandlers<LuaExpression, Expression>([
     handleNumericLiteral,
     handleBigIntLiteral,
-    handleStringLiteral,
+    createStringLiteralHandler(),
     createMultilineStringLiteralHandler(
       forwardHandlerRef(() => handleExpression)
     ),

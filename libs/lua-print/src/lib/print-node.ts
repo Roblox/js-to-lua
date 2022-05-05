@@ -72,7 +72,7 @@ export type PrintSections = {
   trailingComments: string;
 };
 
-export function getPrintSections<N extends LuaNode | LuaNodeGroup<any>>(
+export function getPrintSections<N extends LuaNode | LuaNodeGroup<LuaNode>>(
   node: N,
   nodePrintFn: (node: N) => string = _printNode
 ): PrintSections {
@@ -91,18 +91,20 @@ export function getPrintSections<N extends LuaNode | LuaNodeGroup<any>>(
   const printableInnerComments = getPrintableInnerComments(node.innerComments);
   const innerComments = _printComments(printableInnerComments);
 
-  const leadSeparator = printableLeadingComments.length
+  const lastPrintableLeadingComment = last(printableLeadingComments);
+  const leadSeparator = lastPrintableLeadingComment
     ? [
         isSameLineLeadingComment,
         isSameLineInnerComment,
         isSameLineLeadingAndTrailingComment,
-      ].some((predicate) => predicate(last(printableLeadingComments)!))
+      ].some((predicate) => predicate(lastPrintableLeadingComment))
       ? ' '
       : '\n'
     : '';
 
-  const innerSeparator = printableInnerComments.length
-    ? ['SameLineInnerComment'].includes(last(printableInnerComments)!.loc)
+  const lastPrintableInnerComment = last(printableInnerComments);
+  const innerSeparator = lastPrintableInnerComment
+    ? ['SameLineInnerComment'].includes(lastPrintableInnerComment.loc)
       ? ' '
       : '\n'
     : '';
@@ -128,7 +130,7 @@ export function getPrintSections<N extends LuaNode | LuaNodeGroup<any>>(
   };
 }
 
-export function printNode<N extends LuaNode | LuaNodeGroup<any>>(
+export function printNode<N extends LuaNode | LuaNodeGroup<LuaNode>>(
   node: N,
   nodePrintFn: (node: N) => string = _printNode
 ): string {
@@ -216,7 +218,11 @@ const _printNode = (node: LuaNode): string => {
     case 'LuaTypeAliasDeclaration':
       return createPrintTypeAliasDeclaration(printNode)(node);
     case 'LuaTypeLiteral':
-      return createPrintTypeLiteral(printNode, getPrintSections)(node);
+      return createPrintTypeLiteral(
+        printNode,
+        getPrintSections,
+        _printComments
+      )(node);
     case 'LuaTypeFunction':
       return createPrintTypeFunction(printNode)(node);
     case 'LuaFunctionTypeParam': {

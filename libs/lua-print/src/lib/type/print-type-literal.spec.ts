@@ -7,12 +7,14 @@ import {
   typePropertySignature,
 } from '@js-to-lua/lua-types';
 import { printNode, getPrintSections } from '../print-node';
+import { _printComments } from '../printable-comments';
 import { createPrintTypeLiteral } from './print-type-literal';
 
 describe('Print type literal', () => {
   const printTsTypeLiteral = createPrintTypeLiteral(
     printNode,
-    getPrintSections
+    getPrintSections,
+    _printComments
   );
 
   it('should print type literal with no members', () => {

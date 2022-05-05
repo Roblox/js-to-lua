@@ -1,32 +1,21 @@
-import { StringLiteral } from '@babel/types';
-import { LuaStringLiteral } from '@js-to-lua/lua-types';
-import { handleStringLiteral } from './string.handler';
-
-const DEFAULT_NODE = {
-  leadingComments: null,
-  innerComments: null,
-  trailingComments: null,
-  start: null,
-  end: null,
-  loc: null,
-};
+import {
+  stringLiteral as babelStringLiteral,
+  StringLiteral,
+} from '@babel/types';
+import { LuaStringLiteral, stringLiteral } from '@js-to-lua/lua-types';
+import { createStringLiteralHandler } from './string.handler';
 
 const source = '';
 
 describe('String Handler', () => {
+  const { handler } = createStringLiteralHandler();
+
   ['', 'abc', '1abc_@#$%'].forEach((value) => {
     it(`should return Lua String Node with value "${value}"`, () => {
-      const given: StringLiteral = {
-        ...DEFAULT_NODE,
-        type: 'StringLiteral',
-        value,
-      };
-      const expected: LuaStringLiteral = {
-        type: 'StringLiteral',
-        value,
-      };
+      const given: StringLiteral = babelStringLiteral(value);
+      const expected: LuaStringLiteral = stringLiteral(value);
 
-      expect(handleStringLiteral.handler(source, {}, given)).toEqual(expected);
+      expect(handler(source, {}, given)).toEqual(expected);
     });
   });
 });

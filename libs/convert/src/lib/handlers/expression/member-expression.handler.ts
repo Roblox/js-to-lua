@@ -30,7 +30,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
 import { handleNumericLiteral } from '../primitives/numeric.handler';
-import { handleStringLiteral } from '../primitives/string.handler';
+import { createStringLiteralHandler } from '../primitives/string.handler';
 import { createBinaryExpressionHandler } from './binary-expression/binary-expression.handler';
 
 export const createMemberExpressionHandler = (
@@ -41,6 +41,7 @@ export const createMemberExpressionHandler = (
 > => {
   const handleBinaryExpression =
     createBinaryExpressionHandler(handleExpression);
+  const { handler: handleStringLiteral } = createStringLiteralHandler();
   const handleIndex = createHandlerFunction(
     (
       source,
@@ -62,7 +63,7 @@ export const createMemberExpressionHandler = (
             'ROBLOX adaptation: added 1 to array index'
           );
         case 'StringLiteral':
-          return handleStringLiteral.handler(source, config, node);
+          return handleStringLiteral(source, config, node);
         case 'BinaryExpression':
           if (
             node.operator === '+' &&

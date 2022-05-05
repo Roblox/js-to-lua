@@ -7,7 +7,7 @@ export interface LuaTypeLiteral extends BaseLuaNode {
   members: Array<LuaTypeElement>;
 }
 
-type LuaTypeElement =
+export type LuaTypeElement =
   | LuaPropertySignature
   | LuaIndexSignature; /*| TSCallSignatureDeclaration | TSConstructSignatureDeclaration |  TSMethodSignature */
 

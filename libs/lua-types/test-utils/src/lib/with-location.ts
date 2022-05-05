@@ -7,3 +7,9 @@ export const withLocation =
     start,
     end,
   });
+
+export const withLocationFromSource = (source: string) => (snippet: string) => {
+  const start = source.indexOf(snippet);
+  const end = start + snippet.length;
+  return withLocation({ start, end });
+};

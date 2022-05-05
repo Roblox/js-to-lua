@@ -9,8 +9,8 @@ import {
   typeNumber,
   typeOptional,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import { handleProgram } from '../../program.handler';
+import { getProgramNode } from '../../program.spec.utils';
 
 const source = '';
 

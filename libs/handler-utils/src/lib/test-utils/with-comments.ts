@@ -45,3 +45,15 @@ export function withLuaComments<T extends LuaNode>(node: T, prefix = '') {
     ]),
   } as T;
 }
+
+export function withLuaInnerComments<T extends LuaNode>(node: T, prefix = '') {
+  const addPrefixTo = addPrefix(prefix);
+  return {
+    ...node,
+    innerComments: appendComments(node.innerComments, [
+      commentLine(addPrefixTo('Leading')),
+      commentLine(addPrefixTo('Inner')),
+      commentLine(addPrefixTo('Trailing')),
+    ]),
+  } as T;
+}

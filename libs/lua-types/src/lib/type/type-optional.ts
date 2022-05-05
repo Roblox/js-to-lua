@@ -14,4 +14,6 @@ export const typeOptional = (typeAnnotation: LuaType): LuaTypeOptional => ({
 export const isTypeOptional = isNodeType<LuaTypeOptional>('LuaTypeOptional');
 
 export const makeOptional = (typeAnnotation?: LuaType) =>
-  typeOptional(typeAnnotation || typeAny());
+  typeAnnotation && isTypeOptional(typeAnnotation)
+    ? typeAnnotation
+    : typeOptional(typeAnnotation || typeAny());

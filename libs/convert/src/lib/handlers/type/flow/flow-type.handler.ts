@@ -14,6 +14,7 @@ import { createFunctionTypeAnnotationHandler } from './function-type-annotation.
 import { createNullableTypeAnnotationHandler } from './nullable-type-annotation.handler';
 import { createFlowNumberLiteralTypeAnnotationHandler } from './number-literal-type-annotation.handler';
 import { createFlowNumberTypeAnnotationHandler } from './number-type-annotation.handler';
+import { createFlowObjectTypeAnnotationHandler } from './object-type-annotation.handler';
 import { createFlowStringTypeAnnotationHandler } from './string-type-annotation.handler';
 import { createUnionTypeAnnotationHandler } from './union-type-annotation.handler';
 
@@ -42,6 +43,10 @@ export const createFlowTypeHandler = (
         forwardHandlerRef(() => handleFlowTypes)
       ),
       createUnionTypeAnnotationHandler(
+        forwardHandlerRef(() => handleFlowTypes)
+      ),
+      createFlowObjectTypeAnnotationHandler(
+        handleIdentifierStrict,
         forwardHandlerRef(() => handleFlowTypes)
       ),
     ],

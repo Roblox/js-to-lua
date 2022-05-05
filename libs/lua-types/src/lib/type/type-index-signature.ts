@@ -1,11 +1,10 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
+import { LuaType } from './type';
 import { LuaTypeAnnotation } from './type-annotation';
-import { LuaTypeNumber } from './type-number';
-import { LuaTypeString } from './type-string';
 
 export interface LuaIndexSignature extends BaseLuaNode {
   type: 'LuaIndexSignature';
-  parameter: LuaTypeString | LuaTypeNumber;
+  parameter: LuaType;
   typeAnnotation: LuaTypeAnnotation;
 }
 
