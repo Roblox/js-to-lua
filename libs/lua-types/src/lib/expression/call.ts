@@ -9,7 +9,7 @@ export interface LuaCallExpression extends BaseLuaNode {
 
 export const callExpression = (
   callee: LuaCallExpression['callee'],
-  args: LuaCallExpression['arguments']
+  args: LuaCallExpression['arguments'] = []
 ): LuaCallExpression => ({
   type: 'CallExpression',
   callee,

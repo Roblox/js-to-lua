@@ -41,6 +41,10 @@ import { createArrowExpressionHandler } from './expression/arrow-expression.hand
 import { createAwaitExpressionHandler } from './expression/await-expression.handler';
 import { createBinaryExpressionHandler } from './expression/binary-expression/binary-expression.handler';
 import { createCallExpressionHandler } from './expression/call/call-expression.handler';
+import {
+  createOptionalCallExpressionAsStatementHandler,
+  createOptionalCallExpressionHandler,
+} from './expression/call/optional-call-expression.handler';
 import { createConditionalExpressionHandler } from './expression/conditional-expression.handler';
 import { createFlowTypeCastExpressionHandler } from './expression/flow-type-cast.handler';
 import { createFunctionExpressionHandler } from './expression/function-expression.handler';
@@ -266,6 +270,9 @@ export const handleExpression: BaseNodeHandler<LuaExpression, Expression> =
       ).handler
     ),
     createAwaitExpressionHandler(forwardHandlerRef(() => handleExpression)),
+    createOptionalCallExpressionHandler(
+      forwardHandlerRef(() => handleExpression)
+    ),
   ]);
 
 const { handleTypeAnnotation, handleType } = createTypeAnnotationHandler(
@@ -333,6 +340,9 @@ export const handleExpressionAsStatement: BaseNodeHandler<
     createSequenceExpressionAsStatementHandler(
       forwardHandlerRef(() => handleExpressionAsStatement),
       forwardHandlerRef(() => handleUpdateExpressionAsStatement)
+    ),
+    createOptionalCallExpressionAsStatementHandler(
+      forwardHandlerRef(() => handleExpression)
     ),
     handleExpression,
   ],
