@@ -33,7 +33,7 @@ import { createObjectMethodHandler } from './object-method.handler';
 import { createObjectPropertyHandler } from './object-property.handler';
 
 export const createObjectFieldHandler = (
-  handleExpression: BaseNodeHandler<LuaExpression, Expression>,
+  expressionHandler: BaseNodeHandler<LuaExpression, Expression>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleIdentifier: IdentifierHandlerFunction,
   handleDeclaration: HandlerFunction<
@@ -52,7 +52,7 @@ export const createObjectFieldHandler = (
   handleType: HandlerFunction<LuaType, FlowType | TSType>
 ) => {
   const handleObjectProperty = createObjectPropertyHandler(
-    handleExpression,
+    expressionHandler,
     handleStatement,
     handleIdentifier,
     handleDeclaration,
@@ -62,7 +62,7 @@ export const createObjectFieldHandler = (
     handleType
   );
   const handleObjectMethod = createObjectMethodHandler(
-    handleExpression,
+    expressionHandler,
     handleStatement,
     handleIdentifier,
     handleDeclaration,

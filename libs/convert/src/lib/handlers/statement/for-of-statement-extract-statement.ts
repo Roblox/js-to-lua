@@ -10,6 +10,7 @@ import {
   Statement,
 } from '@babel/types';
 import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import { generateUniqueIdentifier } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -26,7 +27,6 @@ import {
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
-import { generateUniqueIdentifier } from '../generate-unique-identifier';
 import {
   createArrayPatternDestructuringHandler,
   hasUnhandledArrayDestructuringParam,

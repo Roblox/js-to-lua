@@ -18,14 +18,14 @@ import {
   typeNumber,
   typeString,
 } from '@js-to-lua/lua-types';
-import { handleExpression } from '../expression-statement.handler';
+import { expressionHandler } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsIndexSignatureHandler } from './ts-index-signature.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 
 describe('TSIndesSignature handler', () => {
   const { handleTypeAnnotation } = createTypeAnnotationHandler(
-    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => expressionHandler),
     forwardHandlerRef(() => handleIdentifier)
   );
 

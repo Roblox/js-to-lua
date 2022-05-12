@@ -1,6 +1,5 @@
-import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaNode } from '../lua-nodes.types';
 import { LuaExpression } from '../expression';
+import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaNodeGroup } from './node-group';
 
 export interface LuaIfStatement extends BaseLuaNode {
@@ -13,18 +12,18 @@ export interface LuaIfStatement extends BaseLuaNode {
 export interface LuaIfClause extends BaseLuaNode {
   type: 'IfClause';
   condition: LuaExpression;
-  body: LuaNodeGroup<LuaNode>;
+  body: LuaNodeGroup;
 }
 
 export interface LuaElseifClause extends BaseLuaNode {
   type: 'ElseifClause';
   condition: LuaExpression;
-  body: LuaNodeGroup<LuaNode>;
+  body: LuaNodeGroup;
 }
 
 export interface LuaElseClause extends BaseLuaNode {
   type: 'ElseClause';
-  body: LuaNodeGroup<LuaNode>;
+  body: LuaNodeGroup;
 }
 
 export type LuaClause = LuaIfClause | LuaElseifClause | LuaElseClause;

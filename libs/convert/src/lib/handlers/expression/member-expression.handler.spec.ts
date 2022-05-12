@@ -20,11 +20,11 @@ import {
   stringLiteral,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
-import { handleExpression } from '../expression-statement.handler';
+import { expressionHandler } from '../expression-statement.handler';
 import { createMemberExpressionHandler } from './member-expression.handler';
 
 const handleMemberExpression = createMemberExpressionHandler(
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => expressionHandler)
 );
 
 const source = '';

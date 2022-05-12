@@ -2,25 +2,24 @@ import {
   Declaration,
   Expression,
   ForStatement as BabelForStatement,
-  isUpdateExpression,
   isVariableDeclaration,
   Statement,
-  UpdateExpression,
 } from '@babel/types';
 import {
+  AsStatementHandlerFunction,
   BaseNodeHandler,
   combineHandlers,
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
-  createExpressionStatement,
+  asStatementReturnTypeToStatement,
   defaultStatementHandler,
+  unwrapStatement,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   blockStatement,
   booleanLiteral,
-  isExpression,
   LuaDeclaration,
   LuaExpression,
   LuaNodeGroup,
@@ -34,28 +33,29 @@ import { withContinueStatementHandlerConfig } from './continue-statement-handler
 
 export const createForStatementHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleExpressionAsStatement: HandlerFunction<
-    LuaExpression | LuaStatement,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
     Expression
   >,
-  handleUpdateExpressionAsStatement: HandlerFunction<
-    LuaStatement,
-    UpdateExpression
-  >,
   expressionHandler: BaseNodeHandler<LuaExpression, Expression>,
-  variableDeclarationHandler: BaseNodeHandler<
+  declarationHandler: BaseNodeHandler<
     LuaNodeGroup | LuaDeclaration,
     Declaration
   >
-): BaseNodeHandler<
-  LuaNodeGroup<LuaExpression | WhileStatement>,
-  BabelForStatement
-> =>
+): BaseNodeHandler<LuaNodeGroup<WhileStatement>, BabelForStatement> =>
   createHandler('ForStatement', (source, config, node) => {
     const handleInitExpression = combineHandlers(
       [
-        { type: expressionHandler.type, handler: handleExpressionAsStatement },
-        variableDeclarationHandler,
+        createHandler<LuaStatement, Expression>(
+          expressionHandler.type,
+          (source, config, expression) =>
+            asStatementReturnTypeToStatement(
+              source,
+              expression,
+              handleExpressionAsStatement(source, config, expression)
+            )
+        ),
+        declarationHandler,
       ],
       defaultStatementHandler
     ).handler;
@@ -66,18 +66,16 @@ export const createForStatementHandler = (
       node.update
         ? [
             {
-              node: isUpdateExpression(node.update)
-                ? handleUpdateExpressionAsStatement(source, config, node.update)
-                : handleExpressionAsStatement(source, config, node.update),
+              node: handleExpressionAsStatement(source, config, node.update),
               update: node.update,
             },
           ]
         : []
-    ).map(({ node: someNode, update }) =>
-      isExpression(someNode)
-        ? createExpressionStatement(source, update, someNode)
-        : someNode
-    );
+    )
+      .map(({ node: someNode, update }) =>
+        asStatementReturnTypeToStatement(source, update, someNode)
+      )
+      .map(unwrapStatement);
 
     const body = handleBody(
       source,

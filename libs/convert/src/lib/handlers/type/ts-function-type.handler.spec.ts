@@ -27,7 +27,7 @@ import {
   typeString,
   typeVariadicFunction,
 } from '@js-to-lua/lua-types';
-import { handleExpression } from '../expression-statement.handler';
+import { expressionHandler } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
 import { createTsTypeAnnotationHandler } from './ts-type-annotation.handler';
@@ -35,7 +35,7 @@ import { createTsTypeAnnotationHandler } from './ts-type-annotation.handler';
 describe('TSFunctionType handler', () => {
   const { handleTsTypeAnnotation, handleTsTypes } =
     createTsTypeAnnotationHandler(
-      forwardHandlerRef(() => handleExpression),
+      forwardHandlerRef(() => expressionHandler),
       forwardHandlerRef(() => handleIdentifier)
     );
 
@@ -44,7 +44,7 @@ describe('TSFunctionType handler', () => {
   );
 
   const tsFunctionTypeHandler = createTsFunctionTypeHandler(
-    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => expressionHandler),
     forwardHandlerRef(() => handleTsTypes)
   ).handler;
 

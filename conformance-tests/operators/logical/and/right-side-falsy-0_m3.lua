@@ -2,10 +2,4 @@ local Packages --[[ ROBLOX comment: must define Packages module ]]
 local LuauPolyfill = require(Packages.LuauPolyfill)
 local Boolean = LuauPolyfill.Boolean
 local a = {}
-local foo = (function()
-	if Boolean.toJSBoolean(a) then
-		return false
-	else
-		return a
-	end
-end)()
+local foo = if Boolean.toJSBoolean(a) then false else a

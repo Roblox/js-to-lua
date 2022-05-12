@@ -26,14 +26,14 @@ import {
   typeString,
   typeUnion,
 } from '@js-to-lua/lua-types';
-import { handleExpression } from '../expression-statement.handler';
+import { expressionHandler } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
 import { createTypeAnnotationHandler } from './type-annotation.handler';
 
 describe('TSIndexSignature handler', () => {
   const { handleTypeAnnotation } = createTypeAnnotationHandler(
-    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => expressionHandler),
     forwardHandlerRef(() => handleIdentifier)
   );
 
@@ -42,7 +42,7 @@ describe('TSIndexSignature handler', () => {
   );
 
   const tsTypeLiteralHandler = createTsTypeLiteralHandler(
-    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => expressionHandler),
     handleTypeAnnotation
   );
   const source = '';

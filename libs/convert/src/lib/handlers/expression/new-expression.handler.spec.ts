@@ -24,7 +24,7 @@ describe('New Expression Handler', () => {
   const mockedExpressionHandlerFn = jest.fn();
 
   const handleNewExpression = createNewExpressionHandler(
-    mockedExpressionHandlerFn
+    createHandlerFunction(mockedExpressionHandlerFn)
   ).handler;
 
   beforeEach(() => {

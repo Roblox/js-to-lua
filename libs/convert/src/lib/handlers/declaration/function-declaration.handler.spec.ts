@@ -10,7 +10,7 @@ import {
   LuaFunctionDeclaration,
   nodeGroup,
 } from '@js-to-lua/lua-types';
-import { handleStatement } from '../expression-statement.handler';
+import { statementHandler } from '../expression-statement.handler';
 
 const source = '';
 
@@ -27,6 +27,6 @@ describe('Function Declaration', () => {
       nodeGroup([])
     );
 
-    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    expect(statementHandler.handler(source, {}, given)).toEqual(expected);
   });
 });

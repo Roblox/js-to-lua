@@ -8,15 +8,22 @@ import {
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
+import {
+  BaseNodeHandler,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   blockStatement,
   booleanLiteral,
   callExpression,
+  expressionStatement,
   functionExpression,
   identifier,
   ifClause,
   ifStatement,
+  isNodeGroup,
   isReturnStatement,
   LuaCallExpression,
   LuaIdentifier,
@@ -30,12 +37,7 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
-import { pipe } from 'ramda';
-import {
-  BaseNodeHandler,
-  createHandler,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
+import { applyTo, dropLast, last, pipe } from 'ramda';
 import { createFunctionParamsHandler } from '../function-params.handler';
 
 export const createTryStatementHandler = (
@@ -57,6 +59,25 @@ export const createTryStatementHandler = (
               ...result,
               arguments: [...result.arguments, booleanLiteral(true)],
             }
+          : isNodeGroup(result)
+          ? applyTo(result, (group) => {
+              const lastNode = last(group.body);
+              return lastNode && isReturnStatement(lastNode)
+                ? {
+                    ...group,
+                    body: [
+                      ...dropLast(1, group.body),
+                      {
+                        ...lastNode,
+                        arguments: [
+                          ...lastNode.arguments,
+                          booleanLiteral(true),
+                        ],
+                      },
+                    ],
+                  }
+                : group;
+            })
           : result
     );
     const functionParamsHandler = createFunctionParamsHandler(
@@ -131,7 +152,11 @@ export const createTryStatementHandler = (
                 ifClause(
                   unaryNegationExpression(identifier('ok')),
                   nodeGroup([
-                    callExpression(identifier('error'), [identifier('result')]),
+                    expressionStatement(
+                      callExpression(identifier('error'), [
+                        identifier('result'),
+                      ])
+                    ),
                   ])
                 )
               ),

@@ -6,25 +6,30 @@ import {
   ObjectMethod,
   ObjectProperty,
 } from '@babel/types';
-import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
-import { getReturnExpressions } from '@js-to-lua/lua-conversion-utils';
 import {
-  callExpression,
-  functionExpression,
+  AsStatementHandlerFunction,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import { asStatementReturnTypeToExpression } from '@js-to-lua/lua-conversion-utils';
+import {
   LuaBinaryExpression,
   LuaCallExpression,
   LuaExpression,
   LuaLVal,
+  LuaStatement,
   LuaTableKeyField,
-  nodeGroup,
-  returnStatement,
   UnhandledStatement,
 } from '@js-to-lua/lua-types';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
-import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
+import { createAssignmentExpressionAsStatementHandlerFunction } from './assignment-expression-as-statement.handler';
 
 export const createAssignmentExpressionHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
+    Expression
+  >,
   handleLVal: HandlerFunction<LuaLVal, LVal>,
   handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleObjectField: HandlerFunction<
@@ -39,22 +44,15 @@ export const createAssignmentExpressionHandlerFunction = (
   createHandler(
     'AssignmentExpression',
     (source, config, node: AssignmentExpression) => {
-      const assignmentStatement = createAssignmentStatementHandlerFunction(
-        handleExpression,
-        handleLVal,
-        handleIdentifierStrict,
-        handleObjectField,
-        handleBinaryExpression
-      ).handler(source, config, node);
-      return callExpression(
-        functionExpression(
-          [],
-          nodeGroup([
-            assignmentStatement,
-            returnStatement(...getReturnExpressions(assignmentStatement)),
-          ])
-        ),
-        []
-      );
+      const assignmentStatement =
+        createAssignmentExpressionAsStatementHandlerFunction(
+          handleExpression,
+          handleExpressionAsStatement,
+          handleLVal,
+          handleIdentifierStrict,
+          handleObjectField,
+          handleBinaryExpression
+        ).handler(source, config, node);
+      return asStatementReturnTypeToExpression(assignmentStatement);
     }
   );

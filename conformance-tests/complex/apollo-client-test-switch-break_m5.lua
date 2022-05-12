@@ -9,9 +9,9 @@ local observerOptions = {
 				repeat --[[ ROBLOX comment: switch statement conversion ]]
 					local entered_, break_ = false, false
 					local condition_ = (function()
-						local result = count
+						local ref = count
 						count += 1
-						return result
+						return ref
 					end)()
 					for _, v in ipairs({ 0, 4 }) do
 						if condition_ == v then

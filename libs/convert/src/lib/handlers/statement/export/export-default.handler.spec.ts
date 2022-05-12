@@ -11,6 +11,7 @@ import {
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
 import {
+  forwardAsStatementHandlerRef,
   forwardHandlerFunctionRef,
   forwardHandlerRef,
 } from '@js-to-lua/handler-utils';
@@ -29,13 +30,13 @@ import {
 } from '@js-to-lua/lua-types';
 import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import {
-  handleExpression,
-  handleExpressionAsStatement,
-  handleObjectField,
+  expressionHandler,
+  expressionAsStatementHandler,
+  objectFieldHandler,
   handleObjectKeyExpression,
   handleObjectPropertyIdentifier,
   handleObjectPropertyValue,
-  handleStatement,
+  statementHandler,
 } from '../../expression-statement.handler';
 import {
   createIdentifierHandler,
@@ -46,7 +47,7 @@ import { createTypeAnnotationHandler } from '../../type/type-annotation.handler'
 import { createExportDefaultHandler } from './export-default.handler';
 
 const { handleTypeAnnotation } = createTypeAnnotationHandler(
-  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => expressionHandler),
   forwardHandlerRef(() => handleIdentifier)
 );
 
@@ -60,16 +61,16 @@ const handleIdentifierStrict = createIdentifierStrictHandler(
 
 const handleLVal = createLValHandler(
   forwardHandlerRef(() => handleIdentifier),
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => expressionHandler)
 );
 
 const handleDeclaration = createDeclarationHandler(
-  forwardHandlerRef(() => handleExpression),
-  forwardHandlerRef(() => handleExpressionAsStatement),
+  forwardHandlerRef(() => expressionHandler),
+  forwardAsStatementHandlerRef(() => expressionAsStatementHandler),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleIdentifierStrict),
-  forwardHandlerRef(() => handleStatement),
-  forwardHandlerRef(() => handleObjectField),
+  forwardHandlerRef(() => statementHandler),
+  forwardHandlerRef(() => objectFieldHandler),
   handleObjectPropertyIdentifier,
   handleObjectKeyExpression,
   handleObjectPropertyValue,
@@ -78,7 +79,7 @@ const handleDeclaration = createDeclarationHandler(
 
 const { handler } = createExportDefaultHandler(
   forwardHandlerRef(() => handleDeclaration),
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => expressionHandler)
 );
 
 const source = '';

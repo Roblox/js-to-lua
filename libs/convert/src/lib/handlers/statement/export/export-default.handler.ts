@@ -4,11 +4,11 @@ import {
   Expression,
   FunctionDeclaration,
   Identifier,
-  isExpression,
+  isExpression as isBabelExpression,
+  isIdentifier as isBabelIdentifier,
   isObjectExpression,
   ObjectExpression,
   TSDeclareFunction,
-  isIdentifier as isBabelIdentifier,
 } from '@babel/types';
 import {
   combineHandlers,
@@ -16,6 +16,7 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
+  createExpressionStatement,
   defaultStatementHandler,
   removeIdTypeAnnotation,
   unwrapNodeGroup,
@@ -26,6 +27,7 @@ import {
   exportTypeStatement,
   identifier,
   isAnyNodeType,
+  isExpression,
   isIdentifier,
   isLuaDeclaration,
   isTypeAliasDeclaration,
@@ -90,7 +92,7 @@ export const createExportDefaultHandler = (
 
       if (node.declaration) {
         if (
-          isExpression(node.declaration) &&
+          isBabelExpression(node.declaration) &&
           !(
             isObjectExpression(node.declaration) ||
             isBabelIdentifier(node.declaration)
@@ -116,7 +118,11 @@ export const createExportDefaultHandler = (
         return unwrapNodeGroup(
           nodeGroup([
             ...exportedTypes.map((t) => exportTypeStatement(t)),
-            ...declarationNotIds,
+            ...declarationNotIds.map((declarationNotId) =>
+              isExpression(declarationNotId)
+                ? createExpressionStatement(source, node, declarationNotId)
+                : declarationNotId
+            ),
             ...declarationIds.map((id) => {
               if (isTypeAliasDeclaration(id)) {
                 return exportTypeStatement(id);

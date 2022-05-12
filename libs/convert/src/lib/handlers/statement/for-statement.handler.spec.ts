@@ -10,25 +10,53 @@ import {
   variableDeclaration as babelVariableDeclaration,
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
-import { testUtils } from '@js-to-lua/handler-utils';
+import {
+  asStatementReturnTypeInline,
+  BaseNodeHandlerSymbol,
+  combineAsStatementHandlers,
+  createAsStatementHandler,
+  testUtils,
+} from '@js-to-lua/handler-utils';
 import {
   blockStatement,
   booleanLiteral,
+  callExpression,
+  expressionStatement,
+  identifier,
   nodeGroup,
   whileStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { createForStatementHandler } from './for-statement.handler';
 
-const { mockNodeWithValueHandler } = testUtils;
+const { mockNodeWithValueHandler, mockNodeAsStatementWithValueHandler } =
+  testUtils;
 
 describe('For Statement Handler', () => {
   const handleForStatement = createForStatementHandler(
     mockNodeWithValueHandler,
-    mockNodeWithValueHandler,
-    mockNodeWithValueHandler,
-    { handler: mockNodeWithValueHandler, type: [] },
-    { handler: mockNodeWithValueHandler, type: ['VariableDeclaration'] }
+    combineAsStatementHandlers(
+      [
+        createAsStatementHandler('UpdateExpression', () =>
+          asStatementReturnTypeInline(
+            [],
+            callExpression(identifier('updateExpression'), []),
+            []
+          )
+        ),
+      ],
+      mockNodeAsStatementWithValueHandler
+    ).handler,
+    {
+      [BaseNodeHandlerSymbol]: true,
+      handler: mockNodeWithValueHandler,
+      type: [],
+    },
+    {
+      [BaseNodeHandlerSymbol]: true,
+      handler: mockNodeWithValueHandler,
+      type: ['VariableDeclaration'],
+    }
   );
   it('should handle basic for loop', () => {
     const given = babelForStatement(
@@ -69,8 +97,8 @@ describe('For Statement Handler', () => {
             ),
           ]),
           nodeGroup([
-            mockNodeWithValue(
-              babelUpdateExpression('++', babelIdentifier('i'))
+            expressionStatement(
+              callExpression(identifier('updateExpression'), [])
             ),
           ]),
         ]
@@ -112,7 +140,9 @@ describe('For Statement Handler', () => {
           ),
         ]),
         nodeGroup([
-          mockNodeWithValue(babelUpdateExpression('++', babelIdentifier('i'))),
+          expressionStatement(
+            callExpression(identifier('updateExpression'), [])
+          ),
         ]),
       ]
     );
@@ -152,7 +182,9 @@ describe('For Statement Handler', () => {
           ),
         ]),
         nodeGroup([
-          mockNodeWithValue(babelUpdateExpression('++', babelIdentifier('i'))),
+          expressionStatement(
+            callExpression(identifier('updateExpression'), [])
+          ),
         ]),
       ]),
     ]);
@@ -270,8 +302,8 @@ describe('For Statement Handler', () => {
             ),
           ]),
           nodeGroup([
-            mockNodeWithValue(
-              babelUpdateExpression('++', babelIdentifier('i'))
+            expressionStatement(
+              callExpression(identifier('updateExpression'), [])
             ),
           ]),
         ]

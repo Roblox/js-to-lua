@@ -1,6 +1,6 @@
 import {
   AssignmentPattern,
-  ExportDefaultDeclaration,
+  Declaration,
   Expression,
   FlowType,
   FunctionExpression,
@@ -40,12 +40,12 @@ const isBabelAssignmentPattern = (param: unknown): param is AssignmentPattern =>
   isBabelAssignmentPattern_(param as any);
 
 export const createObjectPropertyValueHandler = (
-  handleExpression: BaseNodeHandler<LuaExpression, Expression>,
+  expressionHandler: BaseNodeHandler<LuaExpression, Expression>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleIdentifier: IdentifierHandlerFunction,
   handleDeclaration: HandlerFunction<
     LuaNodeGroup | LuaDeclaration,
-    Exclude<ExportDefaultDeclaration['declaration'], Expression>
+    Declaration
   >,
   handleAssignmentPattern: HandlerFunction<
     AssignmentStatement,
@@ -89,6 +89,6 @@ export const createObjectPropertyValueHandler = (
 
   return combineExpressionsHandlers<LuaExpression, Expression | PatternLike>([
     handleObjectValueFunctionExpression,
-    handleExpression,
+    expressionHandler,
   ]).handler;
 };

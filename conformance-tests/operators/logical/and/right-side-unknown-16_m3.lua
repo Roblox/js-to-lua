@@ -3,10 +3,4 @@ local LuauPolyfill = require(Packages.LuauPolyfill)
 local Boolean = LuauPolyfill.Boolean
 local truthy4 = "truthy"
 local truthy = {}
-local foo = (function()
-	if Boolean.toJSBoolean(truthy4) then
-		return truthy
-	else
-		return truthy4
-	end
-end)()
+local foo = if Boolean.toJSBoolean(truthy4) then truthy else truthy4

@@ -15,13 +15,13 @@ import {
   stringLiteral,
 } from '@js-to-lua/lua-types';
 import { createCallExpressionHandler } from './call-expression.handler';
-import { handleExpression } from '../../expression-statement.handler';
+import { expressionHandler } from '../../expression-statement.handler';
 import { USE_DOT_NOTATION_IN_CALL_EXPRESSION } from './call-expression-dot-notation.handler';
 
 const source = '';
 
 const handleCallExpression = createCallExpressionHandler(
-  handleExpression.handler
+  expressionHandler.handler
 );
 
 describe('Call Expression Handler', () => {

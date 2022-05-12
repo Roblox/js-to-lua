@@ -1,4 +1,4 @@
-import { Expression } from '@babel/types';
+import { BabelNode } from '@js-to-lua/handler-utils';
 import {
   AssignmentStatement,
   expressionStatement,
@@ -20,7 +20,7 @@ const isValidExpressionStatementExpression = (
 
 export const createExpressionStatement = (
   source: string,
-  babelExpression: Expression,
+  babelExpression: BabelNode,
   expression: LuaExpression | AssignmentStatement | LuaNodeGroup
 ) => {
   return isValidExpressionStatementExpression(expression)

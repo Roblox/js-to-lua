@@ -1,4 +1,5 @@
-import { LuaNode } from '@js-to-lua/lua-types';
+import { LuaExpression, LuaNode, LuaStatement } from '@js-to-lua/lua-types';
+import { AsStatementReturnType } from './as-statement';
 import { BabelNode, ConfigBase, EmptyConfig } from './types';
 
 export type NonCurriedHandlerFunction<
@@ -12,3 +13,10 @@ export type NonCurriedOptionalHandlerFunction<
   T extends BabelNode = BabelNode,
   Config extends ConfigBase = EmptyConfig
 > = (source: string, config: Config, node: T) => R | undefined | void;
+
+export type NonCurriedAsStatementHandlerFunction<
+  R extends LuaStatement = LuaStatement,
+  T extends BabelNode = BabelNode,
+  I extends LuaExpression = LuaExpression,
+  Config extends ConfigBase = EmptyConfig
+> = (source: string, config: Config, node: T) => AsStatementReturnType<R, I>;

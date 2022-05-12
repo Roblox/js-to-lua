@@ -3,8 +3,9 @@ import {
   identifier as babelIdentifier,
 } from '@babel/types';
 import {
-  combineHandlers,
-  forwardHandlerRef,
+  BaseNodeAsStatementHandlerSymbol,
+  combineAsStatementHandlers,
+  forwardAsStatementHandlerRef,
   testUtils,
 } from '@js-to-lua/handler-utils';
 
@@ -18,36 +19,46 @@ import {
   returnStatement,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { createAssignmentExpressionAsStatementHandlerFunction } from './assignment-expression-as-statement.handler';
 import { createAssignmentExpressionHandlerFunction } from './assignment-expression.handler';
-import { createAssignmentStatementHandlerFunction } from './assignment-statement.handler';
 
-const { mockNodeWithValueHandler } = testUtils;
+const { mockNodeWithValueHandler, mockNodeAsStatementWithValueHandler } =
+  testUtils;
 
-const handleAssignmentStatement = createAssignmentStatementHandlerFunction(
-  combineHandlers(
-    [
-      {
-        type: 'AssignmentExpression',
-        handler: forwardHandlerRef(() => handleAssignmentStatement),
-      },
-    ],
+const handleAssignmentExpressionAsStatement =
+  createAssignmentExpressionAsStatementHandlerFunction(
+    mockNodeWithValueHandler,
+    combineAsStatementHandlers(
+      [
+        {
+          [BaseNodeAsStatementHandlerSymbol]: true,
+          type: 'AssignmentExpression',
+          handler: forwardAsStatementHandlerRef(
+            () => handleAssignmentExpressionAsStatement
+          ),
+        },
+      ],
+      mockNodeAsStatementWithValueHandler
+    ).handler,
+    mockNodeWithValueHandler,
+    mockNodeWithValueHandler,
+    mockNodeWithValueHandler,
     mockNodeWithValueHandler
-  ).handler,
-  mockNodeWithValueHandler,
-  mockNodeWithValueHandler,
-  mockNodeWithValueHandler,
-  mockNodeWithValueHandler
-);
+  );
 
 const handleAssignmentExpression = createAssignmentExpressionHandlerFunction(
-  combineHandlers(
+  mockNodeWithValueHandler,
+  combineAsStatementHandlers(
     [
       {
+        [BaseNodeAsStatementHandlerSymbol]: true,
         type: 'AssignmentExpression',
-        handler: forwardHandlerRef(() => handleAssignmentStatement),
+        handler: forwardAsStatementHandlerRef(
+          () => handleAssignmentExpressionAsStatement
+        ),
       },
     ],
-    mockNodeWithValueHandler
+    mockNodeAsStatementWithValueHandler
   ).handler,
   mockNodeWithValueHandler,
   mockNodeWithValueHandler,
@@ -97,18 +108,16 @@ describe('Assignment Expression Handler', () => {
       functionExpression(
         [],
         nodeGroup([
-          nodeGroup([
-            assignmentStatement(
-              AssignmentStatementOperatorEnum.EQ,
-              [mockNodeWithValue(middleGiven) as LuaIdentifier],
-              [mockNodeWithValue(rightGiven)]
-            ),
-            assignmentStatement(
-              AssignmentStatementOperatorEnum.EQ,
-              [mockNodeWithValue(leftGiven) as LuaIdentifier],
-              [mockNodeWithValue(middleGiven)]
-            ),
-          ]),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [mockNodeWithValue(middleGiven) as LuaIdentifier],
+            [mockNodeWithValue(rightGiven)]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [mockNodeWithValue(leftGiven) as LuaIdentifier],
+            [mockNodeWithValue(middleGiven)]
+          ),
           returnStatement(mockNodeWithValue(leftGiven)),
         ])
       ),

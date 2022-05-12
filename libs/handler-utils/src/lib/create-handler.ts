@@ -4,7 +4,13 @@ import {
   CreateHandlerFunctionOptions,
 } from './create-handler-function';
 import { NonCurriedHandlerFunction } from './inner-types';
-import { BabelNode, BaseNodeHandler, ConfigBase, EmptyConfig } from './types';
+import {
+  BabelNode,
+  BaseNodeHandler,
+  BaseNodeHandlerSymbol,
+  ConfigBase,
+  EmptyConfig,
+} from './types';
 
 export const createHandler = <
   R extends LuaNode,
@@ -15,6 +21,7 @@ export const createHandler = <
   handler: NonCurriedHandlerFunction<R, T, Config>,
   handleConfig: CreateHandlerFunctionOptions = {}
 ): BaseNodeHandler<R, T, Config> => ({
+  [BaseNodeHandlerSymbol]: true,
   type,
   handler: createHandlerFunction(
     (source, config: Config, node: T): R => handler(source, config, node),

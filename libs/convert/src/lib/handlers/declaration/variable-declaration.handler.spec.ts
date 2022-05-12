@@ -49,7 +49,7 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { handleObjectField } from '../expression-statement.handler';
+import { objectFieldHandler } from '../expression-statement.handler';
 import {
   IdentifierHandlerFrom,
   IdentifierHandlerTo,
@@ -58,7 +58,8 @@ import {
 } from '../expression/identifier-handler-types';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
 
-const { mockNodeWithValueHandler } = testUtils;
+const { mockNodeWithValueHandler, mockNodeAsStatementWithValueHandler } =
+  testUtils;
 
 const source = '';
 
@@ -68,7 +69,7 @@ const handleVariableDeclaration = createVariableDeclarationHandler(
       ? identifier(node.name)
       : mockNodeWithValueHandler(source, config, node)
   ),
-  mockNodeWithValueHandler,
+  mockNodeAsStatementWithValueHandler,
   createHandlerFunction<IdentifierHandlerTo, IdentifierHandlerFrom>(
     (source, config, node) => identifier(node.name)
   ),
@@ -76,7 +77,7 @@ const handleVariableDeclaration = createVariableDeclarationHandler(
     (source, config, node) => identifier(node.name)
   ),
   mockNodeWithValueHandler,
-  forwardHandlerRef(() => handleObjectField),
+  forwardHandlerRef(() => objectFieldHandler),
   mockNodeWithValueHandler
 );
 

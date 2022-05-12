@@ -1,5 +1,4 @@
 import { isLuaDeclaration, LuaDeclaration } from '../declaration';
-import { LuaNode } from '../lua-nodes.types';
 import { isAnyNodeType } from '../node.types';
 import { isUnhandledStatement, UnhandledStatement } from '../unhandled';
 import {
@@ -32,7 +31,7 @@ export type LuaStatement =
   | LuaBlockStatement
   | LuaReturnStatement
   | LuaIfStatement
-  | LuaNodeGroup<LuaNode>
+  | LuaNodeGroup
   | LuaDeclaration
   | AssignmentStatement
   | ExportTypeStatement

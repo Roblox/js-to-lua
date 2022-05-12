@@ -14,7 +14,7 @@ import {
   numericLiteral,
   stringLiteral,
 } from '@js-to-lua/lua-types';
-import { handleExpression } from '../expression-statement.handler';
+import { expressionHandler } from '../expression-statement.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import {
   createIdentifierHandler,
@@ -56,12 +56,12 @@ const UNHANDLED_CHARS_IDENTIFIERS = [
 ];
 
 const handleIdentifierStrict = createIdentifierStrictHandler(
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => expressionHandler)
 );
 
 const handleIdentifier = createIdentifierHandler(
   createTypeAnnotationHandler(
-    forwardHandlerRef(() => handleExpression),
+    forwardHandlerRef(() => expressionHandler),
     forwardHandlerRef(() => handleIdentifierStrict)
   ).handleTypeAnnotation
 );

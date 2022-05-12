@@ -5,6 +5,7 @@ import {
   blockStatement,
   booleanLiteral,
   callExpression,
+  expressionStatement,
   functionDeclaration,
   functionExpression,
   identifier,
@@ -138,7 +139,9 @@ describe('Program handler', () => {
               ifClause(
                 unaryNegationExpression(identifier('ok')),
                 nodeGroup([
-                  callExpression(identifier('error'), [identifier('result')]),
+                  expressionStatement(
+                    callExpression(identifier('error'), [identifier('result')])
+                  ),
                 ])
               )
             ),
@@ -202,9 +205,11 @@ describe('Program handler', () => {
                     ifClause(
                       unaryNegationExpression(identifier('ok')),
                       nodeGroup([
-                        callExpression(identifier('error'), [
-                          identifier('result'),
-                        ]),
+                        expressionStatement(
+                          callExpression(identifier('error'), [
+                            identifier('result'),
+                          ])
+                        ),
                       ])
                     )
                   ),

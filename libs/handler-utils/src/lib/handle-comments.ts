@@ -1,6 +1,17 @@
 import { Comment, SourceLocation } from '@babel/types';
-import { LuaComment, LuaNode } from '@js-to-lua/lua-types';
+import {
+  LuaComment,
+  LuaExpression,
+  LuaNode,
+  LuaStatement,
+} from '@js-to-lua/lua-types';
+import { NonEmptyArray } from '@js-to-lua/shared-utils';
 import { appendComments } from './append-comments';
+import {
+  AsStatementReturnType,
+  isAsStatementReturnTypeInline,
+  isAsStatementReturnTypeWithIdentifier,
+} from './as-statement';
 import { prependComments } from './prepend-comments';
 import { BabelNode } from './types';
 
@@ -42,6 +53,52 @@ export const handleComments = <R extends LuaNode>(
         }
       : {}),
   };
+};
+
+export const handleAsStatementResultComments = <
+  R extends LuaStatement = LuaStatement,
+  I extends LuaExpression = LuaExpression
+>(
+  source: string,
+  babelNode: BabelNode,
+  result: AsStatementReturnType<R, I>,
+  shouldWrap = false
+): typeof result => {
+  return isAsStatementReturnTypeInline(result)
+    ? {
+        ...result,
+        inlineExpression: handleComments(
+          source,
+          babelNode,
+          result.inlineExpression,
+          shouldWrap
+        ),
+      }
+    : isAsStatementReturnTypeWithIdentifier(result)
+    ? {
+        ...result,
+        identifiers: result.identifiers.map((id, idx) =>
+          idx === 0 ? handleComments(source, babelNode, id, shouldWrap) : id
+        ) as NonEmptyArray<I>,
+      }
+    : {
+        ...result,
+        standalone: {
+          ...result.standalone,
+          statement: handleComments(
+            source,
+            babelNode,
+            result.standalone.statement,
+            shouldWrap
+          ),
+        },
+        inline: {
+          ...result.inline,
+          identifiers: result.inline.identifiers.map((id, idx) =>
+            idx === 0 ? handleComments(source, babelNode, id, shouldWrap) : id
+          ) as NonEmptyArray<I>,
+        },
+      };
 };
 
 const handleComment = (

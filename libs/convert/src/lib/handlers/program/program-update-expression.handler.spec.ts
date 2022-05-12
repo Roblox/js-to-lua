@@ -1,16 +1,10 @@
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
-  callExpression,
-  functionExpression,
   identifier,
   nodeGroup,
   numericLiteral,
   program,
-  returnStatement,
-  variableDeclaration,
-  variableDeclaratorIdentifier,
-  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
 import { getProgramNode } from './program.spec.utils';
@@ -38,7 +32,7 @@ describe('Program handler', () => {
 
     it('should handle suffix increment operator as expression statement', () => {
       const given = getProgramNode(`
-       foo++;
+        foo++;
       `);
       const expected = program([
         assignmentStatement(
@@ -92,26 +86,18 @@ describe('Program handler', () => {
         a = ++foo;
       `);
       const expected = program([
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.EQ,
-          [identifier('a')],
-          [
-            callExpression(
-              functionExpression(
-                [],
-                nodeGroup([
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.ADD,
-                    [identifier('foo')],
-                    [numericLiteral(1)]
-                  ),
-                  returnStatement(identifier('foo')),
-                ])
-              ),
-              []
-            ),
-          ]
-        ),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.ADD,
+            [identifier('foo')],
+            [numericLiteral(1)]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [identifier('foo')]
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -124,30 +110,18 @@ describe('Program handler', () => {
         a = foo++;
       `);
       const expected = program([
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.EQ,
-          [identifier('a')],
-          [
-            callExpression(
-              functionExpression(
-                [],
-                nodeGroup([
-                  variableDeclaration(
-                    [variableDeclaratorIdentifier(identifier('result'))],
-                    [variableDeclaratorValue(identifier('foo'))]
-                  ),
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.ADD,
-                    [identifier('foo')],
-                    [numericLiteral(1)]
-                  ),
-                  returnStatement(identifier('result')),
-                ])
-              ),
-              []
-            ),
-          ]
-        ),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [identifier('foo')]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.ADD,
+            [identifier('foo')],
+            [numericLiteral(1)]
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -160,26 +134,18 @@ describe('Program handler', () => {
         a = --foo;
       `);
       const expected = program([
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.EQ,
-          [identifier('a')],
-          [
-            callExpression(
-              functionExpression(
-                [],
-                nodeGroup([
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.SUB,
-                    [identifier('foo')],
-                    [numericLiteral(1)]
-                  ),
-                  returnStatement(identifier('foo')),
-                ])
-              ),
-              []
-            ),
-          ]
-        ),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.SUB,
+            [identifier('foo')],
+            [numericLiteral(1)]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [identifier('foo')]
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -192,30 +158,18 @@ describe('Program handler', () => {
         a = foo--;
       `);
       const expected = program([
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.EQ,
-          [identifier('a')],
-          [
-            callExpression(
-              functionExpression(
-                [],
-                nodeGroup([
-                  variableDeclaration(
-                    [variableDeclaratorIdentifier(identifier('result'))],
-                    [variableDeclaratorValue(identifier('foo'))]
-                  ),
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.SUB,
-                    [identifier('foo')],
-                    [numericLiteral(1)]
-                  ),
-                  returnStatement(identifier('result')),
-                ])
-              ),
-              []
-            ),
-          ]
-        ),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [identifier('foo')]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.SUB,
+            [identifier('foo')],
+            [numericLiteral(1)]
+          ),
+        ]),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);

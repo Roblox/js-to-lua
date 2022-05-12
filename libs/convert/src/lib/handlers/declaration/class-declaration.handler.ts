@@ -28,6 +28,7 @@ import {
   TypeAnnotation,
 } from '@babel/types';
 import {
+  AsStatementHandlerFunction,
   BaseNodeHandler,
   createHandler,
   HandlerFunction,
@@ -90,8 +91,8 @@ import { inferType } from '../type/infer-type';
 
 export const createClassDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleExpressionAsStatement: HandlerFunction<
-    LuaExpression | LuaStatement,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
     Expression
   >,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,

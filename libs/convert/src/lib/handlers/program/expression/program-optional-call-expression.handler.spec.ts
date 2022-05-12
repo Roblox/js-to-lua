@@ -1,3 +1,4 @@
+import { generateUniqueIdentifier } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -5,7 +6,6 @@ import {
   callExpression,
   elseExpressionClause,
   expressionStatement,
-  functionExpression,
   identifier,
   ifClause,
   ifElseExpression,
@@ -15,13 +15,11 @@ import {
   nilLiteral,
   nodeGroup,
   program,
-  returnStatement,
   stringLiteral,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { generateUniqueIdentifier } from '../../generate-unique-identifier';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
 
@@ -90,57 +88,45 @@ describe('Program handler', () => {
         const given = getProgramNode(source);
 
         const expected = program([
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [identifier('foo')],
-            [
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    variableDeclaration(
-                      [variableDeclaratorIdentifier(identifier('ref'))],
-                      [
-                        variableDeclaratorValue(
-                          ifElseExpression(
-                            ifExpressionClause(
-                              binaryExpression(
-                                callExpression(identifier('typeof'), [
-                                  identifier('bar'),
-                                ]),
-                                '==',
-                                stringLiteral('table')
-                              ),
-                              memberExpression(
-                                identifier('bar'),
-                                '.',
-                                identifier('fizz')
-                              )
-                            ),
-                            elseExpressionClause(nilLiteral())
-                          )
-                        ),
-                      ]
-                    ),
-
-                    returnStatement(
-                      ifElseExpression(
-                        ifExpressionClause(
-                          binaryExpression(
-                            identifier('ref'),
-                            '~=',
-                            nilLiteral()
-                          ),
-                          callExpression(identifier('ref'))
-                        ),
-                        elseExpressionClause(nilLiteral())
+          nodeGroup([
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('ref'))],
+              [
+                variableDeclaratorValue(
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(
+                        callExpression(identifier('typeof'), [
+                          identifier('bar'),
+                        ]),
+                        '==',
+                        stringLiteral('table')
+                      ),
+                      memberExpression(
+                        identifier('bar'),
+                        '.',
+                        identifier('fizz')
                       )
                     ),
-                  ])
-                )
-              ),
-            ]
-          ),
+                    elseExpressionClause(nilLiteral())
+                  )
+                ),
+              ]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [
+                ifElseExpression(
+                  ifExpressionClause(
+                    binaryExpression(identifier('ref'), '~=', nilLiteral()),
+                    callExpression(identifier('ref'))
+                  ),
+                  elseExpressionClause(nilLiteral())
+                ),
+              ]
+            ),
+          ]),
         ]);
 
         expect(handler('', {}, given)).toEqual(expected);
@@ -159,45 +145,38 @@ describe('Program handler', () => {
         const refId = identifier(generateUniqueIdentifier([], 'ref'));
 
         const expected = program([
-          expressionStatement(
-            callExpression(
-              functionExpression(
-                [],
-                nodeGroup([
-                  variableDeclaration(
-                    [variableDeclaratorIdentifier(refId)],
-                    [
-                      variableDeclaratorValue(
-                        ifElseExpression(
-                          ifExpressionClause(
-                            binaryExpression(
-                              callExpression(identifier('typeof'), [
-                                identifier('foo'),
-                              ]),
-                              '==',
-                              stringLiteral('table')
-                            ),
-                            memberExpression(
-                              identifier('foo'),
-                              '.',
-                              identifier('bar')
-                            )
-                          ),
-                          elseExpressionClause(nilLiteral())
-                        )
+          nodeGroup([
+            variableDeclaration(
+              [variableDeclaratorIdentifier(refId)],
+              [
+                variableDeclaratorValue(
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(
+                        callExpression(identifier('typeof'), [
+                          identifier('foo'),
+                        ]),
+                        '==',
+                        stringLiteral('table')
                       ),
-                    ]
-                  ),
-                  ifStatement(
-                    ifClause(
-                      binaryExpression(refId, '~=', nilLiteral()),
-                      nodeGroup([callExpression(refId)])
-                    )
-                  ),
-                ])
+                      memberExpression(
+                        identifier('foo'),
+                        '.',
+                        identifier('bar')
+                      )
+                    ),
+                    elseExpressionClause(nilLiteral())
+                  )
+                ),
+              ]
+            ),
+            ifStatement(
+              ifClause(
+                binaryExpression(refId, '~=', nilLiteral()),
+                nodeGroup([expressionStatement(callExpression(refId))])
               )
-            )
-          ),
+            ),
+          ]),
         ]);
 
         expect(handler('', {}, given)).toEqual(expected);

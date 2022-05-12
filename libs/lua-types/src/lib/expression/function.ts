@@ -1,8 +1,7 @@
-import { LuaExpression } from './expression';
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaIdentifier } from './identifier';
-import { LuaNodeGroup, LuaStatement, nodeGroup } from '../statement';
+import { LuaNodeGroup, nodeGroup } from '../statement';
 import { LuaTypeAnnotation } from '../type';
+import { LuaIdentifier } from './identifier';
 
 // TODO: Pattern | RestElement | TSParameterProperty should be added in the future when handled
 export type LuaFunctionParam = LuaIdentifier;
@@ -10,7 +9,7 @@ export type LuaFunctionParam = LuaIdentifier;
 export interface LuaFunctionExpression extends BaseLuaNode {
   type: 'FunctionExpression';
   params: Array<LuaFunctionParam>;
-  body: LuaNodeGroup<LuaStatement | LuaExpression>;
+  body: LuaNodeGroup;
   returnType?: LuaTypeAnnotation;
 }
 

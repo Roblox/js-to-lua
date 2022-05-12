@@ -26,10 +26,10 @@ describe('Program handler', () => {
   describe('Sequence Expression Handler', () => {
     it('should handle sequence expression in object prop - with simple expressions', () => {
       const source = `
-      const foo = {
-        bar: (a = 0, b = a + 1, bar(), a)
-      }
-    `;
+        const foo = {
+          bar: (a = 0, b = a + 1, bar(), a)
+        }
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -80,10 +80,10 @@ describe('Program handler', () => {
 
     it('should handle sequence expression in object prop - with updateExpressions', () => {
       const source = `
-      const foo = {
-        bar: (a++, b = ++a, a)
-      }
-    `;
+        const foo = {
+          bar: (a++, b = ++a, a)
+        }
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -104,24 +104,14 @@ describe('Program handler', () => {
                           [numericLiteral(1)]
                         ),
                         assignmentStatement(
+                          AssignmentStatementOperatorEnum.ADD,
+                          [identifier('a')],
+                          [numericLiteral(1)]
+                        ),
+                        assignmentStatement(
                           AssignmentStatementOperatorEnum.EQ,
                           [identifier('b')],
-                          [
-                            callExpression(
-                              functionExpression(
-                                [],
-                                nodeGroup([
-                                  assignmentStatement(
-                                    AssignmentStatementOperatorEnum.ADD,
-                                    [identifier('a')],
-                                    [numericLiteral(1)]
-                                  ),
-                                  returnStatement(identifier('a')),
-                                ])
-                              ),
-                              []
-                            ),
-                          ]
+                          [identifier('a')]
                         ),
                         returnStatement(identifier('a')),
                       ])
@@ -140,44 +130,28 @@ describe('Program handler', () => {
 
     it('should handle sequence expression in variable declaration - with simple expressions', () => {
       const source = `
-      const foo = (a = 0, b = a + 1, bar(), a)
-    `;
+        const foo = (a = 0, b = a + 1, bar(), a)
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('a')],
-                      [numericLiteral(0, '0')]
-                    ),
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('b')],
-                      [
-                        binaryExpression(
-                          identifier('a'),
-                          '+',
-                          numericLiteral(1, '1')
-                        ),
-                      ]
-                    ),
-                    expressionStatement(callExpression(identifier('bar'), [])),
-                    returnStatement(identifier('a')),
-                  ])
-                ),
-                []
-              )
-            ),
-          ]
-        ),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [numericLiteral(0, '0')]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('b')],
+            [binaryExpression(identifier('a'), '+', numericLiteral(1, '1'))]
+          ),
+          expressionStatement(callExpression(identifier('bar'), [])),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('foo'))],
+            [variableDeclaratorValue(identifier('a'))]
+          ),
+        ]),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
@@ -185,52 +159,32 @@ describe('Program handler', () => {
 
     it('should handle sequence expression in variable declaration - with updateExpressions', () => {
       const source = `
-      const foo = (a++, b = ++a, a)
-    `;
+        const foo = (a++, b = ++a, a)
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.ADD,
-                      [identifier('a')],
-                      [numericLiteral(1)]
-                    ),
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('b')],
-                      [
-                        callExpression(
-                          functionExpression(
-                            [],
-                            nodeGroup([
-                              assignmentStatement(
-                                AssignmentStatementOperatorEnum.ADD,
-                                [identifier('a')],
-                                [numericLiteral(1)]
-                              ),
-                              returnStatement(identifier('a')),
-                            ])
-                          ),
-                          []
-                        ),
-                      ]
-                    ),
-                    returnStatement(identifier('a')),
-                  ])
-                ),
-                []
-              )
-            ),
-          ]
-        ),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.ADD,
+            [identifier('a')],
+            [numericLiteral(1)]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.ADD,
+            [identifier('a')],
+            [numericLiteral(1)]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('b')],
+            [identifier('a')]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('foo'))],
+            [variableDeclaratorValue(identifier('a'))]
+          ),
+        ]),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
@@ -238,8 +192,8 @@ describe('Program handler', () => {
 
     it('should handle sequence expression in arrow function shorthand return syntax - with simple expressions', () => {
       const source = `
-      const foo = () => (a = 0, b = a + 1, bar(), a)
-    `;
+        const foo = () => (a = 0, b = a + 1, bar(), a)
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -268,8 +222,8 @@ describe('Program handler', () => {
 
     it('should handle sequence expression in arrow function shorthand return syntax - with function call as last expressions', () => {
       const source = `
-      const foo = () => (a = 0, b = a + 1, bar())
-    `;
+        const foo = () => (a = 0, b = a + 1, bar())
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -312,24 +266,14 @@ describe('Program handler', () => {
               [numericLiteral(1)]
             ),
             assignmentStatement(
+              AssignmentStatementOperatorEnum.ADD,
+              [identifier('a')],
+              [numericLiteral(1)]
+            ),
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('b')],
-              [
-                callExpression(
-                  functionExpression(
-                    [],
-                    nodeGroup([
-                      assignmentStatement(
-                        AssignmentStatementOperatorEnum.ADD,
-                        [identifier('a')],
-                        [numericLiteral(1)]
-                      ),
-                      returnStatement(identifier('a')),
-                    ])
-                  ),
-                  []
-                ),
-              ]
+              [identifier('a')]
             ),
             returnStatement(identifier('a')),
           ])
@@ -356,24 +300,14 @@ describe('Program handler', () => {
               'a, b = ++a, a'
             ),
             assignmentStatement(
+              AssignmentStatementOperatorEnum.ADD,
+              [identifier('a')],
+              [numericLiteral(1)]
+            ),
+            assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('b')],
-              [
-                callExpression(
-                  functionExpression(
-                    [],
-                    nodeGroup([
-                      assignmentStatement(
-                        AssignmentStatementOperatorEnum.ADD,
-                        [identifier('a')],
-                        [numericLiteral(1)]
-                      ),
-                      returnStatement(identifier('a')),
-                    ])
-                  ),
-                  []
-                ),
-              ]
+              [identifier('a')]
             ),
             returnStatement(identifier('a')),
           ])

@@ -29,7 +29,7 @@ import {
   stringLiteral,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
-import { handleExpression } from '../../expression-statement.handler';
+import { expressionHandler } from '../../expression-statement.handler';
 import { createBinaryExpressionHandler } from './binary-expression.handler';
 
 const source = '';
@@ -43,7 +43,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -63,7 +63,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -83,7 +83,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -103,7 +103,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -123,7 +123,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -143,7 +143,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -163,7 +163,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -183,7 +183,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -203,7 +203,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -226,7 +226,7 @@ describe('Binary Expression Handler', () => {
       babelStringLiteral('fizz')
     );
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -249,7 +249,7 @@ describe('Binary Expression Handler', () => {
       babelIdentifier('fizz')
     );
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -285,7 +285,7 @@ describe('Binary Expression Handler', () => {
       )
     );
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -321,7 +321,7 @@ describe('Binary Expression Handler', () => {
       babelIdentifier('fizz')
     );
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -345,7 +345,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = withTrailingConversionComment(
@@ -364,7 +364,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = withTrailingConversionComment(
@@ -383,7 +383,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -403,7 +403,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -423,7 +423,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -452,7 +452,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = binaryExpression(
@@ -475,7 +475,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = withTrailingConversionComment(
@@ -494,7 +494,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = withTrailingConversionComment(
@@ -513,7 +513,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = withTrailingConversionComment(
@@ -532,7 +532,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaBinaryExpression = withTrailingConversionComment(
@@ -551,7 +551,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaCallExpression = withTrailingConversionComment(
@@ -573,7 +573,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaCallExpression = withTrailingConversionComment(
@@ -595,7 +595,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaCallExpression = withTrailingConversionComment(
@@ -617,7 +617,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaCallExpression = withTrailingConversionComment(
@@ -639,7 +639,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaCallExpression = withTrailingConversionComment(
@@ -661,7 +661,7 @@ describe('Binary Expression Handler', () => {
     );
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected: LuaCallExpression = withTrailingConversionComment(
@@ -687,7 +687,7 @@ describe('Binary Expression Handler', () => {
     };
 
     const handleBinaryExpression = createBinaryExpressionHandler(
-      forwardHandlerRef(() => handleExpression)
+      forwardHandlerRef(() => expressionHandler)
     );
 
     const expected = withTrailingConversionComment(

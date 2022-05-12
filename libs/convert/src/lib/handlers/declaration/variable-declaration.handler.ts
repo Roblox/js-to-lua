@@ -18,12 +18,16 @@ import {
   VariableDeclarator,
 } from '@babel/types';
 import {
+  AsStatementHandlerFunction,
   BaseNodeHandler,
   createHandler,
   createHandlerFunction,
+  EmptyConfig,
+  handleComments,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
+  asStatementReturnTypeToReturn,
   defaultStatementHandler,
   getNodeSource,
   reassignComments,
@@ -69,8 +73,8 @@ import { createConvertToFunctionDeclarationHandler } from './convert-to-function
 
 export const createVariableDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleExpressionAsStatement: HandlerFunction<
-    LuaExpression | LuaStatement,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
     Expression
   >,
   handleIdentifier: IdentifierHandlerFunction,
@@ -102,18 +106,39 @@ export const createVariableDeclarationHandler = (
     const arrayPatternDestructuringHandler =
       createArrayPatternDestructuringHandler(handleExpression);
 
-    const handleVariableDeclarator: BaseNodeHandler<
-      LuaVariableDeclarator,
-      VariableDeclarator
-    > = createHandler(
-      'VariableDeclarator',
-      (source, config, node: VariableDeclarator) => {
-        return variableDeclarator(
-          lValHandler(source, config, node.id),
-          node.init ? handleExpression(source, config, node.init) : null
-        );
-      }
-    );
+    type StatementsWithDeclarator = {
+      preStatements: LuaStatement[];
+      postStatements: LuaStatement[];
+      declarators: LuaVariableDeclarator[];
+    };
+    const handleVariableDeclarator = (
+      source: string,
+      config: EmptyConfig,
+      node: VariableDeclarator
+    ): StatementsWithDeclarator => {
+      const initAsStatementReturn = node.init
+        ? asStatementReturnTypeToReturn(
+            handleExpressionAsStatement(source, config, node.init)
+          )
+        : null;
+      const lVal = lValHandler(source, config, node.id);
+
+      return initAsStatementReturn
+        ? {
+            preStatements: initAsStatementReturn.preStatements,
+            postStatements: initAsStatementReturn.postStatements,
+            declarators: initAsStatementReturn.toReturn.map((value) =>
+              handleComments(source, node, variableDeclarator(lVal, value))
+            ),
+          }
+        : {
+            preStatements: [],
+            postStatements: [],
+            declarators: [
+              handleComments(source, node, variableDeclarator(lVal, null)),
+            ],
+          };
+    };
 
     const convertToFunctionDeclaration =
       createConvertToFunctionDeclarationHandler(
@@ -178,7 +203,7 @@ export const createVariableDeclarationHandler = (
         if (Array.isArray(group)) {
           return handleVariableDeclarationGroup(
             group.map((declarator) =>
-              handleVariableDeclarator.handler(source, config, declarator)
+              handleVariableDeclarator(source, config, declarator)
             )
           );
         } else if (isObjectPattern(group.id)) {
@@ -313,9 +338,12 @@ export const createVariableDeclarationHandler = (
     }
 
     function handleVariableDeclarationGroup(
-      declarationGroup: LuaVariableDeclarator[]
-    ): LuaVariableDeclaration {
-      const varIdsAndValues = declarationGroup.reduceRight<
+      declarationGroup: StatementsWithDeclarator[]
+    ): LuaStatement {
+      const declarators = declarationGroup
+        .map(({ declarators }) => declarators)
+        .flat();
+      const varIdsAndValues = declarators.reduceRight<
         Pick<LuaVariableDeclaration, 'identifiers' | 'values'>
       >(
         (obj, declarator) => {
@@ -328,12 +356,22 @@ export const createVariableDeclarationHandler = (
         { identifiers: [], values: [] }
       );
 
-      return reassignComments(
+      const declaration = reassignComments(
         variableDeclaration(
           varIdsAndValues.identifiers,
           varIdsAndValues.values
         ),
-        ...declarationGroup
+        ...declarators
       );
+      const preStatements = declarationGroup
+        .map(({ preStatements }) => preStatements)
+        .flat();
+      const postStatements = declarationGroup
+        .map(({ postStatements }) => postStatements)
+        .flat();
+
+      return preStatements.length || postStatements.length
+        ? nodeGroup([...preStatements, declaration, ...postStatements])
+        : declaration;
     }
   });

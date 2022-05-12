@@ -1,14 +1,15 @@
-import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import { Expression, Identifier, ImportDeclaration } from '@babel/types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
+  expressionStatement,
   isVariableDeclaration,
   LuaExpression,
   LuaIdentifier,
   nodeGroup,
 } from '@js-to-lua/lua-types';
-import { createImportSpecifierHandler } from './import-specifier.handler';
 import { createImportExpressionHandler } from './import-expression.handler';
 import { createImportModuleDeclarationHandler } from './import-module-declaration.handler';
+import { createImportSpecifierHandler } from './import-specifier.handler';
 
 export const createImportDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -35,11 +36,11 @@ export const createImportDeclarationHandler = (
 
       const moduleAssignmentStatement = needsSeparateModuleDeclaration
         ? handleImportModuleDeclaration(node.source)
-        : handleImportExpression(node.source);
+        : expressionStatement(handleImportExpression(node.source));
 
       const moduleExpression = isVariableDeclaration(moduleAssignmentStatement)
         ? moduleAssignmentStatement.identifiers[0].value
-        : moduleAssignmentStatement;
+        : moduleAssignmentStatement.expression;
       const handleSpecifier = createImportSpecifierHandler(
         handleExpression,
         handleIdentifier,

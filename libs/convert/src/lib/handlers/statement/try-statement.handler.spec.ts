@@ -11,6 +11,7 @@ import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   blockStatement,
   callExpression,
+  expressionStatement,
   functionExpression,
   identifier,
   ifClause,
@@ -80,7 +81,9 @@ describe('Try Statement Handler', () => {
           ifClause(
             unaryNegationExpression(identifier('ok')),
             nodeGroup([
-              callExpression(identifier('error'), [identifier('result')]),
+              expressionStatement(
+                callExpression(identifier('error'), [identifier('result')])
+              ),
             ])
           )
         ),
@@ -211,7 +214,9 @@ describe('Try Statement Handler', () => {
           ifClause(
             unaryNegationExpression(identifier('ok')),
             nodeGroup([
-              callExpression(identifier('error'), [identifier('result')]),
+              expressionStatement(
+                callExpression(identifier('error'), [identifier('result')])
+              ),
             ])
           )
         ),

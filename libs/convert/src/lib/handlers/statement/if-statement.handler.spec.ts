@@ -15,14 +15,14 @@ import {
   nodeGroup,
 } from '@js-to-lua/lua-types';
 import {
-  handleExpression,
-  handleStatement,
+  expressionHandler,
+  statementHandler,
 } from '../expression-statement.handler';
 import { createIfStatementHandler } from './if-statement.handler';
 
 const handleIfStatement = createIfStatementHandler(
-  forwardHandlerRef(() => handleExpression),
-  forwardHandlerRef(() => handleStatement)
+  forwardHandlerRef(() => expressionHandler),
+  forwardHandlerRef(() => statementHandler)
 );
 
 const source = '';

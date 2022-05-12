@@ -1,7 +1,6 @@
 import {
   assignmentExpression,
   blockStatement as babelBlockStatement,
-  BlockStatement,
   expressionStatement,
   identifier as babelIdentifier,
   numericLiteral as babelNumericLiteral,
@@ -14,14 +13,13 @@ import {
   AssignmentStatementOperatorEnum,
   blockStatement,
   identifier,
-  LuaBlockStatement,
   numericLiteral,
   stringLiteral,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleStatement } from '../expression-statement.handler';
+import { statementHandler } from '../expression-statement.handler';
 
 const source = '';
 
@@ -30,11 +28,11 @@ describe('Block Statement Handler', () => {
     const given = babelBlockStatement([]);
     const expected = blockStatement([]);
 
-    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    expect(statementHandler.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should return Lua Block Constructor Node with expressions`, () => {
-    const given: BlockStatement = babelBlockStatement([
+    const given = babelBlockStatement([
       expressionStatement(
         assignmentExpression(
           '=',
@@ -50,7 +48,7 @@ describe('Block Statement Handler', () => {
         )
       ),
     ]);
-    const expected: LuaBlockStatement = blockStatement([
+    const expected = blockStatement([
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [identifier('foo')],
@@ -63,7 +61,7 @@ describe('Block Statement Handler', () => {
       ),
     ]);
 
-    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    expect(statementHandler.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle nested block statements`, () => {
@@ -111,7 +109,7 @@ describe('Block Statement Handler', () => {
       ]),
     ]);
 
-    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    expect(statementHandler.handler(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle deeply nested block statements`, () => {
@@ -149,7 +147,7 @@ describe('Block Statement Handler', () => {
       ]),
     ]);
 
-    const expected: LuaBlockStatement = blockStatement([
+    const expected = blockStatement([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('name'))],
         [variableDeclaratorValue(stringLiteral('wole'))]
@@ -175,6 +173,6 @@ describe('Block Statement Handler', () => {
       ]),
     ]);
 
-    expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+    expect(statementHandler.handler(source, {}, given)).toEqual(expected);
   });
 });

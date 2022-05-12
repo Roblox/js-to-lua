@@ -1,8 +1,17 @@
 import * as Babel from '@babel/types';
 import {
+  asStatementInline,
+  asStatementReturnTypeStandaloneOrInline,
+  asStatementStandalone,
+  createHandlerFunction,
+  testUtils,
+} from '@js-to-lua/handler-utils';
+import { generateUniqueIdentifier } from '@js-to-lua/lua-conversion-utils';
+import {
   binaryExpression,
   callExpression,
   elseExpressionClause,
+  expressionStatement,
   functionExpression,
   identifier,
   ifClause,
@@ -16,13 +25,11 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { testUtils } from '@js-to-lua/handler-utils';
-import {
-  createOptionalCallExpressionHandler,
-  createOptionalCallExpressionAsStatementHandler,
-} from './optional-call-expression.handler';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { generateUniqueIdentifier } from '../../generate-unique-identifier';
+import {
+  createOptionalCallExpressionAsStatementHandler,
+  createOptionalCallExpressionHandler,
+} from './optional-call-expression.handler';
 
 const { mockNodeWithValueHandler } = testUtils;
 describe('OptionalCallExpression handler', () => {
@@ -124,7 +131,7 @@ describe('OptionalCallExpression handler', () => {
       .mockImplementation(mockNodeWithValueHandler);
 
     const { handler } = createOptionalCallExpressionAsStatementHandler(
-      mockExpressionAsStatementHandler
+      createHandlerFunction(mockExpressionAsStatementHandler)
     );
 
     it('should handle simple identifier optional call expression', () => {
@@ -138,10 +145,29 @@ describe('OptionalCallExpression handler', () => {
         false
       );
 
-      const expected = ifStatement(
-        ifClause(
-          binaryExpression(identifier('foo'), '~=', nilLiteral()),
-          nodeGroup([callExpression(identifier('foo'))])
+      const expected = asStatementReturnTypeStandaloneOrInline(
+        asStatementStandalone(
+          [],
+          ifStatement(
+            ifClause(
+              binaryExpression(identifier('foo'), '~=', nilLiteral()),
+              nodeGroup([
+                expressionStatement(callExpression(identifier('foo'))),
+              ])
+            )
+          ),
+          []
+        ),
+        asStatementInline(
+          [],
+          [],
+          ifElseExpression(
+            ifExpressionClause(
+              binaryExpression(identifier('foo'), '~=', nilLiteral()),
+              callExpression(identifier('foo'))
+            ),
+            elseExpressionClause(nilLiteral())
+          )
         )
       );
 

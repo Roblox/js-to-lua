@@ -72,7 +72,7 @@ export type PrintSections = {
   trailingComments: string;
 };
 
-export function getPrintSections<N extends LuaNode | LuaNodeGroup<LuaNode>>(
+export function getPrintSections<N extends LuaNode | LuaNodeGroup>(
   node: N,
   nodePrintFn: (node: N) => string = _printNode
 ): PrintSections {
@@ -130,7 +130,7 @@ export function getPrintSections<N extends LuaNode | LuaNodeGroup<LuaNode>>(
   };
 }
 
-export function printNode<N extends LuaNode | LuaNodeGroup<LuaNode>>(
+export function printNode<N extends LuaNode | LuaNodeGroup>(
   node: N,
   nodePrintFn: (node: N) => string = _printNode
 ): string {

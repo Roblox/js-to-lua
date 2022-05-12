@@ -9,7 +9,11 @@ import {
   LVal,
   Statement,
 } from '@babel/types';
-import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
+import {
+  AsStatementHandlerFunction,
+  EmptyConfig,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import {
   defaultElementHandler,
   removeIdTypeAnnotation,
@@ -39,8 +43,8 @@ import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 export function createConvertToFunctionDeclarationHandler(
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleExpressionAsStatement: HandlerFunction<
-    LuaExpression | LuaStatement,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
     Expression
   >,
   handleIdentifier: HandlerFunction<LuaLVal, LVal>,

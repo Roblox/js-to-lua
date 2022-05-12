@@ -223,9 +223,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(
-          JSON.stringify(handleProgram.handler(source, {}, given), undefined, 2)
-        ).toEqual(JSON.stringify(expected, undefined, 2));
+        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement of a arrow expression to a member expression and not propagate self in inner functions', () => {
@@ -846,8 +844,8 @@ describe('Program handler', () => {
     describe('|= operator', () => {
       it('should handle simple AssignmentStatement', () => {
         const given = getProgramNode(`
-        foo |= bar
-      `);
+          foo |= bar
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -866,8 +864,8 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with member expression on the left', () => {
         const given = getProgramNode(`
-        foo.bar |= baz
-      `);
+          foo.bar |= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -890,9 +888,9 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with index expression on the left', () => {
         const given = getProgramNode(`
-        foo[bar] |= baz
-        foo['bar'] |= baz
-      `);
+          foo[bar] |= baz
+          foo['bar'] |= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -939,8 +937,8 @@ describe('Program handler', () => {
     describe('^= operator', () => {
       it('should handle simple AssignmentStatement', () => {
         const given = getProgramNode(`
-        foo ^= bar
-      `);
+          foo ^= bar
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -959,8 +957,8 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with member expression on the left', () => {
         const given = getProgramNode(`
-        foo.bar ^= baz
-      `);
+          foo.bar ^= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -983,9 +981,9 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with index expression on the left', () => {
         const given = getProgramNode(`
-        foo[bar] ^= baz
-        foo['bar'] ^= baz
-      `);
+          foo[bar] ^= baz
+          foo['bar'] ^= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1032,8 +1030,8 @@ describe('Program handler', () => {
     describe('>>>= operator', () => {
       it('should handle simple AssignmentStatement', () => {
         const given = getProgramNode(`
-        foo >>>= bar
-      `);
+          foo >>>= bar
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1052,8 +1050,8 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with member expression on the left', () => {
         const given = getProgramNode(`
-        foo.bar >>>= baz
-      `);
+          foo.bar >>>= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1076,9 +1074,9 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with index expression on the left', () => {
         const given = getProgramNode(`
-        foo[bar] >>>= baz
-        foo['bar'] >>>= baz
-      `);
+          foo[bar] >>>= baz
+          foo['bar'] >>>= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1125,8 +1123,8 @@ describe('Program handler', () => {
     describe('>>= operator', () => {
       it('should handle simple AssignmentStatement', () => {
         const given = getProgramNode(`
-        foo >>= bar
-      `);
+          foo >>= bar
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1149,8 +1147,8 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with member expression on the left', () => {
         const given = getProgramNode(`
-        foo.bar >>= baz
-      `);
+          foo.bar >>= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1173,9 +1171,9 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with index expression on the left', () => {
         const given = getProgramNode(`
-        foo[bar] >>= baz
-        foo['bar'] >>= baz
-      `);
+          foo[bar] >>= baz
+          foo['bar'] >>= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1222,8 +1220,8 @@ describe('Program handler', () => {
     describe('<<= operator', () => {
       it('should handle simple AssignmentStatement', () => {
         const given = getProgramNode(`
-        foo <<= bar
-      `);
+          foo <<= bar
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1242,8 +1240,8 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with member expression on the left', () => {
         const given = getProgramNode(`
-        foo.bar <<= baz
-      `);
+          foo.bar <<= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1266,9 +1264,9 @@ describe('Program handler', () => {
 
       it('should handle AssignmentStatement with index expression on the left', () => {
         const given = getProgramNode(`
-        foo[bar] <<= baz
-        foo['bar'] <<= baz
-      `);
+          foo[bar] <<= baz
+          foo['bar'] <<= baz
+        `);
         const expected = program([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1315,23 +1313,21 @@ describe('Program handler', () => {
 
   it(`should handle array destructuring`, () => {
     const given = getProgramNode(`
-        ([foo, bar] = baz);
-      `);
+      ([foo, bar] = baz);
+    `);
 
     const expected = program([
-      nodeGroup([
-        assignmentStatement(
-          AssignmentStatementOperatorEnum.EQ,
-          [identifier('foo'), identifier('bar')],
-          [
-            tableUnpackCall(
-              identifier('baz'),
-              numericLiteral(1),
-              numericLiteral(2)
-            ),
-          ]
-        ),
-      ]),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [identifier('foo'), identifier('bar')],
+        [
+          tableUnpackCall(
+            identifier('baz'),
+            numericLiteral(1),
+            numericLiteral(2)
+          ),
+        ]
+      ),
     ]);
 
     expect(handleProgram.handler(source, {}, given)).toEqual(expected);
@@ -1339,8 +1335,8 @@ describe('Program handler', () => {
 
   it(`should handle array destructuring with nested arrays`, () => {
     const given = getProgramNode(`
-        ([foo, [bar, baz]] = fizz);
-      `);
+      ([foo, [bar, baz]] = fizz);
+    `);
 
     const expected = program([
       nodeGroup([
@@ -1372,8 +1368,8 @@ describe('Program handler', () => {
 
   it(`should handle array destructuring with rest element`, () => {
     const given = getProgramNode(`
-    ([foo, ...bar] = baz);
-  `);
+      ([foo, ...bar] = baz);
+    `);
 
     const expected = program([
       nodeGroup([
@@ -1393,10 +1389,39 @@ describe('Program handler', () => {
     expect(handleProgram.handler(source, {}, given)).toEqual(expected);
   });
 
+  it(`should handle chained array destructuring`, () => {
+    const given = getProgramNode(`
+      (fizz = [foo, bar] = baz);
+    `);
+
+    const expected = program([
+      nodeGroup([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo'), identifier('bar')],
+          [
+            tableUnpackCall(
+              identifier('baz'),
+              numericLiteral(1),
+              numericLiteral(2)
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('fizz')],
+          [identifier('baz')]
+        ),
+      ]),
+    ]);
+
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+  });
+
   it(`should handle object destructuring`, () => {
     const given = getProgramNode(`
-    ({foo, bar} = baz);
-  `);
+      ({foo, bar} = baz);
+    `);
 
     const expected = program([
       assignmentStatement(
@@ -1414,8 +1439,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring with aliases`, () => {
     const given = getProgramNode(`
-    ({foo:fun, bar:bat} = baz);
-  `);
+      ({foo:fun, bar:bat} = baz);
+    `);
 
     const expected = program([
       assignmentStatement(
@@ -1433,8 +1458,8 @@ describe('Program handler', () => {
 
   it(`should handle object destructuring with nested object pattern`, () => {
     const given = getProgramNode(`
-    ({foo:{bar, baz}} = fizz);
-  `);
+      ({foo:{bar, baz}} = fizz);
+    `);
 
     const expected = program([
       assignmentStatement(
@@ -1453,6 +1478,32 @@ describe('Program handler', () => {
           ),
         ]
       ),
+    ]);
+
+    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle chained object destructuring`, () => {
+    const given = getProgramNode(`
+      (fizz = {foo, bar} = baz);
+    `);
+
+    const expected = program([
+      nodeGroup([
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('foo'), identifier('bar')],
+          [
+            memberExpression(identifier('baz'), '.', identifier('foo')),
+            memberExpression(identifier('baz'), '.', identifier('bar')),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('fizz')],
+          [identifier('baz')]
+        ),
+      ]),
     ]);
 
     expect(handleProgram.handler(source, {}, given)).toEqual(expected);

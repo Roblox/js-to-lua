@@ -1,29 +1,40 @@
 import {
   assignmentExpression as babelAssignmentExpression,
+  Expression,
   identifier as babelIdentifier,
   returnStatement as babelReturnStatement,
 } from '@babel/types';
-import { testUtils } from '@js-to-lua/handler-utils';
-import { nodeGroup, returnStatement } from '@js-to-lua/lua-types';
+import {
+  asStatementReturnTypeWithIdentifier,
+  createAsStatementHandlerFunction,
+  testUtils,
+} from '@js-to-lua/handler-utils';
+import {
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
+  identifier,
+  LuaStatement,
+  nodeGroup,
+  returnStatement,
+} from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { createReturnStatementHandler } from './return-statement.handler';
 
-const { mockNodeWithValueHandler } = testUtils;
+const { mockNodeWithValueHandler, mockNodeAsStatementWithValueHandler } =
+  testUtils;
 
-jest.mock('@js-to-lua/lua-conversion-utils', () => ({
-  getReturnExpressions: jest
-    .fn()
-    .mockImplementation((node) => getReturnExpressions(node)),
-}));
-
-const getReturnExpressions = jest.fn().mockImplementation((node) => [node]);
+const handleExpressionAsStatement = jest
+  .fn()
+  .mockImplementation(mockNodeAsStatementWithValueHandler);
 
 const source = '';
 
 describe('Return Statement Handler', () => {
   const returnStatementHandler = createReturnStatementHandler(
     mockNodeWithValueHandler,
-    mockNodeWithValueHandler
+    createAsStatementHandlerFunction<LuaStatement, Expression>(
+      handleExpressionAsStatement
+    )
   );
 
   it(`should handle empty ReturnStatement `, () => {
@@ -41,7 +52,19 @@ describe('Return Statement Handler', () => {
   });
 
   it(`should handle ReturnStatement that yields another statement`, () => {
-    getReturnExpressions.mockReturnValue([mockNodeWithValue('mockStatement')]);
+    handleExpressionAsStatement.mockImplementationOnce(() =>
+      asStatementReturnTypeWithIdentifier(
+        [
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [identifier('bar')]
+          ),
+        ],
+        [],
+        identifier('foo')
+      )
+    );
     const argumentGiven = babelAssignmentExpression(
       '=',
       babelIdentifier('foo'),
@@ -49,8 +72,12 @@ describe('Return Statement Handler', () => {
     );
     const given = babelReturnStatement(argumentGiven);
     const expected = nodeGroup([
-      mockNodeWithValue(argumentGiven),
-      returnStatement(mockNodeWithValue('mockStatement')),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [identifier('foo')],
+        [identifier('bar')]
+      ),
+      returnStatement(identifier('foo')),
     ]);
 
     expect(returnStatementHandler.handler(source, {}, given)).toEqual(expected);

@@ -9,6 +9,7 @@ import {
   Statement,
 } from '@babel/types';
 import {
+  AsStatementHandlerFunction,
   BaseNodeHandler,
   forwardHandlerRef,
   HandlerFunction,
@@ -38,8 +39,8 @@ import { createVariableDeclarationHandler } from './variable-declaration.handler
 
 export const createDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleExpressionAsStatement: HandlerFunction<
-    LuaExpression | LuaStatement,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
     Expression
   >,
   handleIdentifier: IdentifierHandlerFunction,

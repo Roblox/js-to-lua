@@ -10,8 +10,8 @@ import {
   program,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import { getProgramNode } from '../program.spec.utils';
 
 const source = '';
 
@@ -92,18 +92,16 @@ describe('Program handler', () => {
               functionExpression(
                 [],
                 nodeGroup([
-                  nodeGroup([
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('bar')],
-                      [identifier('baz')]
-                    ),
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('foo')],
-                      [identifier('bar')]
-                    ),
-                  ]),
+                  assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
+                    [identifier('bar')],
+                    [identifier('baz')]
+                  ),
+                  assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
+                    [identifier('foo')],
+                    [identifier('bar')]
+                  ),
                   returnStatement(identifier('foo')),
                 ])
               ),
@@ -127,36 +125,34 @@ describe('Program handler', () => {
               functionExpression(
                 [],
                 nodeGroup([
-                  nodeGroup([
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [
-                        memberExpression(
-                          identifier('bar'),
-                          '.',
-                          identifier('baz')
-                        ),
-                      ],
-                      [identifier('baz')]
-                    ),
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [
-                        memberExpression(
-                          identifier('foo'),
-                          '.',
-                          identifier('bar')
-                        ),
-                      ],
-                      [
-                        memberExpression(
-                          identifier('bar'),
-                          '.',
-                          identifier('baz')
-                        ),
-                      ]
-                    ),
-                  ]),
+                  assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
+                    [
+                      memberExpression(
+                        identifier('bar'),
+                        '.',
+                        identifier('baz')
+                      ),
+                    ],
+                    [identifier('baz')]
+                  ),
+                  assignmentStatement(
+                    AssignmentStatementOperatorEnum.EQ,
+                    [
+                      memberExpression(
+                        identifier('foo'),
+                        '.',
+                        identifier('bar')
+                      ),
+                    ],
+                    [
+                      memberExpression(
+                        identifier('bar'),
+                        '.',
+                        identifier('baz')
+                      ),
+                    ]
+                  ),
                   returnStatement(
                     memberExpression(identifier('foo'), '.', identifier('bar'))
                   ),

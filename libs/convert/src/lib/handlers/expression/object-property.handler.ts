@@ -36,7 +36,7 @@ import { createObjectPropertyIdentifierHandler } from './object-property-identif
 import { createObjectPropertyValueHandler } from './object-property-value.handler';
 
 export const createObjectPropertyHandler = (
-  handleExpression: BaseNodeHandler<LuaExpression, Expression>,
+  expressionHandler: BaseNodeHandler<LuaExpression, Expression>,
   handleStatement: HandlerFunction<LuaStatement, Statement>,
   handleIdentifier: IdentifierHandlerFunction,
   handleDeclaration: HandlerFunction<
@@ -57,7 +57,7 @@ export const createObjectPropertyHandler = (
   const handleObjectPropertyIdentifier =
     createObjectPropertyIdentifierHandler(handleIdentifier);
   const handleObjectPropertyValue = createObjectPropertyValueHandler(
-    handleExpression,
+    expressionHandler,
     handleStatement,
     handleIdentifier,
     handleDeclaration,
@@ -67,7 +67,7 @@ export const createObjectPropertyHandler = (
     handleType
   );
   const handleObjectKeyExpression = createObjectKeyExpressionHandler(
-    handleExpression.handler
+    expressionHandler.handler
   );
   return createHandler<LuaTableKeyField, ObjectProperty>(
     'ObjectProperty',

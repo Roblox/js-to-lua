@@ -2,7 +2,13 @@ import { LuaNode } from '@js-to-lua/lua-types';
 import { curry } from 'ramda';
 import { handleComments } from './handle-comments';
 import { NonCurriedHandlerFunction } from './inner-types';
-import { BabelNode, ConfigBase, EmptyConfig, HandlerFunction } from './types';
+import {
+  BabelNode,
+  ConfigBase,
+  EmptyConfig,
+  HandlerFunction,
+  HandlerFunctionSymbol,
+} from './types';
 
 export interface CreateHandlerFunctionOptions {
   skipComments?: boolean;
@@ -16,7 +22,12 @@ export const createHandlerFunction = <
   func: NonCurriedHandlerFunction<R, T, Config>,
   { skipComments = false }: CreateHandlerFunctionOptions = {}
 ): HandlerFunction<R, T, Config> =>
-  curry(function (source: string, config: Config, node: T): R {
-    const luaNode = func(source, config, node);
-    return skipComments ? luaNode : handleComments(source, node, luaNode);
-  });
+  Object.assign(
+    curry(function (source: string, config: Config, node: T): R {
+      const luaNode = func(source, config, node);
+      return skipComments ? luaNode : handleComments(source, node, luaNode);
+    }),
+    {
+      [HandlerFunctionSymbol]: true as const,
+    }
+  );

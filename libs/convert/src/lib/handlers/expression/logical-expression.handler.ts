@@ -5,191 +5,289 @@ import {
   LogicalExpression,
 } from '@babel/types';
 import {
-  BaseNodeHandler,
+  AsStatementHandlerFunction,
+  AsStatementReturnType,
+  asStatementReturnTypeInline,
+  createAsStatementHandler,
   createHandler,
-  HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
+  asStatementReturnTypeToExpression,
+  asStatementReturnTypeToReturn,
   booleanInferableExpression,
   booleanMethod,
-  defaultStatementHandler,
+  defaultExpressionAsStatementHandler,
   isBooleanInferable,
   isLuaTruthy,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   callExpression,
-  elseClause,
   elseExpressionClause,
-  functionExpression,
   identifier,
-  ifClause,
   ifElseExpression,
   ifExpressionClause,
-  ifStatement,
   logicalExpression,
-  LuaCallExpression,
   LuaExpression,
   LuaLogicalExpression,
   LuaLogicalExpressionOperatorEnum,
+  LuaStatement,
   nilLiteral,
-  nodeGroup,
-  returnStatement,
-  UnhandledStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { applyTo } from 'ramda';
+import { applyTo, pipe } from 'ramda';
 
 export const createLogicalExpressionHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
-): BaseNodeHandler<
-  LuaLogicalExpression | LuaCallExpression | UnhandledStatement,
-  LogicalExpression
-> =>
-  createHandler('LogicalExpression', (source, config, node) => {
-    switch (node.operator) {
-      case '||': {
-        const leftExpression = handleExpression(source, config, node.left);
-        const rightExpression = handleExpression(source, config, node.right);
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
+    Expression
+  >
+) =>
+  createHandler<LuaExpression, LogicalExpression>(
+    'LogicalExpression',
+    (source, config, node) => {
+      const handleLogicalExpressionAsStatement =
+        createLogicalExpressionAsStatementHandler(
+          handleExpressionAsStatement
+        ).handler;
+      const result = handleLogicalExpressionAsStatement(source, config, node);
+      return asStatementReturnTypeToExpression(result);
+    }
+  );
 
-        const isLeftExpressionBooleanInferable =
-          isBooleanInferable(leftExpression);
-        const isRightExpressionBooleanInferable =
-          isBooleanInferable(rightExpression);
+export const createLogicalExpressionAsStatementHandler = (
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
+    Expression
+  >
+) =>
+  createAsStatementHandler<LuaStatement, LogicalExpression>(
+    'LogicalExpression',
+    (source, config, node): AsStatementReturnType => {
+      const leftAsStatementResult = handleExpressionAsStatement(
+        source,
+        config,
+        node.left
+      );
+      const rightAsStatementResult = handleExpressionAsStatement(
+        source,
+        config,
+        node.right
+      );
 
-        if (isLeftExpressionBooleanInferable) {
-          return applyTo(
-            logicalExpression(
-              LuaLogicalExpressionOperatorEnum.OR,
-              leftExpression,
-              rightExpression
-            ),
-            (expression) =>
-              isRightExpressionBooleanInferable
-                ? booleanInferableExpression(expression)
-                : expression
-          );
-        }
+      const leftExpressionReturn = asStatementReturnTypeToReturn(
+        leftAsStatementResult
+      );
+      const leftExpression = leftExpressionReturn.toReturn[0];
+      const rightExpression = asStatementReturnTypeToExpression(
+        rightAsStatementResult
+      );
 
-        return logicalExpression(
-          LuaLogicalExpressionOperatorEnum.OR,
-          isBabelIdentifier(node.left) || isBabelMemberExpression(node.left)
-            ? logicalExpression(
-                LuaLogicalExpressionOperatorEnum.AND,
-                callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
-                leftExpression
+      switch (node.operator) {
+        case '||': {
+          const isLeftExpressionBooleanInferable =
+            isBooleanInferable(leftExpression);
+          const isRightExpressionBooleanInferable =
+            isBooleanInferable(rightExpression);
+
+          if (isLeftExpressionBooleanInferable) {
+            return applyTo(
+              logicalExpression(
+                LuaLogicalExpressionOperatorEnum.OR,
+                leftExpression,
+                rightExpression
+              ),
+              pipe(
+                (expression: LuaLogicalExpression) =>
+                  isRightExpressionBooleanInferable
+                    ? booleanInferableExpression(expression)
+                    : expression,
+                (expression) =>
+                  asStatementReturnTypeInline(
+                    leftExpressionReturn.preStatements,
+                    expression,
+                    leftExpressionReturn.postStatements
+                  )
               )
-            : callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
+            );
+          }
+
+          return isBabelIdentifier(node.left) ||
+            isBabelMemberExpression(node.left)
+            ? asStatementReturnTypeInline(
+                leftExpressionReturn.preStatements,
+                logicalExpression(
+                  LuaLogicalExpressionOperatorEnum.OR,
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.AND,
+                    callExpression(booleanMethod('toJSBoolean'), [
+                      leftExpression,
+                    ]),
+                    leftExpression
+                  ),
+                  rightExpression
+                ),
+                leftExpressionReturn.postStatements
+              )
+            : asStatementReturnTypeInline(
+                [
+                  ...leftExpressionReturn.preStatements,
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('ref'))],
+                    [variableDeclaratorValue(leftExpression)]
+                  ),
+                ],
+                logicalExpression(
+                  LuaLogicalExpressionOperatorEnum.OR,
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.AND,
+                    callExpression(booleanMethod('toJSBoolean'), [
+                      identifier('ref'),
+                    ]),
+                    identifier('ref')
+                  ),
+                  rightExpression
+                ),
+                leftExpressionReturn.postStatements
+              );
+        }
+        case '&&': {
+          const isRightExpressionTruthy = isLuaTruthy(node.right);
+
+          const isLeftExpressionBooleanInferable =
+            isBooleanInferable(leftExpression);
+          const isRightExpressionBooleanInferable =
+            isBooleanInferable(rightExpression);
+
+          if (isLeftExpressionBooleanInferable) {
+            return applyTo(
+              logicalExpression(
+                LuaLogicalExpressionOperatorEnum.AND,
+                leftExpression,
+                rightExpression
+              ),
+              pipe(
+                (expression: LuaLogicalExpression) =>
+                  isRightExpressionBooleanInferable
+                    ? booleanInferableExpression(expression)
+                    : expression,
+                (expression) =>
+                  asStatementReturnTypeInline(
+                    leftExpressionReturn.preStatements,
+                    expression,
+                    leftExpressionReturn.postStatements
+                  )
+              )
+            );
+          }
+          return isRightExpressionTruthy
+            ? isBabelIdentifier(node.left) || isBabelMemberExpression(node.left)
+              ? asStatementReturnTypeInline(
+                  leftExpressionReturn.preStatements,
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.OR,
+                    logicalExpression(
+                      LuaLogicalExpressionOperatorEnum.AND,
+                      callExpression(booleanMethod('toJSBoolean'), [
+                        leftExpression,
+                      ]),
+                      rightExpression
+                    ),
+                    leftExpression
+                  ),
+                  leftExpressionReturn.postStatements
+                )
+              : asStatementReturnTypeInline(
+                  [
+                    ...leftExpressionReturn.preStatements,
                     variableDeclaration(
                       [variableDeclaratorIdentifier(identifier('ref'))],
                       [variableDeclaratorValue(leftExpression)]
                     ),
-                    returnStatement(
-                      logicalExpression(
-                        LuaLogicalExpressionOperatorEnum.AND,
-                        callExpression(booleanMethod('toJSBoolean'), [
-                          identifier('ref'),
-                        ]),
-                        identifier('ref')
-                      )
+                  ],
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.OR,
+                    logicalExpression(
+                      LuaLogicalExpressionOperatorEnum.AND,
+                      callExpression(booleanMethod('toJSBoolean'), [
+                        identifier('ref'),
+                      ]),
+                      rightExpression
                     ),
-                  ])
+                    identifier('ref')
+                  ),
+                  leftExpressionReturn.postStatements
+                )
+            : isBabelIdentifier(node.left) || isBabelMemberExpression(node.left)
+            ? asStatementReturnTypeInline(
+                leftExpressionReturn.preStatements,
+                ifElseExpression(
+                  ifExpressionClause(
+                    callExpression(booleanMethod('toJSBoolean'), [
+                      leftExpression,
+                    ]),
+                    rightExpression
+                  ),
+                  elseExpressionClause(leftExpression)
                 ),
-                []
-              ),
-          rightExpression
-        );
-      }
-      case '&&': {
-        const isRightExpressionTruthy = isLuaTruthy(node.right);
-
-        const leftExpression = handleExpression(source, config, node.left);
-        const rightExpression = handleExpression(source, config, node.right);
-
-        const isLeftExpressionBooleanInferable =
-          isBooleanInferable(leftExpression);
-        const isRightExpressionBooleanInferable =
-          isBooleanInferable(rightExpression);
-
-        if (isLeftExpressionBooleanInferable) {
-          return applyTo(
-            logicalExpression(
-              LuaLogicalExpressionOperatorEnum.AND,
-              leftExpression,
-              rightExpression
-            ),
-            (expression) =>
-              isRightExpressionBooleanInferable
-                ? booleanInferableExpression(expression)
-                : expression
-          );
+                leftExpressionReturn.postStatements
+              )
+            : asStatementReturnTypeInline(
+                [
+                  ...leftExpressionReturn.preStatements,
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('ref'))],
+                    [variableDeclaratorValue(leftExpression)]
+                  ),
+                ],
+                ifElseExpression(
+                  ifExpressionClause(
+                    callExpression(booleanMethod('toJSBoolean'), [
+                      identifier('ref'),
+                    ]),
+                    rightExpression
+                  ),
+                  elseExpressionClause(identifier('ref'))
+                ),
+                leftExpressionReturn.postStatements
+              );
         }
-        return isRightExpressionTruthy
-          ? logicalExpression(
-              LuaLogicalExpressionOperatorEnum.OR,
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.AND,
-                callExpression(booleanMethod('toJSBoolean'), [leftExpression]),
-                rightExpression
-              ),
-              leftExpression
-            )
-          : callExpression(
-              functionExpression(
-                [],
-                isBabelIdentifier(node.left) ||
-                  isBabelMemberExpression(node.left)
-                  ? nodeGroup([
-                      ifStatement(
-                        ifClause(
-                          callExpression(booleanMethod('toJSBoolean'), [
-                            leftExpression,
-                          ]),
-                          nodeGroup([returnStatement(rightExpression)])
-                        ),
-                        [],
-                        elseClause(nodeGroup([returnStatement(leftExpression)]))
-                      ),
-                    ])
-                  : nodeGroup([
-                      variableDeclaration(
-                        [variableDeclaratorIdentifier(identifier('ref'))],
-                        [variableDeclaratorValue(leftExpression)]
-                      ),
-                      ifStatement(
-                        ifClause(
-                          callExpression(booleanMethod('toJSBoolean'), [
-                            identifier('ref'),
-                          ]),
-                          nodeGroup([returnStatement(rightExpression)])
-                        ),
-                        [],
-                        elseClause(
-                          nodeGroup([returnStatement(identifier('ref'))])
-                        )
-                      ),
-                    ])
-              ),
-              []
-            );
+        case '??': {
+          return isBabelIdentifier(node.left) ||
+            isBabelMemberExpression(node.left)
+            ? asStatementReturnTypeInline(
+                leftExpressionReturn.preStatements,
+                ifElseExpression(
+                  ifExpressionClause(
+                    binaryExpression(leftExpression, '~=', nilLiteral()),
+                    leftExpression
+                  ),
+                  elseExpressionClause(rightExpression)
+                ),
+                leftExpressionReturn.postStatements
+              )
+            : asStatementReturnTypeInline(
+                [
+                  ...leftExpressionReturn.preStatements,
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('ref'))],
+                    [variableDeclaratorValue(leftExpression)]
+                  ),
+                ],
+                ifElseExpression(
+                  ifExpressionClause(
+                    binaryExpression(identifier('ref'), '~=', nilLiteral()),
+                    identifier('ref')
+                  ),
+                  elseExpressionClause(rightExpression)
+                ),
+                leftExpressionReturn.postStatements
+              );
+        }
+        default:
+          return defaultExpressionAsStatementHandler(source, config, node);
       }
-      case '??': {
-        const leftExpression = handleExpression(source, config, node.left);
-        const rightExpression = handleExpression(source, config, node.right);
-        return ifElseExpression(
-          ifExpressionClause(
-            binaryExpression(leftExpression, '~=', nilLiteral()),
-            leftExpression
-          ),
-          elseExpressionClause(rightExpression)
-        );
-      }
-      default:
-        return defaultStatementHandler(source, config, node);
     }
-  });
+  );

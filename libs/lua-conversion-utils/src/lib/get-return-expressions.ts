@@ -6,7 +6,10 @@ import {
 } from '@js-to-lua/lua-types';
 import { last } from 'ramda';
 
-export const getReturnExpressions = (node: LuaNode): LuaExpression[] => {
+export function getReturnExpressions<N extends LuaNode>(
+  node: N
+): N['type'] extends LuaExpression['type'] ? [N] : LuaExpression[];
+export function getReturnExpressions(node: LuaNode): LuaExpression[] {
   if (isExpression(node)) {
     return [node];
   }
@@ -23,4 +26,4 @@ export const getReturnExpressions = (node: LuaNode): LuaExpression[] => {
       return node.identifiers;
   }
   return [unhandledExpression()];
-};
+}

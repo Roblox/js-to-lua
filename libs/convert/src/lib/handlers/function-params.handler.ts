@@ -29,7 +29,10 @@ import {
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
 import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
-import { defaultStatementHandler } from '@js-to-lua/lua-conversion-utils';
+import {
+  defaultStatementHandler,
+  generateUniqueIdentifier,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatement,
   identifier,
@@ -56,7 +59,6 @@ import { anyPass, applyTo } from 'ramda';
 import { AssignedToConfig } from '../config/assigned-to.config';
 import { NoShadowIdentifiersConfig } from '../config/no-shadow-identifiers.config';
 import { IdentifierHandlerFunction } from './expression/identifier-handler-types';
-import { generateUniqueIdentifier } from './generate-unique-identifier';
 import { createRestElementHandler } from './rest-element.handler';
 import { inferType } from './type/infer-type';
 

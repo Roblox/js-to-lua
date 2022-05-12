@@ -1,4 +1,4 @@
-import { LuaNode, LuaNodeGroup } from '@js-to-lua/lua-types';
+import { LuaNodeGroup } from '@js-to-lua/lua-types';
 import { PrintNode } from '../print-node';
 import {
   _printComments,
@@ -8,7 +8,7 @@ import { PrinterFunction } from '../printer-function';
 
 export const createPrintNodeGroup = (
   printNode: PrintNode
-): PrinterFunction<LuaNodeGroup<LuaNode>> => {
+): PrinterFunction<LuaNodeGroup> => {
   return (node) => {
     const printedBody = node.body
       .map((node) => printNode(node))

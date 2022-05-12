@@ -1,15 +1,21 @@
 import {
   AssignmentPattern,
   Declaration,
+  Expression,
   FlowType,
   FunctionExpression,
   LVal,
   Noop,
+  Statement,
   TSType,
   TSTypeAnnotation,
   TypeAnnotation,
 } from '@babel/types';
-import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import {
+  AsStatementHandlerFunction,
+  createHandler,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
 import {
   AssignmentStatement,
   functionExpression,
@@ -17,6 +23,7 @@ import {
   LuaFunctionExpression,
   LuaLVal,
   LuaNodeGroup,
+  LuaStatement,
   LuaType,
   LuaTypeAnnotation,
   nodeGroup,
@@ -27,10 +34,6 @@ import {
   removeAssignedToConfig,
 } from '../../config/assigned-to.config';
 import { removeNoShadowIdentifierConfig } from '../../config/no-shadow-identifiers.config';
-import {
-  handleExpressionAsStatement,
-  handleStatement,
-} from '../expression-statement.handler';
 import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
@@ -53,7 +56,12 @@ export const createFunctionExpressionHandler = (
     LuaTypeAnnotation,
     TypeAnnotation | TSTypeAnnotation | Noop
   >,
-  handleType: HandlerFunction<LuaType, FlowType | TSType>
+  handleType: HandlerFunction<LuaType, FlowType | TSType>,
+  handleStatement: HandlerFunction<LuaStatement, Statement>,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
+    Expression
+  >
 ) => {
   return createHandler<
     LuaFunctionExpression,
@@ -72,8 +80,8 @@ export const createFunctionExpressionHandler = (
     )(config);
 
     const handleFunctionBody = createFunctionBodyHandler(
-      handleStatement.handler,
-      handleExpressionAsStatement.handler
+      handleStatement,
+      handleExpressionAsStatement
     )(source, bodyConfig);
     const handleParamsBody = createFunctionParamsBodyHandler(
       handleDeclaration,

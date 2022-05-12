@@ -1,5 +1,3 @@
 local a = 0
-local v = (function()
-	a += 1
-	return a
-end)()
+a += 1
+local v = a

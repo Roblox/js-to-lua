@@ -10,10 +10,13 @@ import {
   Statement,
   TSDeclareMethod,
 } from '@babel/types';
-import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
-  createExpressionStatement,
-  getReturnExpressions,
+  AsStatementHandlerFunction,
+  EmptyConfig,
+  HandlerFunction,
+} from '@js-to-lua/handler-utils';
+import {
+  asStatementReturnTypeToReturnStatement,
   promiseMethod,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -21,9 +24,7 @@ import {
   expressionStatement,
   functionExpression,
   identifier,
-  isExpression,
   isNodeGroup,
-  LuaExpression,
   LuaStatement,
   memberExpression,
   nilLiteral,
@@ -44,8 +45,8 @@ type FunctionTypes =
 
 export const createFunctionBodyHandler = (
   handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleExpressionAsStatement: HandlerFunction<
-    LuaExpression | LuaStatement,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
     Expression
   >
 ) =>
@@ -112,41 +113,8 @@ export const createFunctionBodyHandler = (
 
         return node.body.type === 'BlockStatement'
           ? handleBlockStatementBody(source, config, node.body)
-          : applyTo(
-              {
-                expression: handleExpressionAsStatement(
-                  source,
-                  config,
-                  node.body
-                ),
-                babelExpression: node.body,
-              },
-              ({ expression, babelExpression }) => {
-                const returnExpressions = getReturnExpressions(expression);
-                return returnExpressions.every((e) => e === expression)
-                  ? [returnStatement(...returnExpressions)]
-                  : [
-                      ...applyTo(
-                        isNodeGroup(expression)
-                          ? expression.body.filter(
-                              (e) =>
-                                !returnExpressions.includes(e as LuaExpression)
-                            )
-                          : [expression],
-                        (expressions: Array<LuaExpression | LuaStatement>) =>
-                          expressions.map((expression) =>
-                            isExpression(expression)
-                              ? createExpressionStatement(
-                                  source,
-                                  babelExpression,
-                                  expression
-                                )
-                              : expression
-                          )
-                      ),
-                      returnStatement(...returnExpressions),
-                    ];
-              }
+          : asStatementReturnTypeToReturnStatement(
+              handleExpressionAsStatement(source, config, node.body)
             );
       }
     }

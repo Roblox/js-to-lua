@@ -209,8 +209,8 @@ describe('Unary Expression Handler', () => {
 
   it(`should handle delete operator`, () => {
     const given = getProgramNode(`
-    delete foo.bar
-  `);
+      delete foo.bar
+    `);
 
     const expected: LuaProgram = program([
       assignmentStatement(

@@ -5,7 +5,7 @@ import {
   typeParameterDeclaration,
   typeReference,
 } from '@js-to-lua/lua-types';
-import { handleExpression } from '../expression-statement.handler';
+import { expressionHandler } from '../expression-statement.handler';
 import { createIdentifierHandler } from '../expression/identifier.handler';
 import { createTsTypeAnnotationHandler } from './ts-type-annotation.handler';
 import { createTsTypeParameterDeclarationHandler } from './ts-type-parameter-declaration.handler';
@@ -16,7 +16,7 @@ describe('TSTypeParameterDeclaration handler', () => {
   );
   const { handleTsTypes, handleTsTypeAnnotation } =
     createTsTypeAnnotationHandler(
-      handleExpression.handler,
+      expressionHandler.handler,
       handleIdentifier.handler
     );
   const handleTsTypeParameterDeclaration =

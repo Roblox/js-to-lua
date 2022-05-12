@@ -24,15 +24,15 @@ import {
   tableNameKeyField,
 } from '@js-to-lua/lua-types';
 import {
-  handleExpression,
-  handleObjectField,
+  expressionHandler,
+  objectFieldHandler,
 } from '../expression-statement.handler';
 import { createObjectExpressionHandler } from './object-expression.handler';
 
 const source = '';
 const handleObjectExpression = createObjectExpressionHandler(
-  handleExpression.handler,
-  handleObjectField.handler
+  expressionHandler.handler,
+  objectFieldHandler.handler
 );
 
 describe('Object Expression Handler', () => {

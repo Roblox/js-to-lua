@@ -6,6 +6,7 @@ import {
   variableDeclarator as babelVariableDeclarator,
 } from '@babel/types';
 import {
+  forwardAsStatementHandlerRef,
   forwardHandlerFunctionRef,
   forwardHandlerRef,
   testUtils,
@@ -23,13 +24,13 @@ import {
 } from '@js-to-lua/lua-types';
 import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import {
-  handleExpression,
-  handleExpressionAsStatement,
-  handleObjectField,
+  expressionHandler,
+  expressionAsStatementHandler,
+  objectFieldHandler,
   handleObjectKeyExpression,
   handleObjectPropertyIdentifier,
   handleObjectPropertyValue,
-  handleStatement,
+  statementHandler,
 } from '../../expression-statement.handler';
 import {
   createIdentifierHandler,
@@ -40,7 +41,7 @@ import { createTypeAnnotationHandler } from '../../type/type-annotation.handler'
 import { createExportHandler } from './index';
 
 const { handleTypeAnnotation } = createTypeAnnotationHandler(
-  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => expressionHandler),
   forwardHandlerRef(() => handleIdentifier)
 );
 
@@ -54,16 +55,16 @@ const handleIdentifierStrict = createIdentifierStrictHandler(
 
 const handleLVal = createLValHandler(
   forwardHandlerRef(() => handleIdentifier),
-  forwardHandlerRef(() => handleExpression)
+  forwardHandlerRef(() => expressionHandler)
 );
 
 const handleDeclaration = createDeclarationHandler(
-  forwardHandlerRef(() => handleExpression),
-  forwardHandlerRef(() => handleExpressionAsStatement),
+  forwardHandlerRef(() => expressionHandler),
+  forwardAsStatementHandlerRef(() => expressionAsStatementHandler),
   forwardHandlerRef(() => handleIdentifier),
   forwardHandlerRef(() => handleIdentifierStrict),
-  forwardHandlerRef(() => handleStatement),
-  forwardHandlerRef(() => handleObjectField),
+  forwardHandlerRef(() => statementHandler),
+  forwardHandlerRef(() => objectFieldHandler),
   handleObjectPropertyIdentifier,
   handleObjectKeyExpression,
   handleObjectPropertyValue,
@@ -72,7 +73,7 @@ const handleDeclaration = createDeclarationHandler(
 
 const { handler } = createExportHandler(
   forwardHandlerRef(() => handleDeclaration),
-  forwardHandlerRef(() => handleExpression),
+  forwardHandlerRef(() => expressionHandler),
   testUtils.mockNodeWithValueHandler
 );
 

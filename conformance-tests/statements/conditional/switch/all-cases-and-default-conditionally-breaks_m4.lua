@@ -5,9 +5,9 @@ local a, b, breakFast = 0
 repeat --[[ ROBLOX comment: switch statement conversion ]]
 	local entered_, break_ = false, false
 	local condition_ = (function()
-		local result = a
+		local ref = a
 		a += 1
-		return result
+		return ref
 	end)()
 	for _, v in ipairs({ 0, 1 }) do
 		if condition_ == v then

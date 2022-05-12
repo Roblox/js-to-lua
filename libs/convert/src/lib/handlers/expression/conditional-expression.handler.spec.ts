@@ -30,7 +30,7 @@ import {
   LuaExpression,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { handleExpression } from '../expression-statement.handler';
+import { expressionHandler } from '../expression-statement.handler';
 import { createConditionalExpressionHandler } from './conditional-expression.handler';
 
 const source = '';
@@ -111,7 +111,7 @@ describe('Conditional Expression Handler', () => {
         };
 
         handleConditionalExpression = createConditionalExpressionHandler(
-          forwardHandlerRef(() => handleExpression)
+          forwardHandlerRef(() => expressionHandler)
         ).handler;
 
         const given = babelConditionalExpression(

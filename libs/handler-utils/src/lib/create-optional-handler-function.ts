@@ -6,6 +6,7 @@ import {
   ConfigBase,
   EmptyConfig,
   OptionalHandlerFunction,
+  OptionalHandlerFunctionSymbol,
 } from './types';
 
 export const createOptionalHandlerFunction = <
@@ -15,6 +16,11 @@ export const createOptionalHandlerFunction = <
 >(
   func: NonCurriedOptionalHandlerFunction<R, T, Config>
 ): OptionalHandlerFunction<R, T, Config> =>
-  curry(function (source: string, config: Config, node: T): R | undefined {
-    return func(source, config, node) ?? undefined;
-  });
+  Object.assign(
+    curry(function (source: string, config: Config, node: T): R | undefined {
+      return func(source, config, node) ?? undefined;
+    }),
+    {
+      [OptionalHandlerFunctionSymbol]: true as const,
+    }
+  );

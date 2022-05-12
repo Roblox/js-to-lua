@@ -23,7 +23,7 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { pipe } from 'ramda';
-import { handleStatement } from '../expression-statement.handler';
+import { statementHandler } from '../expression-statement.handler';
 
 const polyfillIdentifier = identifier('LuauPolyfill');
 const packagesIdentifier = identifier('Packages');
@@ -35,7 +35,7 @@ export const handleProgram: BaseNodeHandler<LuaProgram, Program> =
 
     return postProcess({
       type: 'Program',
-      body: body.map(handleStatement.handler(source, config)),
+      body: body.map(statementHandler.handler(source, config)),
     });
   });
 

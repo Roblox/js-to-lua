@@ -1,13 +1,15 @@
 import { Expression, ReturnStatement } from '@babel/types';
 import {
-  BaseNodeHandler,
+  AsStatementHandlerFunction,
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
-import { getReturnExpressions } from '@js-to-lua/lua-conversion-utils';
+import {
+  asStatementReturnTypeToReturnStatement,
+  unwrapStatement,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   LuaExpression,
-  LuaReturnStatement,
   LuaStatement,
   nodeGroup,
   returnStatement,
@@ -15,27 +17,26 @@ import {
 
 export const createReturnStatementHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleExpressionAsStatement: HandlerFunction<
-    LuaExpression | LuaStatement,
+  handleExpressionAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
     Expression
   >
-): BaseNodeHandler<LuaReturnStatement, ReturnStatement> =>
-  createHandler('ReturnStatement', (source, config, node) => {
-    if (!node.argument) {
-      return returnStatement();
-    }
+) =>
+  createHandler<LuaStatement, ReturnStatement>(
+    'ReturnStatement',
+    (source, config, node) => {
+      if (!node.argument) {
+        return returnStatement();
+      }
 
-    const argumentExpression = handleExpressionAsStatement(
-      source,
-      config,
-      node.argument
-    );
-    const returnExpressions = getReturnExpressions(argumentExpression);
-    if (returnExpressions[0] !== argumentExpression) {
-      return nodeGroup([
-        argumentExpression,
-        returnStatement(...returnExpressions),
-      ]);
+      const argumentExpression = handleExpressionAsStatement(
+        source,
+        config,
+        node.argument
+      );
+
+      return unwrapStatement(
+        nodeGroup(asStatementReturnTypeToReturnStatement(argumentExpression))
+      );
     }
-    return returnStatement(...returnExpressions);
-  });
+  );

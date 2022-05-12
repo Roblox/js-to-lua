@@ -7,7 +7,12 @@ import { LuaNode } from '@js-to-lua/lua-types';
 import { combineHandlers } from './combine-handlers';
 import { createHandlerFunction } from './create-handler-function';
 import { mockNodeHandler } from './test-utils';
-import { BabelNode, BaseNodeHandler, EmptyConfig } from './types';
+import {
+  BabelNode,
+  BaseNodeHandler,
+  BaseNodeHandlerSymbol,
+  EmptyConfig,
+} from './types';
 
 jest.mock('./test-utils');
 
@@ -36,6 +41,7 @@ describe('Combine Handlers', () => {
 
     const handlers: BaseNodeHandler<LuaNode>[] = [
       {
+        [BaseNodeHandlerSymbol]: true,
         type: 'StringLiteral',
         handler: createHandlerFunction(handler),
       },
@@ -71,10 +77,12 @@ describe('Combine Handlers', () => {
 
     const handlers: BaseNodeHandler<LuaNode>[] = [
       {
+        [BaseNodeHandlerSymbol]: true,
         type: 'StringLiteral',
         handler: createHandlerFunction(handlerString),
       },
       {
+        [BaseNodeHandlerSymbol]: true,
         type: 'NumericLiteral',
         handler: createHandlerFunction(handlerNumeric),
       },
@@ -112,10 +120,12 @@ describe('Combine Handlers', () => {
 
     const handlers: BaseNodeHandler<LuaNode>[] = [
       {
+        [BaseNodeHandlerSymbol]: true,
         type: 'StringLiteral',
         handler: createHandlerFunction(handlerString),
       },
       {
+        [BaseNodeHandlerSymbol]: true,
         type: 'NumericLiteral',
         handler: createHandlerFunction(handlerNumeric),
       },

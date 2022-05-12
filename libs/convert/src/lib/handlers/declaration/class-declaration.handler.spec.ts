@@ -57,7 +57,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleStatement } from '../expression-statement.handler';
+import { statementHandler } from '../expression-statement.handler';
 
 const source = '';
 
@@ -113,7 +113,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert class constructor to <ClassId>.new function', () => {
@@ -162,7 +162,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert class methods to <ClassId>:<methodName> function', () => {
@@ -236,7 +236,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert class methods to <ClassId>:<methodName> function with an explicit void return type', () => {
@@ -313,7 +313,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert class methods to <ClassId>:<methodName> function with an explicit string return type', () => {
@@ -392,7 +392,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert static class methods to <ClassId>.<methodName> function', () => {
@@ -450,7 +450,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert non-static properties', () => {
@@ -500,7 +500,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert non-static properties with explicit type', () => {
@@ -556,7 +556,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert non-static properties with type and initial value', () => {
@@ -625,7 +625,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert non-static properties with initial value', () => {
@@ -691,7 +691,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert static properties to <ClassId>.<property>', () => {
@@ -753,7 +753,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert class abstract methods to <ClassId>:<methodName> function', () => {
@@ -831,7 +831,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert constructor params with public modifier', () => {
@@ -904,7 +904,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert constructor params with public modifier with type annotation', () => {
@@ -980,7 +980,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert constructor params with public modifier with default value', () => {
@@ -1079,7 +1079,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert constructor params with public modifier with default value and explicit type annotation', () => {
@@ -1185,7 +1185,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -1255,7 +1255,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert class constructor to <ClassId>.new function', () => {
@@ -1307,7 +1307,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert class methods to <ClassId>:<methodName> function', () => {
@@ -1384,7 +1384,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
     it('should convert static class methods to <ClassId>.<methodName> function', () => {
       const given = classDeclaration(
@@ -1444,7 +1444,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
     it('should convert static properties to <ClassId>.<property>', () => {
@@ -1509,7 +1509,7 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(handleStatement.handler(source, {}, given)).toEqual(expected);
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
   });
 });

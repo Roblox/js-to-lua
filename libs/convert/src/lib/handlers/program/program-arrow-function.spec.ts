@@ -10,7 +10,6 @@ import {
   ifClause,
   ifStatement,
   indexExpression,
-  LuaExpression,
   LuaProgram,
   LuaStatement,
   memberExpression,
@@ -651,9 +650,7 @@ describe('Program handler', () => {
           const foo = async () => async () => 31337
         `);
 
-        const promiseResolveAndThenCallExpression = (
-          callBody: LuaStatement | LuaExpression
-        ) =>
+        const promiseResolveAndThenCallExpression = (callBody: LuaStatement) =>
           callExpression(
             memberExpression(
               callExpression(

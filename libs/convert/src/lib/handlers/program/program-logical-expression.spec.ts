@@ -5,24 +5,17 @@ import {
   binaryExpression,
   booleanLiteral,
   callExpression,
-  elseClause,
   elseExpressionClause,
-  expressionStatement,
-  functionExpression,
   identifier,
-  ifClause,
   ifElseExpression,
   ifExpressionClause,
-  ifStatement,
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
-  LuaProgram,
   memberExpression,
   nilLiteral,
   nodeGroup,
   numericLiteral,
   program,
-  returnStatement,
   stringLiteral,
   tableConstructor,
   typeAnnotation,
@@ -42,7 +35,7 @@ describe('Program handler', () => {
       it('with 2 identifiers', () => {
         const given = getProgramNode('const fizz = foo || bar;');
 
-        const expected: LuaProgram = program([
+        const expected = program([
           withTrailingConversionComment(
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -106,6 +99,81 @@ describe('Program handler', () => {
         expect(luaProgram).toEqual(expected);
       });
 
+      it('with 2 call expressions', () => {
+        const given = getProgramNode('const fizz = foo() || bar();');
+
+        const expected = program([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('LuauPolyfill')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Boolean'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('LuauPolyfill'),
+                  '.',
+                  identifier('Boolean')
+                )
+              ),
+            ]
+          ),
+          nodeGroup([
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('ref'))],
+              [variableDeclaratorValue(callExpression(identifier('foo'), []))]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('fizz'))],
+              [
+                variableDeclaratorValue(
+                  logicalExpression(
+                    LuaLogicalExpressionOperatorEnum.OR,
+                    logicalExpression(
+                      LuaLogicalExpressionOperatorEnum.AND,
+                      callExpression(
+                        memberExpression(
+                          identifier('Boolean'),
+                          '.',
+                          identifier('toJSBoolean')
+                        ),
+                        [identifier('ref')]
+                      ),
+                      identifier('ref')
+                    ),
+                    callExpression(identifier('bar'), [])
+                  )
+                ),
+              ]
+            ),
+          ]),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+
+        expect(JSON.stringify(luaProgram, undefined, 2)).toEqual(
+          JSON.stringify(expected, undefined, 2)
+        );
+      });
+
       it('with multiple boolean inferable expressions', () => {
         const given = getProgramNode(`
           let fizz: boolean =
@@ -157,9 +225,9 @@ describe('Program handler', () => {
 
     describe(`should handle && operator`, () => {
       it('when right side is unknown', () => {
-        const given = getProgramNode('foo && bar;');
+        const given = getProgramNode('foo = foo && bar;');
 
-        const expected: LuaProgram = program([
+        const expected = program([
           withTrailingConversionComment(
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -193,36 +261,104 @@ describe('Program handler', () => {
               ),
             ]
           ),
-          expressionStatement(
-            callExpression(
-              functionExpression(
-                [],
-                nodeGroup([
-                  ifStatement(
-                    ifClause(
-                      callExpression(
-                        memberExpression(
-                          identifier('Boolean'),
-                          '.',
-                          identifier('toJSBoolean')
-                        ),
-                        [identifier('foo')]
-                      ),
-                      nodeGroup([returnStatement(identifier('bar'))])
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('foo')],
+            [
+              ifElseExpression(
+                ifExpressionClause(
+                  callExpression(
+                    memberExpression(
+                      identifier('Boolean'),
+                      '.',
+                      identifier('toJSBoolean')
                     ),
-                    [],
-                    elseClause(nodeGroup([returnStatement(identifier('foo'))]))
+                    [identifier('foo')]
                   ),
-                ])
+                  identifier('bar')
+                ),
+                elseExpressionClause(identifier('foo'))
               ),
-              []
-            )
+            ]
           ),
         ]);
 
         const luaProgram = handleProgram.handler(source, {}, given);
 
         expect(luaProgram).toEqual(expected);
+      });
+
+      it('with 2 call expressions', () => {
+        const given = getProgramNode('const fizz = foo() && bar();');
+
+        const expected = program([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('LuauPolyfill')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Boolean'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('LuauPolyfill'),
+                  '.',
+                  identifier('Boolean')
+                )
+              ),
+            ]
+          ),
+          nodeGroup([
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('ref'))],
+              [variableDeclaratorValue(callExpression(identifier('foo'), []))]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('fizz'))],
+              [
+                variableDeclaratorValue(
+                  ifElseExpression(
+                    ifExpressionClause(
+                      callExpression(
+                        memberExpression(
+                          identifier('Boolean'),
+                          '.',
+                          identifier('toJSBoolean')
+                        ),
+                        [identifier('ref')]
+                      ),
+                      callExpression(identifier('bar'), [])
+                    ),
+                    elseExpressionClause(identifier('ref'))
+                  )
+                ),
+              ]
+            ),
+          ]),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+
+        expect(JSON.stringify(luaProgram, undefined, 2)).toEqual(
+          JSON.stringify(expected, undefined, 2)
+        );
       });
 
       const falsyValues = [
@@ -248,7 +384,7 @@ describe('Program handler', () => {
         ({ code, leftExpected, rightExpected }) => {
           const given = getProgramNode(code);
 
-          const expected: LuaProgram = program([
+          const expected = program([
             withTrailingConversionComment(
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -286,28 +422,19 @@ describe('Program handler', () => {
               AssignmentStatementOperatorEnum.EQ,
               [identifier('bar')],
               [
-                callExpression(
-                  functionExpression(
-                    [],
-                    nodeGroup([
-                      ifStatement(
-                        ifClause(
-                          callExpression(
-                            memberExpression(
-                              identifier('Boolean'),
-                              '.',
-                              identifier('toJSBoolean')
-                            ),
-                            [leftExpected]
-                          ),
-                          nodeGroup([returnStatement(rightExpected)])
-                        ),
-                        [],
-                        elseClause(nodeGroup([returnStatement(leftExpected)]))
+                ifElseExpression(
+                  ifExpressionClause(
+                    callExpression(
+                      memberExpression(
+                        identifier('Boolean'),
+                        '.',
+                        identifier('toJSBoolean')
                       ),
-                    ])
+                      [leftExpected]
+                    ),
+                    rightExpected
                   ),
-                  []
+                  elseExpressionClause(leftExpected)
                 ),
               ]
             ),
@@ -371,7 +498,7 @@ describe('Program handler', () => {
         ({ code, leftExpected, rightExpected }) => {
           const given = getProgramNode(code);
 
-          const expected: LuaProgram = program([
+          const expected = program([
             withTrailingConversionComment(
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -485,6 +612,66 @@ describe('Program handler', () => {
     });
 
     describe(`should handle ?? operator`, () => {
+      it('with 2 identifiers', () => {
+        const given = getProgramNode('const fizz = foo ?? bar;');
+
+        const expected = program([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [
+              variableDeclaratorValue(
+                ifElseExpression(
+                  ifExpressionClause(
+                    binaryExpression(identifier('foo'), '~=', nilLiteral()),
+                    identifier('foo')
+                  ),
+                  elseExpressionClause(identifier('bar'))
+                )
+              ),
+            ]
+          ),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+
+        expect(JSON.stringify(luaProgram, undefined, 2)).toEqual(
+          JSON.stringify(expected, undefined, 2)
+        );
+      });
+
+      it('with 2 call expressions', () => {
+        const given = getProgramNode('const fizz = foo() ?? bar();');
+
+        const expected = program([
+          nodeGroup([
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('ref'))],
+              [variableDeclaratorValue(callExpression(identifier('foo'), []))]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('fizz'))],
+              [
+                variableDeclaratorValue(
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(identifier('ref'), '~=', nilLiteral()),
+                      identifier('ref')
+                    ),
+                    elseExpressionClause(callExpression(identifier('bar'), []))
+                  )
+                ),
+              ]
+            ),
+          ]),
+        ]);
+
+        const luaProgram = handleProgram.handler(source, {}, given);
+
+        expect(JSON.stringify(luaProgram, undefined, 2)).toEqual(
+          JSON.stringify(expected, undefined, 2)
+        );
+      });
+
       const falsyValues = [
         {
           code: 'bar = foo ?? false',
@@ -554,7 +741,7 @@ describe('Program handler', () => {
         ({ code, leftExpected, rightExpected }) => {
           const given = getProgramNode(code);
 
-          const expected: LuaProgram = program([
+          const expected = program([
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('bar')],
