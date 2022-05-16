@@ -536,10 +536,8 @@ describe('Program handler', () => {
               AssignmentStatementOperatorEnum.EQ,
               [identifier('bar')],
               [
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.OR,
-                  logicalExpression(
-                    LuaLogicalExpressionOperatorEnum.AND,
+                ifElseExpression(
+                  ifExpressionClause(
                     callExpression(
                       memberExpression(
                         identifier('Boolean'),
@@ -550,7 +548,7 @@ describe('Program handler', () => {
                     ),
                     rightExpected
                   ),
-                  leftExpected
+                  elseExpressionClause(leftExpected)
                 ),
               ]
             ),

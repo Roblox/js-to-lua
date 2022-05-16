@@ -193,16 +193,14 @@ describe('Logical Expression Handler', () => {
             mockNodeAsStatementWithValueHandler
           );
 
-          const expected = logicalExpression(
-            LuaLogicalExpressionOperatorEnum.OR,
-            logicalExpression(
-              LuaLogicalExpressionOperatorEnum.AND,
+          const expected = ifElseExpression(
+            ifExpressionClause(
               callExpression(booleanMethod('toJSBoolean'), [
                 mockNodeWithValue(leftGiven),
               ]),
               mockNodeWithValue(rightGiven)
             ),
-            mockNodeWithValue(leftGiven)
+            elseExpressionClause(mockNodeWithValue(leftGiven))
           );
 
           expect(handleLogicalExpression.handler(source, {}, given)).toEqual(
@@ -519,16 +517,14 @@ describe('Logical Expression Handler', () => {
 
           const expected = asStatementReturnTypeInline(
             [],
-            logicalExpression(
-              LuaLogicalExpressionOperatorEnum.OR,
-              logicalExpression(
-                LuaLogicalExpressionOperatorEnum.AND,
+            ifElseExpression(
+              ifExpressionClause(
                 callExpression(booleanMethod('toJSBoolean'), [
                   mockNodeWithValue(leftGiven),
                 ]),
                 mockNodeWithValue(rightGiven)
               ),
-              mockNodeWithValue(leftGiven)
+              elseExpressionClause(mockNodeWithValue(leftGiven))
             ),
             []
           );
