@@ -31,6 +31,7 @@ import { createExportHandler } from '../statement/export';
 import { createImportHandler } from '../statement/import';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createClassDeclarationHandler } from './class-declaration.handler';
+import { createFlowInterfaceHandler } from './flow-interface-declaration.handler';
 import { createFunctionDeclarationHandler } from './function-declaration.handler';
 import { createTsEnumHandler } from './ts-enum-declaration.handler';
 import { createTsInterfaceHandler } from './ts-interface-declaration.handler';
@@ -97,6 +98,7 @@ export const createDeclarationHandler = (
       handleTypeAnnotation,
       handleType.handler
     ),
+    createFlowInterfaceHandler(handleIdentifierStrict, handleType.handler),
     createTsEnumHandler(
       handleIdentifier,
       objectPropertyIdentifierHandlerFunction,
