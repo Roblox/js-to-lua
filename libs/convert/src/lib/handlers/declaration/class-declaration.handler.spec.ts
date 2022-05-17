@@ -2,9 +2,11 @@ import {
   assignmentPattern,
   blockStatement as babelBlockStatement,
   classBody,
+  ClassDeclaration,
   classDeclaration,
   classMethod,
   classProperty,
+  genericTypeAnnotation,
   identifier as babelIdentifier,
   returnStatement as babelReturnStatement,
   stringLiteral as babelStringLiteral,
@@ -14,8 +16,15 @@ import {
   tsStringKeyword,
   tSTypeAnnotation,
   tsTypeAnnotation,
+  tsTypeParameter,
+  tSTypeParameterDeclaration,
+  tsTypeParameterInstantiation,
+  tsTypeReference,
   tSUnionType,
   tsVoidKeyword,
+  typeParameter as babelTypeParameter,
+  typeParameterDeclaration as babelTypeParameterDeclaration,
+  typeParameterInstantiation as babelTypeParameterInstantiation,
 } from '@babel/types';
 import {
   selfIdentifier,
@@ -45,9 +54,11 @@ import {
   typeAny,
   typeCastExpression,
   typeFunction,
+  typeIntersection,
   typeLiteral,
   typeNumber,
   typeOptional,
+  typeParameterDeclaration,
   typePropertySignature,
   typeReference,
   typeString,
@@ -74,6 +85,7 @@ describe('Class Declaration', () => {
         [identifier('BaseClass')]
       ),
     ];
+
     it('should convert class', () => {
       const given = classDeclaration(
         babelIdentifier('BaseClass'),
@@ -109,6 +121,159 @@ describe('Class Declaration', () => {
             ]),
             typeAnnotation(typeReference(identifier('BaseClass'))),
             false
+          ),
+        ])
+      );
+
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert generic class with empty generic type params', () => {
+      const given = {
+        ...classDeclaration(babelIdentifier('BaseClass'), null, classBody([])),
+        typeParameters: tSTypeParameterDeclaration([]),
+      };
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'))
+                )
+              ),
+            ]),
+            typeAnnotation(typeReference(identifier('BaseClass'))),
+            false
+          ),
+        ])
+      );
+
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert generic class with generic type params', () => {
+      const given = {
+        ...classDeclaration(babelIdentifier('BaseClass'), null, classBody([])),
+        typeParameters: tSTypeParameterDeclaration([
+          tsTypeParameter(null, null, 'T'),
+        ]),
+      };
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([]),
+            typeParameterDeclaration([typeReference(identifier('T'))])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'), [
+                    typeReference(identifier('T')),
+                  ])
+                )
+              ),
+            ]),
+            typeAnnotation(
+              typeReference(identifier('BaseClass'), [
+                typeReference(identifier('T')),
+              ])
+            ),
+            false,
+            typeParameterDeclaration([typeReference(identifier('T'))])
+          ),
+        ])
+      );
+
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert generic class with generic type params with default values', () => {
+      const given = {
+        ...classDeclaration(babelIdentifier('BaseClass'), null, classBody([])),
+        typeParameters: tSTypeParameterDeclaration([
+          tsTypeParameter(null, tsStringKeyword(), 'T'),
+        ]),
+      };
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('BaseClass'),
+            typeLiteral([]),
+            typeParameterDeclaration([
+              typeReference(identifier('T'), undefined, typeString()),
+            ])
+          ),
+          ...baseClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`BaseClass.new`),
+            [],
+            nodeGroup([
+              variableDeclaration(
+                [variableDeclaratorIdentifier(selfIdentifier())],
+                [
+                  variableDeclaratorValue(
+                    callExpression(identifier('setmetatable'), [
+                      tableConstructor(),
+                      identifier('BaseClass'),
+                    ])
+                  ),
+                ]
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('BaseClass'), [
+                    typeReference(identifier('T')),
+                  ])
+                )
+              ),
+            ]),
+            typeAnnotation(
+              typeReference(identifier('BaseClass'), [
+                typeReference(identifier('T')),
+              ])
+            ),
+            false,
+            typeParameterDeclaration([
+              typeReference(identifier('T'), undefined, typeString()),
+            ])
           ),
         ])
       );
@@ -1213,6 +1378,7 @@ describe('Class Declaration', () => {
         [identifier('SubClass')]
       ),
     ];
+
     it('should convert class', () => {
       const given = classDeclaration(
         babelIdentifier('SubClass'),
@@ -1222,7 +1388,13 @@ describe('Class Declaration', () => {
 
       const expected = withClassDeclarationExtra(
         nodeGroup([
-          typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeIntersection([
+              typeReference(identifier('BaseClass')),
+              typeLiteral([]),
+            ])
+          ),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -1258,6 +1430,296 @@ describe('Class Declaration', () => {
       expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
 
+    it('should convert generic class with generic type params', () => {
+      const given = {
+        ...classDeclaration(
+          babelIdentifier('SubClass'),
+          babelIdentifier('BaseClass'),
+          classBody([])
+        ),
+        typeParameters: tSTypeParameterDeclaration([
+          tsTypeParameter(null, null, 'T'),
+        ]),
+      };
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeIntersection([
+              typeReference(identifier('BaseClass')),
+              typeLiteral([]),
+            ]),
+            typeParameterDeclaration([typeReference(identifier('T'))])
+          ),
+          ...subClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`SubClass.new`),
+            [],
+            nodeGroup([
+              withTrailingConversionComment(
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('SubClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                `ROBLOX TODO: super constructor may be used`
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'), [
+                    typeReference(identifier('T')),
+                  ])
+                )
+              ),
+            ]),
+            typeAnnotation(
+              typeReference(identifier('SubClass'), [
+                typeReference(identifier('T')),
+              ])
+            ),
+            false,
+            typeParameterDeclaration([typeReference(identifier('T'))])
+          ),
+        ])
+      );
+
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert generic class with generic type params with default types', () => {
+      const given = {
+        ...classDeclaration(
+          babelIdentifier('SubClass'),
+          babelIdentifier('BaseClass'),
+          classBody([])
+        ),
+        typeParameters: tSTypeParameterDeclaration([
+          tsTypeParameter(null, tsStringKeyword(), 'T'),
+        ]),
+      };
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeIntersection([
+              typeReference(identifier('BaseClass')),
+              typeLiteral([]),
+            ]),
+            typeParameterDeclaration([
+              typeReference(identifier('T'), undefined, typeString()),
+            ])
+          ),
+          ...subClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`SubClass.new`),
+            [],
+            nodeGroup([
+              withTrailingConversionComment(
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('SubClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                `ROBLOX TODO: super constructor may be used`
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'), [
+                    typeReference(identifier('T')),
+                  ])
+                )
+              ),
+            ]),
+            typeAnnotation(
+              typeReference(identifier('SubClass'), [
+                typeReference(identifier('T')),
+              ])
+            ),
+            false,
+            typeParameterDeclaration([
+              typeReference(identifier('T'), undefined, typeString()),
+            ])
+          ),
+        ])
+      );
+
+      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should convert generic class with generic type params and generic super types - TS', () => {
+      const given: ClassDeclaration = {
+        ...classDeclaration(
+          babelIdentifier('SubClass'),
+          babelIdentifier('BaseClass'),
+          classBody([])
+        ),
+        typeParameters: tSTypeParameterDeclaration([
+          tsTypeParameter(null, null, 'T'),
+          tsTypeParameter(null, null, 'V'),
+        ]),
+        superTypeParameters: tsTypeParameterInstantiation([
+          tsTypeReference(babelIdentifier('V')),
+        ]),
+      };
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeIntersection([
+              typeReference(identifier('BaseClass'), [
+                typeReference(identifier('V')),
+              ]),
+              typeLiteral([]),
+            ]),
+            typeParameterDeclaration([
+              typeReference(identifier('T')),
+              typeReference(identifier('V')),
+            ])
+          ),
+          ...subClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`SubClass.new`),
+            [],
+            nodeGroup([
+              withTrailingConversionComment(
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('SubClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                `ROBLOX TODO: super constructor may be used`
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'), [
+                    typeReference(identifier('T')),
+                    typeReference(identifier('V')),
+                  ])
+                )
+              ),
+            ]),
+            typeAnnotation(
+              typeReference(identifier('SubClass'), [
+                typeReference(identifier('T')),
+                typeReference(identifier('V')),
+              ])
+            ),
+            false,
+            typeParameterDeclaration([
+              typeReference(identifier('T')),
+              typeReference(identifier('V')),
+            ])
+          ),
+        ])
+      );
+
+      const actual = statementHandler.handler(source, {}, given);
+      expect(actual).toEqual(expected);
+    });
+
+    it('should convert generic class with generic type params and generic super types - Flow', () => {
+      const given: ClassDeclaration = {
+        ...classDeclaration(
+          babelIdentifier('SubClass'),
+          babelIdentifier('BaseClass'),
+          classBody([])
+        ),
+        typeParameters: babelTypeParameterDeclaration([
+          { ...babelTypeParameter(), name: 'T' },
+          { ...babelTypeParameter(), name: 'V' },
+        ]),
+        superTypeParameters: babelTypeParameterInstantiation([
+          genericTypeAnnotation(babelIdentifier('V')),
+        ]),
+      };
+
+      const expected = withClassDeclarationExtra(
+        nodeGroup([
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeIntersection([
+              typeReference(identifier('BaseClass'), [
+                typeReference(identifier('V')),
+              ]),
+              typeLiteral([]),
+            ]),
+            typeParameterDeclaration([
+              typeReference(identifier('T')),
+              typeReference(identifier('V')),
+            ])
+          ),
+          ...subClassDefaultExpectedNodes,
+          functionDeclaration(
+            identifier(`SubClass.new`),
+            [],
+            nodeGroup([
+              withTrailingConversionComment(
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('SubClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                `ROBLOX TODO: super constructor may be used`
+              ),
+              returnStatement(
+                typeCastExpression(
+                  typeCastExpression(selfIdentifier(), typeAny()),
+                  typeReference(identifier('SubClass'), [
+                    typeReference(identifier('T')),
+                    typeReference(identifier('V')),
+                  ])
+                )
+              ),
+            ]),
+            typeAnnotation(
+              typeReference(identifier('SubClass'), [
+                typeReference(identifier('T')),
+                typeReference(identifier('V')),
+              ])
+            ),
+            false,
+            typeParameterDeclaration([
+              typeReference(identifier('T')),
+              typeReference(identifier('V')),
+            ])
+          ),
+        ])
+      );
+
+      const actual = statementHandler.handler(source, {}, given);
+      expect(actual).toEqual(expected);
+    });
+
     it('should convert class constructor to <ClassId>.new function', () => {
       const given = classDeclaration(
         babelIdentifier('SubClass'),
@@ -1274,7 +1736,13 @@ describe('Class Declaration', () => {
 
       const expected = withClassDeclarationExtra(
         nodeGroup([
-          typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeIntersection([
+              typeReference(identifier('BaseClass')),
+              typeLiteral([]),
+            ])
+          ),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier('SubClass.new'),
@@ -1328,21 +1796,24 @@ describe('Class Declaration', () => {
         nodeGroup([
           typeAliasDeclaration(
             identifier('SubClass'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('myMethod'),
-                typeAnnotation(
-                  typeFunction(
-                    [
-                      functionTypeParam(
-                        identifier('self'),
-                        typeReference(identifier('SubClass'))
-                      ),
-                    ],
-                    typeAny()
+            typeIntersection([
+              typeReference(identifier('BaseClass')),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('myMethod'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionTypeParam(
+                          identifier('self'),
+                          typeReference(identifier('SubClass'))
+                        ),
+                      ],
+                      typeAny()
+                    )
                   )
-                )
-              ),
+                ),
+              ]),
             ])
           ),
           ...subClassDefaultExpectedNodes,
@@ -1404,7 +1875,13 @@ describe('Class Declaration', () => {
 
       const expected = withClassDeclarationExtra(
         nodeGroup([
-          typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeIntersection([
+              typeReference(identifier('BaseClass')),
+              typeLiteral([]),
+            ])
+          ),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -1465,7 +1942,13 @@ describe('Class Declaration', () => {
 
       const expected = withClassDeclarationExtra(
         nodeGroup([
-          typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('SubClass'),
+            typeIntersection([
+              typeReference(identifier('BaseClass')),
+              typeLiteral([]),
+            ])
+          ),
           ...subClassDefaultExpectedNodes,
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,

@@ -15,6 +15,7 @@ import {
   isClassProperty,
   isIdentifier as isBabelIdentifier,
   isMemberExpression as isBabelMemberExpression,
+  isNoop,
   isPrivateName,
   isTSDeclareMethod,
   isTSParameterProperty,
@@ -38,6 +39,7 @@ import {
   getNodeSource,
   reassignComments,
   removeIdTypeAnnotation,
+  typeReferenceWithoutDefaultType,
   selfIdentifier,
   withClassDeclarationExtra,
   withTrailingConversionComment,
@@ -71,6 +73,7 @@ import {
   typeAny,
   typeCastExpression,
   typeFunction,
+  typeIntersection,
   typeLiteral,
   typePropertySignature,
   typeReference,
@@ -79,7 +82,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { Unpacked } from '@js-to-lua/shared-utils';
+import { isNonEmptyArray, Unpacked } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
 import {
@@ -88,6 +91,7 @@ import {
 } from '../function-params.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 import { inferType } from '../type/infer-type';
+import { createTypeParameterDeclarationHandler } from '../type/type-parameter-declaration.handler';
 
 export const createClassDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -132,14 +136,15 @@ export const createClassDeclarationHandler = (
       handleExpressionAsStatement
     );
 
-    const declaratorValue = node.superClass
+    const superClass = node.superClass
+      ? handleExpression(source, config, node.superClass)
+      : undefined;
+
+    const declaratorValue = superClass
       ? callExpression(identifier('setmetatable'), [
           tableConstructor(),
           tableConstructor([
-            tableNameKeyField(
-              identifier('__index'),
-              handleExpression(source, config, node.superClass)
-            ),
+            tableNameKeyField(identifier('__index'), superClass),
           ]),
         ])
       : tableConstructor();
@@ -175,12 +180,6 @@ export const createClassDeclarationHandler = (
       ),
     ];
 
-    function removeTypeAnnotations<T>(node: T) {
-      const newNode: T = { ...node };
-      delete (newNode as any).typeAnnotation;
-      return newNode;
-    }
-
     const classNodeMaybeIdentifier = handleIdentifier(source, config, node.id);
 
     if (!isIdentifier(classNodeMaybeIdentifier)) {
@@ -207,6 +206,16 @@ export const createClassDeclarationHandler = (
         )
       ),
     ];
+
+    const handleTypeParameterDeclaration =
+      createTypeParameterDeclarationHandler(handleType).handler(source, config);
+
+    const genericTypeParametersDeclaration =
+      node.typeParameters &&
+      !isNoop(node.typeParameters) &&
+      node.typeParameters.params.length
+        ? handleTypeParameterDeclaration(node.typeParameters)
+        : undefined;
 
     const classConversion = [
       variableDeclaration(
@@ -235,12 +244,43 @@ export const createClassDeclarationHandler = (
         }),
     ];
 
+    const classOwnType = typeLiteral(publicTypes);
+    const superTypeParameters = node.superTypeParameters
+      ? applyTo(
+          node.superTypeParameters.params.map((p) =>
+            handleType(source, config, p)
+          ),
+          (arr) => (isNonEmptyArray(arr) ? arr : undefined)
+        )
+      : undefined;
+    const classType = !superClass
+      ? classOwnType
+      : isIdentifier(superClass)
+      ? typeIntersection([
+          typeReference(superClass, superTypeParameters),
+          classOwnType,
+        ])
+      : withTrailingConversionComment(
+          classOwnType,
+          `ROBLOX comment: Unhandled superclass type: ${superClass.type}`
+        );
+
     return withClassDeclarationExtra(
       nodeGroup([
-        typeAliasDeclaration(classNodeIdentifier, typeLiteral(publicTypes)),
+        typeAliasDeclaration(
+          classNodeIdentifier,
+          classType,
+          genericTypeParametersDeclaration
+        ),
         ...classConversion,
       ])
     );
+
+    function removeTypeAnnotations<T>(node: T) {
+      const newNode: T = { ...node };
+      delete (newNode as any).typeAnnotation;
+      return newNode;
+    }
 
     function handleStaticProps(property: ClassProperty | ClassPrivateProperty) {
       const propertyKey = !isPrivateName(property.key)
@@ -319,16 +359,25 @@ export const createClassDeclarationHandler = (
     }
 
     function handleConstructor(constructorMethod?: ClassMethod) {
-      const defaultSelfDeclaration = variableDeclaration(
-        [variableDeclaratorIdentifier(selfIdentifier())],
-        [
-          variableDeclaratorValue(
-            callExpression(identifier('setmetatable'), [
-              tableConstructor(),
-              classNodeIdentifier,
-            ])
-          ),
-        ]
+      const defaultSelfDeclaration = applyTo(
+        variableDeclaration(
+          [variableDeclaratorIdentifier(selfIdentifier())],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('setmetatable'), [
+                tableConstructor(),
+                classNodeIdentifier,
+              ])
+            ),
+          ]
+        ),
+        (declaration) =>
+          superClass
+            ? withTrailingConversionComment(
+                declaration,
+                `ROBLOX TODO: super constructor may be used`
+              )
+            : declaration
       );
 
       const nonStaticPropertiesConstructorInitializers =
@@ -348,18 +397,21 @@ export const createClassDeclarationHandler = (
             [n.value ? handleExpression(source, config, n.value) : nilLiteral()]
           );
         });
+      const genericTypeParameters = genericTypeParametersDeclaration
+        ? applyTo(
+            genericTypeParametersDeclaration.params.map(
+              typeReferenceWithoutDefaultType
+            ),
+            (params) => (isNonEmptyArray(params) ? params : undefined)
+          )
+        : undefined;
       return constructorMethod
         ? [
             functionDeclaration(
               identifier(`${classNodeIdentifier.name}.new`),
               [...functionParamsHandler(source, config, constructorMethod)],
               nodeGroup([
-                node.superClass
-                  ? withTrailingConversionComment(
-                      defaultSelfDeclaration,
-                      `ROBLOX TODO: super constructor may be used`
-                    )
-                  : defaultSelfDeclaration,
+                defaultSelfDeclaration,
                 ...handleParamsBody(source, config, constructorMethod),
                 ...constructorMethod.params
                   .filter((n): n is TSParameterProperty =>
@@ -371,12 +423,15 @@ export const createClassDeclarationHandler = (
                 returnStatement(
                   typeCastExpression(
                     typeCastExpression(selfIdentifier(), typeAny()),
-                    typeReference(classNodeIdentifier)
+                    typeReference(classNodeIdentifier, genericTypeParameters)
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(classNodeIdentifier)),
-              false
+              typeAnnotation(
+                typeReference(classNodeIdentifier, genericTypeParameters)
+              ),
+              false,
+              genericTypeParametersDeclaration
             ),
           ]
         : [
@@ -384,22 +439,20 @@ export const createClassDeclarationHandler = (
               identifier(`${classNodeIdentifier.name}.new`),
               [],
               nodeGroup([
-                node.superClass
-                  ? withTrailingConversionComment(
-                      defaultSelfDeclaration,
-                      `ROBLOX TODO: super constructor may be used`
-                    )
-                  : defaultSelfDeclaration,
+                defaultSelfDeclaration,
                 ...nonStaticPropertiesConstructorInitializers,
                 returnStatement(
                   typeCastExpression(
                     typeCastExpression(selfIdentifier(), typeAny()),
-                    typeReference(classNodeIdentifier)
+                    typeReference(classNodeIdentifier, genericTypeParameters)
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(classNodeIdentifier)),
-              false
+              typeAnnotation(
+                typeReference(classNodeIdentifier, genericTypeParameters)
+              ),
+              false,
+              genericTypeParametersDeclaration
             ),
           ];
     }

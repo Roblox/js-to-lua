@@ -24,7 +24,7 @@ import {
   typeVariadicFunction,
 } from '@js-to-lua/lua-types';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
-import { createFlowTypeParameterDeclarationHandler } from './type-parameter-declaration.handler';
+import { createFlowTypeParameterDeclarationHandler } from './flow-type-parameter-declaration.handler';
 
 export const createFunctionTypeAnnotationHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction,

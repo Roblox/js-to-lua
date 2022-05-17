@@ -3,10 +3,10 @@ import {
   GenericTypeAnnotation,
   isIdentifier as isBabelIdentifier,
 } from '@babel/types';
-import { isIdentifier, LuaType, typeReference } from '@js-to-lua/lua-types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import { defaultTypeHandler } from '@js-to-lua/lua-conversion-utils';
-import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { isIdentifier, LuaType, typeReference } from '@js-to-lua/lua-types';
+import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createFlowQualifiedTypeIdentifierHandler } from './qualified-identifer.handler';
 
@@ -32,8 +32,8 @@ export const createFlowGenericTypeAnnotationHandler = (
         : handleFlowQualifiedTypeIdentifier(source, config, node.id);
 
       if (isIdentifier(id)) {
-        return params.length
-          ? typeReference(id, params as NonEmptyArray<LuaType>)
+        return isNonEmptyArray(params)
+          ? typeReference(id, params)
           : typeReference(id);
       }
 

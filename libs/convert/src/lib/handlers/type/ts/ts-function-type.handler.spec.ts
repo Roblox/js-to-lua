@@ -27,8 +27,8 @@ import {
   typeString,
   typeVariadicFunction,
 } from '@js-to-lua/lua-types';
-import { expressionHandler } from '../expression-statement.handler';
-import { createIdentifierHandler } from '../expression/identifier.handler';
+import { expressionHandler } from '../../expression-statement.handler';
+import { createIdentifierHandler } from '../../expression/identifier.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
 import { createTsTypeAnnotationHandler } from './ts-type-annotation.handler';
 

@@ -4,8 +4,7 @@ import {
   Expression,
   FunctionDeclaration,
   FunctionExpression,
-  isTSTypeParameterDeclaration,
-  isTypeParameterDeclaration,
+  isNoop,
   LVal,
   Statement,
 } from '@babel/types';
@@ -14,10 +13,7 @@ import {
   EmptyConfig,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
-import {
-  defaultElementHandler,
-  removeIdTypeAnnotation,
-} from '@js-to-lua/lua-conversion-utils';
+import { removeIdTypeAnnotation } from '@js-to-lua/lua-conversion-utils';
 import {
   functionDeclaration,
   LuaDeclaration,
@@ -37,8 +33,8 @@ import {
   createFunctionParamsHandler,
 } from '../function-params.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
-import { createTsTypeParameterDeclarationHandler } from '../type/ts-type-parameter-declaration.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
+import { createTypeParameterDeclarationHandler } from '../type/type-parameter-declaration.handler';
 
 export function createConvertToFunctionDeclarationHandler(
   handleStatement: HandlerFunction<LuaStatement, Statement>,
@@ -58,14 +54,14 @@ export function createConvertToFunctionDeclarationHandler(
     handleExpression,
     handleIdentifier
   );
-  const { handleTypeAnnotation, handleType } = createTypeAnnotationHandler(
-    handleExpression,
-    handleIdentifier
-  );
+  const {
+    handleTypeAnnotation,
+    handleType: { handler: handleType },
+  } = createTypeAnnotationHandler(handleExpression, handleIdentifier);
   const functionParamsHandler = createFunctionParamsHandler(
     handleIdentifier,
     handleTypeAnnotation,
-    handleType.handler
+    handleType
   );
 
   return function (
@@ -74,11 +70,8 @@ export function createConvertToFunctionDeclarationHandler(
     node: FunctionDeclaration | FunctionExpression | ArrowFunctionExpression,
     id: LuaIdentifier
   ): LuaFunctionDeclaration | LuaNodeGroup {
-    const handleTsTypeParameterDeclaration =
-      createTsTypeParameterDeclarationHandler(handleTypeAnnotation).handler(
-        source,
-        config
-      );
+    const handleTypeParameterDeclaration =
+      createTypeParameterDeclarationHandler(handleType).handler(source, config);
 
     const handleFunctionBody = createFunctionBodyHandler(
       handleStatement,
@@ -91,10 +84,8 @@ export function createConvertToFunctionDeclarationHandler(
     );
 
     const typeParameters =
-      node.typeParameters && isTSTypeParameterDeclaration(node.typeParameters)
-        ? handleTsTypeParameterDeclaration(node.typeParameters)
-        : isTypeParameterDeclaration(node.typeParameters)
-        ? defaultElementHandler(source, config, node.typeParameters)
+      node.typeParameters && !isNoop(node.typeParameters)
+        ? handleTypeParameterDeclaration(node.typeParameters)
         : undefined;
 
     return id.typeAnnotation

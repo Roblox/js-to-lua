@@ -8,7 +8,7 @@ import {
   typeParameterDeclaration,
   typeReference,
 } from '@js-to-lua/lua-types';
-import { createFlowTypeParameterDeclarationHandler } from './type-parameter-declaration.handler';
+import { createFlowTypeParameterDeclarationHandler } from './flow-type-parameter-declaration.handler';
 
 const { mockNodeWithValueHandler, withBabelComments, withLuaComments } =
   testUtils;

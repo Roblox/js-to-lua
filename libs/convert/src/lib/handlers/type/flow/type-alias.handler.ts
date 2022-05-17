@@ -13,7 +13,7 @@ import {
   LuaTypeAliasDeclaration,
   typeAliasDeclaration,
 } from '@js-to-lua/lua-types';
-import { createFlowTypeParameterDeclarationHandler } from './type-parameter-declaration.handler';
+import { createFlowTypeParameterDeclarationHandler } from './flow-type-parameter-declaration.handler';
 
 export const createFlowTypeAliasHandler = (
   handleIdentifier: HandlerFunction<

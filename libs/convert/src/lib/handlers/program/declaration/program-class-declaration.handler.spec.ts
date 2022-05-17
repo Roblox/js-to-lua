@@ -26,8 +26,10 @@ import {
   typeBoolean,
   typeCastExpression,
   typeFunction,
+  typeIntersection,
   typeLiteral,
   typeNumber,
+  typeParameterDeclaration,
   typePropertySignature,
   typeReference,
   typeString,
@@ -61,6 +63,7 @@ describe('Program handler', () => {
           [identifier('BaseClass')]
         ),
       ];
+
       it('should convert class', () => {
         const given = getProgramNode(`
           class BaseClass {}
@@ -99,6 +102,112 @@ describe('Program handler', () => {
         ]);
 
         expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert generic class', () => {
+        const given = getProgramNode(`
+          class BaseClass<T> {}
+        `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([]),
+              typeParameterDeclaration([typeReference(identifier('T'))])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'), [
+                      typeReference(identifier('T')),
+                    ])
+                  )
+                ),
+              ]),
+              typeAnnotation(
+                typeReference(identifier('BaseClass'), [
+                  typeReference(identifier('T')),
+                ])
+              ),
+              false,
+              typeParameterDeclaration([typeReference(identifier('T'))])
+            ),
+          ]),
+        ]);
+
+        const actual = handleProgram.handler(source, {}, given);
+        expect(actual).toEqual(expected);
+      });
+
+      it('should convert generic class with explicit constructor', () => {
+        const given = getProgramNode(`
+          class BaseClass<T> {
+            constructor() {}
+          }
+        `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([]),
+              typeParameterDeclaration([typeReference(identifier('T'))])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'), [
+                      typeReference(identifier('T')),
+                    ])
+                  )
+                ),
+              ]),
+              typeAnnotation(
+                typeReference(identifier('BaseClass'), [
+                  typeReference(identifier('T')),
+                ])
+              ),
+              false,
+              typeParameterDeclaration([typeReference(identifier('T'))])
+            ),
+          ]),
+        ]);
+
+        const actual = handleProgram.handler(source, {}, given);
+        expect(actual).toEqual(expected);
       });
 
       it('should convert class constructor to <ClassId>.new function', () => {
@@ -1190,7 +1299,13 @@ describe('Program handler', () => {
 
         const expected = program([
           nodeGroup([
-            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
+            typeAliasDeclaration(
+              identifier('SubClass'),
+              typeIntersection([
+                typeReference(identifier('BaseClass')),
+                typeLiteral([]),
+              ])
+            ),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`SubClass.new`),
@@ -1235,7 +1350,13 @@ describe('Program handler', () => {
 
         const expected = program([
           nodeGroup([
-            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
+            typeAliasDeclaration(
+              identifier('SubClass'),
+              typeIntersection([
+                typeReference(identifier('BaseClass')),
+                typeLiteral([]),
+              ])
+            ),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier('SubClass.new'),
@@ -1282,21 +1403,24 @@ describe('Program handler', () => {
           nodeGroup([
             typeAliasDeclaration(
               identifier('SubClass'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('myMethod'),
-                  typeAnnotation(
-                    typeFunction(
-                      [
-                        functionTypeParam(
-                          identifier('self'),
-                          typeReference(identifier('SubClass'))
-                        ),
-                      ],
-                      typeAny()
+              typeIntersection([
+                typeReference(identifier('BaseClass')),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('myMethod'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionTypeParam(
+                            identifier('self'),
+                            typeReference(identifier('SubClass'))
+                          ),
+                        ],
+                        typeAny()
+                      )
                     )
-                  )
-                ),
+                  ),
+                ]),
               ])
             ),
             ...subClassDefaultExpectedNodes,
@@ -1349,7 +1473,13 @@ describe('Program handler', () => {
 
         const expected = program([
           nodeGroup([
-            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
+            typeAliasDeclaration(
+              identifier('SubClass'),
+              typeIntersection([
+                typeReference(identifier('BaseClass')),
+                typeLiteral([]),
+              ])
+            ),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`SubClass.new`),
@@ -1401,7 +1531,13 @@ describe('Program handler', () => {
 
         const expected = program([
           nodeGroup([
-            typeAliasDeclaration(identifier('SubClass'), typeLiteral([])),
+            typeAliasDeclaration(
+              identifier('SubClass'),
+              typeIntersection([
+                typeReference(identifier('BaseClass')),
+                typeLiteral([]),
+              ])
+            ),
             ...subClassDefaultExpectedNodes,
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,

@@ -58,7 +58,7 @@ import {
   typeVoid,
 } from '@js-to-lua/lua-types';
 import { uniqWith } from 'ramda';
-import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
+import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
 import { createTsLiteralTypeHandler } from './ts-literal-type.handler';

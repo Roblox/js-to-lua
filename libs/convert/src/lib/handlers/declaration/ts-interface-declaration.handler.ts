@@ -25,8 +25,8 @@ import {
   typeReference,
 } from '@js-to-lua/lua-types';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
-import { createTsInterfaceBodyHandler } from '../type/ts-interface-body.handler';
-import { createTsTypeParameterDeclarationHandler } from '../type/ts-type-parameter-declaration.handler';
+import { createTsInterfaceBodyHandler } from '../type/ts/ts-interface-body.handler';
+import { createTsTypeParameterDeclarationHandler } from '../type/ts/ts-type-parameter-declaration.handler';
 
 export const createTsInterfaceHandler = (
   handleIdentifier: HandlerFunction<

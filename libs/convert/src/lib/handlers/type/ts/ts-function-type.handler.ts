@@ -19,8 +19,8 @@ import {
   typeVariadicFunction,
 } from '@js-to-lua/lua-types';
 import { last } from 'ramda';
-import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
-import { createRestElementHandler } from '../rest-element.handler';
+import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
+import { createRestElementHandler } from '../../rest-element.handler';
 import { createTsTypeParameterDeclarationHandler } from './ts-type-parameter-declaration.handler';
 
 export const createTsFunctionTypeHandler = (

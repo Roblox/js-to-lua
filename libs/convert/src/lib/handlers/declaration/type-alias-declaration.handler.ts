@@ -15,7 +15,7 @@ import {
   LuaType,
 } from '@js-to-lua/lua-types';
 import { createFlowTypeAliasHandler } from '../type/flow/type-alias.handler';
-import { createTsTypeAliasDeclarationHandler } from '../type/ts-type-alias-declaration.handler';
+import { createTsTypeAliasDeclarationHandler } from '../type/ts/ts-type-alias-declaration.handler';
 
 export const createTypeAliasDeclarationHandler = (
   handleIdentifier: HandlerFunction<

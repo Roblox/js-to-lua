@@ -1,4 +1,4 @@
-import { TSType, TSTypeParameterDeclaration } from '@babel/types';
+import { FlowType, TSType, TSTypeParameterDeclaration } from '@babel/types';
 import {
   BaseNodeHandler,
   createHandler,
@@ -9,10 +9,10 @@ import {
   LuaTypeParameterDeclaration,
   typeParameterDeclaration,
 } from '@js-to-lua/lua-types';
-import { createTsTypeParameterHandler } from '../type/ts-type-parameter.handler';
+import { createTsTypeParameterHandler } from './ts-type-parameter.handler';
 
 export const createTsTypeParameterDeclarationHandler = (
-  typesHandler: HandlerFunction<LuaType, TSType>
+  typesHandler: HandlerFunction<LuaType, FlowType | TSType>
 ) => {
   const handleTsTypeParameterDeclaration: BaseNodeHandler<
     LuaTypeParameterDeclaration,

@@ -7,7 +7,7 @@ function BaseClass.new(notAssignedParam, publicConstructorParam, privateConstruc
 	self.privateConstructorParam = privateConstructorParam
 	return (self :: any) :: BaseClass
 end
-type MyClass = { publicConstructorParam: any }
+type MyClass = BaseClass & { publicConstructorParam: any }
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 function MyClass.new(notAssignedParam, publicConstructorParam, privateConstructorParam): MyClass

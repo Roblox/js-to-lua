@@ -7,7 +7,7 @@ function BaseClass.new(): BaseClass
 	self.initializedProperty = true
 	return (self :: any) :: BaseClass
 end
-type MyClass = { initializedProperty: boolean, notInitializedProperty: any }
+type MyClass = BaseClass & { initializedProperty: boolean, notInitializedProperty: any }
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 MyClass.staticProperty = false

@@ -7,7 +7,7 @@ function BaseClass.new(): BaseClass
 end
 function BaseClass:method() end
 function BaseClass.staticMethod() end
-type MyClass = { method: (self: MyClass) -> any }
+type MyClass = BaseClass & { method: (self: MyClass) -> any }
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 function MyClass.new(): MyClass

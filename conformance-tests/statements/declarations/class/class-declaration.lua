@@ -5,7 +5,7 @@ function BaseClass.new(): BaseClass
 	local self = setmetatable({}, BaseClass)
 	return (self :: any) :: BaseClass
 end
-type MyClass = {}
+type MyClass = BaseClass & {}
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 function MyClass.new(): MyClass

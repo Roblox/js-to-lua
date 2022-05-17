@@ -17,6 +17,7 @@ export * from './lib/member-expression-from-path';
 export * from './lib/remove-id-type-annotation';
 export * from './lib/extras';
 export * from './lib/string-inferable';
+export * from './lib/type-reference-without-default-type';
 export * from './lib/unwrap-node-group';
 export * from './lib/valid-identifier';
 export * from './lib/visitor';

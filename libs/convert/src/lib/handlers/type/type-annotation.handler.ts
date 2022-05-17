@@ -23,7 +23,7 @@ import {
 import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { createFlowTypeHandler } from './flow/flow-type.handler';
 import { createFlowTypeAnnotationHandler } from './flow/type-annotation.handler';
-import { createTsTypeAnnotationHandler } from './ts-type-annotation.handler';
+import { createTsTypeAnnotationHandler } from './ts/ts-type-annotation.handler';
 
 export const createTypeAnnotationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,

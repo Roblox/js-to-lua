@@ -10,7 +10,7 @@ function BaseClass.staticMethod() end
 function BaseClass:abstractMethod()
 	error("not implemented abstract method")
 end
-type MyClass = { method: (self: MyClass) -> any, abstractMethod: (self: MyClass) -> any }
+type MyClass = BaseClass & { method: (self: MyClass) -> any, abstractMethod: (self: MyClass) -> any }
 local MyClass = setmetatable({}, { __index = BaseClass })
 MyClass.__index = MyClass
 function MyClass.new(): MyClass
