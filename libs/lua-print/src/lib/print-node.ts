@@ -267,7 +267,7 @@ const _printNode = (node: LuaNode): string => {
       return createPrintForGenericStatement(printNode, _printComments)(node);
     case 'RepeatStatement':
       return createPrintRepeatStatement(printNode, _printComments)(node);
-    case 'BreakStatement':
+    case 'LuaBreakStatement':
       return createPrintBreakStatement()(node);
     case 'ContinueStatement':
       return createPrintContinueStatement()(node);

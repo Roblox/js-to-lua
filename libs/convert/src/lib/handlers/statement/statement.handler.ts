@@ -34,7 +34,7 @@ import { createForOfStatementHandler } from './for-of-statement.handler';
 import { createForStatementHandler } from './for-statement.handler';
 import { createIfStatementHandler } from './if-statement.handler';
 import { createReturnStatementHandler } from './return-statement.handler';
-import { createSwitchStatementHandler } from './switch-statement.handler';
+import { createSwitchStatementHandler } from './switch-statement/switch-statement.handler';
 import { createThrowStatementHandler } from './throw-statement.handler';
 import { createTryStatementHandler } from './try-statement.handler';
 import { createTsImportEqualsDeclarationHandler } from './ts-import-equals-declaration.handler';
@@ -143,7 +143,8 @@ export const createStatementHandler = (
       ),
       createSwitchStatementHandler(
         forwardedHandleStatement,
-        forwardedHandleExpression
+        forwardedHandleExpression,
+        handleExpressionAsStatement
       ),
       createBreakStatementHandler(),
       createContinueStatementHandler(),
