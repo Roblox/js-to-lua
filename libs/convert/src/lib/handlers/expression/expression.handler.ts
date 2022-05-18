@@ -25,7 +25,7 @@ import { createDeclarationHandler } from '../declaration/declaration.handler';
 import { createLValHandler } from '../l-val.handler';
 import { handleBigIntLiteral } from '../primitives/big-int.handler';
 import { handleBooleanLiteral } from '../primitives/boolean.handler';
-import { createMultilineStringLiteralHandler } from '../primitives/multiline-string.handler';
+import { createTemplateLiteralHandler } from '../primitives/template-literal.handler';
 import { handleNullLiteral } from '../primitives/null.handler';
 import { handleNumericLiteral } from '../primitives/numeric.handler';
 import { createStringLiteralHandler } from '../primitives/string.handler';
@@ -135,7 +135,7 @@ export const createExpressionHandler = (
       handleNumericLiteral,
       handleBigIntLiteral,
       createStringLiteralHandler(),
-      createMultilineStringLiteralHandler(forwardedHandleExpression),
+      createTemplateLiteralHandler(forwardedHandleExpression),
       createThisExpressionHandler(),
       handleBooleanLiteral,
       handleNullLiteral,
@@ -194,7 +194,7 @@ export const createExpressionHandler = (
       createTsNonNullExpressionHandler(forwardedHandleExpression),
       createTaggedTemplateExpressionHandler(
         forwardedHandleExpression,
-        createMultilineStringLiteralHandler(forwardedHandleExpression).handler
+        createTemplateLiteralHandler(forwardedHandleExpression).handler
       ),
       createAwaitExpressionHandler(forwardedHandleExpression),
       createOptionalCallExpressionHandler(forwardedHandleExpression),

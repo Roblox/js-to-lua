@@ -15,7 +15,7 @@ import { handleProgram } from './program.handler';
 const source = '';
 
 describe('Program handler', () => {
-  describe('Multiline String', () => {
+  describe('Template Literal', () => {
     it('should handle multiline string expression without leading new line', () => {
       const given = getProgramNode(`
         fizz = \`foo\nbar\nbaz\n\`;
@@ -65,7 +65,13 @@ describe('Program handler', () => {
                 ':',
                 identifier('format')
               ),
-              [identifier('foo'), stringLiteral('bar'), numericLiteral(1, '1')]
+              [
+                callExpression(identifier('tostring'), [identifier('foo')]),
+                stringLiteral('bar'),
+                callExpression(identifier('tostring'), [
+                  numericLiteral(1, '1'),
+                ]),
+              ]
             ),
           ]
         ),

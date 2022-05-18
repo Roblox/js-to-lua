@@ -302,7 +302,7 @@ describe('Binary Expression Handler', () => {
             ':',
             identifier('format')
           ),
-          [identifier('foo')]
+          [callExpression(identifier('tostring'), [identifier('foo')])]
         )
       )
     );

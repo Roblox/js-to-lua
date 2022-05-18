@@ -1,26 +1,36 @@
 import {
+  Expression,
   identifier as babelIdentifier,
+  isStringLiteral,
   numericLiteral as babelNumericLiteral,
   stringLiteral as babelStringLiteral,
   templateElement as babelTemplateElement,
   templateLiteral as babelTemplateLiteral,
   TemplateLiteral,
 } from '@babel/types';
-import { testUtils } from '@js-to-lua/handler-utils';
+import {
+  createHandlerFunction,
+  EmptyConfig,
+  testUtils,
+} from '@js-to-lua/handler-utils';
 
 import { stringInferableExpression } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
+  LuaExpression,
   LuaMultilineStringLiteral,
   memberExpression,
   multilineStringLiteral,
+  stringLiteral,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
-import { createMultilineStringLiteralHandler } from './multiline-string.handler';
+import { createTemplateLiteralHandler } from './template-literal.handler';
 
-const handleMultilineStringLiteral = createMultilineStringLiteralHandler(
-  testUtils.mockNodeWithValueHandler
+const handleExpressionMock = jest.fn();
+
+const handleMultilineStringLiteral = createTemplateLiteralHandler(
+  createHandlerFunction(handleExpressionMock)
 );
 
 const source = '';
@@ -37,7 +47,7 @@ interface RawTestCase {
   expectedValue: string;
 }
 
-describe('Multiline String Handler', () => {
+describe('Template Literal Handler', () => {
   const rawTestCases: RawTestCase[] = [
     {
       itLabel:
@@ -66,6 +76,22 @@ describe('Multiline String Handler', () => {
       expected: multilineStringLiteral(rawTestCase.expectedValue),
     };
   };
+
+  beforeEach(() => {
+    handleExpressionMock.mockImplementation(
+      (
+        source: string,
+        config: EmptyConfig,
+        node: Expression
+      ): LuaExpression => {
+        if (isStringLiteral(node)) {
+          return stringLiteral(node.value);
+        }
+        return testUtils.mockNodeWithValueHandler(source, config, node);
+      }
+    );
+  });
+
   const testCases = rawTestCases.map(testCasesMapFn);
 
   testCases.forEach(({ itLabel, given, expected }) => {
@@ -107,9 +133,13 @@ describe('Multiline String Handler', () => {
           identifier('format')
         ),
         [
-          mockNodeWithValue(babelIdentifier('foo')),
-          mockNodeWithValue(babelStringLiteral('bar')),
-          mockNodeWithValue(babelNumericLiteral(1)),
+          callExpression(identifier('tostring'), [
+            mockNodeWithValue(babelIdentifier('foo')),
+          ]),
+          stringLiteral('bar'),
+          callExpression(identifier('tostring'), [
+            mockNodeWithValue(babelNumericLiteral(1)),
+          ]),
         ]
       )
     );

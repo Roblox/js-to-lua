@@ -260,7 +260,7 @@ string\` +
                   ':',
                   identifier('format')
                 ),
-                [identifier('foo')]
+                [callExpression(identifier('tostring'), [identifier('foo')])]
               )
             ),
           ]
