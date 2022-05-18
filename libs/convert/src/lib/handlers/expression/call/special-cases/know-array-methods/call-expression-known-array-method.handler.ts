@@ -18,7 +18,7 @@ import {
 } from '@js-to-lua/lua-conversion-utils';
 import { LuaCallExpression, LuaExpression } from '@js-to-lua/lua-types';
 import { applyTo, pipe } from 'ramda';
-import { isArrayNode } from '../is-array-node';
+import { isArrayNode } from './is-array-node';
 import { createArrayPolyfilledMethodCallHandler } from './array-polyfilled-method-call.handler';
 import { createArrayPopMethodCallHandler } from './array-pop-method-call.handler';
 import { createArrayPushMethodCallHandler } from './array-push-method-call.handler';

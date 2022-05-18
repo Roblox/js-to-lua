@@ -738,188 +738,197 @@ describe('Program handler', () => {
           });
         });
 
-        arrayPolyfilledMethodNames.forEach((methodName) => {
-          it(`should handle array polyfilled method: ${methodName}`, () => {
-            const source = `
+        describe.each(arrayPolyfilledMethodNames)(
+          'array polyfilled method: %s',
+          (methodName) => {
+            it('should handle simple call', () => {
+              const source = `
               [].${methodName}(1, 2)
             `;
-            const given = getProgramNode(source);
+              const given = getProgramNode(source);
 
-            const expected = program([
-              withTrailingConversionComment(
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(identifier('Packages'))],
-                  []
+              const expected = program([
+                withTrailingConversionComment(
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('Packages'))],
+                    []
+                  ),
+                  'ROBLOX comment: must define Packages module'
                 ),
-                'ROBLOX comment: must define Packages module'
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-                [
-                  variableDeclaratorValue(
-                    callExpression(identifier('require'), [
-                      memberExpression(
-                        identifier('Packages'),
-                        '.',
-                        identifier('LuauPolyfill')
-                      ),
-                    ])
-                  ),
-                ]
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('Array'))],
-                [
-                  variableDeclaratorValue(
-                    memberExpression(
-                      identifier('LuauPolyfill'),
-                      '.',
-                      identifier('Array')
-                    )
-                  ),
-                ]
-              ),
-              expressionStatement(
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier(methodName)
-                  ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
                   [
-                    tableConstructor(),
-                    numericLiteral(1, '1'),
-                    numericLiteral(2, '2'),
+                    variableDeclaratorValue(
+                      callExpression(identifier('require'), [
+                        memberExpression(
+                          identifier('Packages'),
+                          '.',
+                          identifier('LuauPolyfill')
+                        ),
+                      ])
+                    ),
                   ]
-                )
-              ),
-            ]);
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('Array'))],
+                  [
+                    variableDeclaratorValue(
+                      memberExpression(
+                        identifier('LuauPolyfill'),
+                        '.',
+                        identifier('Array')
+                      )
+                    ),
+                  ]
+                ),
+                expressionStatement(
+                  callExpression(
+                    memberExpression(
+                      identifier('Array'),
+                      '.',
+                      identifier(methodName)
+                    ),
+                    [
+                      tableConstructor(),
+                      numericLiteral(1, '1'),
+                      numericLiteral(2, '2'),
+                    ]
+                  )
+                ),
+              ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
-          });
+              expect(handleProgram.handler(source, {}, given)).toEqual(
+                expected
+              );
+            });
 
-          it(`should handle array polyfilled method using call: ${methodName}`, () => {
-            const source = `
+            it('should handle when using call', () => {
+              const source = `
               [].${methodName}.call(arr, 1, 2)
             `;
-            const given = getProgramNode(source);
+              const given = getProgramNode(source);
 
-            const expected = program([
-              withTrailingConversionComment(
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(identifier('Packages'))],
-                  []
+              const expected = program([
+                withTrailingConversionComment(
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('Packages'))],
+                    []
+                  ),
+                  'ROBLOX comment: must define Packages module'
                 ),
-                'ROBLOX comment: must define Packages module'
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-                [
-                  variableDeclaratorValue(
-                    callExpression(identifier('require'), [
-                      memberExpression(
-                        identifier('Packages'),
-                        '.',
-                        identifier('LuauPolyfill')
-                      ),
-                    ])
-                  ),
-                ]
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('Array'))],
-                [
-                  variableDeclaratorValue(
-                    memberExpression(
-                      identifier('LuauPolyfill'),
-                      '.',
-                      identifier('Array')
-                    )
-                  ),
-                ]
-              ),
-              expressionStatement(
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier(methodName)
-                  ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
                   [
-                    identifier('arr'),
-                    numericLiteral(1, '1'),
-                    numericLiteral(2, '2'),
+                    variableDeclaratorValue(
+                      callExpression(identifier('require'), [
+                        memberExpression(
+                          identifier('Packages'),
+                          '.',
+                          identifier('LuauPolyfill')
+                        ),
+                      ])
+                    ),
                   ]
-                )
-              ),
-            ]);
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('Array'))],
+                  [
+                    variableDeclaratorValue(
+                      memberExpression(
+                        identifier('LuauPolyfill'),
+                        '.',
+                        identifier('Array')
+                      )
+                    ),
+                  ]
+                ),
+                expressionStatement(
+                  callExpression(
+                    memberExpression(
+                      identifier('Array'),
+                      '.',
+                      identifier(methodName)
+                    ),
+                    [
+                      identifier('arr'),
+                      numericLiteral(1, '1'),
+                      numericLiteral(2, '2'),
+                    ]
+                  )
+                ),
+              ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
-          });
+              expect(handleProgram.handler(source, {}, given)).toEqual(
+                expected
+              );
+            });
 
-          it(`should handle array polyfilled method using apply: ${methodName}`, () => {
-            const source = `
+            it('should handle when using apply', () => {
+              const source = `
               [].${methodName}.apply(arr, [1, 2])
             `;
-            const given = getProgramNode(source);
+              const given = getProgramNode(source);
 
-            const expected = program([
-              withTrailingConversionComment(
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(identifier('Packages'))],
-                  []
+              const expected = program([
+                withTrailingConversionComment(
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('Packages'))],
+                    []
+                  ),
+                  'ROBLOX comment: must define Packages module'
                 ),
-                'ROBLOX comment: must define Packages module'
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-                [
-                  variableDeclaratorValue(
-                    callExpression(identifier('require'), [
-                      memberExpression(
-                        identifier('Packages'),
-                        '.',
-                        identifier('LuauPolyfill')
-                      ),
-                    ])
-                  ),
-                ]
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('Array'))],
-                [
-                  variableDeclaratorValue(
-                    memberExpression(
-                      identifier('LuauPolyfill'),
-                      '.',
-                      identifier('Array')
-                    )
-                  ),
-                ]
-              ),
-              expressionStatement(
-                callExpression(
-                  memberExpression(
-                    identifier('Array'),
-                    '.',
-                    identifier(methodName)
-                  ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
                   [
-                    identifier('arr'),
-                    callExpression(tableUnpack(), [
-                      tableConstructor([
-                        tableNoKeyField(numericLiteral(1, '1')),
-                        tableNoKeyField(numericLiteral(2, '2')),
-                      ]),
-                    ]),
+                    variableDeclaratorValue(
+                      callExpression(identifier('require'), [
+                        memberExpression(
+                          identifier('Packages'),
+                          '.',
+                          identifier('LuauPolyfill')
+                        ),
+                      ])
+                    ),
                   ]
-                )
-              ),
-            ]);
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('Array'))],
+                  [
+                    variableDeclaratorValue(
+                      memberExpression(
+                        identifier('LuauPolyfill'),
+                        '.',
+                        identifier('Array')
+                      )
+                    ),
+                  ]
+                ),
+                expressionStatement(
+                  callExpression(
+                    memberExpression(
+                      identifier('Array'),
+                      '.',
+                      identifier(methodName)
+                    ),
+                    [
+                      identifier('arr'),
+                      callExpression(tableUnpack(), [
+                        tableConstructor([
+                          tableNoKeyField(numericLiteral(1, '1')),
+                          tableNoKeyField(numericLiteral(2, '2')),
+                        ]),
+                      ]),
+                    ]
+                  )
+                ),
+              ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
-          });
-        });
+              expect(handleProgram.handler(source, {}, given)).toEqual(
+                expected
+              );
+            });
+          }
+        );
       });
 
       describe('for possible an array', () => {
@@ -1766,202 +1775,212 @@ describe('Program handler', () => {
           });
         });
 
-        arrayPolyfilledMethodNames.forEach((methodName) => {
-          it(`should handle array polyfilled method: ${methodName}`, () => {
-            const source = `
+        describe.each(arrayPolyfilledMethodNames)(
+          'array polyfilled method: %s',
+          (methodName) => {
+            it('should handle simple call', () => {
+              const source = `
               arr.${methodName}(1, 2)
             `;
-            const given = getProgramNode(source);
+              const given = getProgramNode(source);
 
-            const expected = program([
-              withTrailingConversionComment(
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(identifier('Packages'))],
-                  []
-                ),
-                'ROBLOX comment: must define Packages module'
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-                [
-                  variableDeclaratorValue(
-                    callExpression(identifier('require'), [
-                      memberExpression(
-                        identifier('Packages'),
-                        '.',
-                        identifier('LuauPolyfill')
-                      ),
-                    ])
-                  ),
-                ]
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('Array'))],
-                [
-                  variableDeclaratorValue(
-                    memberExpression(
-                      identifier('LuauPolyfill'),
-                      '.',
-                      identifier('Array')
-                    )
-                  ),
-                ]
-              ),
-              expressionStatement(
+              const expected = program([
                 withTrailingConversionComment(
-                  callExpression(
-                    memberExpression(
-                      identifier('Array'),
-                      '.',
-                      identifier(methodName)
-                    ),
-                    [
-                      identifier('arr'),
-                      numericLiteral(1, '1'),
-                      numericLiteral(2, '2'),
-                    ]
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('Packages'))],
+                    []
                   ),
-                  `ROBLOX CHECK: check if 'arr' is an Array`
-                )
-              ),
-            ]);
+                  'ROBLOX comment: must define Packages module'
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('require'), [
+                        memberExpression(
+                          identifier('Packages'),
+                          '.',
+                          identifier('LuauPolyfill')
+                        ),
+                      ])
+                    ),
+                  ]
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('Array'))],
+                  [
+                    variableDeclaratorValue(
+                      memberExpression(
+                        identifier('LuauPolyfill'),
+                        '.',
+                        identifier('Array')
+                      )
+                    ),
+                  ]
+                ),
+                expressionStatement(
+                  withTrailingConversionComment(
+                    callExpression(
+                      memberExpression(
+                        identifier('Array'),
+                        '.',
+                        identifier(methodName)
+                      ),
+                      [
+                        identifier('arr'),
+                        numericLiteral(1, '1'),
+                        numericLiteral(2, '2'),
+                      ]
+                    ),
+                    `ROBLOX CHECK: check if 'arr' is an Array`
+                  )
+                ),
+              ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
-          });
+              expect(handleProgram.handler(source, {}, given)).toEqual(
+                expected
+              );
+            });
 
-          it(`should handle array polyfilled method using call: ${methodName}`, () => {
-            const source = `
+            it('should handle when using call', () => {
+              const source = `
               arr.${methodName}.call(otherArr, 1, 2)
             `;
-            const given = getProgramNode(source);
+              const given = getProgramNode(source);
 
-            const expected = program([
-              withTrailingConversionComment(
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(identifier('Packages'))],
-                  []
-                ),
-                'ROBLOX comment: must define Packages module'
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-                [
-                  variableDeclaratorValue(
-                    callExpression(identifier('require'), [
-                      memberExpression(
-                        identifier('Packages'),
-                        '.',
-                        identifier('LuauPolyfill')
-                      ),
-                    ])
-                  ),
-                ]
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('Array'))],
-                [
-                  variableDeclaratorValue(
-                    memberExpression(
-                      identifier('LuauPolyfill'),
-                      '.',
-                      identifier('Array')
-                    )
-                  ),
-                ]
-              ),
-              expressionStatement(
+              const expected = program([
                 withTrailingConversionComment(
-                  callExpression(
-                    memberExpression(
-                      identifier('Array'),
-                      '.',
-                      identifier(methodName)
-                    ),
-                    [
-                      identifier('otherArr'),
-                      numericLiteral(1, '1'),
-                      numericLiteral(2, '2'),
-                    ]
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('Packages'))],
+                    []
                   ),
-                  `ROBLOX CHECK: check if 'arr' is an Array`
-                )
-              ),
-            ]);
+                  'ROBLOX comment: must define Packages module'
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('require'), [
+                        memberExpression(
+                          identifier('Packages'),
+                          '.',
+                          identifier('LuauPolyfill')
+                        ),
+                      ])
+                    ),
+                  ]
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('Array'))],
+                  [
+                    variableDeclaratorValue(
+                      memberExpression(
+                        identifier('LuauPolyfill'),
+                        '.',
+                        identifier('Array')
+                      )
+                    ),
+                  ]
+                ),
+                expressionStatement(
+                  withTrailingConversionComment(
+                    callExpression(
+                      memberExpression(
+                        identifier('Array'),
+                        '.',
+                        identifier(methodName)
+                      ),
+                      [
+                        identifier('otherArr'),
+                        numericLiteral(1, '1'),
+                        numericLiteral(2, '2'),
+                      ]
+                    ),
+                    `ROBLOX CHECK: check if 'arr' is an Array`
+                  )
+                ),
+              ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
-          });
+              expect(handleProgram.handler(source, {}, given)).toEqual(
+                expected
+              );
+            });
 
-          it(`should handle array polyfilled method using apply: ${methodName}`, () => {
-            const source = `
+            it('should handle when using apply', () => {
+              const source = `
               arr.${methodName}.apply(otherArr, [1, 2])
             `;
-            const given = getProgramNode(source);
+              const given = getProgramNode(source);
 
-            const expected = program([
-              withTrailingConversionComment(
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(identifier('Packages'))],
-                  []
-                ),
-                'ROBLOX comment: must define Packages module'
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-                [
-                  variableDeclaratorValue(
-                    callExpression(identifier('require'), [
-                      memberExpression(
-                        identifier('Packages'),
-                        '.',
-                        identifier('LuauPolyfill')
-                      ),
-                    ])
-                  ),
-                ]
-              ),
-              variableDeclaration(
-                [variableDeclaratorIdentifier(identifier('Array'))],
-                [
-                  variableDeclaratorValue(
-                    memberExpression(
-                      identifier('LuauPolyfill'),
-                      '.',
-                      identifier('Array')
-                    )
-                  ),
-                ]
-              ),
-              expressionStatement(
+              const expected = program([
                 withTrailingConversionComment(
-                  callExpression(
-                    memberExpression(
-                      identifier('Array'),
-                      '.',
-                      identifier(methodName)
-                    ),
-                    [
-                      identifier('otherArr'),
-                      callExpression(tableUnpack(), [
-                        tableConstructor([
-                          tableNoKeyField(numericLiteral(1, '1')),
-                          tableNoKeyField(numericLiteral(2, '2')),
-                        ]),
-                      ]),
-                    ]
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(identifier('Packages'))],
+                    []
                   ),
-                  `ROBLOX CHECK: check if 'arr' is an Array`
-                )
-              ),
-            ]);
+                  'ROBLOX comment: must define Packages module'
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('require'), [
+                        memberExpression(
+                          identifier('Packages'),
+                          '.',
+                          identifier('LuauPolyfill')
+                        ),
+                      ])
+                    ),
+                  ]
+                ),
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(identifier('Array'))],
+                  [
+                    variableDeclaratorValue(
+                      memberExpression(
+                        identifier('LuauPolyfill'),
+                        '.',
+                        identifier('Array')
+                      )
+                    ),
+                  ]
+                ),
+                expressionStatement(
+                  withTrailingConversionComment(
+                    callExpression(
+                      memberExpression(
+                        identifier('Array'),
+                        '.',
+                        identifier(methodName)
+                      ),
+                      [
+                        identifier('otherArr'),
+                        callExpression(tableUnpack(), [
+                          tableConstructor([
+                            tableNoKeyField(numericLiteral(1, '1')),
+                            tableNoKeyField(numericLiteral(2, '2')),
+                          ]),
+                        ]),
+                      ]
+                    ),
+                    `ROBLOX CHECK: check if 'arr' is an Array`
+                  )
+                ),
+              ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
-          });
-        });
+              expect(handleProgram.handler(source, {}, given)).toEqual(
+                expected
+              );
+            });
+          }
+        );
       });
 
-      describe('for unpolyfilled methods', () => {
-        ['reduceRight'].forEach((methodName) => {
-          it(`should handle array unpolyfilled method: ${methodName}`, () => {
+      describe.each(['reduceRight'])(
+        'for unpolyfilled method: %s',
+        (methodName) => {
+          it('should not handle simple call', () => {
             const source = `
               arr.${methodName}(1, 2)
             `;
@@ -1982,8 +2001,8 @@ describe('Program handler', () => {
 
             expect(handleProgram.handler(source, {}, given)).toEqual(expected);
           });
-        });
-      });
+        }
+      );
     });
   });
 });

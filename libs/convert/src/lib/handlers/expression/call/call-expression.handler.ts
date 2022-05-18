@@ -4,11 +4,7 @@ import {
   isMemberExpression as isBabelMemberExpression,
   isPrivateName,
 } from '@babel/types';
-import {
-  combineOptionalHandlerFunctions,
-  createHandler,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import { defaultExpressionHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
@@ -17,15 +13,9 @@ import {
   LuaExpression,
   memberExpression,
 } from '@js-to-lua/lua-types';
-import { createCallExpressionApplyMethodHandlerFunction } from './call-expression-apply-method.handlers';
 import { createCallExpressionArgumentsHandler } from './call-expression-arguments.handler';
-import { createCallExpressionCallMethodHandlerFunction } from './call-expression-call-method.handlers';
-import { createCallExpressionComputedPropertyHandlerFunction } from './call-expression-computed-property.handler';
-import { createCallExpressionDateMethodHandler } from './call-expression-date-method.handler';
-import { createCallExpressionDotNotationHandlerFunction } from './call-expression-dot-notation.handler';
-import { createCallExpressionToStringMethodHandlerFunction } from './call-expression-to-string-method.handlers';
 import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
-import { createCallExpressionKnownArrayMethodHandlerFunction } from './know-array-methods/call-expression-known-array-method.handler';
+import { createCallExpressionSpecialCasesHandler } from './special-cases/call-expression-special-cases.handler';
 
 export const createCallExpressionHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>
@@ -33,15 +23,11 @@ export const createCallExpressionHandler = (
   createHandler<LuaExpression, CallExpression>(
     'CallExpression',
     (source, config, expression) => {
-      const handled = combineOptionalHandlerFunctions([
-        createCallExpressionDotNotationHandlerFunction(handleExpression),
-        createCallExpressionKnownArrayMethodHandlerFunction(handleExpression),
-        createCallExpressionToStringMethodHandlerFunction(handleExpression),
-        createCallExpressionCallMethodHandlerFunction(handleExpression),
-        createCallExpressionApplyMethodHandlerFunction(handleExpression),
-        createCallExpressionComputedPropertyHandlerFunction(handleExpression),
-        createCallExpressionDateMethodHandler(),
-      ])(source, config, expression);
+      const handled = createCallExpressionSpecialCasesHandler(handleExpression)(
+        source,
+        config,
+        expression
+      );
 
       if (handled) {
         return handled;

@@ -12,8 +12,8 @@ import {
   Expression,
   isMemberExpression as isBabelMemberExpression,
 } from '@babel/types';
-import { createCallExpressionArgumentsHandler } from './call-expression-arguments.handler';
-import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
+import { createCallExpressionArgumentsHandler } from '../call-expression-arguments.handler';
+import { createCalleeExpressionHandlerFunction } from '../callee-expression.handler';
 
 export const createCallExpressionComputedPropertyHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

@@ -10,11 +10,12 @@ import {
   LuaCallExpression,
   LuaExpression,
   memberExpression,
+  numericLiteral,
 } from '@js-to-lua/lua-types';
-import { isArrayMethod, isArrayMethodCall } from '../is-array-method';
+import { isArrayMethod, isArrayMethodCall } from './is-array-method';
 import { matchesBabelMemberExpressionProperty } from '../utils';
 
-export const createArrayPopMethodCallHandler = (
+export const createArrayShiftMethodCallHandler = (
   handleExpressionFunction: HandlerFunction<LuaExpression, Expression>
 ) =>
   createOptionalHandlerFunction<
@@ -23,7 +24,7 @@ export const createArrayPopMethodCallHandler = (
   >((source, config, expression) => {
     const handleExpression = handleExpressionFunction(source, config);
     if (
-      isArrayMethodCall('pop', expression) &&
+      isArrayMethodCall('shift', expression) &&
       expression.arguments.length === 0
     ) {
       return withExtras<{ target: Expression }, LuaCallExpression>({
@@ -31,13 +32,13 @@ export const createArrayPopMethodCallHandler = (
       })(
         callExpression(
           memberExpression(identifier('table'), '.', identifier('remove')),
-          [handleExpression(expression.callee.object)]
+          [handleExpression(expression.callee.object), numericLiteral(1)]
         )
       );
     }
 
     if (
-      isArrayMethod('pop', expression.callee.object) &&
+      isArrayMethod('shift', expression.callee.object) &&
       expression.arguments.length === 1
     ) {
       if (
@@ -49,7 +50,7 @@ export const createArrayPopMethodCallHandler = (
         })(
           callExpression(
             memberExpression(identifier('table'), '.', identifier('remove')),
-            expression.arguments.map(handleExpression)
+            [expression.arguments.map(handleExpression)[0], numericLiteral(1)]
           )
         );
       }

@@ -14,7 +14,7 @@ import {
   isMemberExpression as isBabelMemberExpression,
 } from '@babel/types';
 import { matchesBabelMemberExpressionProperty } from './utils';
-import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
+import { createCalleeExpressionHandlerFunction } from '../callee-expression.handler';
 
 export const createCallExpressionToStringMethodHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Expression>

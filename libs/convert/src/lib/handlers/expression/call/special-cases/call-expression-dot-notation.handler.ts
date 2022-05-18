@@ -15,9 +15,9 @@ import {
   isMemberExpression as isBabelMemberExpression,
   MemberExpression,
 } from '@babel/types';
-import { createCallExpressionArgumentsHandler } from './call-expression-arguments.handler';
+import { createCallExpressionArgumentsHandler } from '../call-expression-arguments.handler';
 import { matchesBabelMemberExpressionObject } from './utils';
-import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
+import { createCalleeExpressionHandlerFunction } from '../callee-expression.handler';
 
 type MemberExpressionPredicate = (node: MemberExpression) => boolean;
 
@@ -52,8 +52,11 @@ export const createCallExpressionDotNotationHandlerFunction = (
   return createOptionalHandlerFunction<LuaCallExpression, CallExpression>(
     (source, config, expression) => {
       const callee = expression.callee;
+
+      if (!isBabelMemberExpression(callee)) {
+        return undefined;
+      }
       if (
-        !isBabelMemberExpression(callee) ||
         USE_DOT_NOTATION_IN_CALL_EXPRESSION.some((identifierName) =>
           typeof identifierName === 'string'
             ? matchesBabelMemberExpressionObject(identifierName, callee)

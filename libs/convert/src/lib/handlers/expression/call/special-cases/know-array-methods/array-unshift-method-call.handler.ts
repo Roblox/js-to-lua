@@ -4,24 +4,17 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
-  arrayMethod,
   tableUnpackCall,
   withExtras,
   WithExtras,
 } from '@js-to-lua/lua-conversion-utils';
-import {
-  callExpression,
-  LuaCallExpression,
-  LuaExpression,
-} from '@js-to-lua/lua-types';
+import { LuaCallExpression, LuaExpression } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import {
-  isAnyPolyfilledArrayMethodCall,
-  isAnyPolyfilledMethod,
-} from '../is-array-method';
+import { isArrayMethod, isArrayMethodCall } from './is-array-method';
 import { matchesBabelMemberExpressionProperty } from '../utils';
+import { unshiftMultipleElements, unshiftSingleElement } from './utils';
 
-export const createArrayPolyfilledMethodCallHandler = (
+export const createArrayUnshiftMethodCallHandler = (
   handleExpressionFunction: HandlerFunction<LuaExpression, Expression>
 ) =>
   createOptionalHandlerFunction<
@@ -29,8 +22,7 @@ export const createArrayPolyfilledMethodCallHandler = (
     Omit<CallExpression, 'callee'> & { callee: MemberExpression }
   >((source, config, expression) => {
     const handleExpression = handleExpressionFunction(source, config);
-
-    if (isAnyPolyfilledArrayMethodCall(expression)) {
+    if (isArrayMethodCall('unshift', expression)) {
       return withExtras<{ target: Expression }, LuaCallExpression>({
         target: expression.callee.object,
       })(
@@ -40,44 +32,36 @@ export const createArrayPolyfilledMethodCallHandler = (
             args: expression.arguments.map(handleExpression),
           },
           ({ calleeObject, args }) =>
-            callExpression(arrayMethod(expression.callee.property.name), [
-              calleeObject,
-              ...args,
-            ])
+            args.length === 1
+              ? unshiftSingleElement(calleeObject, args[0])
+              : unshiftMultipleElements(calleeObject, args)
         )
       );
     }
 
-    const originalCalleeObject = expression.callee.object;
-    if (isAnyPolyfilledMethod(originalCalleeObject)) {
+    if (isArrayMethod('unshift', expression.callee.object)) {
       if (matchesBabelMemberExpressionProperty('apply', expression.callee)) {
         const [thisArg, ...restArgs] =
           expression.arguments.map(handleExpression);
         return restArgs.length !== 1
           ? undefined
           : withExtras<{ target: Expression }, LuaCallExpression>({
-              target: originalCalleeObject.object,
+              target: expression.callee.object.object,
             })(
-              callExpression(arrayMethod(originalCalleeObject.property.name), [
-                thisArg,
-                tableUnpackCall(restArgs[0]),
-              ])
+              unshiftMultipleElements(thisArg, [tableUnpackCall(restArgs[0])])
             );
       }
-
       if (matchesBabelMemberExpressionProperty('call', expression.callee)) {
         const [thisArg, ...restArgs] =
           expression.arguments.map(handleExpression);
         return withExtras<{ target: Expression }, LuaCallExpression>({
-          target: originalCalleeObject.object,
+          target: expression.callee.object.object,
         })(
-          callExpression(arrayMethod(originalCalleeObject.property.name), [
-            thisArg,
-            ...restArgs,
-          ])
+          restArgs.length === 1
+            ? unshiftSingleElement(thisArg, restArgs[0])
+            : unshiftMultipleElements(thisArg, restArgs)
         );
       }
     }
-
     return undefined;
   });

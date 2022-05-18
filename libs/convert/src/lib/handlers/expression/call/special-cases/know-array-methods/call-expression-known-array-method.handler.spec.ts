@@ -194,8 +194,9 @@ describe('Known Array method calls Handler', () => {
       expect(handleKnownArrayMethodCall(source, {}, given)).toEqual(undefined);
     });
 
-    arrayPolyfilledMethodNames.forEach((methodName) => {
-      it(`should handle array polyfilled method: ${methodName}`, () => {
+    it.each(arrayPolyfilledMethodNames)(
+      `should handle array polyfilled method: %s`,
+      (methodName) => {
         const given = babelCallExpression(
           babelMemberExpression(
             babelArrayExpression([]),
@@ -222,8 +223,8 @@ describe('Known Array method calls Handler', () => {
         );
 
         expect(handleKnownArrayMethodCall(source, {}, given)).toEqual(expected);
-      });
-    });
+      }
+    );
   });
 
   describe('for possible an array', () => {
@@ -364,8 +365,9 @@ describe('Known Array method calls Handler', () => {
       expect(handleKnownArrayMethodCall(source, {}, given)).toEqual(expected);
     });
 
-    arrayPolyfilledMethodNames.forEach((methodName) => {
-      it(`should handle array polyfilled method: ${methodName}`, () => {
+    it.each(arrayPolyfilledMethodNames)(
+      `should handle array polyfilled method: %s`,
+      (methodName) => {
         const source = 'foo.push(1)';
         const given = babelCallExpression(
           babelMemberExpression(
@@ -400,13 +402,14 @@ describe('Known Array method calls Handler', () => {
         );
 
         expect(handleKnownArrayMethodCall(source, {}, given)).toEqual(expected);
-      });
-    });
+      }
+    );
   });
 
-  describe('for unpolyfilled methods', () => {
-    ['reduceRight'].forEach((methodName) => {
-      it(`should not handle array unpolyfilled method: ${methodName}`, () => {
+  describe.each(['reduceRight'])(
+    'for unpolyfilled method: %s',
+    (methodName) => {
+      it(`should not handle simple call`, () => {
         const given = babelCallExpression(
           babelMemberExpression(
             babelIdentifier('foo'),
@@ -419,6 +422,6 @@ describe('Known Array method calls Handler', () => {
           undefined
         );
       });
-    });
-  });
+    }
+  );
 });

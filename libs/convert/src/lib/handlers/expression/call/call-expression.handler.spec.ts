@@ -16,7 +16,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { createCallExpressionHandler } from './call-expression.handler';
 import { expressionHandler } from '../../expression-statement.handler';
-import { USE_DOT_NOTATION_IN_CALL_EXPRESSION } from './call-expression-dot-notation.handler';
+import { USE_DOT_NOTATION_IN_CALL_EXPRESSION } from './special-cases/call-expression-dot-notation.handler';
 
 const source = '';
 
@@ -131,9 +131,11 @@ describe('Call Expression Handler', () => {
       expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
     });
 
-    USE_DOT_NOTATION_IN_CALL_EXPRESSION.filter(
-      (e): e is string => typeof e === 'string'
-    ).forEach((id) => {
+    describe.each(
+      USE_DOT_NOTATION_IN_CALL_EXPRESSION.filter(
+        (e): e is string => typeof e === 'string'
+      )
+    )('dot notation special cases: %s', (id) => {
       it(`should handle not computed ${id} object`, () => {
         const given = babelCallExpression(
           babelMemberExpression(babelIdentifier(id), babelIdentifier('foo')),
@@ -231,6 +233,32 @@ describe('Call Expression Handler', () => {
         '.',
         identifier('UnixTimestampMillis')
       );
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle parseInt simple function call', () => {
+      const given = babelCallExpression(babelIdentifier('parseInt'), [
+        babelIdentifier('foo'),
+      ]);
+
+      const expected = callExpression(identifier('tonumber'), [
+        identifier('foo'),
+      ]);
+
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle parseInt with base function call', () => {
+      const given = babelCallExpression(babelIdentifier('parseInt'), [
+        babelIdentifier('foo'),
+        babelNumericLiteral(16),
+      ]);
+
+      const expected = callExpression(identifier('tonumber'), [
+        identifier('foo'),
+        numericLiteral(16),
+      ]);
+
       expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
     });
   });

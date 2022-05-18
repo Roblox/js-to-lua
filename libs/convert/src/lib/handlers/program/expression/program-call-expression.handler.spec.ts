@@ -133,5 +133,38 @@ describe('Program handler', () => {
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
     });
+
+    it('should handle parseInt simple function call', () => {
+      const source = `
+        parseInt(foo)
+      `;
+      const given = getProgramNode(source);
+
+      const expected = program([
+        expressionStatement(
+          callExpression(identifier('tonumber'), [identifier('foo')])
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle parseInt with base function call', () => {
+      const source = `
+        parseInt(foo, 16)
+      `;
+      const given = getProgramNode(source);
+
+      const expected = program([
+        expressionStatement(
+          callExpression(identifier('tonumber'), [
+            identifier('foo'),
+            numericLiteral(16, '16'),
+          ])
+        ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
   });
 });
