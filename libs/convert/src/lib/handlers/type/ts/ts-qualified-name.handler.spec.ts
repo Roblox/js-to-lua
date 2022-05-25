@@ -1,4 +1,5 @@
 import { identifier as babelIdentifier, tsQualifiedName } from '@babel/types';
+import { createWithQualifiedNameAdditionalImportExtra } from '@js-to-lua/lua-conversion-utils';
 import { identifier } from '@js-to-lua/lua-types';
 import { createTsQualifiedNameHandler } from './ts-qualified-name.handler';
 
@@ -12,7 +13,10 @@ describe('TSQualifiedName handler', () => {
       babelIdentifier('Bar')
     );
 
-    const expected = identifier('Foo_Bar');
+    const expected = createWithQualifiedNameAdditionalImportExtra(
+      'Foo_Bar',
+      'Foo'
+    )(identifier('Foo_Bar'));
 
     expect(tsQualifiedNameHandler.handler(source, {}, given)).toEqual(expected);
   });
@@ -26,7 +30,10 @@ describe('TSQualifiedName handler', () => {
       babelIdentifier('Fuzz')
     );
 
-    const expected = identifier('Foo_Bar_Baz_Fuzz');
+    const expected = createWithQualifiedNameAdditionalImportExtra(
+      'Foo_Bar_Baz_Fuzz',
+      'Foo'
+    )(identifier('Foo_Bar_Baz_Fuzz'));
 
     expect(tsQualifiedNameHandler.handler(source, {}, given)).toEqual(expected);
   });

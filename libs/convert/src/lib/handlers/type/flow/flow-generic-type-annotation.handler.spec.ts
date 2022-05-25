@@ -10,7 +10,11 @@ import {
   typeParameterInstantiation as babelTypeParameterInstantiation,
 } from '@babel/types';
 import { createHandlerFunction, testUtils } from '@js-to-lua/handler-utils';
-import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
+import {
+  createWithQualifiedNameAdditionalImportExtra,
+  withOriginalIds,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   typeAny,
@@ -84,7 +88,12 @@ describe('Flow - GenericAnnotationType handler', () => {
     const given = babelGenericTypeAnnotation(
       qualifiedTypeIdentifier(babelIdentifier('A'), babelIdentifier('B'))
     );
-    const expected = typeReference(identifier('B_A'));
+    const expected = typeReference(
+      createWithQualifiedNameAdditionalImportExtra(
+        'B_A',
+        'B'
+      )(withOriginalIds(['B', 'A'], identifier('B_A')))
+    );
 
     expect(handler(source, {}, given)).toEqual(expected);
   });
@@ -95,7 +104,12 @@ describe('Flow - GenericAnnotationType handler', () => {
         qualifiedTypeIdentifier(babelIdentifier('B'), babelIdentifier('C'))
       )
     );
-    const expected = typeReference(identifier('C_B_A'));
+    const expected = typeReference(
+      createWithQualifiedNameAdditionalImportExtra(
+        'C_B_A',
+        'C'
+      )(withOriginalIds(['C', 'B', 'A'], identifier('C_B_A')))
+    );
 
     expect(handler(source, {}, given)).toEqual(expected);
   });

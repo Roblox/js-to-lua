@@ -10,7 +10,6 @@ import {
   TypeAnnotation,
 } from '@babel/types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
-import { defaultExpressionHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaBinaryExpression,
   LuaExpression,
@@ -26,6 +25,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
 import { createTsInterfaceBodyHandler } from '../type/ts/ts-interface-body.handler';
+import { createTsQualifiedNameHandler } from '../type/ts/ts-qualified-name.handler';
 import { createTsTypeParameterDeclarationHandler } from '../type/ts/ts-type-parameter-declaration.handler';
 
 export const createTsInterfaceHandler = (
@@ -49,24 +49,26 @@ export const createTsInterfaceHandler = (
     'TSInterfaceDeclaration',
     (source, config, node) => {
       const interfaceBody = handleTsInterfaceBody(source, config, node.body);
+      const handleTsQualifiedName = createTsQualifiedNameHandler().handler;
+
       const handleTsExpressionWithTypeArguments = (
         tsExpressionNode: TSExpressionWithTypeArguments
       ): LuaType =>
-        isBabelIdentifier(tsExpressionNode.expression)
-          ? typeReference(
-              handleIdentifier(source, config, tsExpressionNode.expression),
-              tsExpressionNode.typeParameters &&
-                tsExpressionNode.typeParameters.params.length
-                ? (tsExpressionNode.typeParameters.params.map(
-                    tsTypeHandlerFunction(source, config)
-                  ) as NonEmptyArray<LuaType>)
-                : undefined
-            )
-          : defaultExpressionHandler(
-              source,
-              config,
-              tsExpressionNode.expression
-            );
+        typeReference(
+          isBabelIdentifier(tsExpressionNode.expression)
+            ? handleIdentifier(source, config, tsExpressionNode.expression)
+            : handleTsQualifiedName(
+                source,
+                config,
+                tsExpressionNode.expression
+              ),
+          tsExpressionNode.typeParameters &&
+            tsExpressionNode.typeParameters.params.length
+            ? (tsExpressionNode.typeParameters.params.map(
+                tsTypeHandlerFunction(source, config)
+              ) as NonEmptyArray<LuaType>)
+            : undefined
+        );
 
       const handleTsTypeParameterDeclaration =
         createTsTypeParameterDeclarationHandler(tsTypeHandlerFunction).handler(
