@@ -4,7 +4,7 @@ interface BaseComment {
   loc: CommentLocation;
 }
 
-type CommentLocation =
+export type CommentLocation =
   | 'Any'
   | 'SameLineTrailingComment'
   | 'SameLineLeadingComment'

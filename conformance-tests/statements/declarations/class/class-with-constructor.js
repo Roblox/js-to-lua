@@ -1,10 +1,10 @@
 class BaseClass{
-    constructor(){
+  constructor(){
 
-    }
+  }
 }
 class MyClass extends BaseClass{
-    constructor(){
-        
-    }
+  constructor(){
+
+  }
 }

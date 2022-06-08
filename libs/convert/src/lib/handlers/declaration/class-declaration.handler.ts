@@ -37,8 +37,7 @@ import {
 import {
   defaultUnhandledIdentifierHandlerWithComment,
   getNodeSource,
-  reassignComments,
-  removeIdTypeAnnotation,
+  removeTypeAnnotation,
   typeReferenceWithoutDefaultType,
   selfIdentifier,
   withClassDeclarationExtra,
@@ -49,7 +48,6 @@ import {
   AssignmentStatementOperatorEnum,
   callExpression,
   functionDeclaration,
-  functionTypeParam,
   identifier,
   indexExpression,
   isIdentifier,
@@ -72,7 +70,6 @@ import {
   typeAnnotation,
   typeAny,
   typeCastExpression,
-  typeFunction,
   typeIntersection,
   typeLiteral,
   typePropertySignature,
@@ -92,6 +89,7 @@ import {
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 import { inferType } from '../type/infer-type';
 import { createTypeParameterDeclarationHandler } from '../type/type-parameter-declaration.handler';
+import { createHandlePublicMethodsAndProperties } from './class-public-methods-properties.handler';
 
 export const createClassDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -191,20 +189,23 @@ export const createClassDeclarationHandler = (
     }
     const classNodeIdentifier = classNodeMaybeIdentifier;
 
+    const handlePublicMethodsAndProperties =
+      createHandlePublicMethodsAndProperties(
+        handleExpression,
+        handleIdentifier,
+        handleTypeAnnotation,
+        handleType
+      )(source, { ...config, classIdentifier: classNodeIdentifier });
+
     const publicTypes: LuaPropertySignature[] = [
       ...constructorPublicTsParameters.map((property) => {
         const id = getParameterPropertyIdentifier(property);
         return typePropertySignature(
-          removeTypeAnnotations(id),
+          removeTypeAnnotation(id),
           handleClassTsParameterProperty(property)
         );
       }),
-      ...publicMethodsAndProperties.map((n) =>
-        typePropertySignature(
-          removeTypeAnnotations(handleExpression(source, config, n.key)),
-          handleClassMethodOrPropertyTypeAnnotation(n)
-        )
-      ),
+      ...publicMethodsAndProperties.map(handlePublicMethodsAndProperties),
     ];
 
     const handleTypeParameterDeclaration =
@@ -276,12 +277,6 @@ export const createClassDeclarationHandler = (
       ])
     );
 
-    function removeTypeAnnotations<T>(node: T) {
-      const newNode: T = { ...node };
-      delete (newNode as any).typeAnnotation;
-      return newNode;
-    }
-
     function handleStaticProps(property: ClassProperty | ClassPrivateProperty) {
       const propertyKey = !isPrivateName(property.key)
         ? handleExpression(source, config, property.key)
@@ -314,7 +309,7 @@ export const createClassDeclarationHandler = (
               handleIdentifier(
                 source,
                 config,
-                removeTypeAnnotations(node.parameter)
+                removeTypeAnnotation(node.parameter)
               )
             ),
           ],
@@ -322,7 +317,7 @@ export const createClassDeclarationHandler = (
             handleIdentifier(
               source,
               config,
-              removeTypeAnnotations(node.parameter)
+              removeTypeAnnotation(node.parameter)
             ),
           ]
         );
@@ -338,7 +333,7 @@ export const createClassDeclarationHandler = (
               handleIdentifier(
                 source,
                 config,
-                removeTypeAnnotations(node.parameter.left)
+                removeTypeAnnotation(node.parameter.left)
               )
             ),
           ],
@@ -346,7 +341,7 @@ export const createClassDeclarationHandler = (
             handleIdentifier(
               source,
               config,
-              removeTypeAnnotations(node.parameter.left)
+              removeTypeAnnotation(node.parameter.left)
             ),
           ]
         );
@@ -489,50 +484,6 @@ export const createClassDeclarationHandler = (
             `ROBLOX comment: unhandled key type ${node.key.type}`,
             getNodeSource(source, node.key)
           );
-    }
-
-    function handleClassMethodOrPropertyTypeAnnotation(
-      node: ClassMethod | TSDeclareMethod | ClassProperty
-    ): LuaTypeAnnotation {
-      if (isClassMethod(node) || isTSDeclareMethod(node)) {
-        const fnParams = functionParamsHandler(source, config, node).map(
-          (param) =>
-            functionTypeParam(
-              removeIdTypeAnnotation(param),
-              param.typeAnnotation
-                ? param.typeAnnotation.typeAnnotation
-                : typeAny()
-            )
-        );
-
-        return typeAnnotation(
-          typeFunction(
-            [
-              functionTypeParam(
-                identifier('self'),
-                typeReference(classNodeIdentifier)
-              ),
-              ...fnParams,
-            ],
-            node.returnType
-              ? applyTo(
-                  handleTypeAnnotation(source, config, node.returnType),
-                  (typeAnnotationNode) =>
-                    reassignComments(
-                      typeAnnotationNode.typeAnnotation,
-                      typeAnnotationNode
-                    )
-                )
-              : typeAny()
-          )
-        );
-      }
-
-      return node.typeAnnotation
-        ? handleTypeAnnotation(source, config, node.typeAnnotation)
-        : node.value
-        ? typeAnnotation(inferType(node.value))
-        : typeAnnotation(typeAny());
     }
 
     function handleClassTsParameterProperty(

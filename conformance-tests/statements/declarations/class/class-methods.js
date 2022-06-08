@@ -1,9 +1,9 @@
 class BaseClass {
-    method(){}
-    static staticMethod(){}
+  method(){}
+  static staticMethod(){}
 }
 
 class MyClass extends BaseClass {
-    method(){}
-    static staticMethod(){}
+  method(){}
+  static staticMethod(){}
 }

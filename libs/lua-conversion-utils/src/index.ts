@@ -16,6 +16,7 @@ export * from './lib/is-lua-truthy';
 export * from './lib/is-pure';
 export * from './lib/member-expression-from-path';
 export * from './lib/remove-id-type-annotation';
+export * from './lib/remove-type-annotation';
 export * from './lib/extras';
 export * from './lib/string-inferable';
 export * from './lib/type-reference-without-default-type';

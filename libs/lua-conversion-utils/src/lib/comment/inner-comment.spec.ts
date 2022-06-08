@@ -1,10 +1,13 @@
 import { commentBlock } from '@js-to-lua/lua-types';
 import { mockNode } from '@js-to-lua/lua-types/test-utils';
-import { withInnerConversionComment } from './inner-comment';
+import {
+  withAnyInnerConversionComments,
+  withInnerConversionComment,
+} from './inner-comment';
 
 describe('Inner conversion comment', () => {
   describe('first comment', () => {
-    it('should add one inner comment', () => {
+    it('should add one SameLineInnerComment inner comment', () => {
       const given = mockNode();
       const result = withInnerConversionComment(given, ' Inner comment ');
       const expected = {
@@ -17,7 +20,18 @@ describe('Inner conversion comment', () => {
       expect(result).toEqual(expected);
     });
 
-    it('should add one inner comment and wrap with spaces', () => {
+    it('should add one Any inner comment', () => {
+      const given = mockNode();
+      const result = withAnyInnerConversionComments(given, ' Inner comment ');
+      const expected = {
+        ...mockNode(),
+        innerComments: [commentBlock(' Inner comment ', 'Any')],
+      };
+
+      expect(result).toEqual(expected);
+    });
+
+    it('should add one SameLineInnerComment inner comment and wrap with spaces', () => {
       const given = mockNode();
       const result = withInnerConversionComment(given, 'Inner comment');
       const expected = {
@@ -25,6 +39,17 @@ describe('Inner conversion comment', () => {
         innerComments: [
           commentBlock(' Inner comment ', 'SameLineInnerComment'),
         ],
+      };
+
+      expect(result).toEqual(expected);
+    });
+
+    it('should add one Any inner comment and wrap with spaces', () => {
+      const given = mockNode();
+      const result = withAnyInnerConversionComments(given, 'Inner comment');
+      const expected = {
+        ...mockNode(),
+        innerComments: [commentBlock(' Inner comment ', 'Any')],
       };
 
       expect(result).toEqual(expected);

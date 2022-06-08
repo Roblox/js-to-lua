@@ -1,12 +1,18 @@
 import { commentBlock } from '@js-to-lua/lua-types';
 import { mockNode } from '@js-to-lua/lua-types/test-utils';
-import { withLeadingConversionComment } from './leading-comment';
+import {
+  withAnyLeadingConversionComments,
+  withSameLineLeadingConversionComments,
+} from './leading-comment';
 
-describe('Leading conversion comment', () => {
+describe('Leading SameLineLeadingComment conversion comment', () => {
   describe('first comment', () => {
     it('should add one leading comment', () => {
       const given = mockNode();
-      const result = withLeadingConversionComment(given, ' Leading comment ');
+      const result = withSameLineLeadingConversionComments(
+        given,
+        ' Leading comment '
+      );
       const expected = {
         ...mockNode(),
         leadingComments: [
@@ -17,14 +23,42 @@ describe('Leading conversion comment', () => {
       expect(result).toEqual(expected);
     });
 
-    it('should add one leading comment and wrap with spaces', () => {
+    it('should add one Any leading comment', () => {
       const given = mockNode();
-      const result = withLeadingConversionComment(given, 'Leading comment');
+      const result = withAnyLeadingConversionComments(
+        given,
+        ' Leading comment '
+      );
+      const expected = {
+        ...mockNode(),
+        leadingComments: [commentBlock(' Leading comment ', 'Any')],
+      };
+
+      expect(result).toEqual(expected);
+    });
+
+    it('should add one SameLineLeadingComment leading comment and wrap with spaces', () => {
+      const given = mockNode();
+      const result = withSameLineLeadingConversionComments(
+        given,
+        'Leading comment'
+      );
       const expected = {
         ...mockNode(),
         leadingComments: [
           commentBlock(' Leading comment ', 'SameLineLeadingComment'),
         ],
+      };
+
+      expect(result).toEqual(expected);
+    });
+
+    it('should add one Any leading comment and wrap with spaces', () => {
+      const given = mockNode();
+      const result = withAnyLeadingConversionComments(given, 'Leading comment');
+      const expected = {
+        ...mockNode(),
+        leadingComments: [commentBlock(' Leading comment ', 'Any')],
       };
 
       expect(result).toEqual(expected);
@@ -32,7 +66,7 @@ describe('Leading conversion comment', () => {
 
     it('should add one leading trimmed comment and wrap with spaces', () => {
       const given = mockNode();
-      const result = withLeadingConversionComment(
+      const result = withSameLineLeadingConversionComments(
         given,
         '  \tLeading comment\t\t   \t'
       );
@@ -48,7 +82,7 @@ describe('Leading conversion comment', () => {
 
     it('should add empty comment', () => {
       const given = mockNode();
-      const result = withLeadingConversionComment(given, '');
+      const result = withSameLineLeadingConversionComments(given, '');
       const expected = mockNode();
 
       expect(result).toEqual(expected);
@@ -61,7 +95,10 @@ describe('Leading conversion comment', () => {
         ...mockNode(),
         leadingComments: [commentBlock('Existing comment')],
       };
-      const result = withLeadingConversionComment(given, ' Leading comment ');
+      const result = withSameLineLeadingConversionComments(
+        given,
+        ' Leading comment '
+      );
       const expected = {
         ...mockNode(),
         leadingComments: [
@@ -78,7 +115,10 @@ describe('Leading conversion comment', () => {
         ...mockNode(),
         leadingComments: [commentBlock('Existing comment')],
       };
-      const result = withLeadingConversionComment(given, 'Leading comment');
+      const result = withSameLineLeadingConversionComments(
+        given,
+        'Leading comment'
+      );
       const expected = {
         ...mockNode(),
         leadingComments: [
@@ -95,7 +135,7 @@ describe('Leading conversion comment', () => {
         ...mockNode(),
         leadingComments: [commentBlock('Existing comment')],
       };
-      const result = withLeadingConversionComment(
+      const result = withSameLineLeadingConversionComments(
         given,
         '  \tLeading comment\t\t   \t'
       );
@@ -115,7 +155,7 @@ describe('Leading conversion comment', () => {
         ...mockNode(),
         leadingComments: [commentBlock('Existing comment')],
       };
-      const result = withLeadingConversionComment(given, '');
+      const result = withSameLineLeadingConversionComments(given, '');
       const expected = {
         ...mockNode(),
         leadingComments: [commentBlock('Existing comment')],

@@ -1,5 +1,8 @@
 import {
   selfIdentifier,
+  withAnyLeadingConversionComments,
+  withAnyTrailingConversionComment,
+  withSameLineLeadingConversionComments,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -102,6 +105,92 @@ describe('Program handler', () => {
         ]);
 
         expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should preserve  class public method/property comments', () => {
+        const given = getProgramNode(`
+        class BaseClass {
+          /* Comment before foo */
+          foo;
+
+          /* Comment before bar */
+          bar(){};
+        }
+      `);
+
+        const expected = program([
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                withAnyTrailingConversionComment(
+                  withAnyLeadingConversionComments(
+                    typePropertySignature(
+                      identifier('foo'),
+                      typeAnnotation(typeAny())
+                    ),
+                    'Comment before foo'
+                  ),
+                  'Comment before bar'
+                ),
+                withAnyLeadingConversionComments(
+                  typePropertySignature(
+                    identifier('bar'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionTypeParam(
+                            selfIdentifier(),
+                            typeReference(identifier('BaseClass'))
+                          ),
+                        ],
+                        typeAny()
+                      )
+                    )
+                  ),
+                  'Comment before bar'
+                ),
+              ])
+            ),
+            ...baseClassDefaultExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass.new`),
+              [],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeAnnotation(typeReference(identifier('BaseClass'))),
+              false
+            ),
+            functionDeclaration(
+              identifier('BaseClass:bar'),
+              [],
+              nodeGroup([]),
+              undefined,
+              false
+            ),
+          ]),
+        ]);
+
+        const actual = handleProgram.handler(source, {}, given);
+
+        expect(actual).toEqual(expected);
       });
 
       it('should convert generic class', () => {

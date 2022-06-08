@@ -1,19 +1,18 @@
-import { BaseLuaNode, commentBlock, LuaComment } from '@js-to-lua/lua-types';
+import {
+  BaseLuaNode,
+  commentBlock,
+  CommentLocation,
+  LuaComment,
+} from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { trimValueAndWrapWithSpaces } from './trim-values';
 
-export const withLeadingConversionComment = <N extends BaseLuaNode>(
+export const withLeadingComments = <N extends BaseLuaNode>(
   node: N,
-  ...conversionComments: string[]
+  ...comments: LuaComment[]
 ): N => {
   const leadingComments = Array<LuaComment>().concat(
-    ...[
-      node.leadingComments,
-      conversionComments
-        .filter(isTruthy)
-        .map(trimValueAndWrapWithSpaces)
-        .map((comment) => commentBlock(comment, 'SameLineLeadingComment')),
-    ].filter(isTruthy)
+    ...[node.leadingComments, comments].filter(isTruthy)
   );
 
   return {
@@ -25,3 +24,31 @@ export const withLeadingConversionComment = <N extends BaseLuaNode>(
       : {}),
   };
 };
+
+export const withLeadingConversionComments = <N extends BaseLuaNode>(
+  node: N,
+  location: CommentLocation,
+  ...conversionComments: string[]
+): N =>
+  withLeadingComments(
+    node,
+    ...conversionComments
+      .filter(isTruthy)
+      .map(trimValueAndWrapWithSpaces)
+      .map((comment) => commentBlock(comment, location))
+  );
+
+export const withSameLineLeadingConversionComments = <N extends BaseLuaNode>(
+  node: N,
+  ...conversionComments: string[]
+): N =>
+  withLeadingConversionComments(
+    node,
+    'SameLineLeadingComment',
+    ...conversionComments
+  );
+
+export const withAnyLeadingConversionComments = <N extends BaseLuaNode>(
+  node: N,
+  ...conversionComments: string[]
+): N => withLeadingConversionComments(node, 'Any', ...conversionComments);
