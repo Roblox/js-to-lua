@@ -5,7 +5,6 @@ import {
   SpreadElement,
 } from '@babel/types';
 import {
-  createHandler,
   createHandlerFunction,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
@@ -16,7 +15,6 @@ import {
   isTableNoKeyField,
   LuaCallExpression,
   LuaExpression,
-  LuaTableConstructor,
   LuaTableKeyField,
   tableConstructor,
 } from '@js-to-lua/lua-types';
@@ -26,15 +24,15 @@ import {
   ObjectExpressionProperty,
 } from './object-expression.types';
 
-export const createObjectExpressionHandler = (
+export const createObjectExpressionWithSpreadHandler = (
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
   objectFieldHandlerFunction: HandlerFunction<
     LuaTableKeyField,
     NoSpreadObjectProperty
   >
 ) => {
-  const handleObjectExpressionWithSpread = createHandlerFunction(
-    (source, config, expression: ObjectExpression): LuaCallExpression => {
+  return createHandlerFunction<LuaCallExpression, ObjectExpression>(
+    (source, config, expression: ObjectExpression) => {
       const propertiesGroups = expression.properties.reduce(
         splitBy<ObjectExpressionProperty, SpreadElement>(isBabelSpreadElement),
         []
@@ -57,21 +55,5 @@ export const createObjectExpressionHandler = (
       return callExpression(objectAssign(), [tableConstructor([]), ...args]);
     },
     { skipComments: true }
-  );
-
-  const handleObjectExpressionWithoutSpread = createHandlerFunction(
-    (source, config, expression: ObjectExpression): LuaTableConstructor =>
-      tableConstructor(
-        expression.properties.map(objectFieldHandlerFunction(source, config))
-      ),
-    { skipComments: true }
-  );
-
-  return createHandler(
-    'ObjectExpression',
-    (source, config, expression: ObjectExpression) =>
-      expression.properties.every((prop) => prop.type !== 'SpreadElement')
-        ? handleObjectExpressionWithoutSpread(source, config, expression)
-        : handleObjectExpressionWithSpread(source, config, expression)
   );
 };

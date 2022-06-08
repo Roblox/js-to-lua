@@ -4,6 +4,7 @@ import {
   ExpressionStatement,
 } from '@babel/types';
 import {
+  AsStatementHandlerFunction,
   BaseNodeAsStatementHandler,
   BaseNodeHandler,
   combineAsStatementHandlers,
@@ -18,8 +19,11 @@ import {
   AssignmentStatement,
   LuaExpression,
   LuaStatement,
+  LuaTableConstructor,
+  LuaTableKeyField,
 } from '@js-to-lua/lua-types';
 import { createExpressionAsStatementHandler } from '../expression/expression.handler';
+import { NoSpreadObjectProperty } from '../expression/object-expression/object-expression.types';
 import { createUpdateExpressionAsStatementHandler } from '../expression/update-expression.handler';
 
 export const createExpressionStatementHandler = (
@@ -27,13 +31,19 @@ export const createExpressionStatementHandler = (
   handleAssignmentExpressionAsStatement: BaseNodeAsStatementHandler<
     AssignmentStatement,
     AssignmentExpression
+  >,
+  handleObjectFieldAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
+    NoSpreadObjectProperty,
+    LuaTableConstructor<[LuaTableKeyField]>
   >
 ) => {
   const handleUpdateExpressionAsStatement =
     createUpdateExpressionAsStatementHandler(handleExpression.handler);
   const handleExpressionAsStatement = createExpressionAsStatementHandler(
     handleExpression,
-    handleAssignmentExpressionAsStatement
+    handleAssignmentExpressionAsStatement,
+    handleObjectFieldAsStatement
   );
 
   return createHandler<LuaStatement, ExpressionStatement>(

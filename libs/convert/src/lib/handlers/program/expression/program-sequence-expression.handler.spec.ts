@@ -6,7 +6,6 @@ import {
   callExpression,
   expressionStatement,
   functionDeclaration,
-  functionExpression,
   identifier,
   nodeGroup,
   numericLiteral,
@@ -33,46 +32,29 @@ describe('Program handler', () => {
       const given = getProgramNode(source);
 
       const expected = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              tableConstructor([
-                tableNameKeyField(
-                  identifier('bar'),
-                  callExpression(
-                    functionExpression(
-                      [],
-                      nodeGroup([
-                        assignmentStatement(
-                          AssignmentStatementOperatorEnum.EQ,
-                          [identifier('a')],
-                          [numericLiteral(0, '0')]
-                        ),
-                        assignmentStatement(
-                          AssignmentStatementOperatorEnum.EQ,
-                          [identifier('b')],
-                          [
-                            binaryExpression(
-                              identifier('a'),
-                              '+',
-                              numericLiteral(1, '1')
-                            ),
-                          ]
-                        ),
-                        expressionStatement(
-                          callExpression(identifier('bar'), [])
-                        ),
-                        returnStatement(identifier('a')),
-                      ])
-                    ),
-                    []
-                  )
-                ),
-              ])
-            ),
-          ]
-        ),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [numericLiteral(0, '0')]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('b')],
+            [binaryExpression(identifier('a'), '+', numericLiteral(1, '1'))]
+          ),
+          expressionStatement(callExpression(identifier('bar'), [])),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('foo'))],
+            [
+              variableDeclaratorValue(
+                tableConstructor([
+                  tableNameKeyField(identifier('bar'), identifier('a')),
+                ])
+              ),
+            ]
+          ),
+        ]),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
@@ -87,42 +69,33 @@ describe('Program handler', () => {
       const given = getProgramNode(source);
 
       const expected = program([
-        variableDeclaration(
-          [variableDeclaratorIdentifier(identifier('foo'))],
-          [
-            variableDeclaratorValue(
-              tableConstructor([
-                tableNameKeyField(
-                  identifier('bar'),
-                  callExpression(
-                    functionExpression(
-                      [],
-                      nodeGroup([
-                        assignmentStatement(
-                          AssignmentStatementOperatorEnum.ADD,
-                          [identifier('a')],
-                          [numericLiteral(1)]
-                        ),
-                        assignmentStatement(
-                          AssignmentStatementOperatorEnum.ADD,
-                          [identifier('a')],
-                          [numericLiteral(1)]
-                        ),
-                        assignmentStatement(
-                          AssignmentStatementOperatorEnum.EQ,
-                          [identifier('b')],
-                          [identifier('a')]
-                        ),
-                        returnStatement(identifier('a')),
-                      ])
-                    ),
-                    []
-                  )
-                ),
-              ])
-            ),
-          ]
-        ),
+        nodeGroup([
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.ADD,
+            [identifier('a')],
+            [numericLiteral(1)]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.ADD,
+            [identifier('a')],
+            [numericLiteral(1)]
+          ),
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('b')],
+            [identifier('a')]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('foo'))],
+            [
+              variableDeclaratorValue(
+                tableConstructor([
+                  tableNameKeyField(identifier('bar'), identifier('a')),
+                ])
+              ),
+            ]
+          ),
+        ]),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);

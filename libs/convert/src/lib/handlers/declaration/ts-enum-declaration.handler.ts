@@ -174,10 +174,9 @@ export const createTsEnumHandler = (
     });
   const handleEnumMembersTable = createHandlerFunction(
     (source, config, declaration: TSEnumDeclaration) => {
+      const enumMemberToTableField = handleEnumMember.handler(source, config);
       return tableConstructor(
-        autoIncrementMembers(declaration.members).map(
-          handleEnumMember.handler(source, config)
-        )
+        autoIncrementMembers(declaration.members).map(enumMemberToTableField)
       );
     }
   );

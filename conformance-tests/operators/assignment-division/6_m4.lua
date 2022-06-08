@@ -1,13 +1,8 @@
 local a, b, c = 1, 2, 3
-local foo = {
-	bar = (function()
-		b /= c
-		a /= b
-		return a
-	end)(),
-	baz = (function()
-		b /= 1
-		a /= b
-		return a
-	end)(),
-}
+b /= c
+a /= b
+local refProp0 = a
+b /= 1
+a /= b
+local refProp1 = a
+local foo = { bar = refProp0, baz = refProp1 }

@@ -9,13 +9,13 @@ type AsStatementStandalone<R extends LuaStatement = LuaStatement> = {
   postStatements: R[];
 };
 
-type AsStatementWithIdentifiers<
+type AsStatementWithIdentifier<
   R extends LuaStatement = LuaStatement,
   I extends LuaExpression = LuaExpression
 > = {
   preStatements: R[];
   postStatements: R[];
-  identifiers: I[];
+  identifier: I;
 };
 
 export type AsStatementReturnTypeStandaloneOrInline<
@@ -24,7 +24,7 @@ export type AsStatementReturnTypeStandaloneOrInline<
 > = {
   type: typeof STANDALONE_OR_INLINE_TYPE;
   standalone: AsStatementStandalone<R>;
-  inline: AsStatementWithIdentifiers<R, I>;
+  inline: AsStatementWithIdentifier<R, I>;
 };
 
 export const asStatementStandalone = <R extends LuaStatement = LuaStatement>(
@@ -41,13 +41,13 @@ export const asStatementInline = <
   R extends LuaStatement = LuaStatement,
   I extends LuaExpression = LuaExpression
 >(
-  preStatements: AsStatementWithIdentifiers<R, I>['preStatements'],
-  postStatements: AsStatementWithIdentifiers<R, I>['postStatements'],
-  ...identifiers: AsStatementWithIdentifiers<R, I>['identifiers']
-): AsStatementWithIdentifiers<R, I> => ({
+  preStatements: AsStatementWithIdentifier<R, I>['preStatements'],
+  postStatements: AsStatementWithIdentifier<R, I>['postStatements'],
+  identifier: AsStatementWithIdentifier<R, I>['identifier']
+): AsStatementWithIdentifier<R, I> => ({
   preStatements,
   postStatements,
-  identifiers,
+  identifier,
 });
 
 export const asStatementReturnTypeStandaloneOrInline = <

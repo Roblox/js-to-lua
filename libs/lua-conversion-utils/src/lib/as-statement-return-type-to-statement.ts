@@ -51,13 +51,13 @@ export const asStatementReturnTypeToReturnStatement = (
     return [
       ...value.inline.preStatements,
       ...value.inline.postStatements,
-      returnStatement(...value.inline.identifiers),
+      returnStatement(value.inline.identifier),
     ];
   }
 
   const resultExpression = isAsStatementReturnTypeInline(value)
-    ? [value.inlineExpression]
-    : value.identifiers;
+    ? value.inlineExpression
+    : value.identifier;
 
   const returnId = identifier(generateUniqueIdentifier([], 'ref'));
 
@@ -66,12 +66,12 @@ export const asStatementReturnTypeToReturnStatement = (
         ...value.preStatements,
         variableDeclaration(
           [variableDeclaratorIdentifier(returnId)],
-          resultExpression.map(variableDeclaratorValue)
+          [variableDeclaratorValue(resultExpression)]
         ),
         ...value.postStatements,
         returnStatement(returnId),
       ]
-    : [...value.preStatements, returnStatement(...resultExpression)];
+    : [...value.preStatements, returnStatement(resultExpression)];
 };
 
 export const asStatementReturnTypeToExpression = (
@@ -90,17 +90,22 @@ export const asStatementReturnTypeToExpression = (
       );
 };
 
+export type AsStatementReturnValue<
+  R extends LuaStatement = LuaStatement,
+  I extends LuaExpression = LuaExpression
+> = { preStatements: R[]; postStatements: R[]; toReturn: I };
+
 export const asStatementReturnTypeToReturn = <
   R extends LuaStatement = LuaStatement,
   I extends LuaExpression = LuaExpression
 >(
   value: AsStatementReturnType<R, I>
-): { preStatements: R[]; postStatements: R[]; toReturn: I[] } => {
+): AsStatementReturnValue<R, I> => {
   const toReturn = isAsStatementReturnTypeInline(value)
-    ? [value.inlineExpression]
+    ? value.inlineExpression
     : isAsStatementReturnTypeWithIdentifier(value)
-    ? value.identifiers
-    : value.inline.identifiers;
+    ? value.identifier
+    : value.inline.identifier;
 
   const { preStatements, postStatements } =
     isAsStatementReturnTypeStandaloneOrInline(value) ? value.inline : value;

@@ -5,7 +5,6 @@ import {
   LuaNode,
   LuaStatement,
 } from '@js-to-lua/lua-types';
-import { NonEmptyArray } from '@js-to-lua/shared-utils';
 import { appendComments } from './append-comments';
 import {
   AsStatementReturnType,
@@ -77,9 +76,12 @@ export const handleAsStatementResultComments = <
     : isAsStatementReturnTypeWithIdentifier(result)
     ? {
         ...result,
-        identifiers: result.identifiers.map((id, idx) =>
-          idx === 0 ? handleComments(source, babelNode, id, shouldWrap) : id
-        ) as NonEmptyArray<I>,
+        identifier: handleComments(
+          source,
+          babelNode,
+          result.identifier,
+          shouldWrap
+        ),
       }
     : {
         ...result,
@@ -94,9 +96,12 @@ export const handleAsStatementResultComments = <
         },
         inline: {
           ...result.inline,
-          identifiers: result.inline.identifiers.map((id, idx) =>
-            idx === 0 ? handleComments(source, babelNode, id, shouldWrap) : id
-          ) as NonEmptyArray<I>,
+          identifier: handleComments(
+            source,
+            babelNode,
+            result.inline.identifier,
+            shouldWrap
+          ),
         },
       };
 };

@@ -11,6 +11,7 @@ import {
 import {
   asStatementReturnTypeToExpression,
   generateUniqueIdentifier,
+  isPure,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
@@ -22,8 +23,6 @@ import {
   ifElseExpression,
   ifExpressionClause,
   ifStatement,
-  isIdentifier,
-  isMemberExpression,
   LuaExpression,
   LuaStatement,
   nilLiteral,
@@ -68,11 +67,7 @@ export const createOptionalCallExpressionAsStatementHandler = (
         node.arguments
       );
 
-      // TODO: extract this logic and "&&" logical expression handling logic into one
-      if (
-        isIdentifier(calleeExpression) ||
-        isMemberExpression(calleeExpression)
-      ) {
+      if (isPure(calleeExpression)) {
         return asStatementReturnTypeStandaloneOrInline(
           asStatementStandalone(
             [],

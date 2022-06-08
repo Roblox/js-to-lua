@@ -27,7 +27,7 @@ import {
   LuaType,
   LuaTypeAnnotation,
 } from '@js-to-lua/lua-types';
-import { IdentifierHandlerFunction } from './identifier-handler-types';
+import { IdentifierHandlerFunction } from '../identifier-handler-types';
 import { NoSpreadObjectProperty } from './object-expression.types';
 import { createObjectMethodHandler } from './object-method.handler';
 import { createObjectPropertyHandler } from './object-property.handler';

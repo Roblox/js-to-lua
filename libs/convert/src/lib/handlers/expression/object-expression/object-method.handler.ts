@@ -35,8 +35,8 @@ import {
 import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
-} from '../function-params.handler';
-import { IdentifierHandlerFunction } from './identifier-handler-types';
+} from '../../function-params.handler';
+import { IdentifierHandlerFunction } from '../identifier-handler-types';
 import { createObjectKeyExpressionHandler } from './object-key-expression.handler';
 import { createObjectPropertyIdentifierHandler } from './object-property-identifier.handler';
 

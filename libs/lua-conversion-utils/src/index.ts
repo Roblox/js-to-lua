@@ -13,6 +13,7 @@ export * from './lib/get-object-property-expression';
 export * from './lib/get-return-expressions';
 export * from './lib/handlers';
 export * from './lib/is-lua-truthy';
+export * from './lib/is-pure';
 export * from './lib/member-expression-from-path';
 export * from './lib/remove-id-type-annotation';
 export * from './lib/extras';

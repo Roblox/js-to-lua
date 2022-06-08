@@ -11,6 +11,7 @@ import { combineStatementHandlers } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaExpression,
   LuaStatement,
+  LuaTableConstructor,
   LuaTableKeyField,
 } from '@js-to-lua/lua-types';
 import { createDeclarationHandler } from '../declaration/declaration.handler';
@@ -18,10 +19,10 @@ import {
   IdentifierHandlerFunction,
   IdentifierStrictHandlerFunction,
 } from '../expression/identifier-handler-types';
-import { NoSpreadObjectProperty } from '../expression/object-expression.types';
-import { createObjectKeyExpressionHandler } from '../expression/object-key-expression.handler';
-import { createObjectPropertyIdentifierHandler } from '../expression/object-property-identifier.handler';
-import { createObjectPropertyValueHandler } from '../expression/object-property-value.handler';
+import { NoSpreadObjectProperty } from '../expression/object-expression/object-expression.types';
+import { createObjectKeyExpressionHandler } from '../expression/object-expression/object-key-expression.handler';
+import { createObjectPropertyIdentifierHandler } from '../expression/object-expression/object-property-identifier.handler';
+import { createObjectPropertyValueHandler } from '../expression/object-expression/object-property-value.handler';
 import { createLValHandler } from '../l-val.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createAssignmentPatternHandlerFunction } from './assignment/assignment-pattern.handler';
@@ -44,6 +45,11 @@ export const createStatementHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleIdentifier: IdentifierHandlerFunction,
   handleObjectField: HandlerFunction<LuaTableKeyField, NoSpreadObjectProperty>,
+  handleObjectFieldAsStatement: AsStatementHandlerFunction<
+    LuaStatement,
+    NoSpreadObjectProperty,
+    LuaTableConstructor<[LuaTableKeyField]>
+  >,
   handleExpressionAsStatement: AsStatementHandlerFunction<
     LuaStatement,
     Expression
@@ -69,7 +75,8 @@ export const createStatementHandler = (
 
   const handleExpressionStatement = createExpressionStatementHandler(
     expressionHandler,
-    assignmentExpressionAsStatementHandler
+    assignmentExpressionAsStatementHandler,
+    handleObjectFieldAsStatement
   );
 
   const { handleTypeAnnotation, handleType } = createTypeAnnotationHandler(

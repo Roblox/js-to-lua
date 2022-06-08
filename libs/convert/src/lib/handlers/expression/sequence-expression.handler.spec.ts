@@ -165,7 +165,7 @@ describe('Sequence Expression Handler', () => {
             ...returnExpression1.preStatements,
             expressionStatement(returnExpression3.inlineExpression),
             ...returnExpression2.preStatements,
-            returnStatement(...returnExpression2.identifiers),
+            returnStatement(returnExpression2.identifier),
           ])
         ),
         []
@@ -241,7 +241,7 @@ describe('Sequence Expression Handler', () => {
           ...returnExpression2.preStatements,
         ],
         [],
-        ...returnExpression2.identifiers
+        returnExpression2.identifier
       );
 
       expect(

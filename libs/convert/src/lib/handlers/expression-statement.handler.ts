@@ -13,10 +13,11 @@ import {
   createIdentifierHandler,
   createIdentifierStrictHandler,
 } from './expression/identifier.handler';
-import { createObjectFieldHandler } from './expression/object-field.handler';
-import { createObjectKeyExpressionHandler } from './expression/object-key-expression.handler';
-import { createObjectPropertyIdentifierHandler } from './expression/object-property-identifier.handler';
-import { createObjectPropertyValueHandler } from './expression/object-property-value.handler';
+import { createObjectFieldAsStatementHandler } from './expression/object-expression/as-statement/object-field-as-statement.handler';
+import { createObjectFieldHandler } from './expression/object-expression/object-field.handler';
+import { createObjectKeyExpressionHandler } from './expression/object-expression/object-key-expression.handler';
+import { createObjectPropertyIdentifierHandler } from './expression/object-expression/object-property-identifier.handler';
+import { createObjectPropertyValueHandler } from './expression/object-expression/object-property-value.handler';
 import { createLValHandler } from './l-val.handler';
 import { createAssignmentExpressionAsStatementHandlerFunction } from './statement/assignment/assignment-expression-as-statement.handler';
 import { createAssignmentPatternHandlerFunction } from './statement/assignment/assignment-pattern.handler';
@@ -34,6 +35,9 @@ const forwardedHandleIdentifierStrict = forwardHandlerRef(
   () => identifierStrictHandler
 );
 const forwardedHandleObjectField = forwardHandlerRef(() => objectFieldHandler);
+const forwardedHandleObjectFieldAsStatement = forwardAsStatementHandlerRef(
+  () => objectFieldAsStatementHandler
+);
 const forwardedHandleTypeAnnotation = forwardHandlerFunctionRef(
   () => handleTypeAnnotation
 );
@@ -72,6 +76,7 @@ const expressionHandler = createExpressionHandler(
   forwardedHandleIdentifier,
   forwardedHandleStatement,
   forwardedHandleObjectField,
+  forwardedHandleObjectFieldAsStatement,
   assignmentExpressionAsStatementHandler
 );
 
@@ -110,6 +115,12 @@ const declarationHandler = createDeclarationHandler(
 
 export { expressionHandler };
 
+export const expressionAsStatementHandler = createExpressionAsStatementHandler(
+  expressionHandler,
+  assignmentExpressionAsStatementHandler,
+  forwardedHandleObjectFieldAsStatement
+);
+
 export const objectFieldHandler = createObjectFieldHandler(
   expressionHandler,
   forwardedHandleStatement,
@@ -121,6 +132,19 @@ export const objectFieldHandler = createObjectFieldHandler(
   forwardedHandleType
 );
 
+export const objectFieldAsStatementHandler =
+  createObjectFieldAsStatementHandler(
+    expressionHandler,
+    expressionAsStatementHandler,
+    forwardedHandleStatement,
+    forwardedHandleIdentifier,
+    forwardedHandleDeclaration,
+    forwardedHandleAssignmentPattern,
+    forwardedHandleLVal,
+    forwardedHandleTypeAnnotation,
+    forwardedHandleType
+  );
+
 export const handleObjectKeyExpression = createObjectKeyExpressionHandler(
   forwardedHandleExpression
 );
@@ -129,6 +153,7 @@ export const statementHandler = createStatementHandler(
   forwardedHandleIdentifierStrict,
   forwardedHandleIdentifier,
   forwardedHandleObjectField,
+  forwardedHandleObjectFieldAsStatement,
   forwardedHandleExpressionAsStatement,
   expressionHandler,
   assignmentExpressionAsStatementHandler
@@ -147,8 +172,3 @@ export const handleObjectPropertyValue = createObjectPropertyValueHandler(
 
 export const handleObjectPropertyIdentifier =
   createObjectPropertyIdentifierHandler(forwardedHandleIdentifier);
-
-export const expressionAsStatementHandler = createExpressionAsStatementHandler(
-  expressionHandler,
-  assignmentExpressionAsStatementHandler
-);

@@ -238,7 +238,7 @@ export const createAssignmentExpressionAsStatementHandlerFunction = (
         const { preStatements, postStatements, toReturn } =
           asStatementReturnTypeToReturn(rightAssignmentStatement);
 
-        const isRightStringInferable = toReturn.every(isStringInferable);
+        const isRightStringInferable = isStringInferable(toReturn);
 
         return isRightStringInferable &&
           operator === AssignmentStatementOperatorEnum.ADD
@@ -248,7 +248,7 @@ export const createAssignmentExpressionAsStatementHandlerFunction = (
                 assignmentStatement(
                   AssignmentStatementOperatorEnum.CONCAT,
                   [stringInferableExpression(leftExpression)],
-                  toReturn
+                  [toReturn]
                 ),
               ],
               postStatements,
@@ -257,7 +257,7 @@ export const createAssignmentExpressionAsStatementHandlerFunction = (
           : asStatementReturnTypeWithIdentifier(
               [
                 ...preStatements,
-                assignmentStatement(operator, [leftExpression], toReturn),
+                assignmentStatement(operator, [leftExpression], [toReturn]),
               ],
               postStatements,
               leftExpression
@@ -275,7 +275,7 @@ export const createAssignmentExpressionAsStatementHandlerFunction = (
       return asStatementReturnTypeWithIdentifier(
         [
           ...preStatements,
-          assignmentStatement(operator, [leftExpression_], toReturn),
+          assignmentStatement(operator, [leftExpression_], [toReturn]),
         ],
         postStatements,
         leftExpression_

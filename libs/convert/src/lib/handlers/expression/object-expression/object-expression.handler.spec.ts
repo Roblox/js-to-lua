@@ -26,7 +26,7 @@ import {
 import {
   expressionHandler,
   objectFieldHandler,
-} from '../expression-statement.handler';
+} from '../../expression-statement.handler';
 import { createObjectExpressionHandler } from './object-expression.handler';
 
 const source = '';

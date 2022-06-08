@@ -79,7 +79,7 @@ export const createLogicalExpressionAsStatementHandler = (
       const leftExpressionReturn = asStatementReturnTypeToReturn(
         leftAsStatementResult
       );
-      const leftExpression = leftExpressionReturn.toReturn[0];
+      const leftExpression = leftExpressionReturn.toReturn;
       const rightExpression = asStatementReturnTypeToExpression(
         rightAsStatementResult
       );

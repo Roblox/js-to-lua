@@ -3,7 +3,7 @@ import { identifier } from '@js-to-lua/lua-types';
 import { withBabelComments, withLuaComments } from '../test-utils';
 import { createAsStatementHandlerFunction } from './create-as-statement-handler-function';
 import { asStatementReturnTypeInline } from './return-type-inline';
-import { asStatementReturnTypeWithIdentifier } from './return-type-with-identifiers';
+import { asStatementReturnTypeWithIdentifier } from './return-type-with-identifier';
 
 describe('Create as statement handler function', () => {
   it.each([

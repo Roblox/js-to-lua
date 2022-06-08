@@ -1,17 +1,4 @@
-import {
-  AssignmentPattern,
-  ExportDefaultDeclaration,
-  Expression,
-  FlowType,
-  isIdentifier as isBabelIdentifier,
-  LVal,
-  Noop,
-  ObjectProperty,
-  Statement,
-  TSType,
-  TSTypeAnnotation,
-  TypeAnnotation,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   BaseNodeHandler,
   createHandler,
@@ -30,29 +17,29 @@ import {
   tableExpressionKeyField,
   tableKeyField,
 } from '@js-to-lua/lua-types';
-import { IdentifierHandlerFunction } from './identifier-handler-types';
+import { IdentifierHandlerFunction } from '../identifier-handler-types';
 import { createObjectKeyExpressionHandler } from './object-key-expression.handler';
 import { createObjectPropertyIdentifierHandler } from './object-property-identifier.handler';
 import { createObjectPropertyValueHandler } from './object-property-value.handler';
 
 export const createObjectPropertyHandler = (
-  expressionHandler: BaseNodeHandler<LuaExpression, Expression>,
-  handleStatement: HandlerFunction<LuaStatement, Statement>,
+  expressionHandler: BaseNodeHandler<LuaExpression, Babel.Expression>,
+  handleStatement: HandlerFunction<LuaStatement, Babel.Statement>,
   handleIdentifier: IdentifierHandlerFunction,
   handleDeclaration: HandlerFunction<
     LuaNodeGroup | LuaDeclaration,
-    Exclude<ExportDefaultDeclaration['declaration'], Expression>
+    Exclude<Babel.ExportDefaultDeclaration['declaration'], Babel.Expression>
   >,
   handleAssignmentPattern: HandlerFunction<
     AssignmentStatement,
-    AssignmentPattern
+    Babel.AssignmentPattern
   >,
-  handleLVal: HandlerFunction<LuaLVal, LVal>,
+  handleLVal: HandlerFunction<LuaLVal, Babel.LVal>,
   handleTypeAnnotation: HandlerFunction<
     LuaTypeAnnotation,
-    TypeAnnotation | TSTypeAnnotation | Noop
+    Babel.TypeAnnotation | Babel.TSTypeAnnotation | Babel.Noop
   >,
-  handleType: HandlerFunction<LuaType, FlowType | TSType>
+  handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
 ) => {
   const handleObjectPropertyIdentifier =
     createObjectPropertyIdentifierHandler(handleIdentifier);
@@ -69,19 +56,20 @@ export const createObjectPropertyHandler = (
   const handleObjectKeyExpression = createObjectKeyExpressionHandler(
     expressionHandler.handler
   );
-  return createHandler<LuaTableKeyField, ObjectProperty>(
+  return createHandler<LuaTableKeyField, Babel.ObjectProperty>(
     'ObjectProperty',
     (source, config, { key, value, computed }) => {
-      if (isBabelIdentifier(key) && !computed) {
+      const propertyValue = handleObjectPropertyValue(source, config, value);
+      if (Babel.isIdentifier(key) && !computed) {
         return tableKeyField(
           computed,
           handleObjectPropertyIdentifier(source, config, key),
-          handleObjectPropertyValue(source, config, value)
+          propertyValue
         );
       } else {
         return tableExpressionKeyField(
           handleObjectKeyExpression(source, config, key),
-          handleObjectPropertyValue(source, config, value)
+          propertyValue
         );
       }
     }

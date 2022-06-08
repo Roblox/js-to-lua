@@ -5,7 +5,7 @@ import {
   getObjectPropertyExpression,
 } from '@js-to-lua/lua-conversion-utils';
 import { isIdentifier, LuaExpression } from '@js-to-lua/lua-types';
-import { IdentifierHandlerFunction } from './identifier-handler-types';
+import { IdentifierHandlerFunction } from '../identifier-handler-types';
 
 export const createObjectPropertyIdentifierHandler = (
   handleIdentifier: IdentifierHandlerFunction

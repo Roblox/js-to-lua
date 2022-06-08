@@ -1,4 +1,4 @@
-import { Expression, UpdateExpression } from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   asStatementReturnTypeWithIdentifier,
   BaseNodeAsStatementHandler,
@@ -6,21 +6,23 @@ import {
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
-import { asStatementReturnTypeToExpression } from '@js-to-lua/lua-conversion-utils';
+import {
+  asStatementReturnTypeToExpression,
+  defaultExpressionAsStatementHandler,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  isLuaLVal,
   LuaExpression,
-  LuaLVal,
   LuaStatement,
   numericLiteral,
 } from '@js-to-lua/lua-types';
-import { NonEmptyArray } from '@js-to-lua/shared-utils';
 
 export const createUpdateExpressionHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>
 ) => {
-  return createHandler<LuaExpression, UpdateExpression>(
+  return createHandler<LuaExpression, Babel.UpdateExpression>(
     'UpdateExpression',
     (source, config, node) => {
       const handleUpdateExpressionAsStatement =
@@ -32,16 +34,26 @@ export const createUpdateExpressionHandler = (
 };
 
 export const createUpdateExpressionAsStatementHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
-): BaseNodeAsStatementHandler<LuaStatement, UpdateExpression> => {
-  return createAsStatementHandler<LuaStatement, UpdateExpression>(
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>
+): BaseNodeAsStatementHandler<LuaStatement, Babel.UpdateExpression> => {
+  return createAsStatementHandler<LuaStatement, Babel.UpdateExpression>(
     'UpdateExpression',
     (source, config, node) => {
+      const updateExpressionIdentifier = handleExpression(
+        source,
+        config,
+        node.argument
+      );
+
+      if (!isLuaLVal(updateExpressionIdentifier)) {
+        return defaultExpressionAsStatementHandler(source, config, node);
+      }
+
       const updateStatement = assignmentStatement(
         node.operator === '++'
           ? AssignmentStatementOperatorEnum.ADD
           : AssignmentStatementOperatorEnum.SUB,
-        [handleExpression(source, config, node.argument)],
+        [updateExpressionIdentifier],
         [numericLiteral(1)]
       );
 
@@ -51,8 +63,8 @@ export const createUpdateExpressionAsStatementHandler = (
       return asStatementReturnTypeWithIdentifier(
         preStatements,
         postStatements,
-        ...(updateStatement.identifiers as NonEmptyArray<LuaLVal>)
-      ); // TODO: check in non empty array
+        updateExpressionIdentifier
+      );
     }
   );
 };

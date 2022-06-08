@@ -9,8 +9,8 @@ import {
 } from './return-type-inline';
 import {
   asStatementReturnTypeWithIdentifier,
-  AsStatementReturnTypeWithIdentifiers,
-} from './return-type-with-identifiers';
+  AsStatementReturnTypeWithIdentifier,
+} from './return-type-with-identifier';
 
 describe('As statement return value creators', () => {
   it('should create an inline as statement return value', () => {
@@ -40,14 +40,14 @@ describe('As statement return value creators', () => {
         identifier('foo')
       )
     ).toEqual({
-      type: 'IDENTIFIERS',
+      type: 'IDENTIFIER',
       preStatements: [
         expressionStatement(callExpression(identifier('preFoo'), [])),
       ],
       postStatements: [
         expressionStatement(callExpression(identifier('postFoo'), [])),
       ],
-      identifiers: [identifier('foo')],
-    } as AsStatementReturnTypeWithIdentifiers);
+      identifier: identifier('foo'),
+    } as AsStatementReturnTypeWithIdentifier);
   });
 });

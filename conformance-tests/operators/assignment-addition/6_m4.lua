@@ -1,13 +1,8 @@
 local a, b, c, d = 1, "this is ", 2, 3
-local foo = {
-	bar = (function()
-		c += d
-		a += c
-		return a
-	end)(),
-	baz = (function()
-		b ..= "roblox"
-		a ..= b
-		return a
-	end)(),
-}
+c += d
+a += c
+local refProp0 = a
+b ..= "roblox"
+a ..= b
+local refProp1 = a
+local foo = { bar = refProp0, baz = refProp1 }

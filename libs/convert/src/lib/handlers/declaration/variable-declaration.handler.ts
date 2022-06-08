@@ -127,9 +127,13 @@ export const createVariableDeclarationHandler = (
         ? {
             preStatements: initAsStatementReturn.preStatements,
             postStatements: initAsStatementReturn.postStatements,
-            declarators: initAsStatementReturn.toReturn.map((value) =>
-              handleComments(source, node, variableDeclarator(lVal, value))
-            ),
+            declarators: [
+              handleComments(
+                source,
+                node,
+                variableDeclarator(lVal, initAsStatementReturn.toReturn)
+              ),
+            ],
           }
         : {
             preStatements: [],

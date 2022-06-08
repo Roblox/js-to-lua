@@ -12,8 +12,7 @@ import {
   createExpressionStatement,
   defaultExpressionAsStatementHandler,
 } from '@js-to-lua/lua-conversion-utils';
-import { LuaExpression, LuaStatement } from '@js-to-lua/lua-types';
-import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { LuaStatement } from '@js-to-lua/lua-types';
 import { dropLast, last } from 'ramda';
 
 export const createSequenceExpressionAsStatementHandler = (
@@ -84,7 +83,7 @@ export const createSequenceExpressionAsStatementHandler = (
         : asStatementReturnTypeWithIdentifier(
             [...preStatements, ...lastPreStatements],
             postStatements,
-            ...(toReturn as NonEmptyArray<LuaExpression>)
+            toReturn
           );
     }
   );

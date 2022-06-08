@@ -119,7 +119,7 @@ export const createSwitchStatementAllCasesReturningOptionalHandler = (
           ...conditionAsStatement.preStatements,
           variableDeclaration(
             [variableDeclaratorIdentifier(conditionId)],
-            conditionAsStatement.toReturn.map(variableDeclaratorValue)
+            [variableDeclaratorValue(conditionAsStatement.toReturn)]
           ),
           ...conditionAsStatement.postStatements,
         ];
