@@ -5,6 +5,7 @@ import {
   memberExpression,
   nodeGroup,
   program,
+  typeAliasDeclaration,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -126,6 +127,48 @@ describe('Program handler', () => {
             ),
           ]
         ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should import relative default type identifier`, () => {
+      const given = getProgramNode(`
+        import type foo from './foo/bar'
+      `);
+      const expected = program([
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('barModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    memberExpression(
+                      memberExpression(
+                        identifier('script'),
+                        '.',
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('foo')
+                    ),
+                    '.',
+                    identifier('bar')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          typeAliasDeclaration(
+            identifier('foo'),
+            memberExpression(
+              identifier('barModule'),
+              '.',
+              identifier('default')
+            )
+          ),
+        ]),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);

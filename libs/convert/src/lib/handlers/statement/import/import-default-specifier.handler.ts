@@ -5,6 +5,7 @@ import {
   LuaExpression,
   LuaIdentifier,
   memberExpression,
+  typeAliasDeclaration,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -16,17 +17,27 @@ export const createImportDefaultSpecifierHandler = (
 ) =>
   createHandler(
     'ImportDefaultSpecifier',
-    (source, config, node: ImportDefaultSpecifier) =>
-      variableDeclaration(
-        [
-          variableDeclaratorIdentifier(
-            handleIdentifier(source, config, node.local)
-          ),
-        ],
-        [
-          variableDeclaratorValue(
+    (
+      source,
+      config: { isTypeImport?: boolean },
+      node: ImportDefaultSpecifier
+    ) => {
+      return config.isTypeImport
+        ? typeAliasDeclaration(
+            handleIdentifier(source, config, node.local),
             memberExpression(moduleIdentifier, '.', identifier('default'))
-          ),
-        ]
-      )
+          )
+        : variableDeclaration(
+            [
+              variableDeclaratorIdentifier(
+                handleIdentifier(source, config, node.local)
+              ),
+            ],
+            [
+              variableDeclaratorValue(
+                memberExpression(moduleIdentifier, '.', identifier('default'))
+              ),
+            ]
+          );
+    }
   );

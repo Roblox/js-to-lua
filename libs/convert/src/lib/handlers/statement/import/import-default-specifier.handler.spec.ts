@@ -1,13 +1,11 @@
-import {
-  identifier as babelIdentifier,
-  importDefaultSpecifier as babelImportDefaultSpecifier,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import { testUtils } from '@js-to-lua/handler-utils';
 
 import {
   identifier,
   LuaIdentifier,
   memberExpression,
+  typeAliasDeclaration,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -24,12 +22,12 @@ const source = '';
 
 describe('Import Default Specifier Handler', () => {
   it(`should import with default specifier`, () => {
-    const given = babelImportDefaultSpecifier(babelIdentifier('foo'));
+    const given = Babel.importDefaultSpecifier(Babel.identifier('foo'));
 
     const expected = variableDeclaration(
       [
         variableDeclaratorIdentifier(
-          mockNodeWithValue<LuaIdentifier>(babelIdentifier('foo'))
+          mockNodeWithValue<LuaIdentifier>(Babel.identifier('foo'))
         ),
       ],
       [
@@ -44,5 +42,16 @@ describe('Import Default Specifier Handler', () => {
     );
 
     expect(handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should import with default type specifier`, () => {
+    const given = Babel.importDefaultSpecifier(Babel.identifier('foo'));
+
+    const expected = typeAliasDeclaration(
+      mockNodeWithValue<LuaIdentifier>(Babel.identifier('foo')),
+      memberExpression(identifier('mockIdentifier'), '.', identifier('default'))
+    );
+
+    expect(handler(source, { isTypeImport: true }, given)).toEqual(expected);
   });
 });
