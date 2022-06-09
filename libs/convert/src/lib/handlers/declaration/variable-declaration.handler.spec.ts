@@ -31,9 +31,12 @@ import {
   blockStatement,
   callExpression,
   elseClause,
+  elseExpressionClause,
   functionExpression,
   identifier,
   ifClause,
+  ifElseExpression,
+  ifExpressionClause,
   ifStatement,
   indexExpression,
   LuaExpression,
@@ -537,43 +540,19 @@ describe('Variable Declaration', () => {
           memberExpression(identifier('fizz'), '.', identifier('foo'))
         ),
         variableDeclaratorValue(
-          callExpression(
-            functionExpression(
-              [],
-              nodeGroup([
-                ifStatement(
-                  ifClause(
-                    binaryExpression(
-                      memberExpression(
-                        identifier('fizz'),
-                        '.',
-                        identifier('bar')
-                      ),
-                      '==',
-                      nilLiteral()
-                    ),
-                    nodeGroup([
-                      returnStatement(
-                        mockNodeWithValue(babelNumericLiteral(3))
-                      ),
-                    ])
-                  ),
-                  undefined,
-                  elseClause(
-                    nodeGroup([
-                      returnStatement(
-                        memberExpression(
-                          identifier('fizz'),
-                          '.',
-                          identifier('bar')
-                        )
-                      ),
-                    ])
-                  )
-                ),
-              ])
+          ifElseExpression(
+            ifExpressionClause(
+              binaryExpression(
+                memberExpression(identifier('fizz'), '.', identifier('bar')),
+                '==',
+                nilLiteral()
+              ),
+
+              mockNodeWithValue(babelNumericLiteral(3))
             ),
-            []
+            elseExpressionClause(
+              memberExpression(identifier('fizz'), '.', identifier('bar'))
+            )
           )
         ),
       ]

@@ -10,10 +10,13 @@ import {
   blockStatement,
   callExpression,
   elseClause,
+  elseExpressionClause,
   functionDeclaration,
   functionExpression,
   identifier,
   ifClause,
+  ifElseExpression,
+  ifExpressionClause,
   ifStatement,
   indexExpression,
   LuaProgram,
@@ -1050,39 +1053,26 @@ describe('Program handler', () => {
                   memberExpression(identifier('fizz'), '.', identifier('foo'))
                 ),
                 variableDeclaratorValue(
-                  callExpression(
-                    functionExpression(
-                      [],
-                      nodeGroup([
-                        ifStatement(
-                          ifClause(
-                            binaryExpression(
-                              memberExpression(
-                                identifier('fizz'),
-                                '.',
-                                identifier('bar')
-                              ),
-                              '==',
-                              nilLiteral()
-                            ),
-                            nodeGroup([returnStatement(numericLiteral(3, '3'))])
-                          ),
-                          undefined,
-                          elseClause(
-                            nodeGroup([
-                              returnStatement(
-                                memberExpression(
-                                  identifier('fizz'),
-                                  '.',
-                                  identifier('bar')
-                                )
-                              ),
-                            ])
-                          )
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(
+                        memberExpression(
+                          identifier('fizz'),
+                          '.',
+                          identifier('bar')
                         ),
-                      ])
+                        '==',
+                        nilLiteral()
+                      ),
+                      numericLiteral(3, '3')
                     ),
-                    []
+                    elseExpressionClause(
+                      memberExpression(
+                        identifier('fizz'),
+                        '.',
+                        identifier('bar')
+                      )
+                    )
                   )
                 ),
               ]
@@ -1669,73 +1659,47 @@ describe('Program handler', () => {
                   indexExpression(identifier('fizz'), stringLiteral('repeat'))
                 ),
                 variableDeclaratorValue(
-                  callExpression(
-                    functionExpression(
-                      [],
-                      nodeGroup([
-                        ifStatement(
-                          ifClause(
-                            binaryExpression(
-                              indexExpression(
-                                identifier('fizz'),
-                                stringLiteral('until')
-                              ),
-                              '==',
-                              nilLiteral()
-                            ),
-                            nodeGroup([returnStatement(numericLiteral(3, '3'))])
-                          ),
-                          undefined,
-                          elseClause(
-                            nodeGroup([
-                              returnStatement(
-                                indexExpression(
-                                  identifier('fizz'),
-                                  stringLiteral('until')
-                                )
-                              ),
-                            ])
-                          )
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(
+                        indexExpression(
+                          identifier('fizz'),
+                          stringLiteral('until')
                         ),
-                      ])
+                        '==',
+                        nilLiteral()
+                      ),
+                      numericLiteral(3, '3')
                     ),
-                    []
+                    elseExpressionClause(
+                      indexExpression(
+                        identifier('fizz'),
+                        stringLiteral('until')
+                      )
+                    )
                   )
                 ),
                 variableDeclaratorValue(
-                  callExpression(
-                    functionExpression(
-                      [],
-                      nodeGroup([
-                        ifStatement(
-                          ifClause(
-                            binaryExpression(
-                              memberExpression(
-                                identifier('fizz'),
-                                '.',
-                                identifier('table')
-                              ),
-                              '==',
-                              nilLiteral()
-                            ),
-                            nodeGroup([returnStatement(numericLiteral(5, '5'))])
-                          ),
-                          undefined,
-                          elseClause(
-                            nodeGroup([
-                              returnStatement(
-                                memberExpression(
-                                  identifier('fizz'),
-                                  '.',
-                                  identifier('table')
-                                )
-                              ),
-                            ])
-                          )
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(
+                        memberExpression(
+                          identifier('fizz'),
+                          '.',
+                          identifier('table')
                         ),
-                      ])
+                        '==',
+                        nilLiteral()
+                      ),
+                      numericLiteral(5, '5')
                     ),
-                    []
+                    elseExpressionClause(
+                      memberExpression(
+                        identifier('fizz'),
+                        '.',
+                        identifier('table')
+                      )
+                    )
                   )
                 ),
               ]

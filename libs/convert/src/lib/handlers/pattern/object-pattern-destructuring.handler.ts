@@ -17,10 +17,9 @@ import { objectAssign, objectNone } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   callExpression,
-  elseClause,
-  functionExpression,
-  ifClause,
-  ifStatement,
+  elseExpressionClause,
+  ifElseExpression,
+  ifExpressionClause,
   LuaExpression,
   LuaIdentifier,
   LuaIndexExpression,
@@ -28,8 +27,6 @@ import {
   LuaMemberExpression,
   LuaTableKeyField,
   nilLiteral,
-  nodeGroup,
-  returnStatement,
   tableConstructor,
 } from '@js-to-lua/lua-types';
 import { anyPass } from 'ramda';
@@ -107,37 +104,16 @@ export const createObjectPatternDestructuringHandler =
             );
             obj.ids.push(propertyValueIdentifier);
             obj.values.push(
-              callExpression(
-                functionExpression(
-                  [],
-                  nodeGroup([
-                    ifStatement(
-                      ifClause(
-                        binaryExpression(
-                          handlePropertyFromBase(property),
-                          '==',
-                          nilLiteral()
-                        ),
-                        nodeGroup([
-                          returnStatement(
-                            handleExpression(
-                              source,
-                              config,
-                              property.value.right
-                            )
-                          ),
-                        ])
-                      ),
-                      undefined,
-                      elseClause(
-                        nodeGroup([
-                          returnStatement(handlePropertyFromBase(property)),
-                        ])
-                      )
-                    ),
-                  ])
+              ifElseExpression(
+                ifExpressionClause(
+                  binaryExpression(
+                    handlePropertyFromBase(property),
+                    '==',
+                    nilLiteral()
+                  ),
+                  handleExpression(source, config, property.value.right)
                 ),
-                []
+                elseExpressionClause(handlePropertyFromBase(property))
               )
             );
           } else if (isRestElement(property)) {
