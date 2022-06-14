@@ -1,5 +1,5 @@
+import { LuaExpression, LuaIdentifier } from '../expression';
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaExpression, LuaLVal } from '../expression';
 
 export interface LuaVariableDeclaration extends BaseLuaNode {
   type: 'VariableDeclaration';
@@ -9,13 +9,13 @@ export interface LuaVariableDeclaration extends BaseLuaNode {
 
 export interface LuaVariableDeclarator extends BaseLuaNode {
   type: 'VariableDeclarator';
-  id: LuaLVal;
+  id: LuaIdentifier;
   init: LuaExpression | null;
 }
 
 export interface LuaVariableDeclaratorIdentifier extends BaseLuaNode {
   type: 'VariableDeclaratorIdentifier';
-  value: LuaLVal;
+  value: LuaIdentifier;
 }
 
 export interface LuaVariableDeclaratorValue extends BaseLuaNode {

@@ -32,7 +32,7 @@ import { createContinueStatementHandler } from './continue-statement.handler';
 import { createDoWhileStatementHandler } from './do-while-statement.handler';
 import { createExpressionStatementHandler } from './expression-statement.handler';
 import { createForOfStatementHandler } from './for-of-statement.handler';
-import { createForStatementHandler } from './for-statement.handler';
+import { createForStatementHandler } from './for-statement/for-statement.handler';
 import { createIfStatementHandler } from './if-statement.handler';
 import { createReturnStatementHandler } from './return-statement.handler';
 import { createSwitchStatementHandler } from './switch-statement/switch-statement.handler';

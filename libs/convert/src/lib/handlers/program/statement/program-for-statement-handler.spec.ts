@@ -8,12 +8,18 @@ import {
   callExpression,
   continueStatement,
   expressionStatement,
+  functionDeclaration,
+  functionExpression,
   identifier,
   ifClause,
   ifStatement,
+  memberExpression,
   nodeGroup,
   numericLiteral,
   program,
+  returnStatement,
+  tableConstructor,
+  tableNameKeyField,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -61,9 +67,10 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const handledGiven = handleProgram.handler(source, {}, given);
-      expect(handledGiven).toEqual(expected);
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
+
     it('should handle basic for loop with continue statement', () => {
       const given = getProgramNode(`
         for (let i = 0; i < 10; i++) {
@@ -120,8 +127,8 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const handledGiven = handleProgram.handler(source, {}, given);
-      expect(handledGiven).toEqual(expected);
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
 
     it('should handle for statement with no variable declaration', () => {
@@ -153,8 +160,8 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const handledGiven = handleProgram.handler(source, {}, given);
-      expect(handledGiven).toEqual(expected);
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
 
     it('should handle for statement with no test node', () => {
@@ -218,8 +225,8 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const handledGiven = handleProgram.handler(source, {}, given);
-      expect(handledGiven).toEqual(expected);
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
 
     it('should handle for statement with no variable declaration, no test case, and no update', () => {
@@ -238,8 +245,8 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const handledGiven = handleProgram.handler(source, {}, given);
-      expect(handledGiven).toEqual(expected);
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
 
     it('should handle for statement with a single statement, not array of statements, for the body', () => {
@@ -275,8 +282,143 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      const handledGiven = handleProgram.handler(source, {}, given);
-      expect(handledGiven).toEqual(expected);
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
+    });
+
+    it('should handle basic for loop with local variable used in a closure', () => {
+      const given = getProgramNode(`
+        for (let i = 0; i < 10; i++) {
+          foo.add({
+            bar: () => i
+          })
+        }
+      `);
+      const expected = program([
+        blockStatement([
+          functionDeclaration(
+            identifier('_loop'),
+            [identifier('i')],
+            nodeGroup([
+              expressionStatement(
+                callExpression(
+                  memberExpression(identifier('foo'), ':', identifier('add')),
+                  [
+                    tableConstructor([
+                      tableNameKeyField(
+                        identifier('bar'),
+                        functionExpression(
+                          [],
+                          nodeGroup([returnStatement(identifier('i'))])
+                        )
+                      ),
+                    ]),
+                  ]
+                )
+              ),
+            ])
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('i'))],
+            [variableDeclaratorValue(numericLiteral(0, '0'))]
+          ),
+          whileStatement(
+            withTrailingConversionComment(
+              binaryExpression(identifier('i'), '<', numericLiteral(10, '10')),
+              `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
+            ),
+            [
+              nodeGroup([
+                expressionStatement(
+                  callExpression(identifier('_loop'), [identifier('i')])
+                ),
+              ]),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.ADD,
+                  [identifier('i')],
+                  [numericLiteral(1)]
+                ),
+              ]),
+            ]
+          ),
+        ]),
+      ]);
+
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
+    });
+
+    it('should handle basic for loop with local variable used in a closure - multiple declared variables', () => {
+      const given = getProgramNode(`
+        for (let j = 1, i = 0; i < 10; i++) {
+          foo.add({
+            bar: () => i
+          })
+        }
+      `);
+      const expected = program([
+        blockStatement([
+          functionDeclaration(
+            identifier('_loop'),
+            [identifier('j'), identifier('i')],
+            nodeGroup([
+              expressionStatement(
+                callExpression(
+                  memberExpression(identifier('foo'), ':', identifier('add')),
+                  [
+                    tableConstructor([
+                      tableNameKeyField(
+                        identifier('bar'),
+                        functionExpression(
+                          [],
+                          nodeGroup([returnStatement(identifier('i'))])
+                        )
+                      ),
+                    ]),
+                  ]
+                )
+              ),
+            ])
+          ),
+          variableDeclaration(
+            [
+              variableDeclaratorIdentifier(identifier('j')),
+              variableDeclaratorIdentifier(identifier('i')),
+            ],
+            [
+              variableDeclaratorValue(numericLiteral(1, '1')),
+              variableDeclaratorValue(numericLiteral(0, '0')),
+            ]
+          ),
+          whileStatement(
+            withTrailingConversionComment(
+              binaryExpression(identifier('i'), '<', numericLiteral(10, '10')),
+              `ROBLOX CHECK: operator '<' works only if either both arguments are strings or both are a number`
+            ),
+            [
+              nodeGroup([
+                expressionStatement(
+                  callExpression(identifier('_loop'), [
+                    identifier('j'),
+                    identifier('i'),
+                  ])
+                ),
+              ]),
+              nodeGroup([
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.ADD,
+                  [identifier('i')],
+                  [numericLiteral(1)]
+                ),
+              ]),
+            ]
+          ),
+        ]),
+      ]);
+
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
   });
 });
