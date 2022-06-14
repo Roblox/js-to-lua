@@ -11,6 +11,8 @@ export type PolyfillID =
   | 'String'
   | 'Symbol'
   | 'WeakMap'
+  | 'clearInterval'
+  | 'setInterval'
   | 'clearTimeout'
   | 'console'
   | 'setTimeout';

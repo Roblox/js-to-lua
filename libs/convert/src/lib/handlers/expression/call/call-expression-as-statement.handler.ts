@@ -13,11 +13,14 @@ import {
 import {
   asStatementReturnTypeToReturn,
   defaultExpressionHandler,
+  PolyfillID,
+  withPolyfillExtra,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   indexExpression,
   isIdentifier,
+  LuaCallExpression,
   LuaExpression,
   LuaStatement,
   memberExpression,
@@ -25,6 +28,13 @@ import {
 import { createCallExpressionArgumentsAsStatementHandler } from './call-expression-arguments-as-statement.handler';
 import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
 import { createCallExpressionSpecialCasesHandler } from './special-cases/call-expression-special-cases.handler';
+
+export const ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION: Array<PolyfillID> = [
+  'setTimeout',
+  'clearTimeout',
+  'setInterval',
+  'clearInterval',
+];
 
 export const createCallExpressionAsStatementHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -83,13 +93,26 @@ export const createCallExpressionAsStatementHandler = (
 
       const handleCalleeExpression =
         createCalleeExpressionHandlerFunction(handleExpression);
+      const luaCallee = handleCalleeExpression(source, config, expression.callee);
 
       return asStatementReturnTypeInline(
         args.map((a) => a.preStatements).flat(),
-        callExpression(
-          handleCalleeExpression(source, config, expression.callee),
-          args.map(({ toReturn }) => toReturn)
-        ),
+        isIdentifier(luaCallee) &&
+          ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION.includes(
+            luaCallee.name as PolyfillID
+          )
+          ? withPolyfillExtra<LuaCallExpression, PolyfillID>(
+              luaCallee.name as PolyfillID
+            )(
+              callExpression(
+                luaCallee,
+                args.map(({ toReturn }) => toReturn)
+              )
+            )
+          : callExpression(
+              luaCallee,
+              args.map(({ toReturn }) => toReturn)
+            ),
         args.map((a) => a.postStatements).flat()
       );
     }

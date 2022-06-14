@@ -2,6 +2,7 @@ local Packages --[[ ROBLOX comment: must define Packages module ]]
 local LuauPolyfill = require(Packages.LuauPolyfill)
 local Boolean = LuauPolyfill.Boolean
 local Error = LuauPolyfill.Error
+local setTimeout = LuauPolyfill.setTimeout
 local observerOptions = {
 	next = function(self, result: any)
 		do --[[ ROBLOX COMMENT: try-catch block conversion ]]

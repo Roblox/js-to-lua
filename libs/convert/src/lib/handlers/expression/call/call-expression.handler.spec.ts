@@ -5,18 +5,26 @@ import {
   numericLiteral as babelNumericLiteral,
   stringLiteral as babelStringLiteral,
 } from '@babel/types';
-import { dateTimeMethodCall } from '@js-to-lua/lua-conversion-utils';
+import {
+  dateTimeMethodCall,
+  PolyfillID,
+  withPolyfillExtra,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
   indexExpression,
+  LuaCallExpression,
   memberExpression,
   numericLiteral,
   stringLiteral,
 } from '@js-to-lua/lua-types';
 import { createCallExpressionHandler } from './call-expression.handler';
 import { expressionHandler } from '../../expression-statement.handler';
-import { USE_DOT_NOTATION_IN_CALL_EXPRESSION } from './special-cases/call-expression-dot-notation.handler';
+import {
+  ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION,
+  USE_DOT_NOTATION_IN_CALL_EXPRESSION,
+} from './special-cases/call-expression-dot-notation.handler';
 
 const source = '';
 
@@ -133,9 +141,11 @@ describe('Call Expression Handler', () => {
 
     describe.each(
       USE_DOT_NOTATION_IN_CALL_EXPRESSION.filter(
-        (e): e is string => typeof e === 'string'
+        (e): e is string =>
+          typeof e === 'string' &&
+          !ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION.includes(e as PolyfillID)
       )
-    )('dot notation special cases: %s', (id) => {
+    )('dot notation special cases without polyfill imports: %s', (id) => {
       it(`should handle not computed ${id} object`, () => {
         const given = babelCallExpression(
           babelMemberExpression(babelIdentifier(id), babelIdentifier('foo')),
@@ -146,6 +156,7 @@ describe('Call Expression Handler', () => {
           memberExpression(identifier(id), '.', identifier('foo')),
           []
         );
+
         expect(handleCallExpression.handler(source, {}, given)).toEqual(
           expected
         );
@@ -165,6 +176,59 @@ describe('Call Expression Handler', () => {
           indexExpression(identifier(id), stringLiteral('foo')),
           []
         );
+
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
+      });
+    });
+
+    describe.each(
+      USE_DOT_NOTATION_IN_CALL_EXPRESSION.filter(
+        (e): e is string =>
+          typeof e === 'string' &&
+          ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION.includes(e as PolyfillID)
+      )
+    )('dot notation special cases with polyfill import: %s', (id) => {
+      it(`should handle not computed ${id} object`, () => {
+        const given = babelCallExpression(
+          babelMemberExpression(babelIdentifier(id), babelIdentifier('foo')),
+          []
+        );
+
+        const expected = withPolyfillExtra<LuaCallExpression, PolyfillID>(
+          id as PolyfillID
+        )(
+          callExpression(
+            memberExpression(identifier(id), '.', identifier('foo')),
+            []
+          )
+        );
+
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
+      });
+
+      it(`should handle computed ${id} object`, () => {
+        const given = babelCallExpression(
+          babelMemberExpression(
+            babelIdentifier(id),
+            babelStringLiteral('foo'),
+            true
+          ),
+          []
+        );
+
+        const expected = withPolyfillExtra<LuaCallExpression, PolyfillID>(
+          id as PolyfillID
+        )(
+          callExpression(
+            indexExpression(identifier(id), stringLiteral('foo')),
+            []
+          )
+        );
+
         expect(handleCallExpression.handler(source, {}, given)).toEqual(
           expected
         );
