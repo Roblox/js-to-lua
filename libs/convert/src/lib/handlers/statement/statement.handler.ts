@@ -31,6 +31,7 @@ import { createBreakStatementHandler } from './break-statement.handler';
 import { createContinueStatementHandler } from './continue-statement.handler';
 import { createDoWhileStatementHandler } from './do-while-statement.handler';
 import { createExpressionStatementHandler } from './expression-statement.handler';
+import { createForInStatementHandler } from './for-in-statement.handler';
 import { createForOfStatementHandler } from './for-of-statement.handler';
 import { createForStatementHandler } from './for-statement/for-statement.handler';
 import { createIfStatementHandler } from './if-statement.handler';
@@ -162,6 +163,13 @@ export const createStatementHandler = (
       createDoWhileStatementHandler(
         forwardedHandleExpression,
         forwardedHandleStatement
+      ),
+      createForInStatementHandler(
+        handleIdentifierStrict,
+        forwardedHandleExpression,
+        forwardedHandleStatement,
+        handleLVal,
+        handleObjectField
       ),
       createForOfStatementHandler(
         handleIdentifierStrict,

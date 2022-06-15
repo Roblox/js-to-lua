@@ -20,6 +20,7 @@ import {
   ForGenericStatement,
   isForGenericStatement,
 } from './for-generic-statement';
+
 import { isIfStatement, LuaIfStatement } from './if-statement';
 import { isNodeGroup, LuaNodeGroup } from './node-group';
 import { isRepeatStatement, RepeatStatement } from './repeat-statement';

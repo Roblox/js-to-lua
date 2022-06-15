@@ -1,14 +1,4 @@
-import {
-  Expression,
-  isArrayPattern as isBabelArrayPattern,
-  isIdentifier as isBabelIdentifier,
-  isObjectPattern as isBabelObjectPattern,
-  isObjectProperty,
-  LVal,
-  ObjectMethod,
-  ObjectProperty,
-  Statement,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
 import { generateUniqueIdentifier } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -38,18 +28,18 @@ import {
 
 export const createExtractForOfAssignmentStatement = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction,
-  handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleLVal: HandlerFunction<LuaLVal, LVal>,
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
+  handleStatement: HandlerFunction<LuaStatement, Babel.Statement>,
+  handleLVal: HandlerFunction<LuaLVal, Babel.LVal>,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
-    ObjectMethod | ObjectProperty
+    Babel.ObjectMethod | Babel.ObjectProperty
   >
 ) => {
   return (
     source: string,
     config: EmptyConfig,
-    left: LVal,
+    left: Babel.LVal,
     isDeclaration = false
   ): {
     identifier: LuaIdentifier;
@@ -72,7 +62,7 @@ export const createExtractForOfAssignmentStatement = (
             values
           );
 
-    if (isBabelIdentifier(left)) {
+    if (Babel.isIdentifier(left)) {
       return {
         identifier: refIdentifier,
         statement: assignmentOrDeclaration(
@@ -80,12 +70,12 @@ export const createExtractForOfAssignmentStatement = (
           [refIdentifier]
         ),
       };
-    } else if (isBabelObjectPattern(left)) {
+    } else if (Babel.isObjectPattern(left)) {
       if (
         hasUnhandledObjectDestructuringParam(
           left.properties.filter((property) =>
-            isObjectProperty(property)
-          ) as ObjectProperty[]
+            Babel.isObjectProperty(property)
+          ) as Babel.ObjectProperty[]
         )
       ) {
         return null;
@@ -111,7 +101,7 @@ export const createExtractForOfAssignmentStatement = (
           destructured.values.filter(isTruthy)
         ),
       };
-    } else if (isBabelArrayPattern(left)) {
+    } else if (Babel.isArrayPattern(left)) {
       const arrayPatternDestructuringHandler =
         createArrayPatternDestructuringHandler(handleExpression);
       if (hasUnhandledArrayDestructuringParam(left.elements.filter(isTruthy))) {

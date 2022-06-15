@@ -6,14 +6,11 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   getNodeSource,
-  isArrayInferable,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  callExpression,
   ForGenericStatement,
   forGenericStatement,
-  identifier,
   LuaExpression,
   LuaLVal,
   LuaStatement,
@@ -21,13 +18,12 @@ import {
   unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { isSingleElementArray } from '@js-to-lua/shared-utils';
-import { applyTo } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
-import { createExtractForStatementDeclaration } from './for-statement-extract-declaration';
 import { createExtractForOfAssignmentStatement } from './for-of-statement-extract-statement';
+import { createExtractForStatementDeclaration } from './for-statement-extract-declaration';
 
-export const createForOfStatementHandler = (
+export const createForInStatementHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction,
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
   handleStatement: HandlerFunction<LuaStatement, Babel.Statement>,
@@ -36,21 +32,15 @@ export const createForOfStatementHandler = (
     LuaTableKeyField,
     Babel.ObjectMethod | Babel.ObjectProperty
   >
-): BaseNodeHandler<ForGenericStatement, Babel.ForOfStatement> => {
+): BaseNodeHandler<ForGenericStatement, Babel.ForInStatement> => {
   const bodyStatementHandler = createInnerBodyStatementHandler(handleStatement);
-  return createHandler('ForOfStatement', (source, config, node) => {
-    if (node.await) {
-      return withTrailingConversionComment(
-        unhandledStatement(),
-        `ROBLOX TODO: Unhandled node for type: ${node.type} with await modifier`,
-        getNodeSource(source, node)
-      );
-    }
+  return createHandler('ForInStatement', (source, config, node) => {
     const rightExpression: LuaExpression = handleExpression(
       source,
       config,
       node.right
     );
+
     if (!Babel.isVariableDeclaration(node.left)) {
       const result = createExtractForOfAssignmentStatement(
         handleIdentifierStrict,
@@ -62,21 +52,8 @@ export const createForOfStatementHandler = (
 
       return result
         ? forGenericStatement(
-            [identifier('_'), result.identifier],
-            [
-              applyTo(callExpression(identifier('ipairs'), [rightExpression]))(
-                (expression) =>
-                  isArrayInferable(rightExpression)
-                    ? expression
-                    : withTrailingConversionComment(
-                        expression,
-                        `ROBLOX CHECK: check if '${getNodeSource(
-                          source,
-                          node.right
-                        )}' is an Array`
-                      )
-              ),
-            ],
+            [result.identifier],
+            [rightExpression],
             [result.statement, bodyStatementHandler(source, config, node.body)]
           )
         : withTrailingConversionComment(
@@ -106,21 +83,8 @@ export const createForOfStatementHandler = (
     });
 
     return forGenericStatement(
-      [identifier('_'), id],
-      [
-        applyTo(callExpression(identifier('ipairs'), [rightExpression]))(
-          (expression) =>
-            isArrayInferable(rightExpression)
-              ? expression
-              : withTrailingConversionComment(
-                  expression,
-                  `ROBLOX CHECK: check if '${getNodeSource(
-                    source,
-                    node.right
-                  )}' is an Array`
-                )
-        ),
-      ],
+      [id],
+      [rightExpression],
       [...statements, bodyStatementHandler(source, config, node.body)]
     );
   });

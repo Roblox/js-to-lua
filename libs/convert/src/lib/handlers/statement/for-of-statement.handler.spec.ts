@@ -1,14 +1,4 @@
-import {
-  blockStatement as babelBlockStatement,
-  callExpression as babelCallExpression,
-  expressionStatement as babelExpressionStatement,
-  forOfStatement as babelForOfStatement,
-  identifier as babelIdentifier,
-  memberExpression as babelMemberExpression,
-  tsParameterProperty,
-  variableDeclaration,
-  variableDeclarator,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import { testUtils } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -18,7 +8,10 @@ import {
   nodeGroup,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
-import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import {
+  mockNodeWithValue,
+  withLocation,
+} from '@js-to-lua/lua-types/test-utils';
 import { createForOfStatementHandler } from './for-of-statement.handler';
 
 const handleForOfStatement = createForOfStatementHandler(
@@ -35,20 +28,22 @@ describe('For Of statement Handler', () => {
   it(`should handle empty loop`, () => {
     const source = 'bar';
 
-    const given = babelForOfStatement(
-      variableDeclaration('const', [
-        variableDeclarator(babelIdentifier('foo')),
+    const given = Babel.forOfStatement(
+      Babel.variableDeclaration('const', [
+        Babel.variableDeclarator(Babel.identifier('foo')),
       ]),
-      { ...babelIdentifier('bar'), start: 0, end: 3 },
-      babelBlockStatement([])
+      withLocation({ start: 0, end: 3 })(Babel.identifier('bar')),
+      Babel.blockStatement([])
     );
 
     const expected = forGenericStatement(
-      [identifier('_'), mockNodeWithValue(babelIdentifier('foo'))],
+      [identifier('_'), mockNodeWithValue(Babel.identifier('foo'))],
       [
         withTrailingConversionComment(
           callExpression(identifier('ipairs'), [
-            mockNodeWithValue({ ...babelIdentifier('bar'), start: 0, end: 3 }),
+            mockNodeWithValue(
+              withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
+            ),
           ]),
           "ROBLOX CHECK: check if 'bar' is an Array"
         ),
@@ -62,24 +57,26 @@ describe('For Of statement Handler', () => {
   it(`should handle loop with body`, () => {
     const source = 'bar';
 
-    const given = babelForOfStatement(
-      variableDeclaration('const', [
-        variableDeclarator(babelIdentifier('foo')),
+    const given = Babel.forOfStatement(
+      Babel.variableDeclaration('const', [
+        Babel.variableDeclarator(Babel.identifier('foo')),
       ]),
-      { ...babelIdentifier('bar'), start: 0, end: 3 },
-      babelBlockStatement([
-        babelExpressionStatement(
-          babelCallExpression(babelIdentifier('func'), [])
+      withLocation({ start: 0, end: 3 })(Babel.identifier('bar')),
+      Babel.blockStatement([
+        Babel.expressionStatement(
+          Babel.callExpression(Babel.identifier('func'), [])
         ),
       ])
     );
 
     const expected = forGenericStatement(
-      [identifier('_'), mockNodeWithValue(babelIdentifier('foo'))],
+      [identifier('_'), mockNodeWithValue(Babel.identifier('foo'))],
       [
         withTrailingConversionComment(
           callExpression(identifier('ipairs'), [
-            mockNodeWithValue({ ...babelIdentifier('bar'), start: 0, end: 3 }),
+            mockNodeWithValue(
+              withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
+            ),
           ]),
           "ROBLOX CHECK: check if 'bar' is an Array"
         ),
@@ -87,8 +84,8 @@ describe('For Of statement Handler', () => {
       [
         nodeGroup([
           mockNodeWithValue(
-            babelExpressionStatement(
-              babelCallExpression(babelIdentifier('func'), [])
+            Babel.expressionStatement(
+              Babel.callExpression(Babel.identifier('func'), [])
             )
           ),
         ]),
@@ -100,12 +97,12 @@ describe('For Of statement Handler', () => {
 
   describe('unhandled cases', function () {
     it('should not handle for await of statement', () => {
-      const given = babelForOfStatement(
-        variableDeclaration('const', [
-          variableDeclarator(babelIdentifier('foo')),
+      const given = Babel.forOfStatement(
+        Babel.variableDeclaration('const', [
+          Babel.variableDeclarator(Babel.identifier('foo')),
         ]),
-        babelIdentifier('bar'),
-        babelBlockStatement([]),
+        Babel.identifier('bar'),
+        Babel.blockStatement([]),
         true
       );
 
@@ -118,10 +115,10 @@ describe('For Of statement Handler', () => {
     });
 
     it('should not handle for of statement unhandled value on the left side', () => {
-      const given = babelForOfStatement(
-        tsParameterProperty(babelIdentifier('foo')),
-        babelIdentifier('bar'),
-        babelBlockStatement([])
+      const given = Babel.forOfStatement(
+        Babel.tsParameterProperty(Babel.identifier('foo')),
+        Babel.identifier('bar'),
+        Babel.blockStatement([])
       );
 
       const expected = withTrailingConversionComment(
@@ -135,14 +132,17 @@ describe('For Of statement Handler', () => {
     it('should not handle for of statement without variable declaration that is not an identifier', () => {
       const source = 'bar';
 
-      const given = babelForOfStatement(
-        variableDeclaration('const', [
-          variableDeclarator(
-            babelMemberExpression(babelIdentifier('f'), babelIdentifier('oo'))
+      const given = Babel.forOfStatement(
+        Babel.variableDeclaration('const', [
+          Babel.variableDeclarator(
+            Babel.memberExpression(
+              Babel.identifier('f'),
+              Babel.identifier('oo')
+            )
           ),
         ]),
-        { ...babelIdentifier('bar'), start: 0, end: 3 },
-        babelBlockStatement([])
+        withLocation({ start: 0, end: 3 })(Babel.identifier('bar')),
+        Babel.blockStatement([])
       );
 
       const expected = forGenericStatement(
@@ -156,16 +156,51 @@ describe('For Of statement Handler', () => {
         [
           withTrailingConversionComment(
             callExpression(identifier('ipairs'), [
-              mockNodeWithValue({
-                ...babelIdentifier('bar'),
-                start: 0,
-                end: 3,
-              }),
+              mockNodeWithValue(
+                withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
+              ),
             ]),
             "ROBLOX CHECK: check if 'bar' is an Array"
           ),
         ],
         [nodeGroup([])]
+      );
+
+      expect(handleForOfStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should not handle for of statement with empty variable declaration', () => {
+      const source = 'bar';
+
+      const given = Babel.forOfStatement(
+        Babel.variableDeclaration('const', []),
+        withLocation({ start: 0, end: 3 })(Babel.identifier('bar')),
+        Babel.blockStatement([])
+      );
+
+      const expected = withTrailingConversionComment(
+        unhandledStatement(),
+        `ROBLOX TODO: Unhandled node for type: ForOfStatement where left side declaration doesn't have exactly one declarator`
+      );
+
+      expect(handleForOfStatement.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should not handle for of statement with multiple variable declarators', () => {
+      const source = 'bar';
+
+      const given = Babel.forOfStatement(
+        Babel.variableDeclaration('const', [
+          Babel.variableDeclarator(Babel.identifier('foo')),
+          Babel.variableDeclarator(Babel.identifier('bar')),
+        ]),
+        withLocation({ start: 0, end: 3 })(Babel.identifier('bar')),
+        Babel.blockStatement([])
+      );
+
+      const expected = withTrailingConversionComment(
+        unhandledStatement(),
+        `ROBLOX TODO: Unhandled node for type: ForOfStatement where left side declaration doesn't have exactly one declarator`
       );
 
       expect(handleForOfStatement.handler(source, {}, given)).toEqual(expected);
