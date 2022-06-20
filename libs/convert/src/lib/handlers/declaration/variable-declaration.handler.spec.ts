@@ -1,18 +1,4 @@
-import {
-  arrayPattern,
-  assignmentPattern as babelAssignmentPattern,
-  callExpression as babelCallExpression,
-  Expression,
-  identifier as babelIdentifier,
-  isIdentifier,
-  numericLiteral as babelNumericLiteral,
-  objectPattern,
-  objectProperty,
-  restElement,
-  stringLiteral as babelStringLiteral,
-  variableDeclaration as babelVariableDeclaration,
-  variableDeclarator as babelVariableDeclarator,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   createHandlerFunction,
   forwardHandlerRef,
@@ -32,6 +18,7 @@ import {
   callExpression,
   elseClause,
   elseExpressionClause,
+  functionDeclaration,
   functionExpression,
   identifier,
   ifClause,
@@ -67,10 +54,11 @@ const { mockNodeWithValueHandler, mockNodeAsStatementWithValueHandler } =
 const source = '';
 
 const handleVariableDeclaration = createVariableDeclarationHandler(
-  createHandlerFunction<LuaExpression, Expression>((source, config, node) =>
-    isIdentifier(node)
-      ? identifier(node.name)
-      : mockNodeWithValueHandler(source, config, node)
+  createHandlerFunction<LuaExpression, Babel.Expression>(
+    (source, config, node) =>
+      Babel.isIdentifier(node)
+        ? identifier(node.name)
+        : mockNodeWithValueHandler(source, config, node)
   ),
   mockNodeAsStatementWithValueHandler,
   createHandlerFunction<IdentifierHandlerTo, IdentifierHandlerFrom>(
@@ -88,8 +76,8 @@ describe('Variable Declaration', () => {
   it.each(['foo', 'bar', 'baz'])(
     `should return LuaVariableDeclaration Node with declarations`,
     (name) => {
-      const given = babelVariableDeclaration('let', [
-        babelVariableDeclarator(babelIdentifier(name)),
+      const given = Babel.variableDeclaration('let', [
+        Babel.variableDeclarator(Babel.identifier(name)),
       ]);
 
       const expected = variableDeclaration(
@@ -106,16 +94,16 @@ describe('Variable Declaration', () => {
   it.each(['foo', 'bar', 'baz'])(
     `should return LuaVariableDeclaration Node with declarations and initialization`,
     (name) => {
-      const given = babelVariableDeclaration('let', [
-        babelVariableDeclarator(
-          babelIdentifier(name),
-          babelStringLiteral('abc')
+      const given = Babel.variableDeclaration('let', [
+        Babel.variableDeclarator(
+          Babel.identifier(name),
+          Babel.stringLiteral('abc')
         ),
       ]);
 
       const expected = variableDeclaration(
         [variableDeclaratorIdentifier(identifier(name))],
-        [variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('abc')))]
+        [variableDeclaratorValue(mockNodeWithValue(Babel.stringLiteral('abc')))]
       );
 
       expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
@@ -125,15 +113,15 @@ describe('Variable Declaration', () => {
   );
 
   it(`should return LuaVariableDeclaration Node with declarations and partial initialization - null in the middle`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        babelIdentifier('foo'),
-        babelStringLiteral('foo')
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.identifier('foo'),
+        Babel.stringLiteral('foo')
       ),
-      babelVariableDeclarator(babelIdentifier('bar')),
-      babelVariableDeclarator(
-        babelIdentifier('baz'),
-        babelStringLiteral('baz')
+      Babel.variableDeclarator(Babel.identifier('bar')),
+      Babel.variableDeclarator(
+        Babel.identifier('baz'),
+        Babel.stringLiteral('baz')
       ),
     ]);
 
@@ -144,9 +132,9 @@ describe('Variable Declaration', () => {
         variableDeclaratorIdentifier(identifier('baz')),
       ],
       [
-        variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('foo'))),
+        variableDeclaratorValue(mockNodeWithValue(Babel.stringLiteral('foo'))),
         variableDeclaratorValue(null),
-        variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('baz'))),
+        variableDeclaratorValue(mockNodeWithValue(Babel.stringLiteral('baz'))),
       ]
     );
 
@@ -156,16 +144,16 @@ describe('Variable Declaration', () => {
   });
 
   it(`should return LuaVariableDeclaration Node with declarations and partial initialization - null at the end`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        babelIdentifier('foo'),
-        babelStringLiteral('foo')
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.identifier('foo'),
+        Babel.stringLiteral('foo')
       ),
-      babelVariableDeclarator(
-        babelIdentifier('bar'),
-        babelStringLiteral('bar')
+      Babel.variableDeclarator(
+        Babel.identifier('bar'),
+        Babel.stringLiteral('bar')
       ),
-      babelVariableDeclarator(babelIdentifier('baz')),
+      Babel.variableDeclarator(Babel.identifier('baz')),
     ]);
 
     const expected = variableDeclaration(
@@ -175,8 +163,8 @@ describe('Variable Declaration', () => {
         variableDeclaratorIdentifier(identifier('baz')),
       ],
       [
-        variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('foo'))),
-        variableDeclaratorValue(mockNodeWithValue(babelStringLiteral('bar'))),
+        variableDeclaratorValue(mockNodeWithValue(Babel.stringLiteral('foo'))),
+        variableDeclaratorValue(mockNodeWithValue(Babel.stringLiteral('bar'))),
       ]
     );
 
@@ -186,10 +174,10 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle array destructuring`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        arrayPattern([babelIdentifier('foo'), babelIdentifier('bar')]),
-        babelIdentifier('baz')
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.arrayPattern([Babel.identifier('foo'), Babel.identifier('bar')]),
+        Babel.identifier('baz')
       ),
     ]);
 
@@ -215,13 +203,16 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle array destructuring with nested arrays`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        arrayPattern([
-          babelIdentifier('foo'),
-          arrayPattern([babelIdentifier('bar'), babelIdentifier('baz')]),
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.arrayPattern([
+          Babel.identifier('foo'),
+          Babel.arrayPattern([
+            Babel.identifier('bar'),
+            Babel.identifier('baz'),
+          ]),
         ]),
-        babelIdentifier('fizz')
+        Babel.identifier('fizz')
       ),
     ]);
 
@@ -261,13 +252,13 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle array destructuring with rest element`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        arrayPattern([
-          babelIdentifier('foo'),
-          restElement(babelIdentifier('bar')),
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.arrayPattern([
+          Babel.identifier('foo'),
+          Babel.restElement(Babel.identifier('bar')),
         ]),
-        babelIdentifier('baz')
+        Babel.identifier('baz')
       ),
     ]);
 
@@ -296,16 +287,16 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle array destructuring with assignment pattern element`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        arrayPattern([
-          babelIdentifier('foo'),
-          babelAssignmentPattern(
-            babelIdentifier('bar'),
-            babelNumericLiteral(3)
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.arrayPattern([
+          Babel.identifier('foo'),
+          Babel.assignmentPattern(
+            Babel.identifier('bar'),
+            Babel.numericLiteral(3)
           ),
         ]),
-        babelIdentifier('baz')
+        Babel.identifier('baz')
       ),
     ]);
 
@@ -347,7 +338,7 @@ describe('Variable Declaration', () => {
                       ),
                       nodeGroup([
                         returnStatement(
-                          mockNodeWithValue(babelNumericLiteral(3))
+                          mockNodeWithValue(Babel.numericLiteral(3))
                         ),
                       ])
                     ),
@@ -371,13 +362,19 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        objectPattern([
-          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
-          objectProperty(babelIdentifier('bar'), babelIdentifier('bar')),
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.objectPattern([
+          Babel.objectProperty(
+            Babel.identifier('foo'),
+            Babel.identifier('foo')
+          ),
+          Babel.objectProperty(
+            Babel.identifier('bar'),
+            Babel.identifier('bar')
+          ),
         ]),
-        babelIdentifier('baz')
+        Babel.identifier('baz')
       ),
     ]);
 
@@ -402,13 +399,19 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring with aliases`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        objectPattern([
-          objectProperty(babelIdentifier('foo'), babelIdentifier('fun')),
-          objectProperty(babelIdentifier('bar'), babelIdentifier('bat')),
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.objectPattern([
+          Babel.objectProperty(
+            Babel.identifier('foo'),
+            Babel.identifier('fun')
+          ),
+          Babel.objectProperty(
+            Babel.identifier('bar'),
+            Babel.identifier('bat')
+          ),
         ]),
-        babelIdentifier('baz')
+        Babel.identifier('baz')
       ),
     ]);
 
@@ -433,13 +436,16 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring with rest element`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        objectPattern([
-          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
-          restElement(babelIdentifier('bar')),
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.objectPattern([
+          Babel.objectProperty(
+            Babel.identifier('foo'),
+            Babel.identifier('foo')
+          ),
+          Babel.restElement(Babel.identifier('bar')),
         ]),
-        babelIdentifier('baz')
+        Babel.identifier('baz')
       ),
     ]);
 
@@ -470,18 +476,24 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring with nested object pattern`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        objectPattern([
-          objectProperty(
-            babelIdentifier('foo'),
-            objectPattern([
-              objectProperty(babelIdentifier('bar'), babelIdentifier('bar')),
-              objectProperty(babelIdentifier('baz'), babelIdentifier('baz')),
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.objectPattern([
+          Babel.objectProperty(
+            Babel.identifier('foo'),
+            Babel.objectPattern([
+              Babel.objectProperty(
+                Babel.identifier('bar'),
+                Babel.identifier('bar')
+              ),
+              Babel.objectProperty(
+                Babel.identifier('baz'),
+                Babel.identifier('baz')
+              ),
             ])
           ),
         ]),
-        babelIdentifier('fizz')
+        Babel.identifier('fizz')
       ),
     ]);
 
@@ -514,19 +526,22 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring with assignment pattern property`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        objectPattern([
-          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
-          objectProperty(
-            babelIdentifier('bar'),
-            babelAssignmentPattern(
-              babelIdentifier('bar'),
-              babelNumericLiteral(3)
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.objectPattern([
+          Babel.objectProperty(
+            Babel.identifier('foo'),
+            Babel.identifier('foo')
+          ),
+          Babel.objectProperty(
+            Babel.identifier('bar'),
+            Babel.assignmentPattern(
+              Babel.identifier('bar'),
+              Babel.numericLiteral(3)
             )
           ),
         ]),
-        babelIdentifier('fizz')
+        Babel.identifier('fizz')
       ),
     ]);
 
@@ -548,7 +563,7 @@ describe('Variable Declaration', () => {
                 nilLiteral()
               ),
 
-              mockNodeWithValue(babelNumericLiteral(3))
+              mockNodeWithValue(Babel.numericLiteral(3))
             ),
             elseExpressionClause(
               memberExpression(identifier('fizz'), '.', identifier('bar'))
@@ -564,12 +579,15 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring of call expression with single identifier`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        objectPattern([
-          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.objectPattern([
+          Babel.objectProperty(
+            Babel.identifier('foo'),
+            Babel.identifier('foo')
+          ),
         ]),
-        babelCallExpression(babelIdentifier('baz'), [])
+        Babel.callExpression(Babel.identifier('baz'), [])
       ),
     ]);
 
@@ -578,7 +596,9 @@ describe('Variable Declaration', () => {
       [
         variableDeclaratorValue(
           memberExpression(
-            mockNodeWithValue(babelCallExpression(babelIdentifier('baz'), [])),
+            mockNodeWithValue(
+              Babel.callExpression(Babel.identifier('baz'), [])
+            ),
             '.',
             identifier('foo')
           )
@@ -592,13 +612,19 @@ describe('Variable Declaration', () => {
   });
 
   it(`should handle object destructuring of call expression with multiple identifiers`, () => {
-    const given = babelVariableDeclaration('let', [
-      babelVariableDeclarator(
-        objectPattern([
-          objectProperty(babelIdentifier('foo'), babelIdentifier('foo')),
-          objectProperty(babelIdentifier('bar'), babelIdentifier('bar')),
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.objectPattern([
+          Babel.objectProperty(
+            Babel.identifier('foo'),
+            Babel.identifier('foo')
+          ),
+          Babel.objectProperty(
+            Babel.identifier('bar'),
+            Babel.identifier('bar')
+          ),
         ]),
-        babelCallExpression(babelIdentifier('baz'), [])
+        Babel.callExpression(Babel.identifier('baz'), [])
       ),
     ]);
 
@@ -615,7 +641,9 @@ describe('Variable Declaration', () => {
           [variableDeclaratorIdentifier(identifier('ref'))],
           [
             variableDeclaratorValue(
-              mockNodeWithValue(babelCallExpression(babelIdentifier('baz'), []))
+              mockNodeWithValue(
+                Babel.callExpression(Babel.identifier('baz'), [])
+              )
             ),
           ]
         ),
@@ -628,6 +656,50 @@ describe('Variable Declaration', () => {
           ]
         ),
       ]),
+    ]);
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
+  it(`should handle named function expression with same name as declared variable`, () => {
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.identifier('foo'),
+        Babel.functionExpression(
+          Babel.identifier('foo'),
+          [],
+          Babel.blockStatement([])
+        )
+      ),
+    ]);
+
+    const expected = functionDeclaration(identifier('foo'));
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
+  it(`should handle named function expression with different name as declared variable`, () => {
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.identifier('foo'),
+        Babel.functionExpression(
+          Babel.identifier('bar'),
+          [],
+          Babel.blockStatement([])
+        )
+      ),
+    ]);
+
+    const expected = nodeGroup([
+      functionDeclaration(identifier('bar')),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('foo'))],
+        [variableDeclaratorValue(identifier('bar'))]
+      ),
     ]);
 
     expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(

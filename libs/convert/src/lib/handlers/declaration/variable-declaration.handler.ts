@@ -1,22 +1,4 @@
-import {
-  ArrayPattern,
-  ArrowFunctionExpression,
-  Declaration,
-  Expression,
-  FunctionExpression,
-  isArrayPattern,
-  isArrowFunctionExpression,
-  isFunctionExpression,
-  isIdentifier as isBabelIdentifier,
-  isObjectPattern,
-  isObjectProperty,
-  ObjectMethod,
-  ObjectPattern,
-  ObjectProperty,
-  Statement,
-  VariableDeclaration,
-  VariableDeclarator,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   AsStatementHandlerFunction,
   createHandler,
@@ -73,21 +55,24 @@ import {
 import { createConvertToFunctionDeclarationHandler } from './convert-to-function-declaration.handler';
 
 export const createVariableDeclarationHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
   handleExpressionAsStatement: AsStatementHandlerFunction<
     LuaStatement,
-    Expression
+    Babel.Expression
   >,
   handleIdentifier: IdentifierHandlerFunction,
   handleIdentifierStrict: IdentifierStrictHandlerFunction,
-  handleStatement: HandlerFunction<LuaStatement, Statement>,
+  handleStatement: HandlerFunction<LuaStatement, Babel.Statement>,
   handleObjectField: HandlerFunction<
     LuaTableKeyField,
-    ObjectMethod | ObjectProperty
+    Babel.ObjectMethod | Babel.ObjectProperty
   >,
-  handleDeclaration: HandlerFunction<LuaNodeGroup | LuaDeclaration, Declaration>
+  handleDeclaration: HandlerFunction<
+    LuaNodeGroup | LuaDeclaration,
+    Babel.Declaration
+  >
 ) =>
-  createHandler<LuaStatement, VariableDeclaration>(
+  createHandler<LuaStatement, Babel.VariableDeclaration>(
     'VariableDeclaration',
     (source, config, declaration) => {
       const lValHandler = createLValHandler(
@@ -114,7 +99,7 @@ export const createVariableDeclarationHandler = (
       const handleVariableDeclarator = (
         source: string,
         config: EmptyConfig,
-        node: VariableDeclarator
+        node: Babel.VariableDeclarator
       ): StatementsWithDeclarator => {
         const initAsStatementReturn = node.init
           ? asStatementReturnTypeToReturn(
@@ -167,48 +152,79 @@ export const createVariableDeclarationHandler = (
 
       const convertVariableFunctionToFunctionDeclaration: HandlerFunction<
         LuaFunctionDeclaration | UnhandledStatement,
-        VariableDeclarator
-      > = createHandlerFunction((source, config, node: VariableDeclarator) => {
-        switch (node.init?.type) {
-          case 'ArrowFunctionExpression':
-          case 'FunctionExpression':
-            return convertToFunctionDeclaration(
-              source,
-              config,
-              node.init,
-              lValHandler(source, config, node.id) as LuaIdentifier
-            );
-          default:
-            return withTrailingConversionComment(
-              unhandledStatement(),
-              `ROBLOX TODO: Unhandled node for type: ${node.init?.type}, when within 'init' expression for ${node.type} node`,
-              getNodeSource(source, node)
-            );
+        Babel.VariableDeclarator
+      > = createHandlerFunction(
+        (source, config, node: Babel.VariableDeclarator) => {
+          switch (node.init?.type) {
+            case 'ArrowFunctionExpression':
+              return convertToFunctionDeclaration(
+                source,
+                config,
+                node.init,
+                lValHandler(source, config, node.id) as LuaIdentifier
+              );
+            case 'FunctionExpression':
+              return node.init.id &&
+                Babel.isIdentifier(node.id) &&
+                node.id.name !== node.init.id.name
+                ? nodeGroup([
+                    convertToFunctionDeclaration(
+                      source,
+                      config,
+                      node.init,
+                      lValHandler(source, config, node.init.id) as LuaIdentifier
+                    ),
+                    variableDeclaration(
+                      [
+                        variableDeclaratorIdentifier(
+                          lValHandler(source, config, node.id)
+                        ),
+                      ],
+                      [
+                        variableDeclaratorValue(
+                          lValHandler(source, config, node.init.id)
+                        ),
+                      ]
+                    ),
+                  ])
+                : convertToFunctionDeclaration(
+                    source,
+                    config,
+                    node.init,
+                    lValHandler(source, config, node.id) as LuaIdentifier
+                  );
+            default:
+              return withTrailingConversionComment(
+                unhandledStatement(),
+                `ROBLOX TODO: Unhandled node for type: ${node.init?.type}, when within 'init' expression for ${node.type} node`,
+                getNodeSource(source, node)
+              );
+          }
         }
-      });
+      );
 
       const toFunctionDeclaration =
         convertVariableFunctionToFunctionDeclaration(source, config);
 
-      type SeparateDeclarator = VariableDeclarator &
+      type SeparateDeclarator = Babel.VariableDeclarator &
         (
           | {
-              init: FunctionExpression | ArrowFunctionExpression;
+              init: Babel.FunctionExpression | Babel.ArrowFunctionExpression;
             }
           | {
-              id: ObjectPattern | ArrayPattern;
+              id: Babel.ObjectPattern | Babel.ArrayPattern;
             }
         );
       const splitGroups = declaration.declarations.reduce(
         splitBy(
           (
-            declarator: VariableDeclarator
+            declarator: Babel.VariableDeclarator
           ): declarator is SeparateDeclarator => {
             return (
-              isFunctionExpression(declarator.init) ||
-              isArrowFunctionExpression(declarator.init) ||
-              isObjectPattern(declarator.id) ||
-              isArrayPattern(declarator.id)
+              Babel.isFunctionExpression(declarator.init) ||
+              Babel.isArrowFunctionExpression(declarator.init) ||
+              Babel.isObjectPattern(declarator.id) ||
+              Babel.isArrayPattern(declarator.id)
             );
           }
         ),
@@ -223,42 +239,42 @@ export const createVariableDeclarationHandler = (
                 handleVariableDeclarator(source, config, declarator)
               )
             );
-          } else if (isObjectPattern(group.id)) {
+          } else if (Babel.isObjectPattern(group.id)) {
             return objectPatternDestructuringDeclarationHandler(
-              group as VariableDeclarator & { id: ObjectPattern }
+              group as Babel.VariableDeclarator & { id: Babel.ObjectPattern }
             );
-          } else if (isArrayPattern(group.id)) {
+          } else if (Babel.isArrayPattern(group.id)) {
             return handleArrayPatternDeclaration(
-              group as VariableDeclarator & {
-                id: ArrayPattern;
-                init: Expression;
+              group as Babel.VariableDeclarator & {
+                id: Babel.ArrayPattern;
+                init: Babel.Expression;
               }
             );
           } else if (
-            isFunctionExpression(group.init) ||
-            isArrowFunctionExpression(group.init)
+            Babel.isFunctionExpression(group.init) ||
+            Babel.isArrowFunctionExpression(group.init)
           ) {
             return toFunctionDeclaration(group);
           }
 
           return defaultStatementHandler(source, config, group);
         })
-        .flat();
+        .flat() as LuaStatement[];
 
       return declarations.length > 1
         ? nodeGroup(declarations)
         : declarations[0];
 
       function objectPatternDestructuringDeclarationHandler(
-        declarator: VariableDeclarator & { id: ObjectPattern }
+        declarator: Babel.VariableDeclarator & { id: Babel.ObjectPattern }
       ) {
         const idProperties = declarator.id.properties;
 
         if (
           hasUnhandledObjectDestructuringParam(
             idProperties.filter((property) =>
-              isObjectProperty(property)
-            ) as ObjectProperty[]
+              Babel.isObjectProperty(property)
+            ) as Babel.ObjectProperty[]
           )
         ) {
           return [
@@ -274,7 +290,7 @@ export const createVariableDeclarationHandler = (
 
         if (
           declarator.init &&
-          (isBabelIdentifier(declarator.init) || idProperties.length < 2)
+          (Babel.isIdentifier(declarator.init) || idProperties.length < 2)
         ) {
           const destructured = objectPatternDestructuringHandler(
             source,
@@ -325,9 +341,9 @@ export const createVariableDeclarationHandler = (
       }
 
       function handleArrayPatternDeclaration(
-        declarator: Omit<VariableDeclarator, 'id' | 'init'> & {
-          id: ArrayPattern;
-          init: Expression;
+        declarator: Omit<Babel.VariableDeclarator, 'id' | 'init'> & {
+          id: Babel.ArrayPattern;
+          init: Babel.Expression;
         }
       ): (LuaVariableDeclaration | UnhandledStatement)[] {
         const init = handleExpression(source, config, declarator.init);

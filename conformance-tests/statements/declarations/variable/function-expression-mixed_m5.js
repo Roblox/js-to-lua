@@ -1,0 +1,1 @@
+let foo = function bar() {}, baz = function baz() {}, fizz = function fuzz() {}
