@@ -61,6 +61,7 @@ import { uniqWith } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
+import { createTsIndexedAccessTypeHandler } from './ts-indexed-access-type';
 import { createTsLiteralTypeHandler } from './ts-literal-type.handler';
 import { createTsQualifiedNameHandler } from './ts-qualified-name.handler';
 import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
@@ -188,6 +189,7 @@ export const createTsTypeAnnotationHandler = (
         forwardHandlerRef(() => handleTsTypes)
       ),
       createTsLiteralTypeHandler(handleExpression),
+      createTsIndexedAccessTypeHandler(forwardHandlerRef(() => handleTsTypes)),
     ],
     defaultTypeHandler
   );

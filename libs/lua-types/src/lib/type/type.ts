@@ -13,6 +13,7 @@ import { LuaTypeReference } from './type-reference';
 import { LuaTypeString } from './type-string';
 import { LuaTypeUnion } from './type-union';
 import { LuaTypeVoid } from './type-void';
+import { LuaTypeOfExpression } from './typeof-expression';
 
 export type LuaType =
   | LuaTypeAny
@@ -29,4 +30,5 @@ export type LuaType =
   | LuaTypeFunction
   | LuaLiteralType
   | LuaTypeQuery
-  | LuaTypeParameterDeclaration;
+  | LuaTypeParameterDeclaration
+  | LuaTypeOfExpression;

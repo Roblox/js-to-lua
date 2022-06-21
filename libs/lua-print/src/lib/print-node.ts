@@ -59,6 +59,7 @@ import { createPrintTypeOptional } from './type/print-type-optional';
 import { createPrintTypeQuery } from './type/print-type-query';
 import { createPrintTypeReference } from './type/print-type-reference';
 import { createPrintTypeUnion } from './type/print-type-union';
+import { createPrintTypeOfExpression } from './type/print-typeof-expression';
 
 export type PrintNode = typeof printNode;
 export type GetPrintSections = typeof getPrintSections;
@@ -225,6 +226,8 @@ const _printNode = (node: LuaNode): string => {
       )(node);
     case 'LuaTypeFunction':
       return createPrintTypeFunction(printNode)(node);
+    case 'LuaTypeOfExpression':
+      return createPrintTypeOfExpression(printNode)(node);
     case 'LuaFunctionTypeParam': {
       const typeAnnotationString = printNode(node.typeAnnotation);
       return node.name
