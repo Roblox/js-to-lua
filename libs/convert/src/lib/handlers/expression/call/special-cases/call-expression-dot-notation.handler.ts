@@ -38,6 +38,7 @@ export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
   'Array',
   'jest',
   'console',
+  'Promise',
   isExpectCall,
   isNestedExpectCall,
 ];

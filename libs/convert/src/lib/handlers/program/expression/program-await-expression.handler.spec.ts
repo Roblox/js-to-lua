@@ -47,7 +47,7 @@ describe('Program handler', () => {
                   callExpression(
                     memberExpression(
                       identifier('Promise'),
-                      ':',
+                      '.',
                       identifier('resolve')
                     ),
                     []
