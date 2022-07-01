@@ -23,7 +23,7 @@ import { createIdentifierHandler } from '../../expression/identifier.handler';
 import { createTypeAnnotationHandler } from '../type-annotation.handler';
 import { createTsPropertySignatureHandler } from './ts-property-signature.handler';
 
-describe('TSIndexSignature handler', () => {
+describe('TSPropertySignature handler', () => {
   const { handleTypeAnnotation } = createTypeAnnotationHandler(
     forwardHandlerRef(() => expressionHandler),
     forwardHandlerRef(() => handleIdentifier)

@@ -1,16 +1,15 @@
 import {
   Expression,
+  FlowType,
   isTSIndexSignature,
+  TSType,
   TSTypeAnnotation,
   TSTypeLiteral,
 } from '@babel/types';
-import {
-  BaseNodeHandler,
-  createHandler,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   LuaExpression,
+  LuaType,
   LuaTypeAnnotation,
   LuaTypeIntersection,
   LuaTypeLiteral,
@@ -19,21 +18,29 @@ import {
   typeLiteral,
   typeUnion,
 } from '@js-to-lua/lua-types';
+import { IdentifierHandlerFunction } from '../../expression/identifier-handler-types';
 import { createTsTypeElementHandler } from './ts-type-element.handler';
 
 export const createTsTypeLiteralHandler = (
+  handleIdentifier: IdentifierHandlerFunction,
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
-  typesHandlerFunction: HandlerFunction<LuaTypeAnnotation, TSTypeAnnotation>
+  typeAnnotationHandlerFunction: HandlerFunction<
+    LuaTypeAnnotation,
+    TSTypeAnnotation
+  >,
+  typesHandlerFunction: HandlerFunction<LuaType, TSType | FlowType>
 ) => {
   const typeElementHandler = createTsTypeElementHandler(
+    handleIdentifier,
     expressionHandlerFunction,
+    typeAnnotationHandlerFunction,
     typesHandlerFunction
   );
 
-  const handleTsTypeLiteral: BaseNodeHandler<
+  const handleTsTypeLiteral = createHandler<
     LuaTypeLiteral | LuaTypeUnion | LuaTypeIntersection,
     TSTypeLiteral
-  > = createHandler('TSTypeLiteral', (source, config, node: TSTypeLiteral) => {
+  >('TSTypeLiteral', (source, config, node) => {
     const indexSignatures = node.members.filter((member) =>
       isTSIndexSignature(member)
     );

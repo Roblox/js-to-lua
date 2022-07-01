@@ -113,7 +113,7 @@ const declarationHandler = createDeclarationHandler(
 
 // -------- Exported for tests --------
 
-export { expressionHandler };
+export { expressionHandler, handleType };
 
 export const expressionAsStatementHandler = createExpressionAsStatementHandler(
   expressionHandler,

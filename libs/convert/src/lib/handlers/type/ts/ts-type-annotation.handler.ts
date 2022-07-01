@@ -23,6 +23,7 @@ import {
   BaseNodeHandler,
   combineHandlers,
   createHandler,
+  forwardHandlerFunctionRef,
   forwardHandlerRef,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
@@ -172,8 +173,10 @@ export const createTsTypeAnnotationHandler = (
       handleTsTypeQuery,
       handleTsTypePredicate,
       createTsTypeLiteralHandler(
+        handleIdentifierStrict,
         handleExpression,
-        handleTsTypeAnnotation.handler
+        handleTsTypeAnnotation.handler,
+        forwardHandlerRef(() => handleTsTypes)
       ),
       handleTsTypeUnion,
       handleTsTypeIntersection,

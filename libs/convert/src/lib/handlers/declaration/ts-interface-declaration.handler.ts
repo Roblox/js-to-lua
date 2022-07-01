@@ -2,6 +2,7 @@ import {
   Expression,
   Identifier,
   isIdentifier as isBabelIdentifier,
+  isIdentifier,
   Noop,
   TSExpressionWithTypeArguments,
   TSInterfaceDeclaration,
@@ -10,6 +11,7 @@ import {
   TypeAnnotation,
 } from '@babel/types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import { defaultUnhandledIdentifierHandlerWithComment } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaBinaryExpression,
   LuaExpression,
@@ -34,21 +36,36 @@ export const createTsInterfaceHandler = (
     Identifier
   >,
   expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
-  typesHandlerFunction: HandlerFunction<
+  typeAnnotationHandlerFunction: HandlerFunction<
     LuaTypeAnnotation,
     TypeAnnotation | TSTypeAnnotation | Noop
   >,
   tsTypeHandlerFunction: HandlerFunction<LuaType, TSType>
 ) => {
   const handleTsInterfaceBody = createTsInterfaceBodyHandler(
+    handleIdentifier,
     expressionHandlerFunction,
-    typesHandlerFunction
+    typeAnnotationHandlerFunction,
+    tsTypeHandlerFunction
   ).handler;
 
   return createHandler<LuaTypeAliasDeclaration, TSInterfaceDeclaration>(
     'TSInterfaceDeclaration',
     (source, config, node) => {
-      const interfaceBody = handleTsInterfaceBody(source, config, node.body);
+      const maybeTypeId = handleIdentifier(source, config, node.id);
+      const typeId = isIdentifier(maybeTypeId)
+        ? maybeTypeId
+        : defaultUnhandledIdentifierHandlerWithComment()(
+            source,
+            config,
+            node.id
+          );
+
+      const interfaceBody = handleTsInterfaceBody(
+        source,
+        { ...config, typeId },
+        node.body
+      );
       const handleTsQualifiedName = createTsQualifiedNameHandler().handler;
 
       const handleTsExpressionWithTypeArguments = (
@@ -77,7 +94,7 @@ export const createTsInterfaceHandler = (
         );
 
       return typeAliasDeclaration(
-        handleIdentifier(source, config, node.id) as LuaIdentifier,
+        typeId,
         node.extends && node.extends.length
           ? typeIntersection([
               ...node.extends.map(handleTsExpressionWithTypeArguments),
