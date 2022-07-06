@@ -1,0 +1,1 @@
+let foo: { toString(): string }

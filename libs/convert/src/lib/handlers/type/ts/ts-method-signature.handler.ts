@@ -13,6 +13,7 @@ import {
   LuaPropertySignature,
   LuaType,
   typeAnnotation,
+  typeAny,
   typePropertySignature,
   typeReference,
   typeString,
@@ -32,17 +33,20 @@ export const createTsMethodSignatureHandler = (
       typesHandlerFunction
     ).handler;
 
-  const handleTsMethodSignature = createHandler<
+  return createHandler<
     LuaPropertySignature,
     Babel.TSMethodSignature,
-    { typeId: LuaIdentifier }
+    { typeId?: LuaIdentifier }
   >('TSMethodSignature', (source, config, node) => {
     const key = expressionHandlerFunction(source, config, node.key);
 
     const rightSideType = handleMethodType(source, config, node);
 
     rightSideType.parameters.unshift(
-      functionTypeParam(identifier('self'), typeReference(config.typeId))
+      functionTypeParam(
+        identifier('self'),
+        config.typeId ? typeReference(config.typeId) : typeAny()
+      )
     );
 
     const rightSide = typeAnnotation(rightSideType);
@@ -58,6 +62,4 @@ export const createTsMethodSignatureHandler = (
           rightSide
         );
   });
-
-  return handleTsMethodSignature;
 };
