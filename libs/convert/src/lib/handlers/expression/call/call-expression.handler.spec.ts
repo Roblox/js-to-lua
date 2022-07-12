@@ -8,6 +8,7 @@ import {
 import {
   dateTimeMethodCall,
   PolyfillID,
+  stringInferableExpression,
   withPolyfillExtra,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -144,7 +145,7 @@ describe('Call Expression Handler', () => {
         (e): e is string =>
           typeof e === 'string' &&
           !ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION.includes(e as PolyfillID)
-      )
+      ).filter((e) => e !== 'chalk')
     )('dot notation special cases without polyfill imports: %s', (id) => {
       it(`should handle not computed ${id} object`, () => {
         const given = babelCallExpression(
@@ -175,6 +176,49 @@ describe('Call Expression Handler', () => {
         const expected = callExpression(
           indexExpression(identifier(id), stringLiteral('foo')),
           []
+        );
+
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
+      });
+    });
+
+    describe('dot notation special cases without polyfill imports: chalk', () => {
+      const id = 'chalk';
+      it(`should handle not computed ${id} object`, () => {
+        const given = babelCallExpression(
+          babelMemberExpression(babelIdentifier(id), babelIdentifier('foo')),
+          []
+        );
+
+        const expected = stringInferableExpression(
+          callExpression(
+            memberExpression(identifier(id), '.', identifier('foo')),
+            []
+          )
+        );
+
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
+      });
+
+      it(`should handle computed ${id} object`, () => {
+        const given = babelCallExpression(
+          babelMemberExpression(
+            babelIdentifier(id),
+            babelStringLiteral('foo'),
+            true
+          ),
+          []
+        );
+
+        const expected = stringInferableExpression(
+          callExpression(
+            indexExpression(identifier(id), stringLiteral('foo')),
+            []
+          )
         );
 
         expect(handleCallExpression.handler(source, {}, given)).toEqual(

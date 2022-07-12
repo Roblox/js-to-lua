@@ -11,7 +11,11 @@ import * as Babel from '@babel/types';
 import { createCallExpressionArgumentsHandler } from '../call-expression-arguments.handler';
 import { matchesBabelMemberExpressionObject } from './utils';
 import { createCalleeExpressionHandlerFunction } from '../callee-expression.handler';
-import { PolyfillID, withPolyfillExtra } from '@js-to-lua/lua-conversion-utils';
+import {
+  PolyfillID,
+  stringInferableExpression,
+  withPolyfillExtra,
+} from '@js-to-lua/lua-conversion-utils';
 
 type MemberExpressionPredicate = (node: Babel.MemberExpression) => boolean;
 
@@ -39,6 +43,7 @@ export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
   'jest',
   'console',
   'Promise',
+  'chalk',
   isExpectCall,
   isNestedExpectCall,
 ];
@@ -72,30 +77,35 @@ export const createCallExpressionDotNotationHandlerFunction = (
             : identifierName(callee)
         )
       ) {
-        return Babel.isIdentifier(callee.object) &&
+        const res =
+          Babel.isIdentifier(callee.object) &&
           ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION.includes(
             callee.object.name as PolyfillID
           )
-          ? withPolyfillExtra<LuaCallExpression, PolyfillID>(
-              callee.object.name as PolyfillID
-            )(
-              callExpression(
+            ? withPolyfillExtra<LuaCallExpression, PolyfillID>(
+                callee.object.name as PolyfillID
+              )(
+                callExpression(
+                  handleCalleeExpression(source, config, expression.callee),
+                  handleCallExpressionArguments(
+                    source,
+                    config,
+                    expression.arguments
+                  )
+                )
+              )
+            : callExpression(
                 handleCalleeExpression(source, config, expression.callee),
                 handleCallExpressionArguments(
                   source,
                   config,
                   expression.arguments
                 )
-              )
-            )
-          : callExpression(
-              handleCalleeExpression(source, config, expression.callee),
-              handleCallExpressionArguments(
-                source,
-                config,
-                expression.arguments
-              )
-            );
+              );
+
+        return matchesBabelMemberExpressionObject('chalk', callee)
+          ? stringInferableExpression(res)
+          : res;
       }
     }
   );
