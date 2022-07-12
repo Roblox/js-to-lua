@@ -28,7 +28,7 @@ import {
 import {
   asStatementReturnTypeToReturn,
   createExpressionStatement,
-  defaultExpressionHandler,
+  defaultExpressionAsStatementHandler,
   getNodeSource,
   getReturnExpressions,
   isStringInferable,
@@ -97,7 +97,7 @@ export const createAssignmentExpressionAsStatementHandlerFunction = (
       )(node);
 
       if (!operator) {
-        return defaultExpressionHandler(source, config, node);
+        return defaultExpressionAsStatementHandler(source, config, node);
       }
 
       if (isBabelObjectPattern(node.left)) {
