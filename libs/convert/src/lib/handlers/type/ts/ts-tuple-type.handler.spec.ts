@@ -6,7 +6,12 @@ import {
   tsTypeReference,
 } from '@babel/types';
 import { testUtils } from '@js-to-lua/handler-utils';
-import { identifier, typeReference, typeUnion } from '@js-to-lua/lua-types';
+import {
+  identifier,
+  typeLiteral,
+  typeReference,
+  typeUnion,
+} from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
 
@@ -22,6 +27,13 @@ describe('TSTupleType handler', () => {
     const expected = typeReference(identifier('Array'), [
       mockNodeWithValue(tsTypeReference(babelIdentifier('Foo'))),
     ]);
+
+    expect(tsTupleTypeHandler(source, {}, given)).toEqual(expected);
+  });
+
+  it('should handle empty TSTupleType', () => {
+    const given = tsTupleType([]);
+    const expected = typeLiteral([]);
 
     expect(tsTupleTypeHandler(source, {}, given)).toEqual(expected);
   });

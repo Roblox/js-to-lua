@@ -2,7 +2,9 @@ import { TSNamedTupleMember, TSTupleType, TSType } from '@babel/types';
 import {
   identifier,
   LuaType,
+  LuaTypeLiteral,
   LuaTypeReference,
+  typeLiteral,
   typeReference,
   typeUnion,
 } from '@js-to-lua/lua-types';
@@ -35,14 +37,16 @@ const equalNodes = (
 export const createTsTupleTypeHandler = (
   typesHandlerFunction: HandlerFunction<LuaType, TSType>
 ) =>
-  createHandler<LuaTypeReference, TSTupleType>(
+  createHandler<LuaTypeLiteral | LuaTypeReference, TSTupleType>(
     'TSTupleType',
     (source, config, node) => {
       const handleType = typesHandlerFunction(source, config);
       const types = uniqWith(equalNodes, node.elementTypes).map(handleType);
 
-      return typeReference(identifier('Array'), [
-        types.length > 1 ? typeUnion(types) : types[0],
-      ]);
+      return types.length === 0
+        ? typeLiteral([])
+        : typeReference(identifier('Array'), [
+            types.length === 1 ? types[0] : typeUnion(types),
+          ]);
     }
   );

@@ -3,6 +3,7 @@ import {
   program,
   typeAliasDeclaration,
   typeAny,
+  typeLiteral,
   typeNumber,
   typeReference,
   typeString,
@@ -24,6 +25,17 @@ describe('Program handler', () => {
           identifier('SingleNumber'),
           typeReference(identifier('Array'), [typeNumber()])
         ),
+      ]);
+
+      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle simple empty tuple type', () => {
+      const given = getProgramNode(`
+        type SingleNumber = [];
+      `);
+      const expected = program([
+        typeAliasDeclaration(identifier('SingleNumber'), typeLiteral([])),
       ]);
 
       expect(handleProgram.handler(source, {}, given)).toEqual(expected);
