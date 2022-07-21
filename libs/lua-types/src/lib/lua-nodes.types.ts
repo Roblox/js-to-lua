@@ -16,7 +16,6 @@ import {
   LuaTypeElement,
   TypeAnnotation,
 } from './type';
-import { UnhandledElement } from './unhandled';
 
 export type LuaNode =
   | LuaProgram
@@ -34,5 +33,4 @@ export type LuaNode =
   | LuaExpressionClause
   | LuaFunctionReturnType
   | LuaFunctionTypeParam
-  | LuaTypeElement
-  | UnhandledElement;
+  | LuaTypeElement;

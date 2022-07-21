@@ -1,11 +1,4 @@
-import {
-  Expression,
-  FlowType,
-  isTSIndexSignature,
-  TSType,
-  TSTypeAnnotation,
-  TSTypeLiteral,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   LuaExpression,
@@ -23,12 +16,12 @@ import { createTsTypeElementHandler } from './ts-type-element.handler';
 
 export const createTsTypeLiteralHandler = (
   handleIdentifier: IdentifierHandlerFunction,
-  expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
+  expressionHandlerFunction: HandlerFunction<LuaExpression, Babel.Expression>,
   typeAnnotationHandlerFunction: HandlerFunction<
     LuaTypeAnnotation,
-    TSTypeAnnotation
+    Babel.TSTypeAnnotation
   >,
-  typesHandlerFunction: HandlerFunction<LuaType, TSType | FlowType>
+  typesHandlerFunction: HandlerFunction<LuaType, Babel.TSType | Babel.FlowType>
 ) => {
   const typeElementHandler = createTsTypeElementHandler(
     handleIdentifier,
@@ -39,34 +32,34 @@ export const createTsTypeLiteralHandler = (
 
   const handleTsTypeLiteral = createHandler<
     LuaTypeLiteral | LuaTypeUnion | LuaTypeIntersection,
-    TSTypeLiteral
+    Babel.TSTypeLiteral
   >('TSTypeLiteral', (source, config, node) => {
-    const indexSignatures = node.members.filter((member) =>
-      isTSIndexSignature(member)
+    const indexSignatures = node.members.filter(
+      (member): member is Babel.TSIndexSignature =>
+        Babel.isTSIndexSignature(member)
     );
     const nonIndexSignatures = node.members.filter(
-      (member) => !isTSIndexSignature(member)
+      (
+        member
+      ): member is Exclude<Babel.TSTypeElement, Babel.TSIndexSignature> =>
+        !Babel.isTSIndexSignature(member)
     );
 
-    if (indexSignatures.length > 1 && nonIndexSignatures.length) {
-      return typeIntersection([
-        typeUnion([
-          ...indexSignatures.map((signature) =>
-            typeLiteral([typeElementHandler.handler(source, config, signature)])
-          ),
-        ]),
-        typeLiteral(
-          nonIndexSignatures.map(typeElementHandler.handler(source, config))
-        ),
-      ]);
-    }
-
     if (indexSignatures.length > 1) {
-      return typeUnion([
+      const indexSignaturesUnion = typeUnion([
         ...indexSignatures.map((signature) =>
           typeLiteral([typeElementHandler.handler(source, config, signature)])
         ),
       ]);
+      if (nonIndexSignatures.length > 0) {
+        return typeIntersection([
+          indexSignaturesUnion,
+          typeLiteral(
+            nonIndexSignatures.map(typeElementHandler.handler(source, config))
+          ),
+        ]);
+      }
+      return indexSignaturesUnion;
     }
 
     return typeLiteral(

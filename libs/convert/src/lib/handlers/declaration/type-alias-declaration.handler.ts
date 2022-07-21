@@ -6,7 +6,7 @@ import {
   TypeAlias,
 } from '@babel/types';
 import { combineHandlers, HandlerFunction } from '@js-to-lua/handler-utils';
-import { defaultElementHandler } from '@js-to-lua/lua-conversion-utils';
+import { defaultTypeHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaBinaryExpression,
   LuaIdentifier,
@@ -29,6 +29,6 @@ export const createTypeAliasDeclarationHandler = (
       createFlowTypeAliasHandler(handleIdentifier, handleTypes),
       createTsTypeAliasDeclarationHandler(handleIdentifier, handleTypes),
     ],
-    defaultElementHandler
+    defaultTypeHandler
   );
 };

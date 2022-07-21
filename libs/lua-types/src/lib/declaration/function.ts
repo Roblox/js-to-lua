@@ -1,22 +1,21 @@
 import { LuaFunctionParam, LuaIdentifier } from '../expression';
 import { BaseLuaNode, isNodeType } from '../node.types';
-import { LuaNodeGroup, LuaStatement, nodeGroup } from '../statement';
+import { LuaNodeGroup, nodeGroup } from '../statement';
 import {
-  LuaFunctionReturnType,
-  LuaTypeParameterDeclaration,
   functionReturnType,
+  LuaFunctionReturnType,
   LuaType,
+  LuaTypeParameterDeclaration,
 } from '../type';
-import { UnhandledElement } from '../unhandled';
 
 export interface LuaFunctionDeclaration extends BaseLuaNode {
   type: 'FunctionDeclaration';
   id: LuaIdentifier;
   params: Array<LuaFunctionParam>;
-  body: LuaNodeGroup<LuaStatement>;
+  body: LuaNodeGroup;
   returnType?: LuaFunctionReturnType;
   isLocal: boolean;
-  typeParams?: LuaTypeParameterDeclaration | UnhandledElement;
+  typeParams?: LuaTypeParameterDeclaration;
 }
 
 export const functionDeclaration = (

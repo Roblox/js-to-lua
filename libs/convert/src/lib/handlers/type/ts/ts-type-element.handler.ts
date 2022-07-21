@@ -5,6 +5,7 @@ import {
   LuaExpression,
   LuaType,
   LuaTypeAnnotation,
+  LuaTypeElement,
 } from '@js-to-lua/lua-types';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createTsIndexSignatureHandler } from './ts-index-signature.handler';
@@ -34,7 +35,7 @@ export const createTsTypeElementHandler = (
     typeHandlerFunction
   );
 
-  return combineHandlers(
+  return combineHandlers<LuaTypeElement>(
     [
       handleTsPropertySignature,
       handleTsIndexSignature,

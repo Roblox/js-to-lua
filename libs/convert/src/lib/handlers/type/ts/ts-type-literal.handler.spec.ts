@@ -13,6 +13,7 @@ import {
   forwardHandlerFunctionRef,
   forwardHandlerRef,
 } from '@js-to-lua/handler-utils';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   typeAnnotation,
@@ -21,6 +22,7 @@ import {
   typeIndexSignature,
   typeIntersection,
   typeLiteral,
+  typeNil,
   typeNumber,
   typePropertySignature,
   typeString,
@@ -159,6 +161,27 @@ describe('TSIndexSignature handler', () => {
 
     const expected = typeLiteral([
       typePropertySignature(identifier('baz'), typeAnnotation(typeBoolean())),
+    ]);
+
+    expect(tsTypeLiteralHandler.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it('should handle unhandled node in type literal', () => {
+    const given = tsTypeLiteral([]);
+    // have to add to members manually as tsTypeLiteral function checks if members are correct
+    given.members.push(
+      // @ts-expect-error bamboozle TS into allowing this
+      { type: 'UnhandledTSNode' }
+    );
+
+    const expected = typeLiteral([
+      withTrailingConversionComment(
+        typePropertySignature(
+          identifier('__unhandledIdentifier__'),
+          typeAnnotation(typeNil())
+        ),
+        'ROBLOX TODO: Unhandled node for type: UnhandledTSNode'
+      ),
     ]);
 
     expect(tsTypeLiteralHandler.handler(source, {}, given)).toEqual(expected);
