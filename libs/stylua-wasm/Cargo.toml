@@ -27,7 +27,7 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 # Unfortunately, `wee_alloc` requires nightly Rust when targeting wasm for now.
 wee_alloc = { version = "0.4.5", optional = true }
 
-stylua = { source = "JohnnyMorganz/stylua", version = "=0.13.1", features = ["luau"] }
+stylua = { source = "JohnnyMorganz/stylua", version = "=0.14.0", features = ["luau"] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
