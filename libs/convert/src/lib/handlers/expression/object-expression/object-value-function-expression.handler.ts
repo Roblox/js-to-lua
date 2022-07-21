@@ -2,7 +2,7 @@ import * as Babel from '@babel/types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   AssignmentStatement,
-  functionExpression,
+  functionExpressionMultipleReturn,
   identifier,
   LuaDeclaration,
   LuaFunctionExpression,
@@ -14,6 +14,7 @@ import {
   nodeGroup,
 } from '@js-to-lua/lua-types';
 import { createFunctionParamsHandler } from '../../function-params.handler';
+import { createFunctionReturnTypeHandler } from '../../function-return-type.handler';
 import { IdentifierHandlerFunction } from '../identifier-handler-types';
 import { isBabelAssignmentPattern } from './babel-assignment-pattern';
 
@@ -49,7 +50,11 @@ export const createObjectValueFunctionExpressionHandler = (
         ...functionParamsHandler(source, config, node),
       ];
 
-      return functionExpression(
+      const handleReturnType =
+        createFunctionReturnTypeHandler(handleTypeAnnotation);
+      const returnType = handleReturnType(source, config, node);
+
+      return functionExpressionMultipleReturn(
         params,
         nodeGroup([
           ...node.params
@@ -57,9 +62,7 @@ export const createObjectValueFunctionExpressionHandler = (
             .map((param) => handleAssignmentPattern(source, config, param)),
           ...node.body.body.map<LuaStatement>(handleStatement(source, config)),
         ]),
-        node.returnType
-          ? handleTypeAnnotation(source, config, node.returnType)
-          : undefined
+        returnType
       );
     }
   );

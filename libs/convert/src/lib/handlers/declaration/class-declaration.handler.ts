@@ -48,6 +48,7 @@ import {
   AssignmentStatementOperatorEnum,
   callExpression,
   functionDeclaration,
+  functionDeclarationMultipleReturn,
   identifier,
   indexExpression,
   isIdentifier,
@@ -86,6 +87,7 @@ import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from '../function-params.handler';
+import { createFunctionReturnTypeHandler } from '../function-return-type.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 import { inferType } from '../type/infer-type';
 import { createTypeParameterDeclarationHandler } from '../type/type-parameter-declaration.handler';
@@ -422,9 +424,7 @@ export const createClassDeclarationHandler = (
                   )
                 ),
               ]),
-              typeAnnotation(
-                typeReference(classNodeIdentifier, genericTypeParameters)
-              ),
+              typeReference(classNodeIdentifier, genericTypeParameters),
               false,
               genericTypeParametersDeclaration
             ),
@@ -443,9 +443,7 @@ export const createClassDeclarationHandler = (
                   )
                 ),
               ]),
-              typeAnnotation(
-                typeReference(classNodeIdentifier, genericTypeParameters)
-              ),
+              typeReference(classNodeIdentifier, genericTypeParameters),
               false,
               genericTypeParametersDeclaration
             ),
@@ -464,8 +462,12 @@ export const createClassDeclarationHandler = (
       }
       const id = handleExpression(source, config, node.key);
 
+      const handleReturnType =
+        createFunctionReturnTypeHandler(handleTypeAnnotation);
+      const returnType = handleReturnType(source, config, node);
+
       return isBabelIdentifier(node.key) && isIdentifier(id)
-        ? functionDeclaration(
+        ? functionDeclarationMultipleReturn(
             identifier(
               `${classNodeIdentifier.name}${node.static ? '.' : ':'}${id.name}`
             ),
@@ -474,9 +476,7 @@ export const createClassDeclarationHandler = (
               ...handleParamsBody(source, config, node),
               ...functionBodyHandler(source, config, node),
             ]),
-            node.returnType
-              ? handleTypeAnnotation(source, config, node.returnType)
-              : undefined,
+            returnType,
             false
           )
         : withTrailingConversionComment(

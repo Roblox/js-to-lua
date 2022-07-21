@@ -2,7 +2,6 @@ import {
   selfIdentifier,
   withAnyLeadingConversionComments,
   withAnyTrailingConversionComment,
-  withSameLineLeadingConversionComments,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -12,6 +11,8 @@ import {
   callExpression,
   expressionStatement,
   functionDeclaration,
+  functionDeclarationMultipleReturn,
+  functionReturnType,
   functionTypeParam,
   identifier,
   memberExpression,
@@ -29,6 +30,7 @@ import {
   typeBoolean,
   typeCastExpression,
   typeFunction,
+  typeFunctionMultipleReturn,
   typeIntersection,
   typeLiteral,
   typeNumber,
@@ -36,7 +38,6 @@ import {
   typePropertySignature,
   typeReference,
   typeString,
-  typeVoid,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -98,7 +99,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -175,7 +176,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
             functionDeclaration(
@@ -230,11 +231,9 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(
-                typeReference(identifier('BaseClass'), [
-                  typeReference(identifier('T')),
-                ])
-              ),
+              typeReference(identifier('BaseClass'), [
+                typeReference(identifier('T')),
+              ]),
               false,
               typeParameterDeclaration([typeReference(identifier('T'))])
             ),
@@ -284,11 +283,9 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(
-                typeReference(identifier('BaseClass'), [
-                  typeReference(identifier('T')),
-                ])
-              ),
+              typeReference(identifier('BaseClass'), [
+                typeReference(identifier('T')),
+              ]),
               false,
               typeParameterDeclaration([typeReference(identifier('T'))])
             ),
@@ -332,7 +329,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -392,7 +389,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
             functionDeclaration(
@@ -423,14 +420,14 @@ describe('Program handler', () => {
                 typePropertySignature(
                   identifier('myMethod'),
                   typeAnnotation(
-                    typeFunction(
+                    typeFunctionMultipleReturn(
                       [
                         functionTypeParam(
                           identifier('self'),
                           typeReference(identifier('BaseClass'))
                         ),
                       ],
-                      typeVoid()
+                      functionReturnType([])
                     )
                   )
                 ),
@@ -459,14 +456,14 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
-            functionDeclaration(
+            functionDeclarationMultipleReturn(
               identifier('BaseClass:myMethod'),
               [],
               nodeGroup([]),
-              typeAnnotation(typeVoid()),
+              functionReturnType([]),
               false
             ),
           ]),
@@ -490,7 +487,7 @@ describe('Program handler', () => {
                 typePropertySignature(
                   identifier('myMethod'),
                   typeAnnotation(
-                    typeFunction(
+                    typeFunctionMultipleReturn(
                       [
                         functionTypeParam(
                           identifier('self'),
@@ -499,7 +496,7 @@ describe('Program handler', () => {
                         functionTypeParam(identifier('p1'), typeString()),
                         functionTypeParam(identifier('p2'), typeNumber()),
                       ],
-                      typeVoid()
+                      functionReturnType([])
                     )
                   )
                 ),
@@ -528,17 +525,17 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
-            functionDeclaration(
+            functionDeclarationMultipleReturn(
               identifier('BaseClass:myMethod'),
               [
                 identifier('p1', typeAnnotation(typeString())),
                 identifier('p2', typeAnnotation(typeNumber())),
               ],
               nodeGroup([]),
-              typeAnnotation(typeVoid()),
+              functionReturnType([]),
               false
             ),
           ]),
@@ -580,7 +577,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
             functionDeclaration(
@@ -640,7 +637,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -700,7 +697,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
             functionDeclaration(
@@ -773,7 +770,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
             functionDeclaration(
@@ -786,7 +783,7 @@ describe('Program handler', () => {
                   ])
                 ),
               ]),
-              typeAnnotation(typeString()),
+              typeString(),
               false
             ),
           ]),
@@ -848,7 +845,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
             functionDeclaration(
@@ -864,7 +861,7 @@ describe('Program handler', () => {
                   ])
                 ),
               ]),
-              typeAnnotation(typeString()),
+              typeString(),
               false
             ),
           ]),
@@ -914,7 +911,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -964,7 +961,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -1025,7 +1022,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -1086,7 +1083,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -1147,7 +1144,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -1217,7 +1214,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -1280,7 +1277,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -1341,7 +1338,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('BaseClass'))),
+              typeReference(identifier('BaseClass')),
               false
             ),
           ]),
@@ -1421,7 +1418,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('SubClass'))),
+              typeReference(identifier('SubClass')),
               false
             ),
           ]),
@@ -1472,7 +1469,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('SubClass'))),
+              typeReference(identifier('SubClass')),
               false
             ),
           ]),
@@ -1538,7 +1535,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('SubClass'))),
+              typeReference(identifier('SubClass')),
               false
             ),
             functionDeclaration(
@@ -1595,7 +1592,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('SubClass'))),
+              typeReference(identifier('SubClass')),
               false
             ),
             functionDeclaration(
@@ -1664,7 +1661,7 @@ describe('Program handler', () => {
                   )
                 ),
               ]),
-              typeAnnotation(typeReference(identifier('SubClass'))),
+              typeReference(identifier('SubClass')),
               false
             ),
           ]),

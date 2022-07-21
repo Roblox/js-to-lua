@@ -197,12 +197,10 @@ describe('Program handler', () => {
           identifier('foo'),
           [identifier('bar')],
           nodeGroup([]),
-          typeAnnotation(
-            withTrailingConversionComment(
-              typeBoolean(),
-              'ROBLOX FIXME: change to TSTypePredicate equivalent if supported',
-              'bar is string'
-            )
+          withTrailingConversionComment(
+            typeBoolean(),
+            'ROBLOX FIXME: change to TSTypePredicate equivalent if supported',
+            'bar is string'
           )
         ),
       ]);

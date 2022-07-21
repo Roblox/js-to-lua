@@ -8,6 +8,7 @@ import { LuaTableField } from './literals';
 import { LuaProgram } from './program';
 import { LuaClause, LuaStatement } from './statement';
 import {
+  LuaFunctionReturnType,
   LuaFunctionTypeParam,
   LuaIndexSignature,
   LuaPropertySignature,
@@ -31,6 +32,7 @@ export type LuaNode =
   | LuaIndexSignature
   | LuaClause
   | LuaExpressionClause
+  | LuaFunctionReturnType
   | LuaFunctionTypeParam
   | LuaTypeElement
   | UnhandledElement;

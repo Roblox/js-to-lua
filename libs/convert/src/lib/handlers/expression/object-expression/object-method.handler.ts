@@ -18,7 +18,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   AssignmentStatement,
-  functionExpression,
+  functionExpressionMultipleReturn,
   identifier,
   LuaDeclaration,
   LuaExpression,
@@ -36,6 +36,7 @@ import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from '../../function-params.handler';
+import { createFunctionReturnTypeHandler } from '../../function-return-type.handler';
 import { IdentifierHandlerFunction } from '../identifier-handler-types';
 import { createObjectKeyExpressionHandler } from './object-key-expression.handler';
 import { createObjectPropertyIdentifierHandler } from './object-property-identifier.handler';
@@ -85,12 +86,17 @@ export const createObjectMethodHandler = (
         identifier('self'),
         ...functionParamsHandler(source, config, node),
       ];
+
+      const handleReturnType =
+        createFunctionReturnTypeHandler(handleTypeAnnotation);
+      const returnType = handleReturnType(source, config, node);
+
       switch (key.type) {
         case 'Identifier':
           return tableKeyField(
             computed,
             handleObjectPropertyIdentifier(source, config, key),
-            functionExpression(
+            functionExpressionMultipleReturn(
               params,
               nodeGroup([
                 ...handleParamsBody(source, config, node),
@@ -98,15 +104,13 @@ export const createObjectMethodHandler = (
                   handleStatement(source, config)
                 ),
               ]),
-              node.returnType
-                ? handleTypeAnnotation(source, config, node.returnType)
-                : undefined
+              returnType
             )
           );
         default:
           return tableExpressionKeyField(
             handleObjectKeyExpression(source, config, node.key),
-            functionExpression(
+            functionExpressionMultipleReturn(
               params,
               nodeGroup([
                 ...handleParamsBody(source, config, node),
@@ -114,9 +118,7 @@ export const createObjectMethodHandler = (
                   handleStatement(source, config)
                 ),
               ]),
-              node.returnType
-                ? handleTypeAnnotation(source, config, node.returnType)
-                : undefined
+              returnType
             )
           );
       }

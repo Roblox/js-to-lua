@@ -23,7 +23,6 @@ import {
   BaseNodeHandler,
   combineHandlers,
   createHandler,
-  forwardHandlerFunctionRef,
   forwardHandlerRef,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
@@ -33,6 +32,7 @@ import {
   getNodeSource,
   withTrailingConversionComment,
   withUnknownTypePolyfillExtra,
+  withVoidTypePolyfillExtra,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
@@ -45,7 +45,6 @@ import {
   LuaTypeNumber,
   LuaTypeString,
   LuaTypeUnion,
-  LuaTypeVoid,
   typeAnnotation,
   typeAny,
   typeBoolean,
@@ -56,7 +55,6 @@ import {
   typeReference,
   typeString,
   typeUnion,
-  typeVoid,
 } from '@js-to-lua/lua-types';
 import { uniqWith } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
@@ -124,13 +122,15 @@ export const createTsTypeAnnotationHandler = (
       )
     );
 
-  const handleTsBooleanKeyword: BaseNodeHandler<
+  const handleTsBooleanKeyword = createHandler<
     LuaTypeBoolean,
     TSBooleanKeyword
-  > = createHandler('TSBooleanKeyword', () => typeBoolean());
+  >('TSBooleanKeyword', () => typeBoolean());
 
-  const handleTsVoidKeyword: BaseNodeHandler<LuaTypeVoid, TSVoidKeyword> =
-    createHandler('TSVoidKeyword', () => typeVoid());
+  const handleTsVoidKeyword = createHandler<LuaType, TSVoidKeyword>(
+    'TSVoidKeyword',
+    () => withVoidTypePolyfillExtra(typeReference(identifier('void')))
+  );
 
   const handleTsTypeUnion: BaseNodeHandler<LuaTypeUnion, TSUnionType> =
     createHandler('TSUnionType', (source, config, node) => {

@@ -18,7 +18,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   AssignmentStatement,
-  functionExpression,
+  functionExpressionMultipleReturn,
   LuaDeclaration,
   LuaFunctionExpression,
   LuaLVal,
@@ -38,6 +38,7 @@ import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from '../function-params.handler';
+import { createFunctionReturnTypeHandler } from '../function-return-type.handler';
 import { createFunctionBodyHandler } from './function-body.handler';
 import { IdentifierHandlerFunction } from './identifier-handler-types';
 
@@ -89,15 +90,17 @@ export const createFunctionExpressionHandler = (
       handleLVal
     );
 
-    return functionExpression(
+    const handleReturnType =
+      createFunctionReturnTypeHandler(handleTypeAnnotation);
+    const returnType = handleReturnType(source, config, node);
+
+    return functionExpressionMultipleReturn(
       functionParamsHandler(source, config, node),
       nodeGroup([
         ...handleParamsBody(source, bodyConfig, node),
         ...handleFunctionBody(node),
       ]),
-      node.returnType
-        ? handleTypeAnnotation(source, config, node.returnType)
-        : undefined
+      returnType
     );
   });
 };

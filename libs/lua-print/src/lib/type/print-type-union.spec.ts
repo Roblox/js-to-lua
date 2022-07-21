@@ -3,10 +3,10 @@ import {
   LuaNode,
   typeAny,
   typeIntersection,
+  typeNil,
   typeNumber,
   typeString,
   typeUnion,
-  typeVoid,
 } from '@js-to-lua/lua-types';
 import { dedent } from '@js-to-lua/shared-utils';
 import { createPrintTypeUnion } from './print-type-union';
@@ -40,18 +40,12 @@ describe('Print type union', () => {
   });
 
   it('should print type union with multiple union type', () => {
-    const given = typeUnion([
-      typeNumber(),
-      typeString(),
-      typeAny(),
-      typeVoid(),
-    ]);
+    const given = typeUnion([typeNumber(), typeString(), typeAny()]);
 
     const expected = dedent`
       LuaTypeNumber
       | LuaTypeString
-      | LuaTypeAny
-      | LuaTypeVoid`;
+      | LuaTypeAny`;
 
     expect(printTypeUnion(given)).toEqual(expected);
   });
@@ -60,14 +54,14 @@ describe('Print type union', () => {
     const given = typeUnion([
       typeNumber(),
       typeString(),
-      typeUnion([typeAny(), typeVoid()]),
+      typeUnion([typeAny(), typeNil()]),
     ]);
 
     const expected = dedent`
       LuaTypeNumber
       | LuaTypeString
       | LuaTypeAny
-      | LuaTypeVoid`;
+      | LuaTypeNil`;
 
     expect(printTypeUnion(given)).toEqual(expected);
   });
@@ -76,7 +70,7 @@ describe('Print type union', () => {
     const given = typeUnion([
       typeNumber(),
       typeString(),
-      typeIntersection([typeAny(), typeVoid()]),
+      typeIntersection([typeAny(), typeNil()]),
     ]);
 
     const expected = dedent`

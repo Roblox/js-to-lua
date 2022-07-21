@@ -11,6 +11,7 @@ export * from './lib/get-module-path';
 export * from './lib/get-node-source';
 export * from './lib/get-object-property-expression';
 export * from './lib/get-return-expressions';
+export * from './lib/get-return-type';
 export * from './lib/handlers';
 export * from './lib/is-lua-truthy';
 export * from './lib/is-pure';

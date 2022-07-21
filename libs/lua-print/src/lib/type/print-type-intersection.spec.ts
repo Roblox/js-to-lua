@@ -3,10 +3,10 @@ import {
   LuaNode,
   typeAny,
   typeIntersection,
+  typeNil,
   typeNumber,
   typeString,
   typeUnion,
-  typeVoid,
 } from '@js-to-lua/lua-types';
 import { createPrintTypeIntersection } from './print-type-intersection';
 
@@ -37,14 +37,9 @@ describe('Print type intersection', () => {
   });
 
   it('should print type intersection with multiple types', () => {
-    const given = typeIntersection([
-      typeNumber(),
-      typeString(),
-      typeAny(),
-      typeVoid(),
-    ]);
+    const given = typeIntersection([typeNumber(), typeString(), typeAny()]);
 
-    const expected = 'LuaTypeNumber & LuaTypeString & LuaTypeAny & LuaTypeVoid';
+    const expected = 'LuaTypeNumber & LuaTypeString & LuaTypeAny';
 
     expect(printTypeIntersection(given)).toEqual(expected);
   });
@@ -53,10 +48,10 @@ describe('Print type intersection', () => {
     const given = typeIntersection([
       typeNumber(),
       typeString(),
-      typeIntersection([typeAny(), typeVoid()]),
+      typeIntersection([typeAny(), typeNil()]),
     ]);
 
-    const expected = 'LuaTypeNumber & LuaTypeString & LuaTypeAny & LuaTypeVoid';
+    const expected = 'LuaTypeNumber & LuaTypeString & LuaTypeAny & LuaTypeNil';
 
     expect(printTypeIntersection(given)).toEqual(expected);
   });
@@ -65,7 +60,7 @@ describe('Print type intersection', () => {
     const given = typeIntersection([
       typeNumber(),
       typeString(),
-      typeUnion([typeAny(), typeVoid()]),
+      typeUnion([typeAny(), typeNumber()]),
     ]);
 
     const expected = 'LuaTypeNumber & LuaTypeString & (LuaTypeUnion)';

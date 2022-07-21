@@ -38,6 +38,8 @@ import {
   callExpression,
   expressionStatement,
   functionDeclaration,
+  functionDeclarationMultipleReturn,
+  functionReturnType,
   functionTypeParam,
   identifier,
   ifClause,
@@ -54,6 +56,7 @@ import {
   typeAny,
   typeCastExpression,
   typeFunction,
+  typeFunctionMultipleReturn,
   typeIntersection,
   typeLiteral,
   typeNumber,
@@ -63,7 +66,6 @@ import {
   typeReference,
   typeString,
   typeUnion,
-  typeVoid,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -119,7 +121,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -160,7 +162,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -209,11 +211,9 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(
-              typeReference(identifier('BaseClass'), [
-                typeReference(identifier('T')),
-              ])
-            ),
+            typeReference(identifier('BaseClass'), [
+              typeReference(identifier('T')),
+            ]),
             false,
             typeParameterDeclaration([typeReference(identifier('T'))])
           ),
@@ -265,11 +265,9 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(
-              typeReference(identifier('BaseClass'), [
-                typeReference(identifier('T')),
-              ])
-            ),
+            typeReference(identifier('BaseClass'), [
+              typeReference(identifier('T')),
+            ]),
             false,
             typeParameterDeclaration([
               typeReference(identifier('T'), undefined, typeString()),
@@ -321,7 +319,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -388,7 +386,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
           functionDeclaration(
@@ -429,14 +427,14 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('myMethod'),
                 typeAnnotation(
-                  typeFunction(
+                  typeFunctionMultipleReturn(
                     [
                       functionTypeParam(
                         identifier('self'),
                         typeReference(identifier('BaseClass'))
                       ),
                     ],
-                    typeVoid()
+                    functionReturnType([])
                   )
                 )
               ),
@@ -465,14 +463,14 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
-          functionDeclaration(
+          functionDeclarationMultipleReturn(
             identifier('BaseClass:myMethod'),
             [],
             nodeGroup([]),
-            typeAnnotation(typeVoid()),
+            functionReturnType([]),
             false
           ),
         ])
@@ -544,14 +542,14 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
           functionDeclaration(
             identifier('BaseClass:myMethod'),
             [],
             nodeGroup([nodeGroup([returnStatement(stringLiteral('foo'))])]),
-            typeAnnotation(typeString()),
+            typeString(),
             false
           ),
         ])
@@ -602,7 +600,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
           functionDeclaration(
@@ -659,7 +657,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -715,7 +713,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -784,7 +782,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -850,7 +848,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -912,7 +910,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -977,7 +975,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
           functionDeclaration(
@@ -1063,7 +1061,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -1139,7 +1137,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -1238,7 +1236,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -1344,7 +1342,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('BaseClass'))),
+            typeReference(identifier('BaseClass')),
             false
           ),
         ])
@@ -1421,7 +1419,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('SubClass'))),
+            typeReference(identifier('SubClass')),
             false
           ),
         ])
@@ -1480,11 +1478,9 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(
-              typeReference(identifier('SubClass'), [
-                typeReference(identifier('T')),
-              ])
-            ),
+            typeReference(identifier('SubClass'), [
+              typeReference(identifier('T')),
+            ]),
             false,
             typeParameterDeclaration([typeReference(identifier('T'))])
           ),
@@ -1546,11 +1542,9 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(
-              typeReference(identifier('SubClass'), [
-                typeReference(identifier('T')),
-              ])
-            ),
+            typeReference(identifier('SubClass'), [
+              typeReference(identifier('T')),
+            ]),
             false,
             typeParameterDeclaration([
               typeReference(identifier('T'), undefined, typeString()),
@@ -1622,12 +1616,10 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(
-              typeReference(identifier('SubClass'), [
-                typeReference(identifier('T')),
-                typeReference(identifier('V')),
-              ])
-            ),
+            typeReference(identifier('SubClass'), [
+              typeReference(identifier('T')),
+              typeReference(identifier('V')),
+            ]),
             false,
             typeParameterDeclaration([
               typeReference(identifier('T')),
@@ -1701,12 +1693,10 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(
-              typeReference(identifier('SubClass'), [
-                typeReference(identifier('T')),
-                typeReference(identifier('V')),
-              ])
-            ),
+            typeReference(identifier('SubClass'), [
+              typeReference(identifier('T')),
+              typeReference(identifier('V')),
+            ]),
             false,
             typeParameterDeclaration([
               typeReference(identifier('T')),
@@ -1769,7 +1759,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('SubClass'))),
+            typeReference(identifier('SubClass')),
             false
           ),
         ])
@@ -1842,7 +1832,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('SubClass'))),
+            typeReference(identifier('SubClass')),
             false
           ),
           functionDeclaration(
@@ -1908,7 +1898,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('SubClass'))),
+            typeReference(identifier('SubClass')),
             false
           ),
           functionDeclaration(
@@ -1986,7 +1976,7 @@ describe('Class Declaration', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('SubClass'))),
+            typeReference(identifier('SubClass')),
             false
           ),
         ])

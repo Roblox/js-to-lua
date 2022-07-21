@@ -15,7 +15,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import { removeIdTypeAnnotation } from '@js-to-lua/lua-conversion-utils';
 import {
-  functionDeclaration,
+  functionDeclarationMultipleReturn,
   LuaDeclaration,
   LuaExpression,
   LuaFunctionDeclaration,
@@ -32,6 +32,7 @@ import {
   createFunctionParamsBodyHandler,
   createFunctionParamsHandler,
 } from '../function-params.handler';
+import { createFunctionReturnTypeHandler } from '../function-return-type.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import { createTypeParameterDeclarationHandler } from '../type/type-parameter-declaration.handler';
@@ -88,33 +89,33 @@ export function createConvertToFunctionDeclarationHandler(
         ? handleTypeParameterDeclaration(node.typeParameters)
         : undefined;
 
+    const handleReturnType =
+      createFunctionReturnTypeHandler(handleTypeAnnotation);
+    const returnType = handleReturnType(source, config, node);
+
     return id.typeAnnotation
       ? nodeGroup([
           variableDeclaration([variableDeclaratorIdentifier(id)], []),
-          functionDeclaration(
+          functionDeclarationMultipleReturn(
             removeIdTypeAnnotation(id),
             functionParamsHandler(source, config, node),
             nodeGroup([
               ...handleParamsBody(source, config, node),
               ...handleFunctionBody(node),
             ]),
-            node.returnType
-              ? handleTypeAnnotation(source, config, node.returnType)
-              : undefined,
+            returnType,
             false,
             typeParameters
           ),
         ])
-      : functionDeclaration(
+      : functionDeclarationMultipleReturn(
           id,
           functionParamsHandler(source, config, node),
           nodeGroup([
             ...handleParamsBody(source, config, node),
             ...handleFunctionBody(node),
           ]),
-          node.returnType
-            ? handleTypeAnnotation(source, config, node.returnType)
-            : undefined,
+          returnType,
           true,
           typeParameters
         );

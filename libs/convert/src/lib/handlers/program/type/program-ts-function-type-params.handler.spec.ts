@@ -2,11 +2,11 @@ import {
   identifier,
   typeReference,
   typeParameterDeclaration,
-  typeFunction,
   functionTypeParam,
-  typeVoid,
   typeAliasDeclaration,
   program,
+  typeFunctionMultipleReturn,
+  functionReturnType,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
@@ -24,7 +24,7 @@ describe('Program handler', () => {
       const expected = program([
         typeAliasDeclaration(
           identifier('Foo'),
-          typeFunction(
+          typeFunctionMultipleReturn(
             [
               functionTypeParam(
                 identifier('bar'),
@@ -35,7 +35,7 @@ describe('Program handler', () => {
                 typeReference(identifier('V'))
               ),
             ],
-            typeVoid(),
+            functionReturnType([]),
             typeParameterDeclaration([
               typeReference(identifier('T')),
               typeReference(identifier('V')),

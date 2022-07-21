@@ -8,3 +8,4 @@ export * from './with-polyfill-type-extra';
 export * from './with-qualified-name-additional-import-extra';
 export * from './with-source-type-extra';
 export * from './with-unknown-type-polyfill-extra';
+export * from './with-void-type-polyfill-extra';

@@ -11,12 +11,15 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
+  getReturnType,
+  reassignComments,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   functionTypeParam,
   LuaType,
   LuaTypeFunction,
   typeAny,
-  typeFunction,
-  typeVariadicFunction,
+  typeVariadicFunctionMultipleReturn,
 } from '@js-to-lua/lua-types';
 import { last } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
@@ -65,14 +68,12 @@ export const createTsFunctionMethodTypeHandler = <
           )
         : typeAny();
 
-      return restParam
-        ? typeVariadicFunction(
-            parameters,
-            restHandler(source, config, restParam),
-            returnType,
-            typeParameters
-          )
-        : typeFunction(parameters, returnType, typeParameters);
+      return typeVariadicFunctionMultipleReturn(
+        parameters,
+        restParam ? restHandler(source, config, restParam) : undefined,
+        getReturnType(returnType),
+        typeParameters
+      );
     }
   );
 

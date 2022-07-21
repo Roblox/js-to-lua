@@ -2,17 +2,18 @@ import * as Babel from '@babel/types';
 import { forwardHandlerRef } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
+  functionReturnType,
   functionTypeParam,
   identifier,
   typeAnnotation,
   typeAny,
   typeFunction,
+  typeFunctionMultipleReturn,
   typeNumber,
   typePropertySignature,
   typeReference,
   typeString,
-  typeVariadicFunction,
-  typeVoid,
+  typeVariadicFunctionMultipleReturn,
 } from '@js-to-lua/lua-types';
 
 import {
@@ -51,14 +52,14 @@ describe('TSMethodSignature handler', () => {
       const expected = typePropertySignature(
         identifier('foo'),
         typeAnnotation(
-          typeFunction(
+          typeFunctionMultipleReturn(
             [
               functionTypeParam(
                 identifier('self'),
                 typeReference(identifier(interfaceName))
               ),
             ],
-            typeVoid()
+            functionReturnType([])
           )
         )
       );
@@ -92,14 +93,14 @@ describe('TSMethodSignature handler', () => {
         source
       ),
       typeAnnotation(
-        typeFunction(
+        typeFunctionMultipleReturn(
           [
             functionTypeParam(
               identifier('self'),
               typeReference(identifier('MyInterface'))
             ),
           ],
-          typeVoid()
+          functionReturnType([])
         )
       )
     );
@@ -114,10 +115,19 @@ describe('TSMethodSignature handler', () => {
   });
 
   it.each([
-    { babelType: Babel.tsVoidKeyword(), luaType: typeVoid() },
-    { babelType: Babel.tsStringKeyword(), luaType: typeString() },
-    { babelType: Babel.tsNumberKeyword(), luaType: typeNumber() },
-    { babelType: Babel.tsAnyKeyword(), luaType: typeAny() },
+    { babelType: Babel.tsVoidKeyword(), luaTypes: [] },
+    {
+      babelType: Babel.tsStringKeyword(),
+      luaTypes: [typeString()],
+    },
+    {
+      babelType: Babel.tsNumberKeyword(),
+      luaTypes: [typeNumber()],
+    },
+    {
+      babelType: Babel.tsAnyKeyword(),
+      luaTypes: [typeAny()],
+    },
   ])(
     `Interface '%s' should handle TSMethodSignature with proper method return types`,
     (returnType) => {
@@ -131,14 +141,14 @@ describe('TSMethodSignature handler', () => {
       const expected = typePropertySignature(
         identifier('foo'),
         typeAnnotation(
-          typeFunction(
+          typeFunctionMultipleReturn(
             [
               functionTypeParam(
                 identifier('self'),
                 typeReference(identifier('MyInterface'))
               ),
             ],
-            returnType.luaType
+            functionReturnType(returnType.luaTypes)
           )
         )
       );
@@ -175,7 +185,7 @@ describe('TSMethodSignature handler', () => {
       const expected = typePropertySignature(
         identifier('foo'),
         typeAnnotation(
-          typeFunction(
+          typeFunctionMultipleReturn(
             [
               functionTypeParam(
                 identifier('self'),
@@ -184,7 +194,7 @@ describe('TSMethodSignature handler', () => {
               functionTypeParam(identifier('bar'), typeString()),
               functionTypeParam(identifier('fizz'), typeNumber()),
             ],
-            typeVoid()
+            functionReturnType([])
           )
         )
       );
@@ -221,7 +231,7 @@ describe('TSMethodSignature handler', () => {
       const expected = typePropertySignature(
         identifier('foo'),
         typeAnnotation(
-          typeVariadicFunction(
+          typeVariadicFunctionMultipleReturn(
             [
               functionTypeParam(
                 identifier('self'),
@@ -230,7 +240,7 @@ describe('TSMethodSignature handler', () => {
               functionTypeParam(identifier('bar'), typeString()),
             ],
             typeNumber(),
-            typeVoid()
+            functionReturnType([])
           )
         )
       );

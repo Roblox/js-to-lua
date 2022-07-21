@@ -3,19 +3,19 @@ import {
   typeReference,
   typeParameterDeclaration,
   functionTypeParam,
-  typeVoid,
   typeAliasDeclaration,
   program,
   typePropertySignature,
   typeLiteral,
   typeString,
   typeAnnotation,
-  typeVariadicFunction,
   typeNumber,
   variableDeclaration,
   variableDeclaratorIdentifier,
   typeFunction,
   typeAny,
+  typeVariadicFunctionMultipleReturn,
+  functionReturnType,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
@@ -37,10 +37,10 @@ describe('Program handler', () => {
             typePropertySignature(
               identifier('bar'),
               typeAnnotation(
-                typeVariadicFunction(
+                typeVariadicFunctionMultipleReturn(
                   [functionTypeParam(identifier('fizz'), typeString())],
                   typeNumber(),
-                  typeVoid(),
+                  functionReturnType([]),
                   typeParameterDeclaration([
                     typeReference(identifier('T')),
                     typeReference(identifier('V')),

@@ -51,6 +51,7 @@ import { createPrintRepeatStatement } from './statements/print-repeat-statement'
 import { createPrintReturnStatement } from './statements/print-return-statement';
 import { createPrintUnhandledStatement } from './statements/print-unhandled-statement';
 import { createPrintWhileStatement } from './statements/print-while-statement';
+import { createPrintFunctionReturnType } from './type/print-function-return-type';
 import { createPrintIndexSignature } from './type/print-index-signature';
 import { createPrintTypeFunction } from './type/print-type-function';
 import { createPrintTypeIntersection } from './type/print-type-intersection';
@@ -210,8 +211,6 @@ const _printNode = (node: LuaNode): string => {
       return 'number';
     case 'LuaTypeBoolean':
       return 'boolean';
-    case 'LuaTypeVoid':
-      return '()';
     case 'LuaTypeUnion':
       return createPrintTypeUnion(printNode)(node);
     case 'LuaTypeIntersection':
@@ -226,6 +225,8 @@ const _printNode = (node: LuaNode): string => {
       )(node);
     case 'LuaTypeFunction':
       return createPrintTypeFunction(printNode)(node);
+    case 'LuaFunctionReturnType':
+      return createPrintFunctionReturnType(printNode)(node);
     case 'LuaTypeOfExpression':
       return createPrintTypeOfExpression(printNode)(node);
     case 'LuaFunctionTypeParam': {
@@ -327,7 +328,7 @@ function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
     .map((parameter) => printNode(parameter))
     .join(', ');
 
-  const returnType = node.returnType ? printNode(node.returnType) : '';
+  const returnType = node.returnType ? `: ${printNode(node.returnType)}` : '';
 
   const body = printNode(node.body);
 

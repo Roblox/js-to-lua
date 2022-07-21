@@ -5,6 +5,7 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
+  getReturnType,
   reassignComments,
   removeIdTypeAnnotation,
   removeTypeAnnotation,
@@ -20,7 +21,7 @@ import {
   LuaTypeAnnotation,
   typeAnnotation,
   typeAny,
-  typeFunction,
+  typeFunctionMultipleReturn,
   typePropertySignature,
   typeReference,
 } from '@js-to-lua/lua-types';
@@ -70,8 +71,19 @@ export const createHandlePublicMethodsAndProperties = (
           )
         );
 
+        const returnType = node.returnType
+          ? applyTo(
+              handleTypeAnnotation(source, config, node.returnType),
+              (typeAnnotationNode) =>
+                reassignComments(
+                  typeAnnotationNode.typeAnnotation,
+                  typeAnnotationNode
+                )
+            )
+          : typeAny();
+
         return typeAnnotation(
-          typeFunction(
+          typeFunctionMultipleReturn(
             [
               functionTypeParam(
                 identifier('self'),
@@ -79,16 +91,7 @@ export const createHandlePublicMethodsAndProperties = (
               ),
               ...fnParams,
             ],
-            node.returnType
-              ? applyTo(
-                  handleTypeAnnotation(source, config, node.returnType),
-                  (typeAnnotationNode) =>
-                    reassignComments(
-                      typeAnnotationNode.typeAnnotation,
-                      typeAnnotationNode
-                    )
-                )
-              : typeAny()
+            returnType && getReturnType(returnType)
           )
         );
       }

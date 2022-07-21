@@ -183,7 +183,7 @@ describe('Program handler', () => {
                 )
               ),
             ]),
-            typeAnnotation(typeReference(identifier('Foo'))),
+            typeReference(identifier('Foo')),
             false
           ),
           assignmentStatement(
