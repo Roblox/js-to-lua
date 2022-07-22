@@ -25,7 +25,9 @@
       "@js-to-lua/lua-types/test-utils": [
         "libs/lua-types/test-utils/src/index.ts"
       ],
-      "@js-to-lua/shared-utils": ["libs/shared-utils/src/index.ts"]
+      "@js-to-lua/shared-utils": ["libs/shared-utils/src/index.ts"],
+      "@roblox/fast-follow": ["libs/fast-follow/src/index.ts"],
+      "@roblox/release-tracker": ["libs/release-tracker/src/index.ts"]
     },
     "strict": true
   },

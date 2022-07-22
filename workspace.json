@@ -3,12 +3,14 @@
   "projects": {
     "convert": "libs/convert",
     "convert-js-to-lua": "apps/convert-js-to-lua",
+    "fast-follow": "libs/fast-follow",
     "handler-utils": "libs/handler-utils",
     "lua-conversion-utils": "libs/lua-conversion-utils",
     "lua-print": "libs/lua-print",
     "lua-types": "libs/lua-types",
     "lua-types-test-utils": "libs/lua-types/test-utils",
     "playground": "apps/playground",
+    "release-tracker": "libs/release-tracker",
     "shared-utils": "libs/shared-utils",
     "stylua-wasm": "libs/stylua-wasm"
   }

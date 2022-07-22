@@ -95,6 +95,10 @@
               {
                 "sourceTag": "feature:shared",
                 "onlyDependOnLibsWithTags": ["feature:shared"]
+              },
+              {
+                "sourceTag": "scope:fast-follow",
+                "onlyDependOnLibsWithTags": ["scope:fast-follow"]
               }
             ]
           }

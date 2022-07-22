@@ -1,0 +1,62 @@
+name: Fast Follow
+
+inputs:
+  slack-channel-id:
+    required: true
+  slack-signing-secret:
+    required: true
+  slack-bot-token:
+    required: true
+  slack-app-token:
+    required: true
+  github-pat:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14.16.0'
+        registry-url: https://npm.pkg.github.com/
+        scope: '@roblox'
+
+    - name: Cache Node.js modules
+      uses: actions/cache@v2
+      with:
+        # npm cache files are stored in `~/.npm` on Linux/macOS
+        path: ~/.npm
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-
+
+    - name: Install dependencies
+      run: npm i
+
+    - name: Build Fast Follow
+      run: npx nx run release-tracker:build && npx nx run fast-follow:build
+
+    - name: Link Release Tracker
+      working-directory: dist/libs/release-tracker
+      run: npm link
+
+    - name: Link Fast Follow
+      working-directory: dist/libs/fast-follow
+      run: npm link @roblox/release-tracker && npm link
+
+    - name: Link Release Tracker (root)
+      run: npm link @roblox/release-tracker
+
+    - name: Run Fast Follow
+      run: npx fast-follow commit-scan -o roblox -r js-to-lua -c ${{ inputs.slack-channel-id }}
+      env:
+        SLACK_SIGNING_SECRET: ${{ inputs.slack-signing-secret }}
+        SLACK_BOT_TOKEN: ${{ inputs.slack-bot-token }}
+        SLACK_APP_TOKEN: ${{ inputs.slack-app-token }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}

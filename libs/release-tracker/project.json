@@ -1,0 +1,33 @@
+{
+  "root": "libs/release-tracker",
+  "sourceRoot": "libs/release-tracker/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/release-tracker/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/release-tracker"],
+      "options": {
+        "jestConfig": "libs/release-tracker/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:package",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/release-tracker",
+        "tsConfig": "libs/release-tracker/tsconfig.lib.json",
+        "packageJson": "libs/release-tracker/package.json",
+        "main": "libs/release-tracker/src/index.ts"
+      }
+    }
+  },
+  "tags": ["type:entry", "scope:fast-follow"]
+}

@@ -1,0 +1,5 @@
+{
+  "name": "@roblox/fast-follow",
+  "version": "0.0.1",
+  "bin": "index.js"
+}
