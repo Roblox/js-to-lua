@@ -1,13 +1,13 @@
-import { LuaComment, LuaTypeLiteral } from '@js-to-lua/lua-types';
+import { LuaTypeLiteral } from '@js-to-lua/lua-types';
 import { applyTo, last } from 'ramda';
-import { GetPrintSections, PrintNode } from '../print-node';
+import { GetPrintSections, PrintComments, PrintNode } from '../print-node';
 import { getPrintableInnerComments } from '../printable-comments';
 
 export const createPrintTypeLiteral =
   (
     printNode: PrintNode,
     getPrintSections: GetPrintSections,
-    printComments: (comments: ReadonlyArray<LuaComment> | undefined) => string
+    printComments: PrintComments
   ) =>
   (node: LuaTypeLiteral): string => {
     const lastItem = last(node.members);
@@ -25,7 +25,7 @@ export const createPrintTypeLiteral =
     const leadingSpace = node.members.length ? ' ' : '';
     const innerComments = applyTo(
       printComments(getPrintableInnerComments(node.innerComments))
-    )((comments) => comments && `\n${comments}\n`);
+    )((comments) => comments.toString() && `\n${comments}\n`);
 
     return `{${leadingSpace}${node.members
       .map((member) =>

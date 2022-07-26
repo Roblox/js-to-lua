@@ -1,11 +1,11 @@
-import { LuaBlockStatement, LuaComment } from '@js-to-lua/lua-types';
-import { PrintNode } from '../print-node';
+import { LuaBlockStatement } from '@js-to-lua/lua-types';
+import { PrintComments, PrintNode } from '../print-node';
 import { getPrintableInnerComments } from '../printable-comments';
 import { PrinterFunction } from '../printer-function';
 
 export const createPrintBlockStatement = (
   printNode: PrintNode,
-  printComments: (comments: ReadonlyArray<LuaComment> | undefined) => string
+  printComments: PrintComments
 ): PrinterFunction<LuaBlockStatement> => {
   return (node: LuaBlockStatement) => {
     const blockBody = node.body.map((value) => printNode(value)).join('\n  ');
@@ -14,12 +14,12 @@ export const createPrintBlockStatement = (
     );
 
     if (blockBody.length > 0) {
-      return `do${innerComments ? ` ${innerComments}` : ''}
+      return `do${innerComments.toString() ? ` ${innerComments}` : ''}
   ${blockBody}
 end`;
     }
 
-    return `do${innerComments ? ` ${innerComments}` : ''}
+    return `do${innerComments.toString() ? ` ${innerComments}` : ''}
 end`;
   };
 };

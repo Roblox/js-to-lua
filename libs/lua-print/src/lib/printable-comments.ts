@@ -1,5 +1,6 @@
 import {
   isCommentBlock,
+  isCommentLine,
   isSameLineComment,
   isSameLineInnerComment,
   isSameLineLeadingAndTrailingComment,
@@ -7,6 +8,8 @@ import {
   isSameLineTrailingComment,
   LuaComment,
 } from '@js-to-lua/lua-types';
+import { last } from 'ramda';
+import { printableNode, PrintableNode } from './fmt';
 import { calculateEqualsForDelimiter } from './utils';
 
 const printedNodes = new Map();
@@ -17,7 +20,7 @@ const isBabelAddedComment = (comment: LuaComment) =>
 
 export const _printComments = (
   comments: ReadonlyArray<LuaComment> | undefined
-): string => {
+): PrintableNode => {
   const getCommentLeadingSpace = (
     comment: LuaComment,
     index: number,
@@ -30,7 +33,7 @@ export const _printComments = (
       : '';
   };
 
-  return comments
+  const commentsStr = comments
     ? comments
         .map((comment, i) => {
           printedNodes.set(comment, true);
@@ -47,6 +50,12 @@ export const _printComments = (
         })
         .join('')
     : '';
+
+  const lastComment = last(comments || []);
+  return printableNode(
+    commentsStr,
+    !!lastComment && isCommentLine(lastComment)
+  );
 };
 
 export const getFilteredLeadingComments = (

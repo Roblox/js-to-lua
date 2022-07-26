@@ -1,12 +1,9 @@
-import { LuaComment, RepeatStatement } from '@js-to-lua/lua-types';
+import { RepeatStatement } from '@js-to-lua/lua-types';
 import { isTruthy, prependString } from '@js-to-lua/shared-utils';
-import { PrintNode } from '../print-node';
+import { PrintComments, PrintNode } from '../print-node';
 
 export const createPrintRepeatStatement =
-  (
-    printNode: PrintNode,
-    printComments: (comments: ReadonlyArray<LuaComment> | undefined) => string
-  ) =>
+  (printNode: PrintNode, printComments: PrintComments) =>
   (node: RepeatStatement): string => {
     const condition = printNode(node.condition);
     const body = node.body
@@ -16,7 +13,7 @@ export const createPrintRepeatStatement =
     const innerComments = printComments(node.innerComments);
 
     const repeatBody = [
-      `repeat${innerComments ? ` ${innerComments}` : ''}`,
+      `repeat${innerComments.toString() ? ` ${innerComments}` : ''}`,
       `${body.length > 0 ? `${body}` : ''}`,
       'until',
     ]

@@ -1,17 +1,16 @@
 import {
   isSameLineLeadingAndTrailingComment,
-  LuaComment,
   LuaProgram,
   LuaStatement,
 } from '@js-to-lua/lua-types';
 import { last } from 'ramda';
-import { PrintNode } from './print-node';
+import { PrintComments, PrintNode } from './print-node';
 import { getFilteredInnerComments } from './printable-comments';
 import { PrinterFunction } from './printer-function';
 
 export const createPrintProgram = (
   printNode: PrintNode,
-  printComments: (comments: ReadonlyArray<LuaComment> | undefined) => string
+  printComments: PrintComments
 ): PrinterFunction<LuaProgram> => {
   return function printProgram(node: LuaProgram) {
     const getTrailingSpace = (innerNode: LuaStatement) => {

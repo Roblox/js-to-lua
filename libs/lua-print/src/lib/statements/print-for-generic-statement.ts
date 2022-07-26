@@ -1,12 +1,9 @@
-import { ForGenericStatement, LuaComment } from '@js-to-lua/lua-types';
+import { ForGenericStatement } from '@js-to-lua/lua-types';
 import { isTruthy, prependString } from '@js-to-lua/shared-utils';
-import { PrintNode } from '../print-node';
+import { PrintComments, PrintNode } from '../print-node';
 
 export const createPrintForGenericStatement =
-  (
-    printNode: PrintNode,
-    printComments: (comments: ReadonlyArray<LuaComment> | undefined) => string
-  ) =>
+  (printNode: PrintNode, printComments: PrintComments) =>
   (node: ForGenericStatement): string => {
     const variables = node.variables.map((n) => printNode(n)).join(', ');
     const iterators = node.iterators.map((n) => printNode(n)).join(', ');
@@ -17,7 +14,7 @@ export const createPrintForGenericStatement =
     const innerComments = printComments(node.innerComments);
 
     const forBody = [
-      `do${innerComments ? ` ${innerComments}` : ''}`,
+      `do${innerComments.toString() ? ` ${innerComments}` : ''}`,
       `${body.length > 0 ? `${body}` : ''}`,
       'end',
     ]

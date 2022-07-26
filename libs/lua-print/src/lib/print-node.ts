@@ -28,6 +28,7 @@ import { createPrintTableConstructor } from './expression/table-constructor/prin
 import { createPrintTableExpressionKeyField } from './expression/table-constructor/print-table-expression-key-field';
 import { createPrintTableKeyField } from './expression/table-constructor/print-table-key-field';
 import { createPrintTableNoKeyField } from './expression/table-constructor/print-table-no-key-field';
+import { fmt, PrintableNode } from './fmt';
 import { printMultilineString } from './primitives/print-multiline-string';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -62,21 +63,22 @@ import { createPrintTypeReference } from './type/print-type-reference';
 import { createPrintTypeUnion } from './type/print-type-union';
 import { createPrintTypeOfExpression } from './type/print-typeof-expression';
 
+export type PrintComments = typeof _printComments;
 export type PrintNode = typeof printNode;
 export type GetPrintSections = typeof getPrintSections;
 export type PrintSections = {
-  leadingComments: string;
+  leadingComments: PrintableNode;
   leadSeparator: string;
-  innerComments: string;
+  innerComments: PrintableNode;
   innerSeparator: string;
-  nodeStr: string;
+  nodeStr: PrintableNode | string;
   trailingSeparator: string;
-  trailingComments: string;
+  trailingComments: PrintableNode;
 };
 
 export function getPrintSections<N extends LuaNode | LuaNodeGroup>(
   node: N,
-  nodePrintFn: (node: N) => string = _printNode
+  nodePrintFn: (node: N) => PrintableNode | string = _printNode
 ): PrintSections {
   const nodeStr = nodePrintFn(node);
 
@@ -134,7 +136,7 @@ export function getPrintSections<N extends LuaNode | LuaNodeGroup>(
 
 export function printNode<N extends LuaNode | LuaNodeGroup>(
   node: N,
-  nodePrintFn: (node: N) => string = _printNode
+  nodePrintFn: (node: N) => PrintableNode | string = _printNode
 ): string {
   const {
     leadingComments,
@@ -144,16 +146,12 @@ export function printNode<N extends LuaNode | LuaNodeGroup>(
     trailingComments,
   } = getPrintSections(node, nodePrintFn);
 
-  return [
-    leadingComments,
-    leadSeparator,
-    nodeStr,
-    trailingSeparator,
-    trailingComments,
-  ].join('');
+  return fmt`${leadingComments}${
+    leadSeparator === '\n' && leadingComments.needsNewLine ? '' : leadSeparator
+  }${nodeStr}${trailingSeparator}${trailingComments}`.toString();
 }
 
-const _printNode = (node: LuaNode): string => {
+const _printNode = (node: LuaNode): PrintableNode | string => {
   switch (node.type) {
     case 'Program':
       return createPrintProgram(printNode, _printComments)(node);
@@ -264,7 +262,10 @@ const _printNode = (node: LuaNode): string => {
     case 'IndexExpression':
       return createPrintIndexExpression(printNode)(node);
     case 'LuaMemberExpression':
-      return createPrintMemberExpression(printNode)(node);
+      return createPrintMemberExpression(
+        printNode,
+        _printComments
+      )(node).toString();
     case 'LuaIfStatement':
       return createPrintIfStatement(printNode)(node);
     case 'IfExpression':

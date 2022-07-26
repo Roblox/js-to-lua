@@ -1,12 +1,9 @@
-import { LuaComment, WhileStatement } from '@js-to-lua/lua-types';
+import { WhileStatement } from '@js-to-lua/lua-types';
 import { isTruthy, prependString } from '@js-to-lua/shared-utils';
-import { PrintNode } from '../print-node';
+import { PrintComments, PrintNode } from '../print-node';
 
 export const createPrintWhileStatement =
-  (
-    printNode: PrintNode,
-    printComments: (comments: ReadonlyArray<LuaComment> | undefined) => string
-  ) =>
+  (printNode: PrintNode, printComments: PrintComments) =>
   (node: WhileStatement): string => {
     const condition = printNode(node.condition);
     const body = node.body
@@ -16,7 +13,7 @@ export const createPrintWhileStatement =
     const innerComments = printComments(node.innerComments);
 
     const whileBody = [
-      `do${innerComments ? ` ${innerComments}` : ''}`,
+      `do${innerComments.toString() ? ` ${innerComments}` : ''}`,
       `${body.length > 0 ? `${body}` : ''}`,
       'end',
     ]
