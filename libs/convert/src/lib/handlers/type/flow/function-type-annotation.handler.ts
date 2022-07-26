@@ -16,12 +16,13 @@ import {
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  functionTypeParam,
+  functionParamName,
+  functionReturnType,
+  functionTypeParamEllipse,
   LuaType,
   LuaTypeFunction,
   typeAny,
   typeFunction,
-  typeVariadicFunction,
 } from '@js-to-lua/lua-types';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createFlowTypeParameterDeclarationHandler } from './flow-type-parameter-declaration.handler';
@@ -41,7 +42,7 @@ export const createFunctionTypeAnnotationHandler = (
       );
 
     const handleFunctionParam = (functionParam: FunctionTypeParam) => {
-      return functionTypeParam(
+      return functionParamName(
         functionParam.name
           ? handleIdentifierStrict(source, config, functionParam.name)
           : null,
@@ -83,13 +84,15 @@ export const createFunctionTypeAnnotationHandler = (
     const params = node.params.map(handleFunctionParam);
     const returnType = handleFlowType(source, config, node.returnType);
     return node.rest
-      ? typeVariadicFunction(
-          params,
-          handleRestFunctionParam(node.rest),
-          returnType,
+      ? typeFunction(
+          [
+            ...params,
+            functionTypeParamEllipse(handleRestFunctionParam(node.rest)),
+          ],
+          functionReturnType([returnType]),
           typeParameters
         )
-      : typeFunction(params, returnType, typeParameters);
+      : typeFunction(params, functionReturnType([returnType]), typeParameters);
   });
 
   return handleTsTypeFunction;

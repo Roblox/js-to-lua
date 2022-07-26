@@ -32,10 +32,8 @@ import {
   tableExpressionKeyField,
   tableKeyField,
 } from '@js-to-lua/lua-types';
-import {
-  createFunctionParamsBodyHandler,
-  createFunctionParamsHandler,
-} from '../../function-params.handler';
+import { createFunctionParamsBodyHandler } from '../../function-params-body.handler';
+import { createFunctionParamsHandler } from '../../function-params.handler';
 import { createFunctionReturnTypeHandler } from '../../function-return-type.handler';
 import { IdentifierHandlerFunction } from '../identifier-handler-types';
 import { createObjectKeyExpressionHandler } from './object-key-expression.handler';

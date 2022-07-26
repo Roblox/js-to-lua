@@ -229,12 +229,18 @@ const _printNode = (node: LuaNode): string => {
       return createPrintFunctionReturnType(printNode)(node);
     case 'LuaTypeOfExpression':
       return createPrintTypeOfExpression(printNode)(node);
-    case 'LuaFunctionTypeParam': {
+    case 'LuaFunctionParamName': {
       const typeAnnotationString = printNode(node.typeAnnotation);
       return node.name
         ? `${printNode(node.name)}:${typeAnnotationString}`
         : typeAnnotationString;
     }
+    case 'LuaFunctionTypeParamEllipse':
+      return `...${node.typeAnnotation ? printNode(node.typeAnnotation) : ''}`;
+    case 'LuaFunctionParamEllipse':
+      return node.typeAnnotation
+        ? `...: ${printNode(node.typeAnnotation)}`
+        : '...';
     case 'LuaLiteralType':
       return printNode(node.literal);
     case 'LuaPropertySignature':

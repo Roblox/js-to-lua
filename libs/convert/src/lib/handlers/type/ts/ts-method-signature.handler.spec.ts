@@ -2,18 +2,17 @@ import * as Babel from '@babel/types';
 import { forwardHandlerRef } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
+  functionParamName,
   functionReturnType,
-  functionTypeParam,
+  functionTypeParamEllipse,
   identifier,
   typeAnnotation,
   typeAny,
   typeFunction,
-  typeFunctionMultipleReturn,
   typeNumber,
   typePropertySignature,
   typeReference,
   typeString,
-  typeVariadicFunctionMultipleReturn,
 } from '@js-to-lua/lua-types';
 
 import {
@@ -52,9 +51,9 @@ describe('TSMethodSignature handler', () => {
       const expected = typePropertySignature(
         identifier('foo'),
         typeAnnotation(
-          typeFunctionMultipleReturn(
+          typeFunction(
             [
-              functionTypeParam(
+              functionParamName(
                 identifier('self'),
                 typeReference(identifier(interfaceName))
               ),
@@ -93,9 +92,9 @@ describe('TSMethodSignature handler', () => {
         source
       ),
       typeAnnotation(
-        typeFunctionMultipleReturn(
+        typeFunction(
           [
-            functionTypeParam(
+            functionParamName(
               identifier('self'),
               typeReference(identifier('MyInterface'))
             ),
@@ -141,9 +140,9 @@ describe('TSMethodSignature handler', () => {
       const expected = typePropertySignature(
         identifier('foo'),
         typeAnnotation(
-          typeFunctionMultipleReturn(
+          typeFunction(
             [
-              functionTypeParam(
+              functionParamName(
                 identifier('self'),
                 typeReference(identifier('MyInterface'))
               ),
@@ -185,14 +184,14 @@ describe('TSMethodSignature handler', () => {
       const expected = typePropertySignature(
         identifier('foo'),
         typeAnnotation(
-          typeFunctionMultipleReturn(
+          typeFunction(
             [
-              functionTypeParam(
+              functionParamName(
                 identifier('self'),
                 typeReference(identifier(interfaceName))
               ),
-              functionTypeParam(identifier('bar'), typeString()),
-              functionTypeParam(identifier('fizz'), typeNumber()),
+              functionParamName(identifier('bar'), typeString()),
+              functionParamName(identifier('fizz'), typeNumber()),
             ],
             functionReturnType([])
           )
@@ -231,15 +230,16 @@ describe('TSMethodSignature handler', () => {
       const expected = typePropertySignature(
         identifier('foo'),
         typeAnnotation(
-          typeVariadicFunctionMultipleReturn(
+          typeFunction(
             [
-              functionTypeParam(
+              functionParamName(
                 identifier('self'),
                 typeReference(identifier(interfaceName))
               ),
-              functionTypeParam(identifier('bar'), typeString()),
+              functionParamName(identifier('bar'), typeString()),
+              functionTypeParamEllipse(typeNumber()),
             ],
-            typeNumber(),
+
             functionReturnType([])
           )
         )

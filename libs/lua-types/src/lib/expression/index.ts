@@ -2,6 +2,7 @@ export * from './binary';
 export * from './call';
 export * from './expression';
 export * from './function';
+export * from './function-param';
 export * from './identifier';
 export * from './if-expression';
 export * from './index-expression';

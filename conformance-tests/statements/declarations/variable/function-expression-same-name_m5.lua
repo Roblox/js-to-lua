@@ -1,2 +1,1 @@
-local function bar() end
-local foo = bar
+local function foo() end

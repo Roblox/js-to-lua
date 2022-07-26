@@ -13,7 +13,7 @@ import {
   functionDeclaration,
   functionDeclarationMultipleReturn,
   functionReturnType,
-  functionTypeParam,
+  functionParamName,
   identifier,
   memberExpression,
   nodeGroup,
@@ -30,7 +30,6 @@ import {
   typeBoolean,
   typeCastExpression,
   typeFunction,
-  typeFunctionMultipleReturn,
   typeIntersection,
   typeLiteral,
   typeNumber,
@@ -140,12 +139,12 @@ describe('Program handler', () => {
                     typeAnnotation(
                       typeFunction(
                         [
-                          functionTypeParam(
+                          functionParamName(
                             selfIdentifier(),
                             typeReference(identifier('BaseClass'))
                           ),
                         ],
-                        typeAny()
+                        functionReturnType([typeAny()])
                       )
                     )
                   ),
@@ -355,12 +354,12 @@ describe('Program handler', () => {
                   typeAnnotation(
                     typeFunction(
                       [
-                        functionTypeParam(
+                        functionParamName(
                           identifier('self'),
                           typeReference(identifier('BaseClass'))
                         ),
                       ],
-                      typeAny()
+                      functionReturnType([typeAny()])
                     )
                   )
                 ),
@@ -420,9 +419,9 @@ describe('Program handler', () => {
                 typePropertySignature(
                   identifier('myMethod'),
                   typeAnnotation(
-                    typeFunctionMultipleReturn(
+                    typeFunction(
                       [
-                        functionTypeParam(
+                        functionParamName(
                           identifier('self'),
                           typeReference(identifier('BaseClass'))
                         ),
@@ -487,14 +486,14 @@ describe('Program handler', () => {
                 typePropertySignature(
                   identifier('myMethod'),
                   typeAnnotation(
-                    typeFunctionMultipleReturn(
+                    typeFunction(
                       [
-                        functionTypeParam(
+                        functionParamName(
                           identifier('self'),
                           typeReference(identifier('BaseClass'))
                         ),
-                        functionTypeParam(identifier('p1'), typeString()),
-                        functionTypeParam(identifier('p2'), typeNumber()),
+                        functionParamName(identifier('p1'), typeString()),
+                        functionParamName(identifier('p2'), typeNumber()),
                       ],
                       functionReturnType([])
                     )
@@ -663,12 +662,12 @@ describe('Program handler', () => {
                   typeAnnotation(
                     typeFunction(
                       [
-                        functionTypeParam(
+                        functionParamName(
                           identifier('self'),
                           typeReference(identifier('BaseClass'))
                         ),
                       ],
-                      typeAny()
+                      functionReturnType([typeAny()])
                     )
                   )
                 ),
@@ -736,12 +735,12 @@ describe('Program handler', () => {
                   typeAnnotation(
                     typeFunction(
                       [
-                        functionTypeParam(
+                        functionParamName(
                           identifier('self'),
                           typeReference(identifier('BaseClass'))
                         ),
                       ],
-                      typeString()
+                      functionReturnType([typeString()])
                     )
                   )
                 ),
@@ -809,14 +808,14 @@ describe('Program handler', () => {
                   typeAnnotation(
                     typeFunction(
                       [
-                        functionTypeParam(
+                        functionParamName(
                           identifier('self'),
                           typeReference(identifier('BaseClass'))
                         ),
-                        functionTypeParam(identifier('p1'), typeNumber()),
-                        functionTypeParam(identifier('p2'), typeBoolean()),
+                        functionParamName(identifier('p1'), typeNumber()),
+                        functionParamName(identifier('p2'), typeBoolean()),
                       ],
-                      typeString()
+                      functionReturnType([typeString()])
                     )
                   )
                 ),
@@ -1497,12 +1496,12 @@ describe('Program handler', () => {
                     typeAnnotation(
                       typeFunction(
                         [
-                          functionTypeParam(
+                          functionParamName(
                             identifier('self'),
                             typeReference(identifier('SubClass'))
                           ),
                         ],
-                        typeAny()
+                        functionReturnType([typeAny()])
                       )
                     )
                   ),

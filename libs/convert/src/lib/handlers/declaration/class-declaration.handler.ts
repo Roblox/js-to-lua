@@ -38,8 +38,8 @@ import {
   defaultUnhandledIdentifierHandlerWithComment,
   getNodeSource,
   removeTypeAnnotation,
-  typeReferenceWithoutDefaultType,
   selfIdentifier,
+  typeReferenceWithoutDefaultType,
   withClassDeclarationExtra,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
@@ -83,10 +83,8 @@ import {
 import { isNonEmptyArray, Unpacked } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
-import {
-  createFunctionParamsBodyHandler,
-  createFunctionParamsHandler,
-} from '../function-params.handler';
+import { createFunctionParamsBodyHandler } from '../function-params-body.handler';
+import { createFunctionParamsHandler } from '../function-params.handler';
 import { createFunctionReturnTypeHandler } from '../function-return-type.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 import { inferType } from '../type/infer-type';

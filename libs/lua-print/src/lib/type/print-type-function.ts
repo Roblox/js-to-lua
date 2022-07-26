@@ -5,10 +5,9 @@ import { PrintNode } from '../print-node';
 export const createPrintTypeFunction =
   (printNode: PrintNode) =>
   (node: LuaTypeFunction): string => {
-    const parameters = [
-      ...node.parameters.map((n) => printNode(n)),
-      node.rest && `...${printNode(node.rest)}`,
-    ].filter(isTruthy);
+    const parameters = [...node.parameters.map((n) => printNode(n))].filter(
+      isTruthy
+    );
 
     const typeParameters = node.typeParameters
       ? printNode(node.typeParameters)

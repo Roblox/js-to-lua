@@ -7,11 +7,10 @@ import {
 import {
   getReturnType,
   reassignComments,
-  removeIdTypeAnnotation,
   removeTypeAnnotation,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  functionTypeParam,
+  functionParamName,
   identifier,
   LuaExpression,
   LuaIdentifier,
@@ -21,12 +20,12 @@ import {
   LuaTypeAnnotation,
   typeAnnotation,
   typeAny,
-  typeFunctionMultipleReturn,
+  typeFunction,
   typePropertySignature,
   typeReference,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import { createFunctionParamsHandler } from '../function-params.handler';
+import { createFunctionTypeParamsHandler } from '../function-params.handler';
 import { inferType } from '../type/infer-type';
 
 export const createHandlePublicMethodsAndProperties = (
@@ -38,7 +37,7 @@ export const createHandlePublicMethodsAndProperties = (
   >,
   handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
 ) => {
-  const functionParamsHandler = createFunctionParamsHandler(
+  const functionTypeParamsHandler = createFunctionTypeParamsHandler(
     handleIdentifier,
     handleTypeAnnotation,
     handleType
@@ -58,17 +57,10 @@ export const createHandlePublicMethodsAndProperties = (
       node: Babel.ClassMethod | Babel.TSDeclareMethod | Babel.ClassProperty
     ): LuaTypeAnnotation {
       if (Babel.isClassMethod(node) || Babel.isTSDeclareMethod(node)) {
-        const fnParams = functionParamsHandler(
+        const fnParams = functionTypeParamsHandler(
           source,
           config as EmptyConfig,
           node
-        ).map((param) =>
-          functionTypeParam(
-            removeIdTypeAnnotation(param),
-            param.typeAnnotation
-              ? param.typeAnnotation.typeAnnotation
-              : typeAny()
-          )
         );
 
         const returnType = node.returnType
@@ -83,9 +75,9 @@ export const createHandlePublicMethodsAndProperties = (
           : typeAny();
 
         return typeAnnotation(
-          typeFunctionMultipleReturn(
+          typeFunction(
             [
-              functionTypeParam(
+              functionParamName(
                 identifier('self'),
                 typeReference(config.classIdentifier)
               ),

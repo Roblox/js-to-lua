@@ -1,0 +1,1 @@
+function format(...args: string[]) {}

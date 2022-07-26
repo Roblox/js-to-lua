@@ -28,10 +28,8 @@ import {
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
-import {
-  createFunctionParamsBodyHandler,
-  createFunctionParamsHandler,
-} from '../function-params.handler';
+import { createFunctionParamsBodyHandler } from '../function-params-body.handler';
+import { createFunctionParamsHandler } from '../function-params.handler';
 import { createFunctionReturnTypeHandler } from '../function-return-type.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';

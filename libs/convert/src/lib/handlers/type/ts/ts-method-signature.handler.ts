@@ -4,7 +4,7 @@ import {
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  functionTypeParam,
+  functionParamName,
   identifier,
   isIdentifier,
   isStringLiteral,
@@ -43,7 +43,7 @@ export const createTsMethodSignatureHandler = (
     const rightSideType = handleMethodType(source, config, node);
 
     rightSideType.parameters.unshift(
-      functionTypeParam(
+      functionParamName(
         identifier('self'),
         config.typeId ? typeReference(config.typeId) : typeAny()
       )

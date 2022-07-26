@@ -1,21 +1,21 @@
 import {
+  functionParamName,
+  functionReturnType,
+  functionTypeParamEllipse,
   identifier,
-  typeReference,
-  typeParameterDeclaration,
-  functionTypeParam,
-  typeAliasDeclaration,
   program,
-  typePropertySignature,
-  typeLiteral,
-  typeString,
+  typeAliasDeclaration,
   typeAnnotation,
+  typeAny,
+  typeFunction,
+  typeLiteral,
   typeNumber,
+  typeParameterDeclaration,
+  typePropertySignature,
+  typeReference,
+  typeString,
   variableDeclaration,
   variableDeclaratorIdentifier,
-  typeFunction,
-  typeAny,
-  typeVariadicFunctionMultipleReturn,
-  functionReturnType,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
@@ -37,9 +37,11 @@ describe('Program handler', () => {
             typePropertySignature(
               identifier('bar'),
               typeAnnotation(
-                typeVariadicFunctionMultipleReturn(
-                  [functionTypeParam(identifier('fizz'), typeString())],
-                  typeNumber(),
+                typeFunction(
+                  [
+                    functionParamName(identifier('fizz'), typeString()),
+                    functionTypeParamEllipse(typeNumber()),
+                  ],
                   functionReturnType([]),
                   typeParameterDeclaration([
                     typeReference(identifier('T')),
@@ -71,8 +73,8 @@ describe('Program handler', () => {
                       identifier('toString'),
                       typeAnnotation(
                         typeFunction(
-                          [functionTypeParam(identifier('self'), typeAny())],
-                          typeString()
+                          [functionParamName(identifier('self'), typeAny())],
+                          functionReturnType([typeString()])
                         )
                       )
                     ),

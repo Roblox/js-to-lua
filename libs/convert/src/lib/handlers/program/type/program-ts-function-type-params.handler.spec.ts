@@ -2,10 +2,10 @@ import {
   identifier,
   typeReference,
   typeParameterDeclaration,
-  functionTypeParam,
+  functionParamName,
   typeAliasDeclaration,
   program,
-  typeFunctionMultipleReturn,
+  typeFunction,
   functionReturnType,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
@@ -24,13 +24,13 @@ describe('Program handler', () => {
       const expected = program([
         typeAliasDeclaration(
           identifier('Foo'),
-          typeFunctionMultipleReturn(
+          typeFunction(
             [
-              functionTypeParam(
+              functionParamName(
                 identifier('bar'),
                 typeReference(identifier('T'))
               ),
-              functionTypeParam(
+              functionParamName(
                 identifier('baz'),
                 typeReference(identifier('V'))
               ),

@@ -1,49 +1,28 @@
+import * as Babel from '@babel/types';
+import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
+import { getReturnType } from '@js-to-lua/lua-conversion-utils';
 import {
-  isRestElement as isRestElement_,
-  RestElement,
-  TSFunctionType,
-  TSMethodSignature,
-  TSType,
-} from '@babel/types';
-import {
-  BabelNode,
-  createHandler,
-  HandlerFunction,
-} from '@js-to-lua/handler-utils';
-import {
-  getReturnType,
-  reassignComments,
-} from '@js-to-lua/lua-conversion-utils';
-import {
-  functionTypeParam,
+  functionParamName,
+  functionTypeParamEllipse,
   LuaType,
   LuaTypeFunction,
   typeAny,
-  typeVariadicFunctionMultipleReturn,
+  typeFunction,
 } from '@js-to-lua/lua-types';
-import { last } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createRestElementHandler } from '../../rest-element.handler';
 import { createTsTypeParameterDeclarationHandler } from './ts-type-parameter-declaration.handler';
 
 export const createTsFunctionMethodTypeHandler = <
-  T extends TSFunctionType | TSMethodSignature
+  T extends Babel.TSFunctionType | Babel.TSMethodSignature
 >(
   handleIdentifier: IdentifierStrictHandlerFunction,
-  typesHandlerFunction: HandlerFunction<LuaType, TSType>
+  typesHandlerFunction: HandlerFunction<LuaType, Babel.TSType>
 ) => {
   const restHandler = createRestElementHandler(typesHandlerFunction);
-  const handleTsTypeFunction = createHandler<LuaTypeFunction, T>(
+  return createHandler<LuaTypeFunction, T>(
     ['TSFunctionType', 'TSMethodSignature'],
     (source, config, node) => {
-      const isNotRestElement = <N extends BabelNode>(
-        obj: N
-      ): obj is Exclude<N, RestElement> => !isRestElement_(obj);
-      const isRestElement = (
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        obj: object | null | undefined
-      ): obj is RestElement => isRestElement_(obj);
-
       const handleTsTypeParameterDeclaration =
         createTsTypeParameterDeclarationHandler(typesHandlerFunction).handler(
           source,
@@ -52,12 +31,13 @@ export const createTsFunctionMethodTypeHandler = <
       const typeParameters = node.typeParameters
         ? handleTsTypeParameterDeclaration(node.typeParameters)
         : undefined;
-      const nonRestParams = node.parameters.filter(isNotRestElement);
-      const restParam = last(node.parameters.filter(isRestElement));
-      const parameters = nonRestParams.map((param) => {
+      const parameters = node.parameters.map((param) => {
+        if (Babel.isRestElement(param)) {
+          return functionTypeParamEllipse(restHandler(source, config, param));
+        }
         const paramId = handleIdentifier(source, config, param);
         const paramType = paramId.typeAnnotation?.typeAnnotation || typeAny();
-        return functionTypeParam(paramId, paramType);
+        return functionParamName(paramId, paramType);
       });
 
       const returnType = node.typeAnnotation
@@ -68,14 +48,11 @@ export const createTsFunctionMethodTypeHandler = <
           )
         : typeAny();
 
-      return typeVariadicFunctionMultipleReturn(
+      return typeFunction(
         parameters,
-        restParam ? restHandler(source, config, restParam) : undefined,
         getReturnType(returnType),
         typeParameters
       );
     }
   );
-
-  return handleTsTypeFunction;
 };

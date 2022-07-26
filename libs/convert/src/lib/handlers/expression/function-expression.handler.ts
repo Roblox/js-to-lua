@@ -34,10 +34,8 @@ import {
   removeAssignedToConfig,
 } from '../../config/assigned-to.config';
 import { removeNoShadowIdentifierConfig } from '../../config/no-shadow-identifiers.config';
-import {
-  createFunctionParamsBodyHandler,
-  createFunctionParamsHandler,
-} from '../function-params.handler';
+import { createFunctionParamsBodyHandler } from '../function-params-body.handler';
+import { createFunctionParamsHandler } from '../function-params.handler';
 import { createFunctionReturnTypeHandler } from '../function-return-type.handler';
 import { createFunctionBodyHandler } from './function-body.handler';
 import { IdentifierHandlerFunction } from './identifier-handler-types';

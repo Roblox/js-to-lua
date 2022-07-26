@@ -1,6 +1,5 @@
 import {
   FlowType,
-  FunctionDeclaration,
   Identifier,
   Statement,
   TryStatement,
@@ -114,7 +113,7 @@ export const createTryStatementHandler = (
                     node.handler.param
                       ? functionParamsHandler(source, config, {
                           params: [node.handler.param],
-                        } as FunctionDeclaration)
+                        })
                       : [],
                     nodeGroup(
                       (node.handler.body.body || []).map(

@@ -40,7 +40,7 @@ import {
   functionDeclaration,
   functionDeclarationMultipleReturn,
   functionReturnType,
-  functionTypeParam,
+  functionParamName,
   identifier,
   ifClause,
   ifStatement,
@@ -56,7 +56,6 @@ import {
   typeAny,
   typeCastExpression,
   typeFunction,
-  typeFunctionMultipleReturn,
   typeIntersection,
   typeLiteral,
   typeNumber,
@@ -352,12 +351,12 @@ describe('Class Declaration', () => {
                 typeAnnotation(
                   typeFunction(
                     [
-                      functionTypeParam(
+                      functionParamName(
                         identifier('self'),
                         typeReference(identifier('BaseClass'))
                       ),
                     ],
-                    typeAny()
+                    functionReturnType([typeAny()])
                   )
                 )
               ),
@@ -427,9 +426,9 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('myMethod'),
                 typeAnnotation(
-                  typeFunctionMultipleReturn(
+                  typeFunction(
                     [
-                      functionTypeParam(
+                      functionParamName(
                         identifier('self'),
                         typeReference(identifier('BaseClass'))
                       ),
@@ -508,12 +507,12 @@ describe('Class Declaration', () => {
                 typeAnnotation(
                   typeFunction(
                     [
-                      functionTypeParam(
+                      functionParamName(
                         identifier('self'),
                         typeReference(identifier('BaseClass'))
                       ),
                     ],
-                    typeString()
+                    functionReturnType([typeString()])
                   )
                 )
               ),
@@ -941,12 +940,12 @@ describe('Class Declaration', () => {
                 typeAnnotation(
                   typeFunction(
                     [
-                      functionTypeParam(
+                      functionParamName(
                         identifier('self'),
                         typeReference(identifier('BaseClass'))
                       ),
                     ],
-                    typeAny()
+                    functionReturnType([typeAny()])
                   )
                 )
               ),
@@ -1794,12 +1793,12 @@ describe('Class Declaration', () => {
                   typeAnnotation(
                     typeFunction(
                       [
-                        functionTypeParam(
+                        functionParamName(
                           identifier('self'),
                           typeReference(identifier('SubClass'))
                         ),
                       ],
-                      typeAny()
+                      functionReturnType([typeAny()])
                     )
                   )
                 ),

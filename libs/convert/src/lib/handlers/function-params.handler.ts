@@ -1,94 +1,126 @@
+import * as Babel from '@babel/types';
+import { HandlerFunction } from '@js-to-lua/handler-utils';
 import {
-  ArrayPattern,
-  ArrowFunctionExpression,
-  AssignmentPattern,
-  ClassMethod,
-  ClassPrivateMethod,
-  Declaration,
-  FlowType,
-  FunctionDeclaration,
-  FunctionExpression,
-  identifier as babelIdentifier,
-  Identifier,
-  isArrayPattern,
-  isAssignmentPattern,
-  isIdentifier,
-  isMemberExpression as isBabelMemberExpression,
-  isObjectPattern,
-  isRestElement,
-  isTSParameterProperty,
-  LVal,
-  Noop,
-  ObjectMethod,
-  ObjectPattern,
-  TSDeclareMethod,
-  TSType,
-  TSTypeAnnotation,
-  TypeAnnotation,
-  variableDeclaration as babelVariableDeclaration,
-  variableDeclarator as babelVariableDeclarator,
-} from '@babel/types';
-import { EmptyConfig, HandlerFunction } from '@js-to-lua/handler-utils';
-import {
-  defaultStatementHandler,
   generateUniqueIdentifier,
+  removeIdTypeAnnotation,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  AssignmentStatement,
+  functionParamEllipse,
+  functionParamName,
+  functionTypeParamEllipse,
   identifier,
-  LuaDeclaration,
   LuaFunctionParam,
+  LuaFunctionTypeParam,
   LuaIdentifier,
-  LuaLVal,
-  LuaNodeGroup,
   LuaType,
   LuaTypeAnnotation,
   makeOptional,
   makeOptionalAnnotation,
-  nodeGroup,
-  tableConstructor,
-  tableNoKeyField,
   typeAnnotation,
   typeAny,
-  UnhandledStatement,
-  variableDeclaration,
-  variableDeclaratorIdentifier,
-  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { anyPass, applyTo } from 'ramda';
+import { applyTo, pipe } from 'ramda';
 import { AssignedToConfig } from '../config/assigned-to.config';
 import { NoShadowIdentifiersConfig } from '../config/no-shadow-identifiers.config';
 import { IdentifierHandlerFunction } from './expression/identifier-handler-types';
+import { BabelFunctionTypesParams } from './function-params.types';
 import { createRestElementHandler } from './rest-element.handler';
 import { inferType } from './type/infer-type';
 
-type FunctionTypes =
-  | ArrowFunctionExpression
-  | FunctionExpression
-  | FunctionDeclaration
-  | ObjectMethod
-  | ClassMethod
-  | ClassPrivateMethod
-  | TSDeclareMethod;
+export const createFunctionTypeParamsHandler = (
+  handleIdentifier: IdentifierHandlerFunction,
+  handleTypeAnnotation: HandlerFunction<
+    LuaTypeAnnotation,
+    Babel.TypeAnnotation | Babel.TSTypeAnnotation | Babel.Noop
+  >,
+  handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
+) => {
+  const _functionParamsHandler = _createFunctionParamsHandler(
+    handleIdentifier,
+    handleTypeAnnotation,
+    handleType
+  );
+
+  return (
+    source: string,
+    config: AssignedToConfig & NoShadowIdentifiersConfig,
+    node: BabelFunctionTypesParams
+  ): Array<LuaFunctionTypeParam> => {
+    return _functionParamsHandler(source, config, node).map((param) =>
+      param.type === 'ParamName'
+        ? functionParamName(
+            removeIdTypeAnnotation(param.identifier),
+            param.identifier.typeAnnotation
+              ? param.identifier.typeAnnotation.typeAnnotation
+              : typeAny()
+          )
+        : functionTypeParamEllipse(param.typeAnnotation)
+    );
+  };
+};
 
 export const createFunctionParamsHandler = (
   handleIdentifier: IdentifierHandlerFunction,
   handleTypeAnnotation: HandlerFunction<
     LuaTypeAnnotation,
-    TypeAnnotation | TSTypeAnnotation | Noop
+    Babel.TypeAnnotation | Babel.TSTypeAnnotation | Babel.Noop
   >,
-  handleType: HandlerFunction<LuaType, FlowType | TSType>
-): ((
-  source: string,
-  config: AssignedToConfig & NoShadowIdentifiersConfig,
-  node: FunctionTypes
-) => LuaIdentifier[]) => {
+  handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
+) => {
+  const _functionParamsHandler = _createFunctionParamsHandler(
+    handleIdentifier,
+    handleTypeAnnotation,
+    handleType
+  );
+
+  return (
+    source: string,
+    config: AssignedToConfig & NoShadowIdentifiersConfig,
+    node: BabelFunctionTypesParams
+  ): Array<LuaFunctionParam> => {
+    return _functionParamsHandler(source, config, node).map((param) =>
+      param.type === 'ParamName'
+        ? param.identifier
+        : functionParamEllipse(param.typeAnnotation)
+    );
+  };
+};
+
+type ParamName = {
+  type: 'ParamName';
+  identifier: LuaIdentifier;
+};
+type ParamEllipse = { type: 'ParamEllipse'; typeAnnotation: LuaType };
+type LuaParam = ParamName | ParamEllipse;
+
+const paramName = (id: LuaIdentifier): ParamName => ({
+  type: 'ParamName',
+  identifier: id,
+});
+
+const paramEllipse = (typeAnnotation: LuaType): ParamEllipse => ({
+  type: 'ParamEllipse',
+  typeAnnotation,
+});
+
+const _createFunctionParamsHandler = (
+  handleIdentifier: IdentifierHandlerFunction,
+  handleTypeAnnotation: HandlerFunction<
+    LuaTypeAnnotation,
+    Babel.TypeAnnotation | Babel.TSTypeAnnotation | Babel.Noop
+  >,
+  handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
+) => {
   const restHandler = createRestElementHandler(handleType);
 
-  return (source, config, node): LuaIdentifier[] => {
+  return (
+    source: string,
+    config: AssignedToConfig & NoShadowIdentifiersConfig,
+    node: BabelFunctionTypesParams
+  ): LuaParam[] => {
     const handleAssignmentPatternTypeAnnotation = ({
       left,
-    }: AssignmentPattern): LuaTypeAnnotation =>
+    }: Babel.AssignmentPattern): LuaTypeAnnotation =>
       makeOptionalAnnotation(true)(
         left.type === 'MemberExpression' || !left.typeAnnotation
           ? typeAnnotation(inferType(left))
@@ -97,190 +129,83 @@ export const createFunctionParamsHandler = (
 
     const handleArrayOrObjectPatternTypeAnnotation = ({
       typeAnnotation,
-    }: ArrayPattern | ObjectPattern): LuaTypeAnnotation | undefined =>
+    }: Babel.ArrayPattern | Babel.ObjectPattern):
+      | LuaTypeAnnotation
+      | undefined =>
       typeAnnotation
         ? handleTypeAnnotation(source, config, typeAnnotation)
         : undefined;
 
     let paramRefIdCount = 0;
-    const mapFn = (node: FunctionTypes): LuaIdentifier[] =>
+    const mapFn = (node: BabelFunctionTypesParams): LuaParam[] =>
       node.params
         .map((param) => {
           if (
-            isArrayPattern(param) ||
-            isObjectPattern(param) ||
-            (isAssignmentPattern(param) &&
-              (isObjectPattern(param.left) || isArrayPattern(param.left)))
+            Babel.isArrayPattern(param) ||
+            Babel.isObjectPattern(param) ||
+            (Babel.isAssignmentPattern(param) &&
+              (Babel.isObjectPattern(param.left) ||
+                Babel.isArrayPattern(param.left)))
           ) {
-            return identifier(
-              `ref${'_'.repeat(paramRefIdCount++)}`,
-              isAssignmentPattern(param)
-                ? handleAssignmentPatternTypeAnnotation(param)
-                : handleArrayOrObjectPatternTypeAnnotation(param)
+            return paramName(
+              identifier(
+                `ref${'_'.repeat(paramRefIdCount++)}`,
+                Babel.isAssignmentPattern(param)
+                  ? handleAssignmentPatternTypeAnnotation(param)
+                  : handleArrayOrObjectPatternTypeAnnotation(param)
+              )
             );
-          } else if (isIdentifier(param)) {
-            return handleIdentifier(source, config, param) as LuaFunctionParam;
-          } else if (isAssignmentPattern(param)) {
+          } else if (Babel.isIdentifier(param)) {
+            return paramName(
+              handleIdentifier(source, config, param) as LuaIdentifier
+            );
+          } else if (Babel.isAssignmentPattern(param)) {
             return applyTo(
               handleIdentifier(
                 source,
                 config,
-                param.left as Identifier
+                param.left as Babel.Identifier
               ) as LuaIdentifier,
-              (id) => ({
-                ...id,
-                typeAnnotation: typeAnnotation(
-                  makeOptional(
-                    id.typeAnnotation?.typeAnnotation || inferType(param.right)
-                  )
-                ),
-              })
+              pipe(
+                (id: LuaIdentifier) => ({
+                  ...id,
+                  typeAnnotation: typeAnnotation(
+                    makeOptional(
+                      id.typeAnnotation?.typeAnnotation ||
+                        inferType(param.right)
+                    )
+                  ),
+                }),
+                paramName
+              )
             );
-          } else if (isTSParameterProperty(param)) {
+          } else if (Babel.isTSParameterProperty(param)) {
             return mapFn({
               params: [param.parameter],
-            } as FunctionTypes);
+            });
           } else {
-            return identifier(
-              '...',
-              typeAnnotation(restHandler(source, config, param))
-            );
+            return paramEllipse(restHandler(source, config, param));
           }
         })
         .flat();
 
-    const needsSelf = isBabelMemberExpression(config.assignedTo);
+    const needsSelf = Babel.isMemberExpression(config.assignedTo);
     return applyTo(mapFn(node), (identifiers) =>
       needsSelf
         ? [
-            identifier(
-              generateUniqueIdentifier(
-                config.noShadowIdentifiers || [],
-                'self',
-                true
-              ),
-              typeAnnotation(typeAny())
+            paramName(
+              identifier(
+                generateUniqueIdentifier(
+                  config.noShadowIdentifiers || [],
+                  'self',
+                  true
+                ),
+                typeAnnotation(typeAny())
+              )
             ),
             ...identifiers,
           ]
         : identifiers
     );
   };
-};
-
-type ParamsBodyResponse = Array<
-  LuaNodeGroup | LuaDeclaration | AssignmentStatement | UnhandledStatement
->;
-
-export const createFunctionParamsBodyHandler = (
-  handleDeclaration: HandlerFunction<
-    LuaNodeGroup | LuaDeclaration,
-    Declaration
-  >,
-  handleAssignmentPattern: HandlerFunction<
-    AssignmentStatement,
-    AssignmentPattern
-  >,
-  handleLVal: HandlerFunction<LuaLVal, LVal>
-): ((
-  source: string,
-  config: EmptyConfig,
-  node: FunctionTypes
-) => ParamsBodyResponse) => {
-  const handler: (
-    source: string,
-    config: EmptyConfig,
-    node: FunctionTypes
-  ) => ParamsBodyResponse = (
-    source: string,
-    config: EmptyConfig,
-    node: FunctionTypes
-  ) => {
-    let destructuringRefIdCount = 0;
-
-    const mapFn = (node: FunctionTypes): ParamsBodyResponse =>
-      node.params
-        .filter((param) =>
-          anyPass([
-            isAssignmentPattern,
-            isObjectPattern,
-            isArrayPattern,
-            isTSParameterProperty,
-            isRestElement,
-          ])(param, undefined)
-        )
-        .map((param) => {
-          if (isAssignmentPattern(param)) {
-            if (isArrayPattern(param.left) || isObjectPattern(param.left)) {
-              return nodeGroup([
-                handleAssignmentPattern(source, config, {
-                  ...param,
-                  left: babelIdentifier(
-                    `ref${'_'.repeat(destructuringRefIdCount)}`
-                  ),
-                  right: { ...param.right },
-                }),
-                handleDeclaration(
-                  source,
-                  node,
-                  babelVariableDeclaration('let', [
-                    babelVariableDeclarator(
-                      param.left,
-                      babelIdentifier(
-                        `ref${'_'.repeat(destructuringRefIdCount++)}`
-                      )
-                    ),
-                  ])
-                ),
-              ]);
-            }
-            return handleAssignmentPattern(source, config, param);
-          } else if (isArrayPattern(param)) {
-            return handleDeclaration(
-              source,
-              node,
-              babelVariableDeclaration('let', [
-                babelVariableDeclarator(
-                  param,
-                  babelIdentifier(`ref${'_'.repeat(destructuringRefIdCount++)}`)
-                ),
-              ])
-            );
-          } else if (isObjectPattern(param)) {
-            return handleDeclaration(
-              source,
-              node,
-              babelVariableDeclaration('let', [
-                babelVariableDeclarator(
-                  param,
-                  babelIdentifier(`ref${'_'.repeat(destructuringRefIdCount++)}`)
-                ),
-              ])
-            );
-          } else if (isTSParameterProperty(param)) {
-            return mapFn({
-              params: [param.parameter],
-            } as FunctionTypes);
-          } else if (isRestElement(param)) {
-            return variableDeclaration(
-              [
-                variableDeclaratorIdentifier(
-                  handleLVal(source, config, param.argument)
-                ),
-              ],
-              [
-                variableDeclaratorValue(
-                  tableConstructor([tableNoKeyField(identifier('...'))])
-                ),
-              ]
-            );
-          } else {
-            return defaultStatementHandler(source, config, param);
-          }
-        })
-        .flat();
-
-    return mapFn(node);
-  };
-  return handler;
 };

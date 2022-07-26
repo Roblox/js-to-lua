@@ -16,14 +16,15 @@ import {
 import { testUtils } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
-  functionTypeParam,
+  functionParamName,
+  functionReturnType,
+  functionTypeParamEllipse,
   identifier,
   LuaType,
   typeAny,
   typeFunction,
   typeParameterDeclaration,
   typeReference,
-  typeVariadicFunction,
 } from '@js-to-lua/lua-types';
 import {
   mockNodeWithValue,
@@ -53,7 +54,10 @@ describe('FunctionTypeAnnotation handler', () => {
 
   it('should handle FunctionTypeAnnotation with no parameters', () => {
     const given = functionTypeAnnotation(null, [], null, anyTypeAnnotation());
-    const expected = typeFunction([], mockNodeWithValue(anyTypeAnnotation()));
+    const expected = typeFunction(
+      [],
+      functionReturnType([mockNodeWithValue(anyTypeAnnotation())])
+    );
 
     expect(handler(source, {}, given)).toEqual(expected);
   });
@@ -67,12 +71,12 @@ describe('FunctionTypeAnnotation handler', () => {
     );
     const expected = typeFunction(
       [
-        functionTypeParam(
+        functionParamName(
           mockNodeWithValue(babelIdentifier('foo')),
           mockNodeWithValue(booleanTypeAnnotation())
         ),
       ],
-      mockNodeWithValue(anyTypeAnnotation())
+      functionReturnType([mockNodeWithValue(anyTypeAnnotation())])
     );
 
     expect(handler(source, {}, given)).toEqual(expected);
@@ -86,8 +90,8 @@ describe('FunctionTypeAnnotation handler', () => {
       anyTypeAnnotation()
     );
     const expected = typeFunction(
-      [functionTypeParam(null, mockNodeWithValue(booleanTypeAnnotation()))],
-      mockNodeWithValue(anyTypeAnnotation())
+      [functionParamName(null, mockNodeWithValue(booleanTypeAnnotation()))],
+      functionReturnType([mockNodeWithValue(anyTypeAnnotation())])
     );
 
     expect(handler(source, {}, given)).toEqual(expected);
@@ -120,15 +124,15 @@ describe('FunctionTypeAnnotation handler', () => {
         anyTypeAnnotation()
       );
 
-      const expected = typeVariadicFunction(
+      const expected = typeFunction(
         [
-          functionTypeParam(
+          functionParamName(
             mockNodeWithValue(babelIdentifier('foo')),
             mockNodeWithValue(booleanTypeAnnotation())
           ),
+          functionTypeParamEllipse(expectedType),
         ],
-        expectedType,
-        mockNodeWithValue(anyTypeAnnotation())
+        functionReturnType([mockNodeWithValue(anyTypeAnnotation())])
       );
 
       expect(handler(source, {}, given)).toEqual(expected);
@@ -143,7 +147,7 @@ describe('FunctionTypeAnnotation handler', () => {
     genericTypeAnnotation(babelIdentifier('Array')),
     genericTypeAnnotation(babelIdentifier('Args')),
   ])(
-    'should handle FunctionTypeAnnotation with parameters and rest element (unknown type): $givenType',
+    'should handle FunctionTypeAnnotation with parameters and rest element (unknown type): %s',
     (givenType) => {
       const source = '(foo:boolean, ...rest: GivenType) -> any';
 
@@ -162,18 +166,20 @@ describe('FunctionTypeAnnotation handler', () => {
         anyTypeAnnotation()
       );
 
-      const expected = typeVariadicFunction(
+      const expected = typeFunction(
         [
-          functionTypeParam(
+          functionParamName(
             mockNodeWithValue(babelIdentifier('foo')),
             mockNodeWithValue(booleanTypeAnnotation())
           ),
+          functionTypeParamEllipse(
+            withTrailingConversionComment(
+              typeAny(),
+              `ROBLOX CHECK: check correct type of elements. Upstream type: <GivenType>`
+            )
+          ),
         ],
-        withTrailingConversionComment(
-          typeAny(),
-          `ROBLOX CHECK: check correct type of elements. Upstream type: <GivenType>`
-        ),
-        mockNodeWithValue(anyTypeAnnotation())
+        functionReturnType([mockNodeWithValue(anyTypeAnnotation())])
       );
 
       expect(handler(source, {}, given)).toEqual(expected);
@@ -187,7 +193,10 @@ describe('FunctionTypeAnnotation handler', () => {
       null,
       anyTypeAnnotation()
     );
-    const expected = typeFunction([], mockNodeWithValue(anyTypeAnnotation()));
+    const expected = typeFunction(
+      [],
+      functionReturnType([mockNodeWithValue(anyTypeAnnotation())])
+    );
 
     expect(handler(source, {}, given)).toEqual(expected);
   });
@@ -201,7 +210,7 @@ describe('FunctionTypeAnnotation handler', () => {
     );
     const expected = typeFunction(
       [],
-      mockNodeWithValue(anyTypeAnnotation()),
+      functionReturnType([mockNodeWithValue(anyTypeAnnotation())]),
       typeParameterDeclaration([typeReference(identifier('T'))])
     );
 
@@ -223,10 +232,13 @@ describe('FunctionTypeAnnotation handler', () => {
       ),
       anyTypeAnnotation()
     );
-    const expected = typeVariadicFunction(
-      [],
-      mockNodeWithValue(genericTypeAnnotation(babelIdentifier('T'))),
-      mockNodeWithValue(anyTypeAnnotation()),
+    const expected = typeFunction(
+      [
+        functionTypeParamEllipse(
+          mockNodeWithValue(genericTypeAnnotation(babelIdentifier('T')))
+        ),
+      ],
+      functionReturnType([mockNodeWithValue(anyTypeAnnotation())]),
       typeParameterDeclaration([typeReference(identifier('T'))])
     );
 
@@ -252,7 +264,7 @@ describe('FunctionTypeAnnotation handler', () => {
       );
       const expected = typeFunction(
         [],
-        mockNodeWithValue(anyTypeAnnotation()),
+        functionReturnType([mockNodeWithValue(anyTypeAnnotation())]),
         typeParameterDeclaration([
           withTrailingConversionComment(
             typeReference(identifier('T')),
@@ -279,7 +291,7 @@ describe('FunctionTypeAnnotation handler', () => {
       );
       const expected = typeFunction(
         [],
-        mockNodeWithValue(anyTypeAnnotation()),
+        functionReturnType([mockNodeWithValue(anyTypeAnnotation())]),
         typeParameterDeclaration([
           withTrailingConversionComment(
             typeReference(identifier('T')),
@@ -311,7 +323,7 @@ describe('FunctionTypeAnnotation handler', () => {
       );
       const expected = typeFunction(
         [],
-        mockNodeWithValue(anyTypeAnnotation()),
+        functionReturnType([mockNodeWithValue(anyTypeAnnotation())]),
         typeParameterDeclaration([
           withTrailingConversionComment(
             typeReference(identifier('T')),

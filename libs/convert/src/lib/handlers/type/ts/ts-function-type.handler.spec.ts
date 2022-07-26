@@ -17,7 +17,9 @@ import {
 } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
-  functionTypeParam,
+  functionParamName,
+  functionReturnType,
+  functionTypeParamEllipse,
   identifier,
   typeAny,
   typeBoolean,
@@ -25,7 +27,6 @@ import {
   typeParameterDeclaration,
   typeReference,
   typeString,
-  typeVariadicFunction,
 } from '@js-to-lua/lua-types';
 import { expressionHandler } from '../../expression-statement.handler';
 import { createIdentifierHandler } from '../../expression/identifier.handler';
@@ -52,7 +53,7 @@ describe('TSFunctionType handler', () => {
 
   it('should handle TSFunctionType with no parameters', () => {
     const given = tsFunctionType(null, [], tsTypeAnnotation(tsAnyKeyword()));
-    const expected = typeFunction([], typeAny());
+    const expected = typeFunction([], functionReturnType([typeAny()]));
 
     expect(tsFunctionTypeHandler(source, {}, given)).toEqual(expected);
   });
@@ -69,8 +70,8 @@ describe('TSFunctionType handler', () => {
       tsTypeAnnotation(tsAnyKeyword())
     );
     const expected = typeFunction(
-      [functionTypeParam(identifier('foo'), typeBoolean())],
-      typeAny()
+      [functionParamName(identifier('foo'), typeBoolean())],
+      functionReturnType([typeAny()])
     );
 
     expect(tsFunctionTypeHandler(source, {}, given)).toEqual(expected);
@@ -91,10 +92,12 @@ describe('TSFunctionType handler', () => {
       ],
       tsTypeAnnotation(tsAnyKeyword())
     );
-    const expected = typeVariadicFunction(
-      [functionTypeParam(identifier('foo'), typeBoolean())],
-      typeString(),
-      typeAny()
+    const expected = typeFunction(
+      [
+        functionParamName(identifier('foo'), typeBoolean()),
+        functionTypeParamEllipse(typeString()),
+      ],
+      functionReturnType([typeAny()])
     );
 
     expect(tsFunctionTypeHandler(source, {}, given)).toEqual(expected);
@@ -120,13 +123,17 @@ describe('TSFunctionType handler', () => {
       ],
       tsTypeAnnotation(tsAnyKeyword())
     );
-    const expected = typeVariadicFunction(
-      [functionTypeParam(identifier('foo'), typeBoolean())],
-      withTrailingConversionComment(
-        typeAny(),
-        'ROBLOX CHECK: check correct type of elements. Upstream type: <Args>'
-      ),
-      typeAny()
+    const expected = typeFunction(
+      [
+        functionParamName(identifier('foo'), typeBoolean()),
+        functionTypeParamEllipse(
+          withTrailingConversionComment(
+            typeAny(),
+            'ROBLOX CHECK: check correct type of elements. Upstream type: <Args>'
+          )
+        ),
+      ],
+      functionReturnType([typeAny()])
     );
 
     expect(tsFunctionTypeHandler(source, {}, given)).toEqual(expected);
@@ -147,8 +154,8 @@ describe('TSFunctionType handler', () => {
       tsTypeAnnotation(tsAnyKeyword())
     );
     const expected = typeFunction(
-      [functionTypeParam(identifier('foo'), typeBoolean())],
-      typeAny(),
+      [functionParamName(identifier('foo'), typeBoolean())],
+      functionReturnType([typeAny()]),
       typeParameterDeclaration([
         typeReference(identifier('T')),
         typeReference(identifier('U')),

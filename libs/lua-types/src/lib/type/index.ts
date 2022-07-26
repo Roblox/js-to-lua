@@ -4,6 +4,7 @@ export * from './type-annotation';
 export * from './type-any';
 export * from './type-boolean';
 export * from './type-function';
+export * from './type-function-param';
 export * from './type-function-return-type';
 export * from './type-index-signature';
 export * from './type-intersection';
