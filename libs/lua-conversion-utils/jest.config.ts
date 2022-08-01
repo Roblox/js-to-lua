@@ -1,5 +1,5 @@
-module.exports = {
-  displayName: 'lua-print',
+export default {
+  displayName: 'lua-conversion-utils',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,5 +11,5 @@ module.exports = {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/lua-print',
+  coverageDirectory: '../../coverage/libs/lua-conversion-utils',
 };

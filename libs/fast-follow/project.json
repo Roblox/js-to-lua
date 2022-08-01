@@ -1,5 +1,5 @@
 {
-  "root": "libs/fast-follow",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/fast-follow/src",
   "projectType": "library",
   "targets": {
@@ -14,12 +14,12 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/fast-follow"],
       "options": {
-        "jestConfig": "libs/fast-follow/jest.config.js",
+        "jestConfig": "libs/fast-follow/jest.config.ts",
         "passWithNoTests": true
       }
     },
     "build": {
-      "executor": "@nrwl/node:package",
+      "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/fast-follow",

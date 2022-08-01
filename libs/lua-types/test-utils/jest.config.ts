@@ -1,6 +1,6 @@
-module.exports = {
-  displayName: 'release-tracker',
-  preset: '../../jest.preset.js',
+export default {
+  displayName: 'lua-types-test-utils',
+  preset: '../../../jest.preset.js',
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
@@ -11,5 +11,5 @@ module.exports = {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/release-tracker',
+  coverageDirectory: '../../../coverage/libs/lua-types/test-utils',
 };

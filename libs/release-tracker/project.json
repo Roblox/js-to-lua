@@ -1,5 +1,5 @@
 {
-  "root": "libs/release-tracker",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/release-tracker/src",
   "projectType": "library",
   "targets": {
@@ -14,12 +14,12 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/release-tracker"],
       "options": {
-        "jestConfig": "libs/release-tracker/jest.config.js",
+        "jestConfig": "libs/release-tracker/jest.config.ts",
         "passWithNoTests": true
       }
     },
     "build": {
-      "executor": "@nrwl/node:package",
+      "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/release-tracker",

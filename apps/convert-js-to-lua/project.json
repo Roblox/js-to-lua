@@ -1,10 +1,10 @@
 {
-  "root": "apps/convert-js-to-lua",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/convert-js-to-lua/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/node:build",
+      "executor": "@nrwl/node:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/convert-js-to-lua",
@@ -30,7 +30,7 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/node:execute",
+      "executor": "@nrwl/node:node",
       "options": {
         "buildTarget": "convert-js-to-lua:build"
       }
@@ -46,12 +46,12 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/apps/convert-js-to-lua"],
       "options": {
-        "jestConfig": "apps/convert-js-to-lua/jest.config.js",
+        "jestConfig": "apps/convert-js-to-lua/jest.config.ts",
         "passWithNoTests": true
       },
       "configurations": {
         "conformance": {
-          "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.js"
+          "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.ts"
         }
       }
     },

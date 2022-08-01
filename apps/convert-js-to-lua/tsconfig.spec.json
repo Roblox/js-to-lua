@@ -9,6 +9,8 @@
     "**/*.spec.ts",
     "**/*.test.ts",
     "**/*.d.ts",
-    "conformance-tests/conformance-tests.ts"
+    "conformance-tests/conformance-tests.ts",
+    "jest.config.ts",
+    "jest-conformance.config.ts"
   ]
 }

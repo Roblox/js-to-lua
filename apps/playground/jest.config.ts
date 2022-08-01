@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   displayName: 'playground',
   preset: '../../jest.preset.js',
   globals: {

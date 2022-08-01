@@ -1,5 +1,5 @@
 {
-  "root": "libs/handler-utils",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/handler-utils/src",
   "projectType": "library",
   "targets": {
@@ -14,7 +14,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/handler-utils"],
       "options": {
-        "jestConfig": "libs/handler-utils/jest.config.js",
+        "jestConfig": "libs/handler-utils/jest.config.ts",
         "passWithNoTests": true
       }
     }

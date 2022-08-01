@@ -9,7 +9,9 @@
     "**/*.spec.ts",
     "**/*.test.ts",
     "src/fixtures/**",
-    "conformance-tests/**"
+    "conformance-tests/**",
+    "jest.config.ts",
+    "jest-conformance.config.ts"
   ],
   "include": ["**/*.ts"]
 }

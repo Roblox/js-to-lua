@@ -1,5 +1,5 @@
 {
-  "root": "libs/lua-print",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/lua-print/src",
   "projectType": "library",
   "targets": {
@@ -14,7 +14,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/lua-print"],
       "options": {
-        "jestConfig": "libs/lua-print/jest.config.js",
+        "jestConfig": "libs/lua-print/jest.config.ts",
         "passWithNoTests": true
       }
     }

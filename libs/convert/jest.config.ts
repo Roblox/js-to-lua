@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   displayName: 'convert',
   preset: '../../jest.preset.js',
   globals: {

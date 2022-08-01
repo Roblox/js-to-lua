@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   displayName: 'convert-js-to-lua',
   preset: '../../jest.preset.js',
   globals: {

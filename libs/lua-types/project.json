@@ -1,5 +1,5 @@
 {
-  "root": "libs/lua-types",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/lua-types/src",
   "projectType": "library",
   "targets": {
@@ -14,7 +14,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/libs/lua-types"],
       "options": {
-        "jestConfig": "libs/lua-types/jest.config.js",
+        "jestConfig": "libs/lua-types/jest.config.ts",
         "passWithNoTests": true
       }
     }

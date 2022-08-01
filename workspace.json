@@ -13,5 +13,6 @@
     "release-tracker": "libs/release-tracker",
     "shared-utils": "libs/shared-utils",
     "stylua-wasm": "libs/stylua-wasm"
-  }
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }
