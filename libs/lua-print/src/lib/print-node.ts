@@ -12,6 +12,7 @@ import {
   LuaNode,
   LuaNodeGroup,
 } from '@js-to-lua/lua-types';
+import { fmt, PrintableNode } from '@js-to-lua/shared-utils';
 import { anyPass, last } from 'ramda';
 import { checkPrecedence } from './check-precedence';
 import { createPrintPropertySignature } from './declaration/print-property-signature';
@@ -28,7 +29,6 @@ import { createPrintTableConstructor } from './expression/table-constructor/prin
 import { createPrintTableExpressionKeyField } from './expression/table-constructor/print-table-expression-key-field';
 import { createPrintTableKeyField } from './expression/table-constructor/print-table-key-field';
 import { createPrintTableNoKeyField } from './expression/table-constructor/print-table-no-key-field';
-import { fmt, PrintableNode } from './fmt';
 import { printMultilineString } from './primitives/print-multiline-string';
 import { printNumeric } from './primitives/print-numeric';
 import { printString } from './primitives/print-string';
@@ -137,7 +137,7 @@ export function getPrintSections<N extends LuaNode | LuaNodeGroup>(
 export function printNode<N extends LuaNode | LuaNodeGroup>(
   node: N,
   nodePrintFn: (node: N) => PrintableNode | string = _printNode
-): string {
+): string | PrintableNode {
   const {
     leadingComments,
     leadSeparator,
@@ -148,7 +148,7 @@ export function printNode<N extends LuaNode | LuaNodeGroup>(
 
   return fmt`${leadingComments}${
     leadSeparator === '\n' && leadingComments.needsNewLine ? '' : leadSeparator
-  }${nodeStr}${trailingSeparator}${trailingComments}`.toString();
+  }${nodeStr}${trailingSeparator}${trailingComments}`;
 }
 
 const _printNode = (node: LuaNode): PrintableNode | string => {
@@ -335,7 +335,7 @@ function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
 
   const returnType = node.returnType ? `: ${printNode(node.returnType)}` : '';
 
-  const body = printNode(node.body);
+  const body = printNode(node.body).toString();
 
   const innerComments = '';
   _printComments(getPrintableInnerComments(node.innerComments));

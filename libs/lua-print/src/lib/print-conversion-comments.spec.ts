@@ -10,7 +10,7 @@ describe('Print conversion comment', () => {
     );
     const expected = `error("not implemented") --[[ some simple comment ]]`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print conversion comment with [[ inside', () => {
@@ -20,7 +20,7 @@ describe('Print conversion comment', () => {
     );
     const expected = `error("not implemented") --[=[ some comment with [[ ]=]`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print conversion comment with ]] inside', () => {
@@ -30,7 +30,7 @@ describe('Print conversion comment', () => {
     );
     const expected = `error("not implemented") --[=[ some comment with ]] ]=]`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print conversion comment with [[ and ]] inside', () => {
@@ -40,7 +40,7 @@ describe('Print conversion comment', () => {
     );
     const expected = `error("not implemented") --[=[ some [[ comment ]] ]=]`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print conversion comment with [=[ and ]=] inside', () => {
@@ -50,6 +50,6 @@ describe('Print conversion comment', () => {
     );
     const expected = `error("not implemented") --[[ some [=[ comment ]=] ]]`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 });

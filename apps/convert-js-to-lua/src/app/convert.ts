@@ -25,5 +25,5 @@ export const convert =
       babelASTFile.program
     );
 
-    return printNode(luaASTProgram);
+    return String(printNode(luaASTProgram));
   };

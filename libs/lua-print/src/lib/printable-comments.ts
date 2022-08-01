@@ -8,8 +8,8 @@ import {
   isSameLineTrailingComment,
   LuaComment,
 } from '@js-to-lua/lua-types';
+import { printableNode, PrintableNode } from '@js-to-lua/shared-utils';
 import { last } from 'ramda';
-import { printableNode, PrintableNode } from './fmt';
 import { calculateEqualsForDelimiter } from './utils';
 
 const printedNodes = new Map();

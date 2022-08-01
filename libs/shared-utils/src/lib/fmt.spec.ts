@@ -113,17 +113,6 @@ describe('fmt', () => {
       expect(value).toEqual('fooString\n | barString');
       expect(needsNewLine).toBe(true);
     });
-
-    it('should format printable nodes when all need new line', () => {
-      const foo = printableNode('fooString', true);
-      const bar = printableNode('barString', true);
-      const fizz = printableNode('fizzString', true);
-
-      const { value, needsNewLine } = fmt`${foo} | ${bar} | ${fizz}`;
-
-      expect(value).toEqual('fooString\n | barString\n | fizzString');
-      expect(needsNewLine).toBe(true);
-    });
   });
 
   describe('with separators - new lines', () => {

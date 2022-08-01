@@ -1,4 +1,4 @@
-import { Expression, ObjectExpression } from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   AsStatementHandlerFunction,
   AsStatementReturnType,
@@ -16,7 +16,7 @@ import { createObjectExpressionWithSpreadAsStatementHandler } from './object-exp
 import { createObjectExpressionWithoutSpreadAsStatementHandler } from './object-expression-without-spread-as-statement.handler';
 
 export const createObjectExpressionAsStatementHandler = (
-  expressionHandlerFunction: HandlerFunction<LuaExpression, Expression>,
+  expressionHandlerFunction: HandlerFunction<LuaExpression, Babel.Expression>,
   objectFieldHandlerAsStatementFunction: AsStatementHandlerFunction<
     LuaStatement,
     NoSpreadObjectProperty,
@@ -36,10 +36,12 @@ export const createObjectExpressionAsStatementHandler = (
 
   return createAsStatementHandler(
     'ObjectExpression',
-    (source, config, expression: ObjectExpression): AsStatementReturnType => {
-      return expression.properties.every(
-        (prop) => prop.type !== 'SpreadElement'
-      )
+    (
+      source,
+      config,
+      expression: Babel.ObjectExpression
+    ): AsStatementReturnType => {
+      return expression.properties.every((prop) => !Babel.isSpreadElement(prop))
         ? handleObjectExpressionWithoutSpreadAsStatement(
             source,
             config,

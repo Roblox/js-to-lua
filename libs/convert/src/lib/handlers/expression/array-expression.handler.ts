@@ -1,9 +1,4 @@
-import {
-  ArrayExpression,
-  Expression,
-  isSpreadElement,
-  SpreadElement,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   BaseNodeHandler,
   createHandler,
@@ -21,18 +16,18 @@ import {
 import { isTruthy, splitBy, Unpacked } from '@js-to-lua/shared-utils';
 import { createSpreadElementPropertiesHandler } from './spread-element-properties.handler';
 
-type ArrayExpressionElement = Unpacked<ArrayExpression['elements']>;
+type ArrayExpressionElement = Unpacked<Babel.ArrayExpression['elements']>;
 
 export const createArrayExpressionHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>
 ): BaseNodeHandler<
   LuaTableConstructor | LuaCallExpression,
-  ArrayExpression
+  Babel.ArrayExpression
 > => {
   const handleExpressionTableNoKeyFieldHandler: HandlerFunction<
     LuaTableNoKeyField,
-    Expression
-  > = createHandlerFunction((source, config, expression: Expression) =>
+    Babel.Expression
+  > = createHandlerFunction((source, config, expression: Babel.Expression) =>
     tableNoKeyField(handleExpression(source, config, expression))
   );
 
@@ -41,25 +36,27 @@ export const createArrayExpressionHandler = (
 
   const handleArrayExpressionWithSpread: HandlerFunction<
     LuaCallExpression,
-    ArrayExpression
-  > = createHandlerFunction((source, config, expression: ArrayExpression) => {
-    const propertiesGroups = expression.elements
-      .filter(isTruthy)
-      .reduce(
-        splitBy<NonNullable<ArrayExpressionElement>, SpreadElement>(
-          isSpreadElement
-        ),
-        []
+    Babel.ArrayExpression
+  > = createHandlerFunction(
+    (source, config, expression: Babel.ArrayExpression) => {
+      const propertiesGroups = expression.elements
+        .filter(isTruthy)
+        .reduce(
+          splitBy<NonNullable<ArrayExpressionElement>, Babel.SpreadElement>(
+            Babel.isSpreadElement
+          ),
+          []
+        );
+
+      return spreadElementPropertiesHandler(
+        source,
+        { ...config, forceConcat: true },
+        propertiesGroups
       );
+    }
+  );
 
-    return spreadElementPropertiesHandler(
-      source,
-      { ...config, forceConcat: true },
-      propertiesGroups
-    );
-  });
-
-  type ArrayExpressionWithoutSpread = ArrayExpression;
+  type ArrayExpressionWithoutSpread = Babel.ArrayExpression;
   const handleArrayExpressionWithoutSpread: HandlerFunction<
     LuaTableConstructor,
     ArrayExpressionWithoutSpread
@@ -74,9 +71,9 @@ export const createArrayExpressionHandler = (
 
   return createHandler(
     'ArrayExpression',
-    (source, config, expression: ArrayExpression) =>
+    (source, config, expression: Babel.ArrayExpression) =>
       expression.elements.every(
-        (element) => !element || element.type !== 'SpreadElement'
+        (element) => !element || !Babel.isSpreadElement(element)
       )
         ? handleArrayExpressionWithoutSpread(source, config, expression)
         : handleArrayExpressionWithSpread(source, config, expression)

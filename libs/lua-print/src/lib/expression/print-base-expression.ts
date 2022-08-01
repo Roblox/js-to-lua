@@ -1,6 +1,6 @@
 import { isCommentLine, LuaExpression } from '@js-to-lua/lua-types';
+import { printableNode, PrintableNode } from '@js-to-lua/shared-utils';
 import { last } from 'ramda';
-import { PrintableNode, printableNode } from '../fmt';
 import { PrintNode } from '../print-node';
 
 export const createPrintBaseExpression =
@@ -15,7 +15,10 @@ export const createPrintBaseExpression =
       case 'CallExpression':
       case 'IndexExpression':
       case 'LuaMemberExpression':
-        return printableNode(printNode(base), baseHasTrailingSamelineComments);
+        return printableNode(
+          printNode(base).toString(),
+          baseHasTrailingSamelineComments
+        );
       default:
         return printableNode(
           `(${printNode(base)})`,

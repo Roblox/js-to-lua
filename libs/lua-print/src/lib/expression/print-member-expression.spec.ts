@@ -14,7 +14,7 @@ describe('Print Member Expression', () => {
     const given = memberExpression(identifier('foo'), '.', identifier('bar'));
     const expected = `foo.bar`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print member expression with table constructor and identifier', () => {
@@ -28,7 +28,7 @@ describe('Print Member Expression', () => {
     );
     const expected = `({1, 2}).foo`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print member expression with unhandled node and identifier', () => {
@@ -42,6 +42,6 @@ describe('Print Member Expression', () => {
     );
     const expected = `(error("not implemented") --[[ some conversion comment ]]).foo`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 });

@@ -17,10 +17,10 @@ export const createObjectExpressionWithoutSpreadHandler = (
   >
 ) => {
   return createHandlerFunction<LuaTableConstructor, ObjectExpression>(
-    (source, config, expression) =>
-      tableConstructor(
-        expression.properties.map(objectFieldHandlerFunction(source, config))
-      ),
+    (source, config, expression) => {
+      const handleObjectField = objectFieldHandlerFunction(source, config);
+      return tableConstructor(expression.properties.map(handleObjectField));
+    },
     { skipComments: true }
   );
 };

@@ -1,5 +1,5 @@
 import { LuaMemberExpression } from '@js-to-lua/lua-types';
-import { fmt, PrintableNode } from '../fmt';
+import { fmt, PrintableNode } from '@js-to-lua/shared-utils';
 import { PrintComments, PrintNode } from '../print-node';
 import { getPrintableInnerComments } from '../printable-comments';
 import { createPrintBaseExpression } from './print-base-expression';

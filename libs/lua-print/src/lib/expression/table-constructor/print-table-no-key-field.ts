@@ -5,5 +5,5 @@ import { PrinterFunction } from '../../printer-function';
 export const createPrintTableNoKeyField = (
   printNode: PrintNode
 ): PrinterFunction<LuaTableNoKeyField> => {
-  return (node): string => printNode(node.value);
+  return (node) => printNode(node.value);
 };

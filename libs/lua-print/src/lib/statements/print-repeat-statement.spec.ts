@@ -16,7 +16,7 @@ describe('Print repeat statement', () => {
     repeat
     until cond`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print with non-empty body', () => {
@@ -30,7 +30,7 @@ describe('Print repeat statement', () => {
     \tprint("foo");
     until cond`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print with empty body and inner comment', () => {
@@ -42,7 +42,7 @@ describe('Print repeat statement', () => {
     repeat --[[ conversion comment ]]
     until cond`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print with empty non-body and inner comment', () => {
@@ -59,6 +59,6 @@ describe('Print repeat statement', () => {
     \tprint("foo");
     until cond`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString().toString()).toEqual(expected);
   });
 });

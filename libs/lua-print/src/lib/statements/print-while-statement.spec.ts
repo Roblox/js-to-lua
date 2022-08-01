@@ -17,7 +17,7 @@ describe('Print while statement', () => {
     while cond do
     end`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print with non-empty body', () => {
@@ -33,7 +33,7 @@ describe('Print while statement', () => {
     \tprint("foo");
     end`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print with empty body and inner comment', () => {
@@ -45,7 +45,7 @@ describe('Print while statement', () => {
     while cond do --[[ conversion comment ]]
     end`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 
   it('should print with empty non-body and inner comment', () => {
@@ -64,6 +64,6 @@ describe('Print while statement', () => {
     \tprint("foo");
     end`;
 
-    expect(printNode(given)).toEqual(expected);
+    expect(printNode(given).toString()).toEqual(expected);
   });
 });
