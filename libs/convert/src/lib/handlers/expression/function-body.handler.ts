@@ -17,6 +17,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   asStatementReturnTypeToReturnStatement,
+  hasAnyComment,
   promiseMethod,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -106,9 +107,7 @@ export const createFunctionBodyHandler = (
           body: BlockStatement
         ) => {
           const handled = handleBody(source, config, body);
-          return handled.body.length || handled.innerComments?.length
-            ? [handled]
-            : [];
+          return handled.body.length || hasAnyComment(handled) ? [handled] : [];
         };
 
         return node.body.type === 'BlockStatement'

@@ -1,15 +1,18 @@
-import { tableUnpackCall } from '@js-to-lua/lua-conversion-utils';
+import {
+  tableUnpackCall,
+  withLeadingComments,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
   binaryExpression,
   callExpression,
+  commentBlock,
   functionDeclaration,
   functionExpression,
   identifier,
   ifClause,
   ifStatement,
-  LuaProgram,
   LuaStatement,
   memberExpression,
   nilLiteral,
@@ -39,8 +42,27 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo() {}
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         functionDeclaration(identifier('foo'), [], nodeGroup([])),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, {}, given);
+      expect(luaProgram).toEqual(expected);
+    });
+
+    it('should handle function with no params and comment', () => {
+      const given = getProgramNode(`
+        function foo() /* comment */ {}
+      `);
+      const expected = program([
+        functionDeclaration(
+          identifier('foo'),
+          [],
+          withLeadingComments(
+            nodeGroup([]),
+            commentBlock(' comment ', 'SameLineLeadingComment')
+          )
+        ),
       ]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -51,7 +73,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo(bar, baz) {}
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         functionDeclaration(
           identifier('foo'),
           [identifier('bar'), identifier('baz')],
@@ -67,7 +89,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo(bar?, baz?: string) {}
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         functionDeclaration(
           identifier('foo'),
           [
@@ -86,7 +108,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo({bar, baz}, [fizz,fuzz]) {}
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         functionDeclaration(
           identifier('foo'),
           [identifier('ref'), identifier('ref_')],
@@ -132,7 +154,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo(bar, baz = 'hello', fizz: string | number = 1) {}
       `);
-      const expected: LuaProgram = program([
+      const expected = program([
         functionDeclaration(
           identifier('foo'),
           [
@@ -185,7 +207,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected: LuaProgram = program([
+      const expected = program([
         functionDeclaration(
           identifier('foo'),
           [
@@ -225,7 +247,7 @@ describe('Program handler', () => {
           async function foo(bar, baz) {}
         `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           functionDeclaration(
             identifier('foo'),
             [identifier('bar'), identifier('baz')],
@@ -253,7 +275,7 @@ describe('Program handler', () => {
           async function foo(bar, baz = 'hello') {}
         `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           functionDeclaration(
             identifier('foo'),
             [
@@ -298,7 +320,7 @@ describe('Program handler', () => {
           }
         `);
 
-        const expected: LuaProgram = program([
+        const expected = program([
           functionDeclaration(
             identifier('foo'),
             [

@@ -20,8 +20,8 @@ describe('Program handler', () => {
   describe('TS Non Null Expression Handler', () => {
     it('should handle TSNonNullExpression in variable declaration', () => {
       const source = `
-      let foo = bar!
-    `;
+        let foo = bar!
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -40,9 +40,9 @@ describe('Program handler', () => {
 
     it('should handle TSNonNullExpression in function call params', () => {
       const source = `
-      foo(bar!)
-      foo!(bar!)
-    `;
+        foo(bar!)
+        foo!(bar!)
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -63,10 +63,10 @@ describe('Program handler', () => {
 
     it('should handle TSNonNullExpression in function return expression', () => {
       const source = `
-      function foo() {
-        return bar!
-      }
-    `;
+        function foo() {
+          return bar!
+        }
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -74,9 +74,7 @@ describe('Program handler', () => {
           identifier('foo'),
           [],
           nodeGroup([
-            nodeGroup([
-              returnStatement(typeCastExpression(identifier('bar'), typeAny())),
-            ]),
+            returnStatement(typeCastExpression(identifier('bar'), typeAny())),
           ])
         ),
       ]);
@@ -86,8 +84,8 @@ describe('Program handler', () => {
 
     it('should handle TSNonNullExpression in function index expression', () => {
       const source = `
-      const foo = bar[baz!]
-    `;
+        const foo = bar[baz!]
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -111,8 +109,8 @@ describe('Program handler', () => {
 
     it('should handle TSNonNullExpression in function index expression - second', () => {
       const source = `
-      const foo = bar![baz!]
-    `;
+        const foo = bar![baz!]
+      `;
       const given = getProgramNode(source);
 
       const expected = program([
@@ -136,8 +134,8 @@ describe('Program handler', () => {
 
     it('should handle double TSNonNullExpression', () => {
       const source = `
-      let foo = bar!!
-    `;
+        let foo = bar!!
+      `;
       const given = getProgramNode(source);
 
       const expected = program([

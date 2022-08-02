@@ -13,7 +13,10 @@ import {
   EmptyConfig,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
-import { removeIdTypeAnnotation } from '@js-to-lua/lua-conversion-utils';
+import {
+  removeIdTypeAnnotation,
+  unwrapNestedNodeGroups,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   functionDeclarationMultipleReturn,
   LuaDeclaration,
@@ -91,16 +94,19 @@ export function createConvertToFunctionDeclarationHandler(
       createFunctionReturnTypeHandler(handleTypeAnnotation);
     const returnType = handleReturnType(source, config, node);
 
+    const functionBody = unwrapNestedNodeGroups(
+      nodeGroup([
+        ...handleParamsBody(source, config, node),
+        ...handleFunctionBody(node),
+      ])
+    );
     return id.typeAnnotation
       ? nodeGroup([
           variableDeclaration([variableDeclaratorIdentifier(id)], []),
           functionDeclarationMultipleReturn(
             removeIdTypeAnnotation(id),
             functionParamsHandler(source, config, node),
-            nodeGroup([
-              ...handleParamsBody(source, config, node),
-              ...handleFunctionBody(node),
-            ]),
+            functionBody,
             returnType,
             false,
             typeParameters
@@ -109,10 +115,7 @@ export function createConvertToFunctionDeclarationHandler(
       : functionDeclarationMultipleReturn(
           id,
           functionParamsHandler(source, config, node),
-          nodeGroup([
-            ...handleParamsBody(source, config, node),
-            ...handleFunctionBody(node),
-          ]),
+          functionBody,
           returnType,
           true,
           typeParameters

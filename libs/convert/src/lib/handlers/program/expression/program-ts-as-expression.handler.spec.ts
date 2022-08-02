@@ -68,9 +68,7 @@ describe('Program handler', () => {
           identifier('foo'),
           [],
           nodeGroup([
-            nodeGroup([
-              returnStatement(typeCastExpression(identifier('bar'), typeAny())),
-            ]),
+            returnStatement(typeCastExpression(identifier('bar'), typeAny())),
           ])
         ),
       ]);

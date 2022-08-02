@@ -23,7 +23,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('func'),
           [],
-          nodeGroup([nodeGroup([returnStatement()])])
+          nodeGroup([returnStatement()])
         ),
       ]);
 
@@ -40,7 +40,7 @@ describe('Program handler', () => {
         functionDeclaration(
           identifier('func'),
           [],
-          nodeGroup([nodeGroup([returnStatement(identifier('foo'))])])
+          nodeGroup([returnStatement(identifier('foo'))])
         ),
       ]);
 
@@ -58,16 +58,12 @@ describe('Program handler', () => {
           identifier('func'),
           [],
           nodeGroup([
-            nodeGroup([
-              nodeGroup([
-                assignmentStatement(
-                  AssignmentStatementOperatorEnum.EQ,
-                  [identifier('foo')],
-                  [identifier('bar')]
-                ),
-                returnStatement(identifier('foo')),
-              ]),
-            ]),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('foo')],
+              [identifier('bar')]
+            ),
+            returnStatement(identifier('foo')),
           ])
         ),
       ]);
