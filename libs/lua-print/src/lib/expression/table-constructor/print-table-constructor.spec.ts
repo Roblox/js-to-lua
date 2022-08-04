@@ -70,7 +70,7 @@ describe('Print Table Constructor', () => {
       ),
     ]);
     const expected =
-      '{sound = "bla", method1 = function(self) end, method2 = function(self, name) end}';
+      '{sound = "bla", method1 = function(self) end, method2 = function(self,name) end}';
 
     expect(printTableConstructor(given).toString()).toEqual(expected);
   });

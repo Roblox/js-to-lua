@@ -12,7 +12,7 @@ import {
   LuaNode,
   LuaNodeGroup,
 } from '@js-to-lua/lua-types';
-import { fmt, PrintableNode } from '@js-to-lua/shared-utils';
+import { fmt, fmtJoin, PrintableNode } from '@js-to-lua/shared-utils';
 import { anyPass, last } from 'ramda';
 import { checkPrecedence } from './check-precedence';
 import { createPrintPropertySignature } from './declaration/print-property-signature';
@@ -323,15 +323,21 @@ function printCalleeExpression(callee: LuaExpression): string {
   }
 }
 
-function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
+export function printFunction(
+  node: LuaFunctionExpression | LuaFunctionDeclaration
+) {
   const name = isFunctionDeclaration(node)
     ? ` ${printNode({ ...node.id, typeAnnotation: undefined })}${
         node.typeParams ? printNode(node.typeParams) : ''
       }`
     : '';
-  const parameters = node.params
-    .map((parameter) => printNode(parameter))
-    .join(', ');
+  const parameters = fmtJoin(
+    '',
+    node.params.map((parameter, index, arr) => {
+      const separator = index === arr.length - 1 ? '' : ',';
+      return printNode(parameter, (p) => `${_printNode(p)}${separator}`);
+    })
+  );
 
   const returnType = node.returnType ? `: ${printNode(node.returnType)}` : '';
 
@@ -340,7 +346,7 @@ function printFunction(node: LuaFunctionExpression | LuaFunctionDeclaration) {
   const innerComments = '';
   _printComments(getPrintableInnerComments(node.innerComments));
 
-  return `function${name}(${parameters})${returnType}${innerComments}${
+  return fmt`function${name}(${parameters})${returnType}${innerComments}${
     body ? `\n${body}\n` : ' '
   }end`;
 }
