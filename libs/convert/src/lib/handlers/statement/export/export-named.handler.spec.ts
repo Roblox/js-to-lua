@@ -1,13 +1,4 @@
-import {
-  blockStatement as babelBlockStatement,
-  exportNamedDeclaration as babelExportNamedDeclaration,
-  exportSpecifier as babelExportSpecifier,
-  functionDeclaration as babelFunctionDeclaration,
-  identifier as babelIdentifier,
-  stringLiteral as babelStringLiteral,
-  variableDeclaration as babelVariableDeclaration,
-  variableDeclarator as babelVariableDeclarator,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   forwardAsStatementHandlerRef,
   forwardHandlerFunctionRef,
@@ -18,24 +9,27 @@ import {
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
+  blockStatement,
   functionDeclaration,
   identifier,
   indexExpression,
   memberExpression,
   nodeGroup,
   stringLiteral,
+  tableConstructor,
   variableDeclaration,
   variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import {
-  expressionHandler,
   expressionAsStatementHandler,
-  objectFieldHandler,
+  expressionHandler,
   handleObjectKeyExpression,
   handleObjectPropertyIdentifier,
   handleObjectPropertyValue,
+  objectFieldHandler,
   statementHandler,
 } from '../../expression-statement.handler';
 import {
@@ -87,9 +81,9 @@ const source = '';
 
 describe('Export Named Handler', () => {
   it(`should export named variable declaration`, () => {
-    const given = babelExportNamedDeclaration(
-      babelVariableDeclaration('const', [
-        babelVariableDeclarator(babelIdentifier('foo')),
+    const given = Babel.exportNamedDeclaration(
+      Babel.variableDeclaration('const', [
+        Babel.variableDeclarator(Babel.identifier('foo')),
       ])
     );
 
@@ -109,11 +103,11 @@ describe('Export Named Handler', () => {
   });
 
   it(`should export named function declaration`, () => {
-    const given = babelExportNamedDeclaration(
-      babelFunctionDeclaration(
-        babelIdentifier('foo'),
+    const given = Babel.exportNamedDeclaration(
+      Babel.functionDeclaration(
+        Babel.identifier('foo'),
         [],
-        babelBlockStatement([])
+        Babel.blockStatement([])
       )
     );
 
@@ -129,10 +123,46 @@ describe('Export Named Handler', () => {
     expect(handler(source, {}, given)).toEqual(expected);
   });
 
+  it(`should export namespace`, () => {
+    const given = Babel.exportNamedDeclaration(
+      Babel.tsModuleDeclaration(
+        Babel.identifier('Foo'),
+        Babel.tsModuleBlock([
+          Babel.variableDeclaration('const', [
+            Babel.variableDeclarator(
+              Babel.identifier('foo'),
+              Babel.identifier('bar')
+            ),
+          ]),
+        ])
+      )
+    );
+
+    const expected = nodeGroup([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('Foo'))],
+        [variableDeclaratorValue(tableConstructor())]
+      ),
+      blockStatement([
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('foo'))],
+          [variableDeclaratorValue(identifier('bar'))]
+        ),
+      ]),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [memberExpression(identifier('exports'), '.', identifier('Foo'))],
+        [identifier('Foo')]
+      ),
+    ]);
+
+    expect(handler(source, {}, given)).toEqual(expected);
+  });
+
   it(`should export named list`, () => {
-    const given = babelExportNamedDeclaration(undefined, [
-      babelExportSpecifier(babelIdentifier('foo'), babelIdentifier('foo')),
-      babelExportSpecifier(babelIdentifier('bar'), babelIdentifier('bar')),
+    const given = Babel.exportNamedDeclaration(undefined, [
+      Babel.exportSpecifier(Babel.identifier('foo'), Babel.identifier('foo')),
+      Babel.exportSpecifier(Babel.identifier('bar'), Babel.identifier('bar')),
     ]);
 
     const expected = nodeGroup([
@@ -152,9 +182,9 @@ describe('Export Named Handler', () => {
   });
 
   it(`should export named list with alias identifiers`, () => {
-    const given = babelExportNamedDeclaration(undefined, [
-      babelExportSpecifier(babelIdentifier('foo'), babelIdentifier('foo1')),
-      babelExportSpecifier(babelIdentifier('bar'), babelIdentifier('bar1')),
+    const given = Babel.exportNamedDeclaration(undefined, [
+      Babel.exportSpecifier(Babel.identifier('foo'), Babel.identifier('foo1')),
+      Babel.exportSpecifier(Babel.identifier('bar'), Babel.identifier('bar1')),
     ]);
 
     const expected = nodeGroup([
@@ -174,9 +204,15 @@ describe('Export Named Handler', () => {
   });
 
   it(`should export named list with alias string literals`, () => {
-    const given = babelExportNamedDeclaration(undefined, [
-      babelExportSpecifier(babelIdentifier('foo'), babelStringLiteral('foo-1')),
-      babelExportSpecifier(babelIdentifier('bar'), babelStringLiteral('bar-1')),
+    const given = Babel.exportNamedDeclaration(undefined, [
+      Babel.exportSpecifier(
+        Babel.identifier('foo'),
+        Babel.stringLiteral('foo-1')
+      ),
+      Babel.exportSpecifier(
+        Babel.identifier('bar'),
+        Babel.stringLiteral('bar-1')
+      ),
     ]);
 
     const expected = nodeGroup([

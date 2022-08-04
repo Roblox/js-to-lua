@@ -2,7 +2,7 @@ import { Declaration, Expression, Identifier } from '@babel/types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   combineStatementHandlers,
-  withExtras,
+  withExportsExtras,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaDeclaration,
@@ -34,7 +34,6 @@ export const createExportHandler = (
       createExportAllHandler(),
     ]
   );
-  const withExportsExtras = withExtras({ doesExport: true });
   return createHandler(
     type,
     (source: string, config, node: Declaration) =>

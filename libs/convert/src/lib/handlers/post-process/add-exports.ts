@@ -1,3 +1,4 @@
+import { isWithExportsExtras } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaProgram,
   returnStatement,
@@ -9,7 +10,7 @@ import {
 import { exportsIdentifier } from './common-identifiers';
 
 export function addExports(program: LuaProgram): LuaProgram {
-  return program.extras?.doesExport
+  return isWithExportsExtras(program)
     ? {
         ...program,
         body: [

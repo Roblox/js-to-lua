@@ -18,6 +18,7 @@ import {
 import {
   createExpressionStatement,
   defaultStatementHandler,
+  isWithExportSkipExtras,
   removeIdTypeAnnotation,
   unwrapNodeGroup,
 } from '@js-to-lua/lua-conversion-utils';
@@ -153,6 +154,9 @@ export const createExportDefaultHandler = (
 const getDeclarationId = (
   declaration: LuaExpression | LuaDeclaration | LuaNodeGroup
 ): Array<LuaLVal | LuaTableConstructor | LuaExpression> => {
+  if (isWithExportSkipExtras(declaration)) {
+    return [];
+  }
   switch (declaration.type) {
     case 'FunctionDeclaration':
     case 'LuaTypeAliasDeclaration':

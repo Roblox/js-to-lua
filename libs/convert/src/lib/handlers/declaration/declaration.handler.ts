@@ -35,6 +35,7 @@ import { createFlowInterfaceHandler } from './flow-interface-declaration.handler
 import { createFunctionDeclarationHandler } from './function-declaration.handler';
 import { createTsEnumHandler } from './ts-enum-declaration.handler';
 import { createTsInterfaceHandler } from './ts-interface-declaration.handler';
+import { createTsModuleDeclarationHandler } from './ts-module-declaration.handler';
 import { createTypeAliasDeclarationHandler } from './type-alias-declaration.handler';
 import { createVariableDeclarationHandler } from './variable-declaration.handler';
 
@@ -64,7 +65,7 @@ export const createDeclarationHandler = (
     Expression | PatternLike
   >,
   handleLVal: HandlerFunction<LuaLVal, LVal>
-): BaseNodeHandler<LuaNodeGroup | LuaDeclaration, Declaration> => {
+) => {
   const { handleTypeAnnotation, handleType } = createTypeAnnotationHandler(
     handleExpression,
     handleIdentifierStrict
@@ -121,6 +122,7 @@ export const createDeclarationHandler = (
       handleTypeAnnotation,
       handleType.handler
     ),
+    createTsModuleDeclarationHandler(handleStatement),
   ]);
 
   return declarationHandler;

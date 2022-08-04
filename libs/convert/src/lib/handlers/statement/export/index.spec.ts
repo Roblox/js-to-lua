@@ -12,7 +12,7 @@ import {
   testUtils,
 } from '@js-to-lua/handler-utils';
 
-import { withExtras } from '@js-to-lua/lua-conversion-utils';
+import { withExportsExtras } from '@js-to-lua/lua-conversion-utils';
 import {
   assignmentStatement,
   AssignmentStatementOperatorEnum,
@@ -24,12 +24,12 @@ import {
 } from '@js-to-lua/lua-types';
 import { createDeclarationHandler } from '../../declaration/declaration.handler';
 import {
-  expressionHandler,
   expressionAsStatementHandler,
-  objectFieldHandler,
+  expressionHandler,
   handleObjectKeyExpression,
   handleObjectPropertyIdentifier,
   handleObjectPropertyValue,
+  objectFieldHandler,
   statementHandler,
 } from '../../expression-statement.handler';
 import {
@@ -80,8 +80,6 @@ const { handler } = createExportHandler(
 const source = '';
 
 describe('Export Handler', () => {
-  const withExportExtras = withExtras({ doesExport: true });
-
   it(`should add export named 'doesExport' extra to export named`, () => {
     const given = babelExportNamedDeclaration(
       babelVariableDeclaration('const', [
@@ -89,7 +87,7 @@ describe('Export Handler', () => {
       ])
     );
 
-    const expected = withExportExtras(
+    const expected = withExportsExtras(
       nodeGroup([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
@@ -109,7 +107,7 @@ describe('Export Handler', () => {
   it(`should add export named 'doesExport' extra to export default`, () => {
     const given = babelExportDefaultDeclaration(babelIdentifier('foo'));
 
-    const expected = withExportExtras(
+    const expected = withExportsExtras(
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('exports'), '.', identifier('default'))],

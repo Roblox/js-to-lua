@@ -7,6 +7,7 @@ import {
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   defaultStatementHandler,
+  isWithExportSkipExtras,
   removeIdTypeAnnotation,
   unwrapNodeGroup,
 } from '@js-to-lua/lua-conversion-utils';
@@ -39,10 +40,7 @@ import { createExportSpecifierHandler } from './export-specifier.handler';
 import { createExtractDeclarationMetadata } from './extract-declaration-metadata';
 
 export const createExportNamedHandler = (
-  handleDeclaration: HandlerFunction<
-    LuaDeclaration | LuaNodeGroup,
-    Declaration
-  >,
+  handleDeclaration: HandlerFunction<LuaStatement, Declaration>,
   handleExpression: HandlerFunction<LuaExpression, Expression>,
   handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
 ) => {
@@ -137,8 +135,11 @@ export const createExportNamedHandler = (
 };
 
 const getDeclarationId = (
-  declaration: LuaDeclaration | LuaNodeGroup
+  declaration: LuaDeclaration | LuaNodeGroup | LuaStatement
 ): Array<LuaLVal | LuaTypeAliasDeclaration> => {
+  if (isWithExportSkipExtras(declaration)) {
+    return [];
+  }
   switch (declaration.type) {
     case 'FunctionDeclaration':
       return [declaration.id];
@@ -170,6 +171,6 @@ const getDeclarationId = (
         },
       ];
     default:
-      return [declaration];
+      return [];
   }
 };
