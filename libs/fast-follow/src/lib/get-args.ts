@@ -1,15 +1,42 @@
 import * as yargs from 'yargs';
+import { CompareOptions } from './commands/compare';
 
 export function setupCommands({
   scanReleases,
   scanCommits,
+  compareDownstreams,
 }: {
   scanReleases: (owner: string, repo: string, channel: string) => Promise<void>;
   scanCommits: (owner: string, repo: string, channel: string) => Promise<void>;
+  compareDownstreams: (options: CompareOptions) => Promise<void>;
 }) {
   return yargs
     .scriptName('fast-follow')
     .usage('$0 command [args]')
+    .command(
+      'compare',
+      'compare changes in upstream between js-to-lua versions',
+      (yargs) =>
+        yargs
+          .option('outDir', {
+            alias: ['out-dir', 'o'],
+            type: 'string',
+            describe: 'location to dump patch files',
+            requiresArg: true,
+          })
+          .option('pullRequest', {
+            alias: ['pull-request', 'p'],
+            type: 'boolean',
+            describe:
+              'open or update a pull request in the downstream repository',
+            default: false,
+          }),
+      async (argv) => {
+        const { outDir, pullRequest } = argv;
+
+        return compareDownstreams({ outDir, pullRequest });
+      }
+    )
     .command(
       'release-scan',
       'scan a repository for new releases and notify about changes made upstream.',

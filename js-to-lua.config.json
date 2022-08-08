@@ -1,0 +1,10 @@
+{
+  "lastSync": {
+    "ref": "22edb9f777d27369fd2c1fad378f74e237b6dfd3",
+    "conversionToolVersion": "ee85735b8dcec492526c85830d5d9fc6fc42f2a0"
+  },
+  "upstream": {
+    "owner": "facebook",
+    "repo": "react"
+  }
+}

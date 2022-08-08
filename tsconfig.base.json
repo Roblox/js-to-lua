@@ -27,7 +27,8 @@
       ],
       "@js-to-lua/shared-utils": ["libs/shared-utils/src/index.ts"],
       "@roblox/fast-follow": ["libs/fast-follow/src/index.ts"],
-      "@roblox/release-tracker": ["libs/release-tracker/src/index.ts"]
+      "@roblox/release-tracker": ["libs/release-tracker/src/index.ts"],
+      "@roblox/version-manager": ["libs/version-manager/src/index.ts"]
     },
     "strict": true
   },

@@ -22,7 +22,7 @@ runs:
     - name: Use Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14.16.0'
+        node-version: '16.16.0'
         registry-url: https://npm.pkg.github.com/
         scope: '@roblox'
 
@@ -40,18 +40,27 @@ runs:
       run: npm i
 
     - name: Build Fast Follow
-      run: npx nx run release-tracker:build && npx nx run fast-follow:build
+      run: |
+        npx nx run release-tracker:build
+        npx nx run version-manager:build
+        npx nx run fast-follow:build
 
     - name: Link Release Tracker
       working-directory: dist/libs/release-tracker
       run: npm link
 
+    - name: Link Version Manager
+      working-directory: dist/libs/version-manager
+      run: npm link
+
     - name: Link Fast Follow
       working-directory: dist/libs/fast-follow
-      run: npm link @roblox/release-tracker && npm link
+      run: |
+        npm link @roblox/version-manager @roblox/release-tracker
+        npm link
 
     - name: Link Release Tracker (root)
-      run: npm link @roblox/release-tracker
+      run: npm link @roblox/version-manager @roblox/release-tracker
 
     - name: Run Fast Follow
       run: npx fast-follow commit-scan -o roblox -r js-to-lua -c ${{ inputs.slack-channel-id }}

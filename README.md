@@ -15,7 +15,7 @@ Conversion tool for migrating JS/TS code into Luau.
 
 **The project requires the following tools:**
 
-- [Node](https://nodejs.org) (version >= 14)
+- [Node](https://nodejs.org) (version >= 16)
 - [Rust](https://www.rust-lang.org/tools/install)
 - [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 

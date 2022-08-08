@@ -1,0 +1,34 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/version-manager/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/version-manager/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/version-manager"],
+      "options": {
+        "jestConfig": "libs/version-manager/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/version-manager",
+        "tsConfig": "libs/version-manager/tsconfig.lib.json",
+        "packageJson": "libs/version-manager/package.json",
+        "webpackConfig": "libs/version-manager/webpack.config.js",
+        "main": "libs/version-manager/src/index.ts"
+      }
+    }
+  },
+  "tags": ["type:entry", "scope:fast-follow"]
+}

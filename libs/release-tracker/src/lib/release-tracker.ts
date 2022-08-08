@@ -1,4 +1,5 @@
 import { Octokit } from 'octokit';
+import * as fs from 'fs';
 import * as process from 'process';
 import * as semver from 'semver';
 
@@ -31,6 +32,12 @@ async function executeQuery<T>(
   const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
   return octokit.graphql(query, variables);
+}
+
+export async function getLocalRepoConversionConfig(
+  configPath: string
+): Promise<ConversionConfig> {
+  return JSON.parse((await fs.promises.readFile(configPath)).toString());
 }
 
 export async function getRepoConversionConfig(
