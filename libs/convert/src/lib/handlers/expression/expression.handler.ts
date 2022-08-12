@@ -91,7 +91,7 @@ export const createExpressionHandler = (
     LuaTableConstructor<[LuaTableKeyField]>
   >,
   assignmentExpressionAsStatementHandler: BaseNodeAsStatementHandler<
-    LuaNodeGroup<LuaStatement> | LuaStatement,
+    LuaNodeGroup | LuaStatement,
     AssignmentExpression
   >
 ) => {

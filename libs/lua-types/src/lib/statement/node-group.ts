@@ -1,13 +1,14 @@
 import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaStatement } from './statement';
 
-export interface LuaNodeGroup<T extends LuaStatement = LuaStatement>
-  extends BaseLuaNode {
+export interface LuaNodeGroup<
+  T extends Array<LuaStatement> = Array<LuaStatement>
+> extends BaseLuaNode {
   type: 'NodeGroup';
-  body: Array<T>;
+  body: T;
 }
 
-export const nodeGroup = <T extends LuaStatement = LuaStatement>(
+export const nodeGroup = <T extends Array<LuaStatement> = Array<LuaStatement>>(
   body: LuaNodeGroup<T>['body']
 ): LuaNodeGroup<T> => ({
   type: 'NodeGroup',

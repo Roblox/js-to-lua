@@ -178,9 +178,7 @@ describe('Logical Expression Handler', () => {
         );
 
         const actual = handleLogicalExpression.handler(source, {}, given);
-        expect(JSON.stringify(actual, undefined, 2)).toEqual(
-          JSON.stringify(expected, undefined, 2)
-        );
+        expect(actual).toEqual(expected);
       });
 
       it.each(truthyValues)(

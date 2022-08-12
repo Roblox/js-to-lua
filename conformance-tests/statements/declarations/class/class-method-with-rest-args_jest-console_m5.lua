@@ -9,8 +9,9 @@ type CustomConsole = {
 		...any --[[ ROBLOX CHECK: check correct type of elements. Upstream type: <Array<unknown>> ]]
 	) -> (),
 }
-local CustomConsole = {}
-CustomConsole.__index = CustomConsole
+type CustomConsole_statics = { new: () -> CustomConsole }
+local CustomConsole = {} :: CustomConsole & CustomConsole_statics;
+(CustomConsole :: any).__index = CustomConsole
 function CustomConsole.new(): CustomConsole
 	local self = setmetatable({}, CustomConsole)
 	return (self :: any) :: CustomConsole

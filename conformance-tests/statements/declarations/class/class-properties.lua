@@ -1,6 +1,7 @@
 type BaseClass = { initializedProperty: boolean, notInitializedProperty: any }
-local BaseClass = {}
-BaseClass.__index = BaseClass
+type BaseClass_statics = { new: () -> BaseClass }
+local BaseClass = {} :: BaseClass & BaseClass_statics;
+(BaseClass :: any).__index = BaseClass
 BaseClass.staticProperty = false
 function BaseClass.new(): BaseClass
 	local self = setmetatable({}, BaseClass)
@@ -8,8 +9,9 @@ function BaseClass.new(): BaseClass
 	return (self :: any) :: BaseClass
 end
 type MyClass = BaseClass & { initializedProperty: boolean, notInitializedProperty: any }
-local MyClass = setmetatable({}, { __index = BaseClass })
-MyClass.__index = MyClass
+type MyClass_statics = { new: () -> MyClass }
+local MyClass = (setmetatable({}, { __index = BaseClass }) :: any) :: MyClass & MyClass_statics;
+(MyClass :: any).__index = MyClass
 MyClass.staticProperty = false
 function MyClass.new(): MyClass
 	local self = setmetatable({}, MyClass) --[[ ROBLOX TODO: super constructor may be used ]]

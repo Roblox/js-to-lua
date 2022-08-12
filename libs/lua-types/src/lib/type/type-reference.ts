@@ -18,7 +18,7 @@ export const typeReference = (
   type: 'TypeReference',
   typeName,
   ...(typeParameters ? { typeParameters } : {}),
-  defaultType,
+  ...(defaultType ? { defaultType } : {}),
 });
 
 export const isTypeReference = isNodeType<LuaTypeReference>('TypeReference');

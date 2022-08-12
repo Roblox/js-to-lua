@@ -1,6 +1,7 @@
 type DefaultReporter = {}
-local DefaultReporter = {}
-DefaultReporter.__index = DefaultReporter
+type DefaultReporter_statics = { new: () -> DefaultReporter }
+local DefaultReporter = {} :: DefaultReporter & DefaultReporter_statics;
+(DefaultReporter :: any).__index = DefaultReporter
 function DefaultReporter.new(): DefaultReporter
 	local self = setmetatable({}, DefaultReporter)
 	local stream = {}

@@ -5,8 +5,9 @@ type Config = {
 	setPointScaleFactor: (self: Config, pixelsInPoint: number) -> (),
 	isExperimentalFeatureEnabled: (self: Config, feature: number) -> boolean,
 }
-local Config = {}
-Config.__index = Config
+type Config_statics = { new: () -> Config }
+local Config = {} :: Config & Config_statics;
+(Config :: any).__index = Config
 function Config.new(): Config
 	local self = setmetatable({}, Config)
 	self.config = YGConfigNew()

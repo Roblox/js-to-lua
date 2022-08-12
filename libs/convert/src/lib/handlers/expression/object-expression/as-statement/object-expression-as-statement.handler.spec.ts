@@ -567,9 +567,7 @@ describe('Object Expression Handler', () => {
       );
 
       const actual = handleObjectExpressionAsStatement(source, {}, given);
-      expect(JSON.stringify(actual, undefined, 2)).toEqual(
-        JSON.stringify(expected, undefined, 2)
-      );
+      expect(actual).toEqual(expected);
     });
 
     it(`should return Lua Table Constructor Node with multiple UpdateExpressions (mixed) as values`, () => {
@@ -627,9 +625,7 @@ describe('Object Expression Handler', () => {
       );
 
       const actual = handleObjectExpressionAsStatement(source, {}, given);
-      expect(JSON.stringify(actual, undefined, 2)).toEqual(
-        JSON.stringify(expected, undefined, 2)
-      );
+      expect(actual).toEqual(expected);
     });
   });
 });

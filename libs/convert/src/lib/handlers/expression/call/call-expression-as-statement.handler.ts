@@ -93,7 +93,11 @@ export const createCallExpressionAsStatementHandler = (
 
       const handleCalleeExpression =
         createCalleeExpressionHandlerFunction(handleExpression);
-      const luaCallee = handleCalleeExpression(source, config, expression.callee);
+      const luaCallee = handleCalleeExpression(
+        source,
+        config,
+        expression.callee
+      );
 
       return asStatementReturnTypeInline(
         args.map((a) => a.preStatements).flat(),

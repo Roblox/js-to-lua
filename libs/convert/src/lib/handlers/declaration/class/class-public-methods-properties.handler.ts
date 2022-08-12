@@ -25,8 +25,8 @@ import {
   typeReference,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import { createFunctionTypeParamsHandler } from '../function-params.handler';
-import { inferType } from '../type/infer-type';
+import { createFunctionTypeParamsHandler } from '../../function-params.handler';
+import { inferType } from '../../type/infer-type';
 
 export const createHandlePublicMethodsAndProperties = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,

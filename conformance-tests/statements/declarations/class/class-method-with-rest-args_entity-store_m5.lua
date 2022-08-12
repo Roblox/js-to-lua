@@ -2,8 +2,9 @@ type EntityStore = {
 	makeCacheKey: (self: EntityStore, ...any) -> any,
 	makeCacheKey: (self: EntityStore) -> any,
 }
-local EntityStore = {}
-EntityStore.__index = EntityStore
+type EntityStore_statics = { new: () -> EntityStore }
+local EntityStore = {} :: EntityStore & EntityStore_statics;
+(EntityStore :: any).__index = EntityStore
 function EntityStore.new(): EntityStore
 	local self = setmetatable({}, EntityStore)
 	return (self :: any) :: EntityStore

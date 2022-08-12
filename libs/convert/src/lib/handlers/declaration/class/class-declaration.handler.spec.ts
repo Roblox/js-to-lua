@@ -1,31 +1,4 @@
-import {
-  assignmentPattern,
-  blockStatement as babelBlockStatement,
-  classBody,
-  ClassDeclaration,
-  classDeclaration,
-  classMethod,
-  classProperty,
-  genericTypeAnnotation,
-  identifier as babelIdentifier,
-  returnStatement as babelReturnStatement,
-  stringLiteral as babelStringLiteral,
-  tsDeclareMethod,
-  tSNumberKeyword,
-  tsParameterProperty,
-  tsStringKeyword,
-  tSTypeAnnotation,
-  tsTypeAnnotation,
-  tsTypeParameter,
-  tSTypeParameterDeclaration,
-  tsTypeParameterInstantiation,
-  tsTypeReference,
-  tSUnionType,
-  tsVoidKeyword,
-  typeParameter as babelTypeParameter,
-  typeParameterDeclaration as babelTypeParameterDeclaration,
-  typeParameterInstantiation as babelTypeParameterInstantiation,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   selfIdentifier,
   withClassDeclarationExtra,
@@ -39,8 +12,8 @@ import {
   expressionStatement,
   functionDeclaration,
   functionDeclarationMultipleReturn,
-  functionReturnType,
   functionParamName,
+  functionReturnType,
   identifier,
   ifClause,
   ifStatement,
@@ -69,7 +42,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { statementHandler } from '../expression-statement.handler';
+import { statementHandler } from '../../expression-statement.handler';
 
 const source = '';
 
@@ -78,25 +51,83 @@ describe('Class Declaration', () => {
     const baseClassDefaultExpectedNodes = [
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('BaseClass'))],
-        [variableDeclaratorValue(tableConstructor())]
+        [
+          variableDeclaratorValue(
+            typeCastExpression(
+              tableConstructor(),
+              typeIntersection([
+                typeReference(identifier('BaseClass')),
+                typeReference(identifier('BaseClass_statics')),
+              ])
+            )
+          ),
+        ]
       ),
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
-        [memberExpression(identifier('BaseClass'), '.', identifier('__index'))],
+        [
+          memberExpression(
+            typeCastExpression(identifier('BaseClass'), typeAny()),
+            '.',
+            identifier('__index')
+          ),
+        ],
+        [identifier('BaseClass')]
+      ),
+    ];
+
+    const baseClassGenericExpectedNodes = [
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('BaseClass'))],
+        [
+          variableDeclaratorValue(
+            typeCastExpression(
+              tableConstructor(),
+              typeIntersection([
+                typeReference(identifier('BaseClass'), [typeAny()]),
+                typeReference(identifier('BaseClass_statics')),
+              ])
+            )
+          ),
+        ]
+      ),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [
+          memberExpression(
+            typeCastExpression(identifier('BaseClass'), typeAny()),
+            '.',
+            identifier('__index')
+          ),
+        ],
         [identifier('BaseClass')]
       ),
     ];
 
     it('should convert class', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([])
+        Babel.classBody([])
       );
 
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
+              ),
+            ])
+          ),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -131,13 +162,31 @@ describe('Class Declaration', () => {
 
     it('should convert generic class with empty generic type params', () => {
       const given = {
-        ...classDeclaration(babelIdentifier('BaseClass'), null, classBody([])),
-        typeParameters: tSTypeParameterDeclaration([]),
+        ...Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([])
+        ),
+        typeParameters: Babel.tSTypeParameterDeclaration([]),
       };
 
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
+              ),
+            ])
+          ),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -172,9 +221,13 @@ describe('Class Declaration', () => {
 
     it('should convert generic class with generic type params', () => {
       const given = {
-        ...classDeclaration(babelIdentifier('BaseClass'), null, classBody([])),
-        typeParameters: tSTypeParameterDeclaration([
-          tsTypeParameter(null, null, 'T'),
+        ...Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([])
+        ),
+        typeParameters: Babel.tSTypeParameterDeclaration([
+          Babel.tsTypeParameter(null, null, 'T'),
         ]),
       };
 
@@ -185,7 +238,26 @@ describe('Class Declaration', () => {
             typeLiteral([]),
             typeParameterDeclaration([typeReference(identifier('T'))])
           ),
-          ...baseClassDefaultExpectedNodes,
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([
+                      typeReference(identifier('BaseClass'), [
+                        typeReference(identifier('T')),
+                      ]),
+                    ]),
+                    typeParameterDeclaration([typeReference(identifier('T'))])
+                  )
+                )
+              ),
+            ])
+          ),
+          ...baseClassGenericExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
             [],
@@ -219,14 +291,19 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+      const actual = statementHandler.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
 
     it('should convert generic class with generic type params with default values', () => {
       const given = {
-        ...classDeclaration(babelIdentifier('BaseClass'), null, classBody([])),
-        typeParameters: tSTypeParameterDeclaration([
-          tsTypeParameter(null, tsStringKeyword(), 'T'),
+        ...Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([])
+        ),
+        typeParameters: Babel.tSTypeParameterDeclaration([
+          Babel.tsTypeParameter(null, Babel.tsStringKeyword(), 'T'),
         ]),
       };
 
@@ -239,7 +316,28 @@ describe('Class Declaration', () => {
               typeReference(identifier('T'), undefined, typeString()),
             ])
           ),
-          ...baseClassDefaultExpectedNodes,
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([
+                      typeReference(identifier('BaseClass'), [
+                        typeReference(identifier('T')),
+                      ]),
+                    ]),
+                    typeParameterDeclaration([
+                      typeReference(identifier('T'), undefined, typeString()),
+                    ])
+                  )
+                )
+              ),
+            ])
+          ),
+          ...baseClassGenericExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
             [],
@@ -279,15 +377,15 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class constructor to <ClassId>.new function', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classMethod(
+        Babel.classBody([
+          Babel.classMethod(
             'constructor',
-            babelIdentifier('constructor'),
+            Babel.identifier('constructor'),
             [],
-            babelBlockStatement([])
+            Babel.blockStatement([])
           ),
         ])
       );
@@ -295,6 +393,20 @@ describe('Class Declaration', () => {
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
+              ),
+            ])
+          ),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier('BaseClass.new'),
@@ -328,15 +440,15 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class methods to <ClassId>:<methodName> function', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classMethod(
+        Babel.classBody([
+          Babel.classMethod(
             'method',
-            babelIdentifier('myMethod'),
+            Babel.identifier('myMethod'),
             [],
-            babelBlockStatement([])
+            Babel.blockStatement([])
           ),
         ])
       );
@@ -357,6 +469,20 @@ describe('Class Declaration', () => {
                       ),
                     ],
                     functionReturnType([typeAny()])
+                  )
+                )
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
                   )
                 )
               ),
@@ -402,18 +528,18 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class methods to <ClassId>:<methodName> function with an explicit void return type', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
+        Babel.classBody([
           {
-            ...classMethod(
+            ...Babel.classMethod(
               'method',
-              babelIdentifier('myMethod'),
+              Babel.identifier('myMethod'),
               [],
-              babelBlockStatement([])
+              Babel.blockStatement([])
             ),
-            returnType: tsTypeAnnotation(tsVoidKeyword()),
+            returnType: Babel.tsTypeAnnotation(Babel.tsVoidKeyword()),
           },
         ])
       );
@@ -434,6 +560,20 @@ describe('Class Declaration', () => {
                       ),
                     ],
                     functionReturnType([])
+                  )
+                )
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
                   )
                 )
               ),
@@ -479,20 +619,20 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class methods to <ClassId>:<methodName> function with an explicit string return type', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
+        Babel.classBody([
           {
-            ...classMethod(
+            ...Babel.classMethod(
               'method',
-              babelIdentifier('myMethod'),
+              Babel.identifier('myMethod'),
               [],
-              babelBlockStatement([
-                babelReturnStatement(babelStringLiteral('foo')),
+              Babel.blockStatement([
+                Babel.returnStatement(Babel.stringLiteral('foo')),
               ])
             ),
-            returnType: tsTypeAnnotation(tsStringKeyword()),
+            returnType: Babel.tsTypeAnnotation(Babel.tsStringKeyword()),
           },
         ])
       );
@@ -513,6 +653,20 @@ describe('Class Declaration', () => {
                       ),
                     ],
                     functionReturnType([typeString()])
+                  )
+                )
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
                   )
                 )
               ),
@@ -558,15 +712,15 @@ describe('Class Declaration', () => {
     });
 
     it('should convert static class methods to <ClassId>.<methodName> function', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classMethod(
+        Babel.classBody([
+          Babel.classMethod(
             'method',
-            babelIdentifier('myStaticMethod'),
+            Babel.identifier('myStaticMethod'),
             [],
-            babelBlockStatement([]),
+            Babel.blockStatement([]),
             undefined,
             true
           ),
@@ -576,6 +730,20 @@ describe('Class Declaration', () => {
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
+              ),
+            ])
+          ),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -616,10 +784,12 @@ describe('Class Declaration', () => {
     });
 
     it('should convert non-static properties', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([classProperty(babelIdentifier('nonStaticProperty'))])
+        Babel.classBody([
+          Babel.classProperty(Babel.identifier('nonStaticProperty')),
+        ])
       );
 
       const expected = withClassDeclarationExtra(
@@ -630,6 +800,20 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('nonStaticProperty'),
                 typeAnnotation(typeAny())
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
               ),
             ])
           ),
@@ -666,14 +850,14 @@ describe('Class Declaration', () => {
     });
 
     it('should convert non-static properties with explicit type', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classProperty(
-            babelIdentifier('nonStaticProperty'),
+        Babel.classBody([
+          Babel.classProperty(
+            Babel.identifier('nonStaticProperty'),
             null,
-            tsTypeAnnotation(tSNumberKeyword())
+            Babel.tsTypeAnnotation(Babel.tSNumberKeyword())
           ),
         ])
       );
@@ -686,6 +870,20 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('nonStaticProperty'),
                 typeAnnotation(typeNumber())
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
               ),
             ])
           ),
@@ -722,15 +920,18 @@ describe('Class Declaration', () => {
     });
 
     it('should convert non-static properties with type and initial value', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classProperty(
-            babelIdentifier('nonStaticProperty'),
-            babelStringLiteral('foo'),
-            tsTypeAnnotation(
-              tSUnionType([tsStringKeyword(), tSNumberKeyword()])
+        Babel.classBody([
+          Babel.classProperty(
+            Babel.identifier('nonStaticProperty'),
+            Babel.stringLiteral('foo'),
+            Babel.tsTypeAnnotation(
+              Babel.tSUnionType([
+                Babel.tsStringKeyword(),
+                Babel.tSNumberKeyword(),
+              ])
             )
           ),
         ])
@@ -744,6 +945,20 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('nonStaticProperty'),
                 typeAnnotation(typeUnion([typeString(), typeNumber()]))
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
               ),
             ])
           ),
@@ -791,13 +1006,13 @@ describe('Class Declaration', () => {
     });
 
     it('should convert non-static properties with initial value', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classProperty(
-            babelIdentifier('nonStaticProperty'),
-            babelStringLiteral('foo')
+        Babel.classBody([
+          Babel.classProperty(
+            Babel.identifier('nonStaticProperty'),
+            Babel.stringLiteral('foo')
           ),
         ])
       );
@@ -810,6 +1025,20 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('nonStaticProperty'),
                 typeAnnotation(typeString())
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
               ),
             ])
           ),
@@ -857,13 +1086,13 @@ describe('Class Declaration', () => {
     });
 
     it('should convert static properties to <ClassId>.<property>', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classProperty(
-            babelIdentifier('staticProperty'),
-            babelStringLiteral('foo'),
+        Babel.classBody([
+          Babel.classProperty(
+            Babel.identifier('staticProperty'),
+            Babel.stringLiteral('foo'),
             undefined,
             undefined,
             undefined,
@@ -875,6 +1104,20 @@ describe('Class Declaration', () => {
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
+              ),
+            ])
+          ),
           ...baseClassDefaultExpectedNodes,
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -919,12 +1162,17 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class abstract methods to <ClassId>:<methodName> function', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
+        Babel.classBody([
           {
-            ...tsDeclareMethod([], babelIdentifier('myMethod'), null, []),
+            ...Babel.tsDeclareMethod(
+              [],
+              Babel.identifier('myMethod'),
+              null,
+              []
+            ),
             abstract: true,
           },
         ])
@@ -946,6 +1194,20 @@ describe('Class Declaration', () => {
                       ),
                     ],
                     functionReturnType([typeAny()])
+                  )
+                )
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
                   )
                 )
               ),
@@ -997,20 +1259,22 @@ describe('Class Declaration', () => {
     });
 
     it('should convert constructor params with public modifier', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classMethod(
+        Babel.classBody([
+          Babel.classMethod(
             'constructor',
-            babelIdentifier('constructor'),
+            Babel.identifier('constructor'),
             [
               {
-                ...tsParameterProperty(babelIdentifier('publicProperty')),
+                ...Babel.tsParameterProperty(
+                  Babel.identifier('publicProperty')
+                ),
                 accessibility: 'public',
               },
             ],
-            babelBlockStatement([])
+            Babel.blockStatement([])
           ),
         ])
       );
@@ -1023,6 +1287,25 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('publicProperty'),
                 typeAnnotation(typeAny())
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionParamName(
+                        identifier('publicProperty'),
+                        typeAny()
+                      ),
+                    ],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
               ),
             ])
           ),
@@ -1070,23 +1353,25 @@ describe('Class Declaration', () => {
     });
 
     it('should convert constructor params with public modifier with type annotation', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classMethod(
+        Babel.classBody([
+          Babel.classMethod(
             'constructor',
-            babelIdentifier('constructor'),
+            Babel.identifier('constructor'),
             [
               {
-                ...tsParameterProperty({
-                  ...babelIdentifier('publicProperty'),
-                  typeAnnotation: tsTypeAnnotation(tsStringKeyword()),
+                ...Babel.tsParameterProperty({
+                  ...Babel.identifier('publicProperty'),
+                  typeAnnotation: Babel.tsTypeAnnotation(
+                    Babel.tsStringKeyword()
+                  ),
                 }),
                 accessibility: 'public',
               },
             ],
-            babelBlockStatement([])
+            Babel.blockStatement([])
           ),
         ])
       );
@@ -1099,6 +1384,25 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('publicProperty'),
                 typeAnnotation(typeString())
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionParamName(
+                        identifier('publicProperty'),
+                        typeString()
+                      ),
+                    ],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
               ),
             ])
           ),
@@ -1146,25 +1450,25 @@ describe('Class Declaration', () => {
     });
 
     it('should convert constructor params with public modifier with default value', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classMethod(
+        Babel.classBody([
+          Babel.classMethod(
             'constructor',
-            babelIdentifier('constructor'),
+            Babel.identifier('constructor'),
             [
               {
-                ...tsParameterProperty(
-                  assignmentPattern(
-                    babelIdentifier('publicProperty'),
-                    babelStringLiteral('foo')
+                ...Babel.tsParameterProperty(
+                  Babel.assignmentPattern(
+                    Babel.identifier('publicProperty'),
+                    Babel.stringLiteral('foo')
                   )
                 ),
                 accessibility: 'public',
               },
             ],
-            babelBlockStatement([])
+            Babel.blockStatement([])
           ),
         ])
       );
@@ -1177,6 +1481,25 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('publicProperty'),
                 typeAnnotation(typeString())
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionParamName(
+                        identifier('publicProperty'),
+                        typeOptional(typeString())
+                      ),
+                    ],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
               ),
             ])
           ),
@@ -1245,30 +1568,33 @@ describe('Class Declaration', () => {
     });
 
     it('should convert constructor params with public modifier with default value and explicit type annotation', () => {
-      const given = classDeclaration(
-        babelIdentifier('BaseClass'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('BaseClass'),
         null,
-        classBody([
-          classMethod(
+        Babel.classBody([
+          Babel.classMethod(
             'constructor',
-            babelIdentifier('constructor'),
+            Babel.identifier('constructor'),
             [
               {
-                ...tsParameterProperty(
-                  assignmentPattern(
+                ...Babel.tsParameterProperty(
+                  Babel.assignmentPattern(
                     {
-                      ...babelIdentifier('publicProperty'),
-                      typeAnnotation: tSTypeAnnotation(
-                        tSUnionType([tsStringKeyword(), tSNumberKeyword()])
+                      ...Babel.identifier('publicProperty'),
+                      typeAnnotation: Babel.tSTypeAnnotation(
+                        Babel.tSUnionType([
+                          Babel.tsStringKeyword(),
+                          Babel.tSNumberKeyword(),
+                        ])
                       ),
                     },
-                    babelStringLiteral('foo')
+                    Babel.stringLiteral('foo')
                   )
                 ),
                 accessibility: 'public',
               },
             ],
-            babelBlockStatement([])
+            Babel.blockStatement([])
           ),
         ])
       );
@@ -1281,6 +1607,25 @@ describe('Class Declaration', () => {
               typePropertySignature(
                 identifier('publicProperty'),
                 typeAnnotation(typeUnion([typeString(), typeNumber()]))
+              ),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('BaseClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [
+                      functionParamName(
+                        identifier('publicProperty'),
+                        typeOptional(typeUnion([typeString(), typeNumber()]))
+                      ),
+                    ],
+                    functionReturnType([typeReference(identifier('BaseClass'))])
+                  )
+                )
               ),
             ])
           ),
@@ -1357,30 +1702,123 @@ describe('Class Declaration', () => {
         [variableDeclaratorIdentifier(identifier('SubClass'))],
         [
           variableDeclaratorValue(
-            callExpression(identifier('setmetatable'), [
-              tableConstructor(),
-              tableConstructor([
-                tableNameKeyField(
-                  identifier('__index'),
-                  identifier('BaseClass')
-                ),
-              ]),
-            ])
+            typeCastExpression(
+              typeCastExpression(
+                callExpression(identifier('setmetatable'), [
+                  tableConstructor(),
+                  tableConstructor([
+                    tableNameKeyField(
+                      identifier('__index'),
+                      identifier('BaseClass')
+                    ),
+                  ]),
+                ]),
+                typeAny()
+              ),
+              typeIntersection([
+                typeReference(identifier('SubClass')),
+                typeReference(identifier('SubClass_statics')),
+              ])
+            )
           ),
         ]
       ),
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
-        [memberExpression(identifier('SubClass'), '.', identifier('__index'))],
+        [
+          memberExpression(
+            typeCastExpression(identifier('SubClass'), typeAny()),
+            '.',
+            identifier('__index')
+          ),
+        ],
+        [identifier('SubClass')]
+      ),
+    ];
+
+    const subClassGenericExpectedNodes = [
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('SubClass'))],
+        [
+          variableDeclaratorValue(
+            typeCastExpression(
+              typeCastExpression(
+                callExpression(identifier('setmetatable'), [
+                  tableConstructor(),
+                  tableConstructor([
+                    tableNameKeyField(
+                      identifier('__index'),
+                      identifier('BaseClass')
+                    ),
+                  ]),
+                ]),
+                typeAny()
+              ),
+              typeIntersection([
+                typeReference(identifier('SubClass'), [typeAny()]),
+                typeReference(identifier('SubClass_statics')),
+              ])
+            )
+          ),
+        ]
+      ),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [
+          memberExpression(
+            typeCastExpression(identifier('SubClass'), typeAny()),
+            '.',
+            identifier('__index')
+          ),
+        ],
+        [identifier('SubClass')]
+      ),
+    ];
+
+    const subClassGenericMultipleExpectedNodes = [
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('SubClass'))],
+        [
+          variableDeclaratorValue(
+            typeCastExpression(
+              typeCastExpression(
+                callExpression(identifier('setmetatable'), [
+                  tableConstructor(),
+                  tableConstructor([
+                    tableNameKeyField(
+                      identifier('__index'),
+                      identifier('BaseClass')
+                    ),
+                  ]),
+                ]),
+                typeAny()
+              ),
+              typeIntersection([
+                typeReference(identifier('SubClass'), [typeAny(), typeAny()]),
+                typeReference(identifier('SubClass_statics')),
+              ])
+            )
+          ),
+        ]
+      ),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [
+          memberExpression(
+            typeCastExpression(identifier('SubClass'), typeAny()),
+            '.',
+            identifier('__index')
+          ),
+        ],
         [identifier('SubClass')]
       ),
     ];
 
     it('should convert class', () => {
-      const given = classDeclaration(
-        babelIdentifier('SubClass'),
-        babelIdentifier('BaseClass'),
-        classBody([])
+      const given = Babel.classDeclaration(
+        Babel.identifier('SubClass'),
+        Babel.identifier('BaseClass'),
+        Babel.classBody([])
       );
 
       const expected = withClassDeclarationExtra(
@@ -1390,6 +1828,20 @@ describe('Class Declaration', () => {
             typeIntersection([
               typeReference(identifier('BaseClass')),
               typeLiteral([]),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('SubClass'))])
+                  )
+                )
+              ),
             ])
           ),
           ...subClassDefaultExpectedNodes,
@@ -1429,13 +1881,13 @@ describe('Class Declaration', () => {
 
     it('should convert generic class with generic type params', () => {
       const given = {
-        ...classDeclaration(
-          babelIdentifier('SubClass'),
-          babelIdentifier('BaseClass'),
-          classBody([])
+        ...Babel.classDeclaration(
+          Babel.identifier('SubClass'),
+          Babel.identifier('BaseClass'),
+          Babel.classBody([])
         ),
-        typeParameters: tSTypeParameterDeclaration([
-          tsTypeParameter(null, null, 'T'),
+        typeParameters: Babel.tSTypeParameterDeclaration([
+          Babel.tsTypeParameter(null, null, 'T'),
         ]),
       };
 
@@ -1449,7 +1901,26 @@ describe('Class Declaration', () => {
             ]),
             typeParameterDeclaration([typeReference(identifier('T'))])
           ),
-          ...subClassDefaultExpectedNodes,
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([
+                      typeReference(identifier('SubClass'), [
+                        typeReference(identifier('T')),
+                      ]),
+                    ]),
+                    typeParameterDeclaration([typeReference(identifier('T'))])
+                  )
+                )
+              ),
+            ])
+          ),
+          ...subClassGenericExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
             [],
@@ -1486,18 +1957,19 @@ describe('Class Declaration', () => {
         ])
       );
 
-      expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+      const actual = statementHandler.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
 
     it('should convert generic class with generic type params with default types', () => {
       const given = {
-        ...classDeclaration(
-          babelIdentifier('SubClass'),
-          babelIdentifier('BaseClass'),
-          classBody([])
+        ...Babel.classDeclaration(
+          Babel.identifier('SubClass'),
+          Babel.identifier('BaseClass'),
+          Babel.classBody([])
         ),
-        typeParameters: tSTypeParameterDeclaration([
-          tsTypeParameter(null, tsStringKeyword(), 'T'),
+        typeParameters: Babel.tSTypeParameterDeclaration([
+          Babel.tsTypeParameter(null, Babel.tsStringKeyword(), 'T'),
         ]),
       };
 
@@ -1513,7 +1985,28 @@ describe('Class Declaration', () => {
               typeReference(identifier('T'), undefined, typeString()),
             ])
           ),
-          ...subClassDefaultExpectedNodes,
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([
+                      typeReference(identifier('SubClass'), [
+                        typeReference(identifier('T')),
+                      ]),
+                    ]),
+                    typeParameterDeclaration([
+                      typeReference(identifier('T'), undefined, typeString()),
+                    ])
+                  )
+                )
+              ),
+            ])
+          ),
+          ...subClassGenericExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
             [],
@@ -1556,18 +2049,18 @@ describe('Class Declaration', () => {
     });
 
     it('should convert generic class with generic type params and generic super types - TS', () => {
-      const given: ClassDeclaration = {
-        ...classDeclaration(
-          babelIdentifier('SubClass'),
-          babelIdentifier('BaseClass'),
-          classBody([])
+      const given: Babel.ClassDeclaration = {
+        ...Babel.classDeclaration(
+          Babel.identifier('SubClass'),
+          Babel.identifier('BaseClass'),
+          Babel.classBody([])
         ),
-        typeParameters: tSTypeParameterDeclaration([
-          tsTypeParameter(null, null, 'T'),
-          tsTypeParameter(null, null, 'V'),
+        typeParameters: Babel.tSTypeParameterDeclaration([
+          Babel.tsTypeParameter(null, null, 'T'),
+          Babel.tsTypeParameter(null, null, 'V'),
         ]),
-        superTypeParameters: tsTypeParameterInstantiation([
-          tsTypeReference(babelIdentifier('V')),
+        superTypeParameters: Babel.tsTypeParameterInstantiation([
+          Babel.tsTypeReference(Babel.identifier('V')),
         ]),
       };
 
@@ -1586,7 +2079,30 @@ describe('Class Declaration', () => {
               typeReference(identifier('V')),
             ])
           ),
-          ...subClassDefaultExpectedNodes,
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([
+                      typeReference(identifier('SubClass'), [
+                        typeReference(identifier('T')),
+                        typeReference(identifier('V')),
+                      ]),
+                    ]),
+                    typeParameterDeclaration([
+                      typeReference(identifier('T')),
+                      typeReference(identifier('V')),
+                    ])
+                  )
+                )
+              ),
+            ])
+          ),
+          ...subClassGenericMultipleExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
             [],
@@ -1633,18 +2149,18 @@ describe('Class Declaration', () => {
     });
 
     it('should convert generic class with generic type params and generic super types - Flow', () => {
-      const given: ClassDeclaration = {
-        ...classDeclaration(
-          babelIdentifier('SubClass'),
-          babelIdentifier('BaseClass'),
-          classBody([])
+      const given: Babel.ClassDeclaration = {
+        ...Babel.classDeclaration(
+          Babel.identifier('SubClass'),
+          Babel.identifier('BaseClass'),
+          Babel.classBody([])
         ),
-        typeParameters: babelTypeParameterDeclaration([
-          { ...babelTypeParameter(), name: 'T' },
-          { ...babelTypeParameter(), name: 'V' },
+        typeParameters: Babel.typeParameterDeclaration([
+          { ...Babel.typeParameter(), name: 'T' },
+          { ...Babel.typeParameter(), name: 'V' },
         ]),
-        superTypeParameters: babelTypeParameterInstantiation([
-          genericTypeAnnotation(babelIdentifier('V')),
+        superTypeParameters: Babel.typeParameterInstantiation([
+          Babel.genericTypeAnnotation(Babel.identifier('V')),
         ]),
       };
 
@@ -1663,7 +2179,30 @@ describe('Class Declaration', () => {
               typeReference(identifier('V')),
             ])
           ),
-          ...subClassDefaultExpectedNodes,
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([
+                      typeReference(identifier('SubClass'), [
+                        typeReference(identifier('T')),
+                        typeReference(identifier('V')),
+                      ]),
+                    ]),
+                    typeParameterDeclaration([
+                      typeReference(identifier('T')),
+                      typeReference(identifier('V')),
+                    ])
+                  )
+                )
+              ),
+            ])
+          ),
+          ...subClassGenericMultipleExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
             [],
@@ -1710,15 +2249,15 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class constructor to <ClassId>.new function', () => {
-      const given = classDeclaration(
-        babelIdentifier('SubClass'),
-        babelIdentifier('BaseClass'),
-        classBody([
-          classMethod(
+      const given = Babel.classDeclaration(
+        Babel.identifier('SubClass'),
+        Babel.identifier('BaseClass'),
+        Babel.classBody([
+          Babel.classMethod(
             'constructor',
-            babelIdentifier('constructor'),
+            Babel.identifier('constructor'),
             [],
-            babelBlockStatement([])
+            Babel.blockStatement([])
           ),
         ])
       );
@@ -1730,6 +2269,20 @@ describe('Class Declaration', () => {
             typeIntersection([
               typeReference(identifier('BaseClass')),
               typeLiteral([]),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('SubClass'))])
+                  )
+                )
+              ),
             ])
           ),
           ...subClassDefaultExpectedNodes,
@@ -1768,15 +2321,15 @@ describe('Class Declaration', () => {
     });
 
     it('should convert class methods to <ClassId>:<methodName> function', () => {
-      const given = classDeclaration(
-        babelIdentifier('SubClass'),
-        babelIdentifier('BaseClass'),
-        classBody([
-          classMethod(
+      const given = Babel.classDeclaration(
+        Babel.identifier('SubClass'),
+        Babel.identifier('BaseClass'),
+        Babel.classBody([
+          Babel.classMethod(
             'method',
-            babelIdentifier('myMethod'),
+            Babel.identifier('myMethod'),
             [],
-            babelBlockStatement([])
+            Babel.blockStatement([])
           ),
         ])
       );
@@ -1803,6 +2356,20 @@ describe('Class Declaration', () => {
                   )
                 ),
               ]),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('SubClass'))])
+                  )
+                )
+              ),
             ])
           ),
           ...subClassDefaultExpectedNodes,
@@ -1846,16 +2413,17 @@ describe('Class Declaration', () => {
 
       expect(statementHandler.handler(source, {}, given)).toEqual(expected);
     });
+
     it('should convert static class methods to <ClassId>.<methodName> function', () => {
-      const given = classDeclaration(
-        babelIdentifier('SubClass'),
-        babelIdentifier('BaseClass'),
-        classBody([
-          classMethod(
+      const given = Babel.classDeclaration(
+        Babel.identifier('SubClass'),
+        Babel.identifier('BaseClass'),
+        Babel.classBody([
+          Babel.classMethod(
             'method',
-            babelIdentifier('myStaticMethod'),
+            Babel.identifier('myStaticMethod'),
             [],
-            babelBlockStatement([]),
+            Babel.blockStatement([]),
             undefined,
             true
           ),
@@ -1869,6 +2437,20 @@ describe('Class Declaration', () => {
             typeIntersection([
               typeReference(identifier('BaseClass')),
               typeLiteral([]),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('SubClass'))])
+                  )
+                )
+              ),
             ])
           ),
           ...subClassDefaultExpectedNodes,
@@ -1914,13 +2496,13 @@ describe('Class Declaration', () => {
     });
 
     it('should convert static properties to <ClassId>.<property>', () => {
-      const given = classDeclaration(
-        babelIdentifier('SubClass'),
-        babelIdentifier('BaseClass'),
-        classBody([
-          classProperty(
-            babelIdentifier('staticProperty'),
-            babelStringLiteral('foo'),
+      const given = Babel.classDeclaration(
+        Babel.identifier('SubClass'),
+        Babel.identifier('BaseClass'),
+        Babel.classBody([
+          Babel.classProperty(
+            Babel.identifier('staticProperty'),
+            Babel.stringLiteral('foo'),
             undefined,
             undefined,
             undefined,
@@ -1936,6 +2518,20 @@ describe('Class Declaration', () => {
             typeIntersection([
               typeReference(identifier('BaseClass')),
               typeLiteral([]),
+            ])
+          ),
+          typeAliasDeclaration(
+            identifier('SubClass_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('SubClass'))])
+                  )
+                )
+              ),
             ])
           ),
           ...subClassDefaultExpectedNodes,

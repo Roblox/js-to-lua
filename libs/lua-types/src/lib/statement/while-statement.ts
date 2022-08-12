@@ -1,12 +1,11 @@
-import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaExpression } from '../expression';
+import { BaseLuaNode, isNodeType } from '../node.types';
 import { LuaNodeGroup } from './node-group';
-import { LuaStatement } from './statement';
 
 export interface WhileStatement extends BaseLuaNode {
   type: 'WhileStatement';
   condition: LuaExpression;
-  body: LuaNodeGroup<LuaStatement>[];
+  body: LuaNodeGroup[];
 }
 
 export const whileStatement = (

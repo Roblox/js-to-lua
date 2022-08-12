@@ -98,9 +98,7 @@ describe('Program handler', () => {
       ]);
 
       const actual = handleProgram.handler(source, {}, given);
-      expect(JSON.stringify(actual, undefined, 2)).toEqual(
-        JSON.stringify(expected, undefined, 2)
-      );
+      expect(actual).toEqual(expected);
     });
 
     it('should convert nested qualified type identifier and add additional type imports', () => {

@@ -2,8 +2,9 @@ local Packages --[[ ROBLOX comment: must define Packages module ]]
 local LuauPolyfill = require(Packages.LuauPolyfill)
 local Boolean = LuauPolyfill.Boolean
 type Parser = { parseVariableDefinition: (self: Parser) -> VariableDefinitionNode }
-local Parser = {}
-Parser.__index = Parser
+type Parser_statics = { new: () -> Parser }
+local Parser = {} :: Parser & Parser_statics;
+(Parser :: any).__index = Parser
 function Parser.new(): Parser
 	local self = setmetatable({}, Parser)
 	return (self :: any) :: Parser

@@ -15,8 +15,9 @@ type MockModule = {
 	spyOn: (self: MockModule, object: T, methodName: M) -> any, -- eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types --[[ ROBLOX TODO: Unhandled node for type: TSConditionalType ]] --[[ T[M] extends (...args: Array<any>) => any ? SpyInstance<ReturnType<T[M]>, Parameters<T[M]>> : never ]]
 	spyOn: (self: MockModule, object: T, methodName: M, accessType: ("get" | "set")?) -> any,
 }
-local MockModule = {}
-MockModule.__index = MockModule
+type MockModule_statics = { new: () -> MockModule }
+local MockModule = {} :: MockModule & MockModule_statics;
+(MockModule :: any).__index = MockModule
 function MockModule.new(): MockModule
 	local self = setmetatable({}, MockModule)
 	return (self :: any) :: MockModule

@@ -9,6 +9,7 @@ import {
   commentLine,
   exportTypeStatement,
   functionDeclaration,
+  functionReturnType,
   identifier,
   memberExpression,
   nodeGroup,
@@ -20,6 +21,8 @@ import {
   typeAnnotation,
   typeAny,
   typeCastExpression,
+  typeFunction,
+  typeIntersection,
   typeLiteral,
   typePropertySignature,
   typeReference,
@@ -270,13 +273,43 @@ describe('Program handler', () => {
               ])
             )
           ),
+          typeAliasDeclaration(
+            identifier('Foo_statics'),
+            typeLiteral([
+              typePropertySignature(
+                identifier('new'),
+                typeAnnotation(
+                  typeFunction(
+                    [],
+                    functionReturnType([typeReference(identifier('Foo'))])
+                  )
+                )
+              ),
+            ])
+          ),
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Foo'))],
-            [variableDeclaratorValue(tableConstructor())]
+            [
+              variableDeclaratorValue(
+                typeCastExpression(
+                  tableConstructor(),
+                  typeIntersection([
+                    typeReference(identifier('Foo')),
+                    typeReference(identifier('Foo_statics')),
+                  ])
+                )
+              ),
+            ]
           ),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
-            [memberExpression(identifier('Foo'), '.', identifier('__index'))],
+            [
+              memberExpression(
+                typeCastExpression(identifier('Foo'), typeAny()),
+                '.',
+                identifier('__index')
+              ),
+            ],
             [identifier('Foo')]
           ),
           functionDeclaration(
@@ -313,7 +346,8 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      const actual = handleProgram.handler(source, {}, given);
+      expect(actual).toEqual(expected);
     });
 
     describe('with comments', () => {

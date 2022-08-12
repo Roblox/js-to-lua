@@ -21,6 +21,7 @@ import {
   typeAny,
   typeCastExpression,
   typeFunction,
+  typeIntersection,
   typeLiteral,
   typePropertySignature,
   typeQuery,
@@ -410,15 +411,39 @@ describe('Program handler', () => {
                     ),
                   ])
                 ),
+                typeAliasDeclaration(
+                  identifier('Bar_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([typeReference(identifier('Bar'))])
+                        )
+                      )
+                    ),
+                  ])
+                ),
                 variableDeclaration(
                   [variableDeclaratorIdentifier(identifier('Bar'))],
-                  [variableDeclaratorValue(tableConstructor())]
+                  [
+                    variableDeclaratorValue(
+                      typeCastExpression(
+                        tableConstructor(),
+                        typeIntersection([
+                          typeReference(identifier('Bar')),
+                          typeReference(identifier('Bar_statics')),
+                        ])
+                      )
+                    ),
+                  ]
                 ),
                 assignmentStatement(
                   AssignmentStatementOperatorEnum.EQ,
                   [
                     memberExpression(
-                      identifier('Bar'),
+                      typeCastExpression(identifier('Bar'), typeAny()),
                       '.',
                       identifier('__index')
                     ),
@@ -524,15 +549,39 @@ describe('Program handler', () => {
                   ),
                 ]
               ),
+              typeAliasDeclaration(
+                identifier('Bar_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([typeReference(identifier('Bar'))])
+                      )
+                    )
+                  ),
+                ])
+              ),
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('Bar'))],
-                [variableDeclaratorValue(tableConstructor())]
+                [
+                  variableDeclaratorValue(
+                    typeCastExpression(
+                      tableConstructor(),
+                      typeIntersection([
+                        typeReference(identifier('Bar')),
+                        typeReference(identifier('Bar_statics')),
+                      ])
+                    )
+                  ),
+                ]
               ),
               assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,
                 [
                   memberExpression(
-                    identifier('Bar'),
+                    typeCastExpression(identifier('Bar'), typeAny()),
                     '.',
                     identifier('__index')
                   ),
@@ -1121,15 +1170,39 @@ describe('Program handler', () => {
                     ),
                   ])
                 ),
+                typeAliasDeclaration(
+                  identifier('Bar_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([typeReference(identifier('Bar'))])
+                        )
+                      )
+                    ),
+                  ])
+                ),
                 variableDeclaration(
                   [variableDeclaratorIdentifier(identifier('Bar'))],
-                  [variableDeclaratorValue(tableConstructor())]
+                  [
+                    variableDeclaratorValue(
+                      typeCastExpression(
+                        tableConstructor(),
+                        typeIntersection([
+                          typeReference(identifier('Bar')),
+                          typeReference(identifier('Bar_statics')),
+                        ])
+                      )
+                    ),
+                  ]
                 ),
                 assignmentStatement(
                   AssignmentStatementOperatorEnum.EQ,
                   [
                     memberExpression(
-                      identifier('Bar'),
+                      typeCastExpression(identifier('Bar'), typeAny()),
                       '.',
                       identifier('__index')
                     ),
@@ -1247,15 +1320,41 @@ describe('Program handler', () => {
                   ),
                 ]
               ),
+              typeAliasDeclaration(
+                identifier('BarClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BarClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('BarClass'))],
-                [variableDeclaratorValue(tableConstructor())]
+                [
+                  variableDeclaratorValue(
+                    typeCastExpression(
+                      tableConstructor(),
+                      typeIntersection([
+                        typeReference(identifier('BarClass')),
+                        typeReference(identifier('BarClass_statics')),
+                      ])
+                    )
+                  ),
+                ]
               ),
               assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,
                 [
                   memberExpression(
-                    identifier('BarClass'),
+                    typeCastExpression(identifier('BarClass'), typeAny()),
                     '.',
                     identifier('__index')
                   ),
@@ -1321,7 +1420,8 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        const actual = handleProgram.handler(source, {}, given);
+        expect(actual).toEqual(expected);
       });
 
       it('should handle namespace with multiple type and function declarations - exported and not exported', () => {
