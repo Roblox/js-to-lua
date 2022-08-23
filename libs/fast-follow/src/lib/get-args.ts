@@ -13,11 +13,18 @@ export function setupCommands({
   return yargs
     .scriptName('fast-follow')
     .usage('$0 command [args]')
+    .showHelpOnFail(false)
     .command(
-      'compare',
+      'compare <sourceDir>',
       'compare changes in upstream between js-to-lua versions',
       (yargs) =>
         yargs
+          .positional('sourceDir', {
+            alias: ['source-dir', 's'],
+            type: 'string',
+            describe: 'location of the source code to work with',
+            demandOption: true,
+          })
           .option('outDir', {
             alias: ['out-dir', 'o'],
             type: 'string',
@@ -32,9 +39,9 @@ export function setupCommands({
             default: false,
           }),
       async (argv) => {
-        const { outDir, pullRequest } = argv;
+        const { sourceDir, outDir, pullRequest } = argv;
 
-        return compareDownstreams({ outDir, pullRequest });
+        return compareDownstreams({ sourceDir, outDir, pullRequest });
       }
     )
     .command(

@@ -43,6 +43,7 @@ runs:
       run: |
         npx nx run release-tracker:build
         npx nx run version-manager:build
+        npx nx run diff-tool:build
         npx nx run fast-follow:build
 
     - name: Link Release Tracker
@@ -53,14 +54,18 @@ runs:
       working-directory: dist/libs/version-manager
       run: npm link
 
+    - name: Link Diff Tool
+      working-directory: dist/libs/diff-tool
+      run: npm link
+
     - name: Link Fast Follow
       working-directory: dist/libs/fast-follow
       run: |
-        npm link @roblox/version-manager @roblox/release-tracker
+        npm link @roblox/version-manager @roblox/release-tracker @roblox/diff-tool
         npm link
 
     - name: Link Release Tracker (root)
-      run: npm link @roblox/version-manager @roblox/release-tracker
+      run: npm link @roblox/version-manager @roblox/release-tracker @roblox/diff-tool
 
     - name: Run Fast Follow
       run: npx fast-follow commit-scan -o roblox -r js-to-lua -c ${{ inputs.slack-channel-id }}

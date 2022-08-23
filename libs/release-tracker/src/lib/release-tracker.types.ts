@@ -16,6 +16,11 @@ export interface ConversionConfig {
   upstream: {
     owner: string;
     repo: string;
+    primaryBranch: string;
+    patterns: string[];
+  };
+  downstream: {
+    primaryBranch: string;
   };
 }
 

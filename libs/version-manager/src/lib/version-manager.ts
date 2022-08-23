@@ -12,6 +12,8 @@ import { lookpath } from 'lookpath';
 const ORG_NAME = 'Roblox';
 const REPO_NAME = 'js-to-lua';
 
+const SHA1_REGEX = /^[0-9a-f]{40}$/;
+
 /**
  * Finds the fully-qualified path of the repository root of the repository that
  * the process is currently in, if it is in one at all.
@@ -47,7 +49,7 @@ export async function findRepositoryRoot(
 /**
  * Installs or updates the existing instance of the conversion tool.
  */
-export async function setupConversionTool(ref: string) {
+export async function setupConversionTool(ref: string): Promise<string> {
   const cloneDir = os.tmpdir();
   const installDirName = `js-to-lua-${ref}`;
   const localRepoPath = path.join(cloneDir, installDirName);
@@ -57,6 +59,8 @@ export async function setupConversionTool(ref: string) {
   } else {
     await installConversionTool(localRepoPath, ref);
   }
+
+  return localRepoPath;
 }
 
 async function installConversionTool(installPath: string, ref: string) {
@@ -69,15 +73,10 @@ async function installConversionTool(installPath: string, ref: string) {
   }
 
   try {
-    const git = simpleGit();
     const remoteUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${ORG_NAME}/${REPO_NAME}.git`;
 
     console.log('⬇️  Cloning js-to-lua from github...');
-    await git.clone(remoteUrl, installPath);
-
-    await git.cwd(installPath);
-    await git.checkout(ref);
-
+    await shallowCloneRepository(remoteUrl, ref, installPath);
     await buildConversionTool(installPath);
   } catch (e) {
     await fs.promises.rm(installPath, { recursive: true, force: true });
@@ -143,5 +142,70 @@ async function updateConversionTool(
   await buildConversionTool(installPath);
 }
 
-// IDEA: Copy js-to-lua to parent with SHA1 checksum in the name and then switch
-// to the ref being passed as a parameter.
+/**
+ * Clones an upstream repository and checks out the specified ref.
+ */
+export async function setupUpstreamRepository(
+  owner: string,
+  name: string,
+  ref: string
+): Promise<string> {
+  const cloneDir = os.tmpdir();
+  const installDirName = `${owner}-${name}-${ref}`;
+  const localRepoPath = path.join(cloneDir, installDirName);
+
+  if (fs.existsSync(localRepoPath)) {
+    await updateUpstreamRepository(localRepoPath, ref);
+  } else {
+    console.log(`⬇️  Cloning upstream repository '${name}' from github...`);
+    await cloneUpstreamRepository(owner, name, localRepoPath, ref);
+  }
+
+  return localRepoPath;
+}
+
+async function cloneUpstreamRepository(
+  owner: string,
+  name: string,
+  repoPath: string,
+  ref: string
+) {
+  try {
+    const remoteUrl = `https://github.com/${owner}/${name}.git`;
+
+    await shallowCloneRepository(remoteUrl, ref, repoPath);
+  } catch (e) {
+    await fs.promises.rm(repoPath, { recursive: true, force: true });
+    throw e;
+  }
+}
+
+async function updateUpstreamRepository(repoPath: string, ref: string) {
+  const git = simpleGit();
+
+  console.log('⬇️  Fetching updates from github...');
+  await git.cwd(repoPath);
+  await git.fetch('origin');
+  await git.checkout(`origin/${ref}`);
+}
+
+async function shallowCloneRepository(
+  url: string,
+  ref: string,
+  directory: string
+) {
+  const git = simpleGit();
+
+  if (SHA1_REGEX.test(ref)) {
+    fs.mkdirSync(directory, { recursive: true });
+    await git.cwd(directory);
+    await git.init();
+    await git.addRemote('origin', url);
+    await git.fetch('origin', ref, { '--depth': 1 });
+    await git.checkout('FETCH_HEAD');
+  } else {
+    await git.clone(url, directory, { '--depth': 1 });
+    await git.cwd(directory);
+    await git.checkout(ref);
+  }
+}

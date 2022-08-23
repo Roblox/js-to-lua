@@ -3,6 +3,7 @@
   "projects": {
     "convert": "libs/convert",
     "convert-js-to-lua": "apps/convert-js-to-lua",
+    "diff-tool": "libs/diff-tool",
     "fast-follow": "libs/fast-follow",
     "handler-utils": "libs/handler-utils",
     "lua-conversion-utils": "libs/lua-conversion-utils",

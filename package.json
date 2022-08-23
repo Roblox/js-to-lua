@@ -46,7 +46,7 @@
     "@babel/types": "7.15.0",
     "@slack/bolt": "^3.11.3",
     "@types/ramda": "^0.27.40",
-    "glob": "^7.1.6",
+    "glob": "^7.2.3",
     "lookpath": "^1.2.2",
     "octokit": "^2.0.4",
     "ramda": "^0.27.1",

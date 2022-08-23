@@ -1,0 +1,34 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/diff-tool/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/diff-tool/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/diff-tool"],
+      "options": {
+        "jestConfig": "libs/diff-tool/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/diff-tool",
+        "tsConfig": "libs/diff-tool/tsconfig.lib.json",
+        "packageJson": "libs/diff-tool/package.json",
+        "main": "libs/diff-tool/src/index.ts",
+        "assets": ["libs/diff-tool/*.md"]
+      }
+    }
+  },
+  "tags": ["scope:fast-follow"]
+}
