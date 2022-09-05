@@ -1,4 +1,5 @@
 import { LuaBlockStatement } from '@js-to-lua/lua-types';
+import { fmtJoin } from '@js-to-lua/shared-utils';
 import { PrintComments, PrintNode } from '../print-node';
 import { getPrintableInnerComments } from '../printable-comments';
 import { PrinterFunction } from '../printer-function';
@@ -8,12 +9,15 @@ export const createPrintBlockStatement = (
   printComments: PrintComments
 ): PrinterFunction<LuaBlockStatement> => {
   return (node: LuaBlockStatement) => {
-    const blockBody = node.body.map((value) => printNode(value)).join('\n  ');
+    const blockBody = fmtJoin(
+      '\n  ',
+      node.body.map((value) => printNode(value))
+    );
     const innerComments = printComments(
       getPrintableInnerComments(node.innerComments)
     );
 
-    if (blockBody.length > 0) {
+    if (blockBody.toString().length > 0) {
       return `do${innerComments.toString() ? ` ${innerComments}` : ''}
   ${blockBody}
 end`;

@@ -155,20 +155,22 @@ describe('Program handler', () => {
               ])
             )
           ),
-          typeAliasDeclaration(
-            identifier('Foo_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('Foo'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('Foo_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([typeReference(identifier('Foo'))])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Foo'))],
             [

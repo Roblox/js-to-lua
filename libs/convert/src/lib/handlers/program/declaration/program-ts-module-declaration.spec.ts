@@ -411,20 +411,24 @@ describe('Program handler', () => {
                     ),
                   ])
                 ),
-                typeAliasDeclaration(
-                  identifier('Bar_statics'),
-                  typeLiteral([
-                    typePropertySignature(
-                      identifier('new'),
-                      typeAnnotation(
-                        typeFunction(
-                          [],
-                          functionReturnType([typeReference(identifier('Bar'))])
+                nodeGroup([
+                  typeAliasDeclaration(
+                    identifier('Bar_statics'),
+                    typeLiteral([
+                      typePropertySignature(
+                        identifier('new'),
+                        typeAnnotation(
+                          typeFunction(
+                            [],
+                            functionReturnType([
+                              typeReference(identifier('Bar')),
+                            ])
+                          )
                         )
-                      )
-                    ),
-                  ])
-                ),
+                      ),
+                    ])
+                  ),
+                ]),
                 variableDeclaration(
                   [variableDeclaratorIdentifier(identifier('Bar'))],
                   [
@@ -549,20 +553,22 @@ describe('Program handler', () => {
                   ),
                 ]
               ),
-              typeAliasDeclaration(
-                identifier('Bar_statics'),
-                typeLiteral([
-                  typePropertySignature(
-                    identifier('new'),
-                    typeAnnotation(
-                      typeFunction(
-                        [],
-                        functionReturnType([typeReference(identifier('Bar'))])
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('Bar_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([typeReference(identifier('Bar'))])
+                        )
                       )
-                    )
-                  ),
-                ])
-              ),
+                    ),
+                  ])
+                ),
+              ]),
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('Bar'))],
                 [
@@ -1170,20 +1176,24 @@ describe('Program handler', () => {
                     ),
                   ])
                 ),
-                typeAliasDeclaration(
-                  identifier('Bar_statics'),
-                  typeLiteral([
-                    typePropertySignature(
-                      identifier('new'),
-                      typeAnnotation(
-                        typeFunction(
-                          [],
-                          functionReturnType([typeReference(identifier('Bar'))])
+                nodeGroup([
+                  typeAliasDeclaration(
+                    identifier('Bar_statics'),
+                    typeLiteral([
+                      typePropertySignature(
+                        identifier('new'),
+                        typeAnnotation(
+                          typeFunction(
+                            [],
+                            functionReturnType([
+                              typeReference(identifier('Bar')),
+                            ])
+                          )
                         )
-                      )
-                    ),
-                  ])
-                ),
+                      ),
+                    ])
+                  ),
+                ]),
                 variableDeclaration(
                   [variableDeclaratorIdentifier(identifier('Bar'))],
                   [
@@ -1320,22 +1330,24 @@ describe('Program handler', () => {
                   ),
                 ]
               ),
-              typeAliasDeclaration(
-                identifier('BarClass_statics'),
-                typeLiteral([
-                  typePropertySignature(
-                    identifier('new'),
-                    typeAnnotation(
-                      typeFunction(
-                        [],
-                        functionReturnType([
-                          typeReference(identifier('BarClass')),
-                        ])
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('BarClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('BarClass')),
+                          ])
+                        )
                       )
-                    )
-                  ),
-                ])
-              ),
+                    ),
+                  ])
+                ),
+              ]),
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('BarClass'))],
                 [

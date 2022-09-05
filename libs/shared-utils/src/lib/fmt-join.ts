@@ -11,6 +11,10 @@ export const fmtJoin = (
   return values
     .map((v) => (isPrintableNode(v) ? v : printableNode(v)))
     .reduceRight((right, left) => {
+      if (!left.toString()) {
+        return right;
+      }
+
       const separator =
         (right.value || sep) && left.needsNewLine && !sep.startsWith('\n')
           ? `\n${sep}`
@@ -22,7 +26,4 @@ export const fmtJoin = (
         right.needsNewLine || (!suffix && left.needsNewLine)
       );
     });
-
-  // return printableNode(strings[0] + value, needsNewLine);
-  // return printableNode(values.join(separator), false);
 };

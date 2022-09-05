@@ -18,12 +18,16 @@ export const createExtractDeclarationMetadata = <
     let exportedTypes: LuaTypeAliasDeclaration[] = [];
 
     if (isClassDeclaration(maybeDeclaration)) {
-      const [classType, classTypeStatics, classVariableDeclaration, ...rest] =
-        maybeDeclaration.body;
+      const [
+        classType,
+        additionalTypeDeclarations,
+        classVariableDeclaration,
+        ...rest
+      ] = maybeDeclaration.body;
       exportedTypes = [classType as LuaTypeAliasDeclaration];
       declaration = {
         ...maybeDeclaration,
-        body: [classTypeStatics, classVariableDeclaration, ...rest],
+        body: [additionalTypeDeclarations, classVariableDeclaration, ...rest],
       };
       declarationIds = getDeclarationId(classVariableDeclaration as T);
     } else {

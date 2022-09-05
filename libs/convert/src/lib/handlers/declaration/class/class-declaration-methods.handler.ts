@@ -30,6 +30,8 @@ import { createFunctionParamsHandler } from '../../function-params.handler';
 import { createFunctionReturnTypeHandler } from '../../function-return-type.handler';
 import { createAssignmentPatternHandlerFunction } from '../../statement/assignment/assignment-pattern.handler';
 import {
+  createClassIdentifierPrivate,
+  hasNonPublicMembers,
   isAnyClassMethod,
   isAnyClassProperty,
   isClassConstructor,
@@ -60,7 +62,9 @@ export const createClassMethodsHandlerFunction = (
     EmptyConfig & { classIdentifier: LuaIdentifier }
   >(
     (source, config, node) => {
-      const { classIdentifier } = config;
+      const classBaseIdentifier = hasNonPublicMembers(node)
+        ? createClassIdentifierPrivate(config.classIdentifier)
+        : config.classIdentifier;
 
       const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
         handleExpression,
@@ -126,7 +130,9 @@ export const createClassMethodsHandlerFunction = (
         return Babel.isIdentifier(node.key) && isIdentifier(id)
           ? functionDeclarationMultipleReturn(
               identifier(
-                `${classIdentifier.name}${node.static ? '.' : ':'}${id.name}`
+                `${classBaseIdentifier.name}${node.static ? '.' : ':'}${
+                  id.name
+                }`
               ),
               [
                 ...functionParamsHandler(

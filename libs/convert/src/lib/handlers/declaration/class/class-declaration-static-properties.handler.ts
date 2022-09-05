@@ -17,7 +17,11 @@ import {
   nilLiteral,
   nodeGroup,
 } from '@js-to-lua/lua-types';
-import { isAnyClassProperty } from './class-declaration.utils';
+import {
+  createClassIdentifierPrivate,
+  isAnyClassProperty,
+  isPublic,
+} from './class-declaration.utils';
 
 export const createStaticPropsHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>
@@ -32,30 +36,42 @@ export const createStaticPropsHandlerFunction = (
         .filter(isAnyClassProperty)
         .filter((n) => n.value && n.static);
 
-      return nodeGroup(staticInitializedClassProperties.map(handleProperty));
+      const staticInitializedClassPropertiesPublic =
+        staticInitializedClassProperties.filter(isPublic);
 
-      function handleProperty(
-        property: Babel.ClassProperty | Babel.ClassPrivateProperty
-      ) {
-        const { classIdentifier } = config;
-        const propertyKey = !Babel.isPrivateName(property.key)
-          ? handleExpression(source, config, property.key)
-          : defaultUnhandledIdentifierHandlerWithComment(
-              `ROBLOX comment: unhandled class body node type ${property.key.type}`
-            )(source, config, property.key);
-        return assignmentStatement(
-          AssignmentStatementOperatorEnum.EQ,
-          [
-            isIdentifier(propertyKey)
-              ? memberExpression(classIdentifier, '.', propertyKey)
-              : indexExpression(classIdentifier, propertyKey),
-          ],
-          [
-            property.value
-              ? handleExpression(source, config, property.value)
-              : nilLiteral(),
-          ]
-        );
+      const staticInitializedClassPropertiesNotPublic =
+        staticInitializedClassProperties.filter((node) => !isPublic(node));
+
+      return nodeGroup([
+        ...staticInitializedClassPropertiesPublic.map(
+          handleProperty(config.classIdentifier)
+        ),
+        ...staticInitializedClassPropertiesNotPublic.map(
+          handleProperty(createClassIdentifierPrivate(config.classIdentifier))
+        ),
+      ]);
+
+      function handleProperty(classIdentifier: LuaIdentifier) {
+        return (property: Babel.ClassProperty | Babel.ClassPrivateProperty) => {
+          const propertyKey = !Babel.isPrivateName(property.key)
+            ? handleExpression(source, config, property.key)
+            : defaultUnhandledIdentifierHandlerWithComment(
+                `ROBLOX comment: unhandled class body node type ${property.key.type}`
+              )(source, config, property.key);
+          return assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [
+              isIdentifier(propertyKey)
+                ? memberExpression(classIdentifier, '.', propertyKey)
+                : indexExpression(classIdentifier, propertyKey),
+            ],
+            [
+              property.value
+                ? handleExpression(source, config, property.value)
+                : nilLiteral(),
+            ]
+          );
+        };
       }
     },
     { skipComments: true }

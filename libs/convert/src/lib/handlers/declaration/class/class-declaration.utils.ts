@@ -26,15 +26,65 @@ export const isAnyClassMethod = (
   Babel.isClassPrivateMethod(node) ||
   Babel.isTSDeclareMethod(node);
 
-export const isPublic = (node: {
-  accessibility?: 'public' | 'private' | 'protected' | null;
-}): boolean => !node.accessibility || node.accessibility === 'public';
+const isObject = (node: unknown): node is Record<string, unknown> =>
+  typeof node === 'object' && node !== null;
 
-export const isPublicClassMethod = (
+export const isPublic = (
+  node: unknown
+): node is { accessibility?: 'public' | null } =>
+  isObject(node) &&
+  (node.accessibility === undefined ||
+    node.accessibility === null ||
+    node.accessibility === 'public');
+
+export const isPrivate = (
+  node: unknown
+): node is { accessibility: 'private' } =>
+  isObject(node) && node.accessibility === 'private';
+
+export const isProtected = (
+  node: unknown
+): node is { accessibility: 'protected' } =>
+  isObject(node) && node.accessibility === 'protected';
+
+export const isClassMethod = (
   node: BabelClassBodyNode
 ): node is Babel.ClassMethod | Babel.TSDeclareMethod =>
-  (Babel.isClassMethod(node) || Babel.isTSDeclareMethod(node)) &&
-  isPublic(node);
+  Babel.isClassMethod(node) || Babel.isTSDeclareMethod(node);
+
+export const createClassIdentifierPrivate = (classIdentifier: LuaIdentifier) =>
+  identifier(`${classIdentifier.name}_private`);
 
 export const createClassIdentifierStatics = (classIdentifier: LuaIdentifier) =>
   identifier(`${classIdentifier.name}_statics`);
+
+export const hasPrivateMembers = (node: Babel.ClassDeclaration): boolean => {
+  const constructorMethod = node.body.body.find(isClassConstructor);
+
+  const hasPrivateConstructorParam = !!(
+    constructorMethod &&
+    constructorMethod.params.find((p) => 'accessibility' in p && isPrivate(p))
+  );
+  const hasPrivateMember = !!node.body.body.find(
+    (p) => 'accessibility' in p && isPrivate(p)
+  );
+
+  return hasPrivateConstructorParam || hasPrivateMember;
+};
+
+export const hasProtectedMembers = (node: Babel.ClassDeclaration): boolean => {
+  const constructorMethod = node.body.body.find(isClassConstructor);
+
+  const hasPrivateConstructorParam = !!(
+    constructorMethod &&
+    constructorMethod.params.find((p) => 'accessibility' in p && isProtected(p))
+  );
+  const hasPrivateMember = !!node.body.body.find(
+    (p) => 'accessibility' in p && isProtected(p)
+  );
+
+  return hasPrivateConstructorParam || hasPrivateMember;
+};
+
+export const hasNonPublicMembers = (node: Babel.ClassDeclaration): boolean =>
+  hasPrivateMembers(node) || hasProtectedMembers(node);

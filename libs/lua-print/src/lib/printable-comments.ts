@@ -71,8 +71,7 @@ export const getFilteredLeadingComments = (
 
 export const getPrintableLeadingComments = (
   comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  getFilteredLeadingComments(comments).filter((n) => !printedNodes.get(n));
+): LuaComment[] => getFilteredLeadingComments(comments).filter(notPrinted);
 
 export const getFilteredInnerComments = (
   comments: readonly LuaComment[] | undefined = []
@@ -89,8 +88,7 @@ export const getFilteredInnerComments = (
 
 export const getPrintableInnerComments = (
   comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  getFilteredInnerComments(comments).filter((n) => !printedNodes.get(n));
+): LuaComment[] => getFilteredInnerComments(comments).filter(notPrinted);
 
 export const getFilteredTrailingComments = (
   comments: readonly LuaComment[] | undefined = []
@@ -107,5 +105,6 @@ export const getFilteredTrailingComments = (
 
 export const getPrintableTrailingComments = (
   comments: readonly LuaComment[] | undefined = []
-): LuaComment[] =>
-  getFilteredTrailingComments(comments).filter((n) => !printedNodes.get(n));
+): LuaComment[] => getFilteredTrailingComments(comments).filter(notPrinted);
+
+const notPrinted = (n: LuaComment) => !printedNodes.get(n);

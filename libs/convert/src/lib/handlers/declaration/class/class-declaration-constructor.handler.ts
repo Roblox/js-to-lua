@@ -3,6 +3,7 @@ import {
   AsStatementHandlerFunction,
   createHandlerFunction,
   EmptyConfig,
+  handleComments,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
@@ -51,6 +52,8 @@ import { createFunctionParamsHandler } from '../../function-params.handler';
 import { createAssignmentPatternHandlerFunction } from '../../statement/assignment/assignment-pattern.handler';
 import { createTypeParameterDeclarationHandler } from '../../type/type-parameter-declaration.handler';
 import {
+  createClassIdentifierPrivate,
+  hasNonPublicMembers,
   isAnyClassProperty,
   isClassConstructor,
 } from './class-declaration.utils';
@@ -105,6 +108,9 @@ export const createConstructorHandlerFunction = (
       );
 
       const { classIdentifier } = config;
+      const classBaseIdentifier = hasNonPublicMembers(node)
+        ? createClassIdentifierPrivate(classIdentifier)
+        : classIdentifier;
 
       const constructorMethod = node.body.body.find(isClassConstructor);
 
@@ -177,43 +183,47 @@ export const createConstructorHandlerFunction = (
           )
         : undefined;
       return constructorMethod
-        ? functionDeclaration(
-            identifier(`${classIdentifier.name}.new`),
-            [
-              ...functionParamsHandler(
-                source,
-                {
-                  assignedTo: undefined,
-                  noShadowIdentifiers: undefined,
-                  ...config,
-                },
-                constructorMethod
-              ),
-            ],
-            nodeGroup([
-              defaultSelfDeclaration,
-              ...handleParamsBody(source, config, constructorMethod),
-              ...constructorMethod.params
-                .filter((n): n is Babel.TSParameterProperty =>
-                  Babel.isTSParameterProperty(n)
-                )
-                .map(handleConstructorTsParameterProp),
-              ...nonStaticPropertiesConstructorInitializers,
-              ...functionBodyHandler(source, config, constructorMethod),
-              returnStatement(
-                typeCastExpression(
-                  typeCastExpression(selfIdentifier(), typeAny()),
-                  typeReference(classIdentifier, genericTypeParameters)
-                )
-              ),
-            ]),
+        ? handleComments(
+            source,
+            constructorMethod,
+            functionDeclaration(
+              identifier(`${classBaseIdentifier.name}.new`),
+              [
+                ...functionParamsHandler(
+                  source,
+                  {
+                    assignedTo: undefined,
+                    noShadowIdentifiers: undefined,
+                    ...config,
+                  },
+                  constructorMethod
+                ),
+              ],
+              nodeGroup([
+                defaultSelfDeclaration,
+                ...handleParamsBody(source, config, constructorMethod),
+                ...constructorMethod.params
+                  .filter((n): n is Babel.TSParameterProperty =>
+                    Babel.isTSParameterProperty(n)
+                  )
+                  .map(handleConstructorTsParameterProp),
+                ...nonStaticPropertiesConstructorInitializers,
+                ...functionBodyHandler(source, config, constructorMethod),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(classIdentifier, genericTypeParameters)
+                  )
+                ),
+              ]),
 
-            typeReference(classIdentifier, genericTypeParameters),
-            false,
-            genericTypeParametersDeclaration
+              typeReference(classIdentifier, genericTypeParameters),
+              false,
+              genericTypeParametersDeclaration
+            )
           )
         : functionDeclaration(
-            identifier(`${classIdentifier.name}.new`),
+            identifier(`${classBaseIdentifier.name}.new`),
             [],
             nodeGroup([
               defaultSelfDeclaration,

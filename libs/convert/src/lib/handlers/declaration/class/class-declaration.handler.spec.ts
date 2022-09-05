@@ -2,6 +2,7 @@ import * as Babel from '@babel/types';
 import {
   selfIdentifier,
   withClassDeclarationExtra,
+  withLeadingComments,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -9,6 +10,7 @@ import {
   AssignmentStatementOperatorEnum,
   binaryExpression,
   callExpression,
+  commentLine,
   expressionStatement,
   functionDeclaration,
   functionDeclarationMultipleReturn,
@@ -75,6 +77,47 @@ describe('Class Declaration', () => {
         [identifier('BaseClass')]
       ),
     ];
+    const baseClassPrivateExpectedNodes = [
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('BaseClass'))],
+        [
+          variableDeclaratorValue(
+            typeCastExpression(
+              tableConstructor(),
+              typeIntersection([
+                typeReference(identifier('BaseClass')),
+                typeReference(identifier('BaseClass_statics')),
+              ])
+            )
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('BaseClass_private'))],
+        [
+          variableDeclaratorValue(
+            typeCastExpression(
+              identifier('BaseClass'),
+              typeIntersection([
+                typeReference(identifier('BaseClass_private')),
+                typeReference(identifier('BaseClass_statics')),
+              ])
+            )
+          ),
+        ]
+      ),
+      assignmentStatement(
+        AssignmentStatementOperatorEnum.EQ,
+        [
+          memberExpression(
+            typeCastExpression(identifier('BaseClass'), typeAny()),
+            '.',
+            identifier('__index')
+          ),
+        ],
+        [identifier('BaseClass')]
+      ),
+    ];
 
     const baseClassGenericExpectedNodes = [
       variableDeclaration(
@@ -114,20 +157,24 @@ describe('Class Declaration', () => {
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -173,20 +220,24 @@ describe('Class Declaration', () => {
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -238,25 +289,27 @@ describe('Class Declaration', () => {
             typeLiteral([]),
             typeParameterDeclaration([typeReference(identifier('T'))])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([
-                      typeReference(identifier('BaseClass'), [
-                        typeReference(identifier('T')),
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass'), [
+                          typeReference(identifier('T')),
+                        ]),
                       ]),
-                    ]),
-                    typeParameterDeclaration([typeReference(identifier('T'))])
+                      typeParameterDeclaration([typeReference(identifier('T'))])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassGenericExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -316,27 +369,29 @@ describe('Class Declaration', () => {
               typeReference(identifier('T'), undefined, typeString()),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([
-                      typeReference(identifier('BaseClass'), [
-                        typeReference(identifier('T')),
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass'), [
+                          typeReference(identifier('T')),
+                        ]),
                       ]),
-                    ]),
-                    typeParameterDeclaration([
-                      typeReference(identifier('T'), undefined, typeString()),
-                    ])
+                      typeParameterDeclaration([
+                        typeReference(identifier('T'), undefined, typeString()),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassGenericExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -393,20 +448,24 @@ describe('Class Declaration', () => {
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier('BaseClass.new'),
@@ -474,20 +533,24 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -565,20 +628,24 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -658,20 +725,24 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -730,20 +801,24 @@ describe('Class Declaration', () => {
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -803,20 +878,24 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -873,20 +952,24 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -948,20 +1031,24 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -1028,20 +1115,24 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -1104,20 +1195,24 @@ describe('Class Declaration', () => {
       const expected = withClassDeclarationExtra(
         nodeGroup([
           typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -1199,20 +1294,24 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -1290,25 +1389,29 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [
-                      functionParamName(
-                        identifier('publicProperty'),
-                        typeAny()
-                      ),
-                    ],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionParamName(
+                          identifier('publicProperty'),
+                          typeAny()
+                        ),
+                      ],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -1387,25 +1490,29 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [
-                      functionParamName(
-                        identifier('publicProperty'),
-                        typeString()
-                      ),
-                    ],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionParamName(
+                          identifier('publicProperty'),
+                          typeString()
+                        ),
+                      ],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -1484,25 +1591,29 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [
-                      functionParamName(
-                        identifier('publicProperty'),
-                        typeOptional(typeString())
-                      ),
-                    ],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionParamName(
+                          identifier('publicProperty'),
+                          typeOptional(typeString())
+                        ),
+                      ],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -1610,25 +1721,29 @@ describe('Class Declaration', () => {
               ),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('BaseClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [
-                      functionParamName(
-                        identifier('publicProperty'),
-                        typeOptional(typeUnion([typeString(), typeNumber()]))
-                      ),
-                    ],
-                    functionReturnType([typeReference(identifier('BaseClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [
+                        functionParamName(
+                          identifier('publicProperty'),
+                          typeOptional(typeUnion([typeString(), typeNumber()]))
+                        ),
+                      ],
+                      functionReturnType([
+                        typeReference(identifier('BaseClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...baseClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`BaseClass.new`),
@@ -1693,6 +1808,1150 @@ describe('Class Declaration', () => {
       );
 
       expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+    });
+
+    describe('private members', () => {
+      it('should convert constructor params with private modifier', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.identifier('privateProperty')
+                  ),
+                  accessibility: 'private',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('privateProperty'),
+                      typeAnnotation(typeAny())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PRIVATE *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('privateProperty'),
+                            typeAny()
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [identifier('privateProperty')],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('privateProperty')
+                    ),
+                  ],
+                  [identifier('privateProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        const actual = statementHandler.handler(source, {}, given);
+        expect(actual).toEqual(expected);
+      });
+
+      it('should convert constructor params with private modifier with type annotation', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty({
+                    ...Babel.identifier('privateProperty'),
+                    typeAnnotation: Babel.tsTypeAnnotation(
+                      Babel.tsStringKeyword()
+                    ),
+                  }),
+                  accessibility: 'private',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('privateProperty'),
+                      typeAnnotation(typeString())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PRIVATE *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('privateProperty'),
+                            typeString()
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [identifier('privateProperty', typeAnnotation(typeString()))],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('privateProperty')
+                    ),
+                  ],
+                  [identifier('privateProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert constructor params with private modifier with default value', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.assignmentPattern(
+                      Babel.identifier('privateProperty'),
+                      Babel.stringLiteral('foo')
+                    )
+                  ),
+                  accessibility: 'private',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('privateProperty'),
+                      typeAnnotation(typeString())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PRIVATE *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('privateProperty'),
+                            typeOptional(typeString())
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [
+                identifier(
+                  'privateProperty',
+                  typeAnnotation(typeOptional(typeString()))
+                ),
+              ],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                ifStatement(
+                  ifClause(
+                    binaryExpression(
+                      identifier('privateProperty'),
+                      '==',
+                      nilLiteral()
+                    ),
+                    nodeGroup([
+                      assignmentStatement(
+                        AssignmentStatementOperatorEnum.EQ,
+                        [identifier('privateProperty')],
+                        [stringLiteral('foo')]
+                      ),
+                    ])
+                  )
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('privateProperty')
+                    ),
+                  ],
+                  [identifier('privateProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert constructor params with private modifier with default value and explicit type annotation', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.assignmentPattern(
+                      {
+                        ...Babel.identifier('privateProperty'),
+                        typeAnnotation: Babel.tSTypeAnnotation(
+                          Babel.tSUnionType([
+                            Babel.tsStringKeyword(),
+                            Babel.tSNumberKeyword(),
+                          ])
+                        ),
+                      },
+                      Babel.stringLiteral('foo')
+                    )
+                  ),
+                  accessibility: 'private',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('privateProperty'),
+                      typeAnnotation(typeUnion([typeString(), typeNumber()]))
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PRIVATE *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('privateProperty'),
+                            typeOptional(
+                              typeUnion([typeString(), typeNumber()])
+                            )
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [
+                identifier(
+                  'privateProperty',
+                  typeAnnotation(
+                    typeOptional(typeUnion([typeString(), typeNumber()]))
+                  )
+                ),
+              ],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                ifStatement(
+                  ifClause(
+                    binaryExpression(
+                      identifier('privateProperty'),
+                      '==',
+                      nilLiteral()
+                    ),
+                    nodeGroup([
+                      assignmentStatement(
+                        AssignmentStatementOperatorEnum.EQ,
+                        [identifier('privateProperty')],
+                        [stringLiteral('foo')]
+                      ),
+                    ])
+                  )
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('privateProperty')
+                    ),
+                  ],
+                  [identifier('privateProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+      });
+    });
+
+    describe('protected members', () => {
+      it('should convert constructor params with private modifier', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.identifier('protectedProperty')
+                  ),
+                  accessibility: 'protected',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('protectedProperty'),
+                      typeAnnotation(typeAny())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PROTECTED *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('protectedProperty'),
+                            typeAny()
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [identifier('protectedProperty')],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('protectedProperty')
+                    ),
+                  ],
+                  [identifier('protectedProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        const actual = statementHandler.handler(source, {}, given);
+        expect(actual).toEqual(expected);
+      });
+
+      it('should convert constructor params with protected modifier with type annotation', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty({
+                    ...Babel.identifier('protectedProperty'),
+                    typeAnnotation: Babel.tsTypeAnnotation(
+                      Babel.tsStringKeyword()
+                    ),
+                  }),
+                  accessibility: 'protected',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('protectedProperty'),
+                      typeAnnotation(typeString())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PROTECTED *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('protectedProperty'),
+                            typeString()
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [identifier('protectedProperty', typeAnnotation(typeString()))],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('protectedProperty')
+                    ),
+                  ],
+                  [identifier('protectedProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert constructor params with protected modifier with default value', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.assignmentPattern(
+                      Babel.identifier('protectedProperty'),
+                      Babel.stringLiteral('foo')
+                    )
+                  ),
+                  accessibility: 'protected',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('protectedProperty'),
+                      typeAnnotation(typeString())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PROTECTED *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('protectedProperty'),
+                            typeOptional(typeString())
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [
+                identifier(
+                  'protectedProperty',
+                  typeAnnotation(typeOptional(typeString()))
+                ),
+              ],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                ifStatement(
+                  ifClause(
+                    binaryExpression(
+                      identifier('protectedProperty'),
+                      '==',
+                      nilLiteral()
+                    ),
+                    nodeGroup([
+                      assignmentStatement(
+                        AssignmentStatementOperatorEnum.EQ,
+                        [identifier('protectedProperty')],
+                        [stringLiteral('foo')]
+                      ),
+                    ])
+                  )
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('protectedProperty')
+                    ),
+                  ],
+                  [identifier('protectedProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+      });
+
+      it('should convert constructor params with protected modifier with default value and explicit type annotation', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.assignmentPattern(
+                      {
+                        ...Babel.identifier('protectedProperty'),
+                        typeAnnotation: Babel.tSTypeAnnotation(
+                          Babel.tSUnionType([
+                            Babel.tsStringKeyword(),
+                            Babel.tSNumberKeyword(),
+                          ])
+                        ),
+                      },
+                      Babel.stringLiteral('foo')
+                    )
+                  ),
+                  accessibility: 'protected',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('protectedProperty'),
+                      typeAnnotation(typeUnion([typeString(), typeNumber()]))
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PROTECTED *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('protectedProperty'),
+                            typeOptional(
+                              typeUnion([typeString(), typeNumber()])
+                            )
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [
+                identifier(
+                  'protectedProperty',
+                  typeAnnotation(
+                    typeOptional(typeUnion([typeString(), typeNumber()]))
+                  )
+                ),
+              ],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                ifStatement(
+                  ifClause(
+                    binaryExpression(
+                      identifier('protectedProperty'),
+                      '==',
+                      nilLiteral()
+                    ),
+                    nodeGroup([
+                      assignmentStatement(
+                        AssignmentStatementOperatorEnum.EQ,
+                        [identifier('protectedProperty')],
+                        [stringLiteral('foo')]
+                      ),
+                    ])
+                  )
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('protectedProperty')
+                    ),
+                  ],
+                  [identifier('protectedProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        expect(statementHandler.handler(source, {}, given)).toEqual(expected);
+      });
+    });
+
+    describe('mixed members', () => {
+      it('should convert constructor params with mixed modifiers', () => {
+        const given = Babel.classDeclaration(
+          Babel.identifier('BaseClass'),
+          null,
+          Babel.classBody([
+            Babel.classMethod(
+              'constructor',
+              Babel.identifier('constructor'),
+              [
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.identifier('publicProperty')
+                  ),
+                  accessibility: 'public',
+                },
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.identifier('protectedProperty')
+                  ),
+                  accessibility: 'protected',
+                },
+                {
+                  ...Babel.tsParameterProperty(
+                    Babel.identifier('privateProperty')
+                  ),
+                  accessibility: 'private',
+                },
+              ],
+              Babel.blockStatement([])
+            ),
+          ])
+        );
+
+        const expected = withClassDeclarationExtra(
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('BaseClass'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('publicProperty'),
+                  typeAnnotation(typeAny())
+                ),
+              ])
+            ),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_private'),
+                typeLiteral([
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('publicProperty'),
+                      typeAnnotation(typeAny())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PUBLIC *** '),
+                    commentLine('')
+                  ),
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('protectedProperty'),
+                      typeAnnotation(typeAny())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PROTECTED *** '),
+                    commentLine('')
+                  ),
+                  withLeadingComments(
+                    typePropertySignature(
+                      identifier('privateProperty'),
+                      typeAnnotation(typeAny())
+                    ),
+                    commentLine(''),
+                    commentLine(' *** PRIVATE *** '),
+                    commentLine('')
+                  ),
+                ])
+              ),
+
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [
+                          functionParamName(
+                            identifier('publicProperty'),
+                            typeAny()
+                          ),
+                          functionParamName(
+                            identifier('protectedProperty'),
+                            typeAny()
+                          ),
+                          functionParamName(
+                            identifier('privateProperty'),
+                            typeAny()
+                          ),
+                        ],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
+                    )
+                  ),
+                ])
+              ),
+            ]),
+            ...baseClassPrivateExpectedNodes,
+            functionDeclaration(
+              identifier(`BaseClass_private.new`),
+              [
+                identifier('publicProperty'),
+                identifier('protectedProperty'),
+                identifier('privateProperty'),
+              ],
+              nodeGroup([
+                variableDeclaration(
+                  [variableDeclaratorIdentifier(selfIdentifier())],
+                  [
+                    variableDeclaratorValue(
+                      callExpression(identifier('setmetatable'), [
+                        tableConstructor(),
+                        identifier('BaseClass'),
+                      ])
+                    ),
+                  ]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('publicProperty')
+                    ),
+                  ],
+                  [identifier('publicProperty')]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('protectedProperty')
+                    ),
+                  ],
+                  [identifier('protectedProperty')]
+                ),
+                assignmentStatement(
+                  AssignmentStatementOperatorEnum.EQ,
+                  [
+                    memberExpression(
+                      selfIdentifier(),
+                      '.',
+                      identifier('privateProperty')
+                    ),
+                  ],
+                  [identifier('privateProperty')]
+                ),
+                returnStatement(
+                  typeCastExpression(
+                    typeCastExpression(selfIdentifier(), typeAny()),
+                    typeReference(identifier('BaseClass'))
+                  )
+                ),
+              ]),
+              typeReference(identifier('BaseClass')),
+              false
+            ),
+          ])
+        );
+
+        const actual = statementHandler.handler(source, {}, given);
+        expect(actual).toEqual(expected);
+      });
     });
   });
 
@@ -1830,20 +3089,24 @@ describe('Class Declaration', () => {
               typeLiteral([]),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('SubClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -1901,25 +3164,27 @@ describe('Class Declaration', () => {
             ]),
             typeParameterDeclaration([typeReference(identifier('T'))])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([
-                      typeReference(identifier('SubClass'), [
-                        typeReference(identifier('T')),
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass'), [
+                          typeReference(identifier('T')),
+                        ]),
                       ]),
-                    ]),
-                    typeParameterDeclaration([typeReference(identifier('T'))])
+                      typeParameterDeclaration([typeReference(identifier('T'))])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassGenericExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -1985,27 +3250,29 @@ describe('Class Declaration', () => {
               typeReference(identifier('T'), undefined, typeString()),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([
-                      typeReference(identifier('SubClass'), [
-                        typeReference(identifier('T')),
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass'), [
+                          typeReference(identifier('T')),
+                        ]),
                       ]),
-                    ]),
-                    typeParameterDeclaration([
-                      typeReference(identifier('T'), undefined, typeString()),
-                    ])
+                      typeParameterDeclaration([
+                        typeReference(identifier('T'), undefined, typeString()),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassGenericExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -2079,29 +3346,31 @@ describe('Class Declaration', () => {
               typeReference(identifier('V')),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([
-                      typeReference(identifier('SubClass'), [
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass'), [
+                          typeReference(identifier('T')),
+                          typeReference(identifier('V')),
+                        ]),
+                      ]),
+                      typeParameterDeclaration([
                         typeReference(identifier('T')),
                         typeReference(identifier('V')),
-                      ]),
-                    ]),
-                    typeParameterDeclaration([
-                      typeReference(identifier('T')),
-                      typeReference(identifier('V')),
-                    ])
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassGenericMultipleExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -2179,29 +3448,31 @@ describe('Class Declaration', () => {
               typeReference(identifier('V')),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([
-                      typeReference(identifier('SubClass'), [
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass'), [
+                          typeReference(identifier('T')),
+                          typeReference(identifier('V')),
+                        ]),
+                      ]),
+                      typeParameterDeclaration([
                         typeReference(identifier('T')),
                         typeReference(identifier('V')),
-                      ]),
-                    ]),
-                    typeParameterDeclaration([
-                      typeReference(identifier('T')),
-                      typeReference(identifier('V')),
-                    ])
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassGenericMultipleExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -2271,20 +3542,24 @@ describe('Class Declaration', () => {
               typeLiteral([]),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('SubClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier('SubClass.new'),
@@ -2358,20 +3633,24 @@ describe('Class Declaration', () => {
               ]),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('SubClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -2439,20 +3718,24 @@ describe('Class Declaration', () => {
               typeLiteral([]),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('SubClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassDefaultExpectedNodes,
           functionDeclaration(
             identifier(`SubClass.new`),
@@ -2520,20 +3803,24 @@ describe('Class Declaration', () => {
               typeLiteral([]),
             ])
           ),
-          typeAliasDeclaration(
-            identifier('SubClass_statics'),
-            typeLiteral([
-              typePropertySignature(
-                identifier('new'),
-                typeAnnotation(
-                  typeFunction(
-                    [],
-                    functionReturnType([typeReference(identifier('SubClass'))])
+          nodeGroup([
+            typeAliasDeclaration(
+              identifier('SubClass_statics'),
+              typeLiteral([
+                typePropertySignature(
+                  identifier('new'),
+                  typeAnnotation(
+                    typeFunction(
+                      [],
+                      functionReturnType([
+                        typeReference(identifier('SubClass')),
+                      ])
+                    )
                   )
-                )
-              ),
-            ])
-          ),
+                ),
+              ])
+            ),
+          ]),
           ...subClassDefaultExpectedNodes,
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,

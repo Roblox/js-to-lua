@@ -12,6 +12,7 @@ import {
   LuaExpression,
   LuaIdentifier,
   LuaNodeGroup,
+  LuaStatement,
   LuaType,
   memberExpression,
   nodeGroup,
@@ -27,14 +28,18 @@ import {
 } from '@js-to-lua/lua-types';
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { createTypeParameterDeclarationHandler } from '../../type/type-parameter-declaration.handler';
-import { createClassIdentifierStatics } from './class-declaration.utils';
+import {
+  createClassIdentifierPrivate,
+  createClassIdentifierStatics,
+  hasNonPublicMembers,
+} from './class-declaration.utils';
 
 export const createClassVariableDeclarationHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
   handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
 ) => {
   return createHandlerFunction<
-    LuaNodeGroup,
+    LuaNodeGroup<[LuaStatement, ...Array<LuaStatement>]>,
     Babel.ClassDeclaration,
     EmptyConfig & { classIdentifier: LuaIdentifier }
   >(
@@ -63,7 +68,7 @@ export const createClassVariableDeclarationHandlerFunction = (
             )
           : undefined;
 
-      const declaratorValue = typeCastExpression(
+      const publicDeclaratorValue = typeCastExpression(
         superClass
           ? typeCastExpression(
               callExpression(identifier('setmetatable'), [
@@ -86,11 +91,40 @@ export const createClassVariableDeclarationHandlerFunction = (
           typeReference(classIdentifierStatics),
         ])
       );
+
+      const classHasNonPublicMembers = hasNonPublicMembers(node);
+      const classPrivateIdentifier =
+        createClassIdentifierPrivate(classIdentifier);
+
+      const privateDeclaratorValue = classHasNonPublicMembers
+        ? typeCastExpression(
+            classIdentifier,
+            typeIntersection([
+              typeReference(
+                classPrivateIdentifier,
+                genericTypeParametersDeclaration &&
+                  isNonEmptyArray(genericTypeParametersDeclaration)
+                  ? genericTypeParametersDeclaration
+                  : undefined
+              ),
+              typeReference(classIdentifierStatics),
+            ])
+          )
+        : undefined;
+
       return nodeGroup([
         variableDeclaration(
           [variableDeclaratorIdentifier(classIdentifier)],
-          [variableDeclaratorValue(declaratorValue)]
+          [variableDeclaratorValue(publicDeclaratorValue)]
         ),
+        ...(privateDeclaratorValue
+          ? [
+              variableDeclaration(
+                [variableDeclaratorIdentifier(classPrivateIdentifier)],
+                [variableDeclaratorValue(privateDeclaratorValue)]
+              ),
+            ]
+          : []),
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [

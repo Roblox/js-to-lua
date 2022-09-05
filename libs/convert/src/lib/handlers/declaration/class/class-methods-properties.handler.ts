@@ -28,7 +28,7 @@ import { applyTo } from 'ramda';
 import { createFunctionTypeParamsHandler } from '../../function-params.handler';
 import { inferType } from '../../type/infer-type';
 
-export const createHandlePublicMethodsAndProperties = (
+export const createHandleMethodsAndProperties = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
   handleIdentifier: HandlerFunction<LuaLVal, Babel.LVal>,
   handleTypeAnnotation: HandlerFunction<

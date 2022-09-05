@@ -2,6 +2,7 @@ import {
   selfIdentifier,
   withAnyLeadingConversionComments,
   withAnyTrailingConversionComment,
+  withLeadingComments,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -40,6 +41,7 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
+  commentLine,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 import { getProgramNode } from '../program.spec.utils';
@@ -103,6 +105,47 @@ describe('Program handler', () => {
           [identifier('BaseClass')]
         ),
       ];
+      const baseClassPrivateExpectedNodes = [
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('BaseClass'))],
+          [
+            variableDeclaratorValue(
+              typeCastExpression(
+                tableConstructor(),
+                typeIntersection([
+                  typeReference(identifier('BaseClass')),
+                  typeReference(identifier('BaseClass_statics')),
+                ])
+              )
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('BaseClass_private'))],
+          [
+            variableDeclaratorValue(
+              typeCastExpression(
+                identifier('BaseClass'),
+                typeIntersection([
+                  typeReference(identifier('BaseClass_private')),
+                  typeReference(identifier('BaseClass_statics')),
+                ])
+              )
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [
+            memberExpression(
+              typeCastExpression(identifier('BaseClass'), typeAny()),
+              '.',
+              identifier('__index')
+            ),
+          ],
+          [identifier('BaseClass')]
+        ),
+      ];
 
       it('should convert class', () => {
         const given = getProgramNode(`
@@ -112,22 +155,24 @@ describe('Program handler', () => {
         const expected = program([
           nodeGroup([
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -160,108 +205,6 @@ describe('Program handler', () => {
         expect(handleProgram.handler(source, {}, given)).toEqual(expected);
       });
 
-      it('should preserve  class public method/property comments', () => {
-        const given = getProgramNode(`
-        class BaseClass {
-          /* Comment before foo */
-          foo;
-
-          /* Comment before bar */
-          bar(){};
-        }
-      `);
-
-        const expected = program([
-          nodeGroup([
-            typeAliasDeclaration(
-              identifier('BaseClass'),
-              typeLiteral([
-                withAnyTrailingConversionComment(
-                  withAnyLeadingConversionComments(
-                    typePropertySignature(
-                      identifier('foo'),
-                      typeAnnotation(typeAny())
-                    ),
-                    'Comment before foo'
-                  ),
-                  'Comment before bar'
-                ),
-                withAnyLeadingConversionComments(
-                  typePropertySignature(
-                    identifier('bar'),
-                    typeAnnotation(
-                      typeFunction(
-                        [
-                          functionParamName(
-                            selfIdentifier(),
-                            typeReference(identifier('BaseClass'))
-                          ),
-                        ],
-                        functionReturnType([typeAny()])
-                      )
-                    )
-                  ),
-                  'Comment before bar'
-                ),
-              ])
-            ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
-                    )
-                  )
-                ),
-              ])
-            ),
-            ...baseClassDefaultExpectedNodes,
-            functionDeclaration(
-              identifier(`BaseClass.new`),
-              [],
-              nodeGroup([
-                variableDeclaration(
-                  [variableDeclaratorIdentifier(selfIdentifier())],
-                  [
-                    variableDeclaratorValue(
-                      callExpression(identifier('setmetatable'), [
-                        tableConstructor(),
-                        identifier('BaseClass'),
-                      ])
-                    ),
-                  ]
-                ),
-                returnStatement(
-                  typeCastExpression(
-                    typeCastExpression(selfIdentifier(), typeAny()),
-                    typeReference(identifier('BaseClass'))
-                  )
-                ),
-              ]),
-              typeReference(identifier('BaseClass')),
-              false
-            ),
-            functionDeclaration(
-              identifier('BaseClass:bar'),
-              [],
-              nodeGroup([]),
-              undefined,
-              false
-            ),
-          ]),
-        ]);
-
-        const actual = handleProgram.handler(source, {}, given);
-
-        expect(actual).toEqual(expected);
-      });
-
       it('should convert generic class', () => {
         const given = getProgramNode(`
           class BaseClass<T> {}
@@ -274,25 +217,29 @@ describe('Program handler', () => {
               typeLiteral([]),
               typeParameterDeclaration([typeReference(identifier('T'))])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass'), [
-                          typeReference(identifier('T')),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass'), [
+                            typeReference(identifier('T')),
+                          ]),
                         ]),
-                      ]),
-                      typeParameterDeclaration([typeReference(identifier('T'))])
+                        typeParameterDeclaration([
+                          typeReference(identifier('T')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassGenericExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -345,25 +292,29 @@ describe('Program handler', () => {
               typeLiteral([]),
               typeParameterDeclaration([typeReference(identifier('T'))])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass'), [
-                          typeReference(identifier('T')),
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass'), [
+                            typeReference(identifier('T')),
+                          ]),
                         ]),
-                      ]),
-                      typeParameterDeclaration([typeReference(identifier('T'))])
+                        typeParameterDeclaration([
+                          typeReference(identifier('T')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassGenericExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -412,22 +363,24 @@ describe('Program handler', () => {
         const expected = program([
           nodeGroup([
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier('BaseClass.new'),
@@ -488,22 +441,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -571,22 +526,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -656,22 +613,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -724,22 +683,24 @@ describe('Program handler', () => {
         const expected = program([
           nodeGroup([
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -789,22 +750,24 @@ describe('Program handler', () => {
         const expected = program([
           nodeGroup([
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
@@ -876,22 +839,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -965,22 +930,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1056,22 +1023,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1138,22 +1107,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1204,22 +1175,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1270,22 +1243,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1347,22 +1322,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1424,22 +1401,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1503,22 +1482,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1589,22 +1570,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1666,22 +1649,24 @@ describe('Program handler', () => {
                 ),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('BaseClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('BaseClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('BaseClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...baseClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`BaseClass.new`),
@@ -1724,6 +1709,500 @@ describe('Program handler', () => {
 
         expect(handleProgram.handler(source, {}, given)).toEqual(expected);
       });
+
+      describe('comments', () => {
+        it('should preserve class public method/property comments', () => {
+          const given = getProgramNode(`
+        class BaseClass {
+          /* Comment before foo */
+          foo;
+
+          /* Comment before bar */
+          bar(){};
+        }
+      `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('BaseClass'),
+                typeLiteral([
+                  withAnyTrailingConversionComment(
+                    withAnyLeadingConversionComments(
+                      typePropertySignature(
+                        identifier('foo'),
+                        typeAnnotation(typeAny())
+                      ),
+                      'Comment before foo'
+                    ),
+                    'Comment before bar'
+                  ),
+                  withAnyLeadingConversionComments(
+                    typePropertySignature(
+                      identifier('bar'),
+                      typeAnnotation(
+                        typeFunction(
+                          [
+                            functionParamName(
+                              selfIdentifier(),
+                              typeReference(identifier('BaseClass'))
+                            ),
+                          ],
+                          functionReturnType([typeAny()])
+                        )
+                      )
+                    ),
+                    'Comment before bar'
+                  ),
+                ])
+              ),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('BaseClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('BaseClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...baseClassDefaultExpectedNodes,
+              functionDeclaration(
+                identifier(`BaseClass.new`),
+                [],
+                nodeGroup([
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(selfIdentifier())],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('setmetatable'), [
+                          tableConstructor(),
+                          identifier('BaseClass'),
+                        ])
+                      ),
+                    ]
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('BaseClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('BaseClass')),
+                false
+              ),
+              functionDeclaration(
+                identifier('BaseClass:bar'),
+                [],
+                nodeGroup([]),
+                undefined,
+                false
+              ),
+            ]),
+          ]);
+
+          const actual = handleProgram.handler(source, {}, given);
+
+          expect(actual).toEqual(expected);
+        });
+      });
+
+      describe('private members', () => {
+        it('should convert class methods to <ClassId>:<methodName> function', () => {
+          const given = getProgramNode(`
+            class BaseClass{
+              private myMethod(){}
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('BaseClass_private'),
+                  typeLiteral([
+                    withLeadingComments(
+                      typePropertySignature(
+                        identifier('myMethod'),
+                        typeAnnotation(
+                          typeFunction(
+                            [
+                              functionParamName(
+                                identifier('self'),
+                                typeReference(identifier('BaseClass_private'))
+                              ),
+                            ],
+                            functionReturnType([typeAny()])
+                          )
+                        )
+                      ),
+                      commentLine(''),
+                      commentLine(' *** PRIVATE *** '),
+                      commentLine('')
+                    ),
+                  ])
+                ),
+                typeAliasDeclaration(
+                  identifier('BaseClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('BaseClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...baseClassPrivateExpectedNodes,
+              functionDeclaration(
+                identifier(`BaseClass_private.new`),
+                [],
+                nodeGroup([
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(selfIdentifier())],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('setmetatable'), [
+                          tableConstructor(),
+                          identifier('BaseClass'),
+                        ])
+                      ),
+                    ]
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('BaseClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('BaseClass')),
+                false
+              ),
+              functionDeclaration(
+                identifier('BaseClass_private:myMethod'),
+                [],
+                nodeGroup([]),
+                undefined,
+                false
+              ),
+            ]),
+          ]);
+
+          const actual = handleProgram.handler(source, {}, given);
+          expect(actual).toEqual(expected);
+        });
+
+        it('should convert static class methods to <ClassId>.<methodName> function', () => {
+          const given = getProgramNode(`
+            class BaseClass{
+              private static myStaticMethod(){}
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('BaseClass_private'),
+                  typeLiteral([])
+                ),
+                typeAliasDeclaration(
+                  identifier('BaseClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('BaseClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...baseClassPrivateExpectedNodes,
+              functionDeclaration(
+                identifier(`BaseClass_private.new`),
+                [],
+                nodeGroup([
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(selfIdentifier())],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('setmetatable'), [
+                          tableConstructor(),
+                          identifier('BaseClass'),
+                        ])
+                      ),
+                    ]
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('BaseClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('BaseClass')),
+                false
+              ),
+              functionDeclaration(
+                identifier('BaseClass_private.myStaticMethod'),
+                [],
+                nodeGroup([]),
+                undefined,
+                false
+              ),
+            ]),
+          ]);
+
+          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        });
+
+        it('should convert static properties to <ClassId>.<property>', () => {
+          const given = getProgramNode(`
+            class BaseClass{
+              private static staticProperty = "foo"
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('BaseClass_private'),
+                  typeLiteral([])
+                ),
+                typeAliasDeclaration(
+                  identifier('BaseClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('BaseClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...baseClassPrivateExpectedNodes,
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    identifier('BaseClass_private'),
+                    '.',
+                    identifier('staticProperty')
+                  ),
+                ],
+                [stringLiteral('foo')]
+              ),
+              functionDeclaration(
+                identifier(`BaseClass_private.new`),
+                [],
+                nodeGroup([
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(selfIdentifier())],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('setmetatable'), [
+                          tableConstructor(),
+                          identifier('BaseClass'),
+                        ])
+                      ),
+                    ]
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('BaseClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('BaseClass')),
+                false
+              ),
+            ]),
+          ]);
+
+          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        });
+
+        it('should convert class properties without explicit typing', () => {
+          const given = getProgramNode(`
+            class BaseClass{
+              private property
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('BaseClass_private'),
+                  typeLiteral([
+                    withLeadingComments(
+                      typePropertySignature(
+                        identifier('property'),
+                        typeAnnotation(typeAny())
+                      ),
+                      commentLine(''),
+                      commentLine(' *** PRIVATE *** '),
+                      commentLine('')
+                    ),
+                  ])
+                ),
+                typeAliasDeclaration(
+                  identifier('BaseClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('BaseClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...baseClassPrivateExpectedNodes,
+              functionDeclaration(
+                identifier(`BaseClass_private.new`),
+                [],
+                nodeGroup([
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(selfIdentifier())],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('setmetatable'), [
+                          tableConstructor(),
+                          identifier('BaseClass'),
+                        ])
+                      ),
+                    ]
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('BaseClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('BaseClass')),
+                false
+              ),
+            ]),
+          ]);
+
+          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        });
+
+        it('should convert class properties with explicit typing', () => {
+          const given = getProgramNode(`
+            class BaseClass{
+              private property: string
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('BaseClass_private'),
+                  typeLiteral([
+                    withLeadingComments(
+                      typePropertySignature(
+                        identifier('property'),
+                        typeAnnotation(typeString())
+                      ),
+                      commentLine(''),
+                      commentLine(' *** PRIVATE *** '),
+                      commentLine('')
+                    ),
+                  ])
+                ),
+                typeAliasDeclaration(
+                  identifier('BaseClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('BaseClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...baseClassPrivateExpectedNodes,
+              functionDeclaration(
+                identifier(`BaseClass_private.new`),
+                [],
+                nodeGroup([
+                  variableDeclaration(
+                    [variableDeclaratorIdentifier(selfIdentifier())],
+                    [
+                      variableDeclaratorValue(
+                        callExpression(identifier('setmetatable'), [
+                          tableConstructor(),
+                          identifier('BaseClass'),
+                        ])
+                      ),
+                    ]
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('BaseClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('BaseClass')),
+                false
+              ),
+            ]),
+          ]);
+
+          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        });
+      });
     });
 
     describe('SubClass', () => {
@@ -1765,6 +2244,113 @@ describe('Program handler', () => {
           [identifier('SubClass')]
         ),
       ];
+      const subClassPrivateExpectedNodes = [
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('SubClass'))],
+          [
+            variableDeclaratorValue(
+              typeCastExpression(
+                typeCastExpression(
+                  callExpression(identifier('setmetatable'), [
+                    tableConstructor(),
+                    tableConstructor([
+                      tableNameKeyField(
+                        identifier('__index'),
+                        identifier('BaseClass')
+                      ),
+                    ]),
+                  ]),
+                  typeAny()
+                ),
+                typeIntersection([
+                  typeReference(identifier('SubClass')),
+                  typeReference(identifier('SubClass_statics')),
+                ])
+              )
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('SubClass_private'))],
+          [
+            variableDeclaratorValue(
+              typeCastExpression(
+                identifier('SubClass'),
+                typeIntersection([
+                  typeReference(identifier('SubClass_private')),
+                  typeReference(identifier('SubClass_statics')),
+                ])
+              )
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [
+            memberExpression(
+              typeCastExpression(identifier('SubClass'), typeAny()),
+              '.',
+              identifier('__index')
+            ),
+          ],
+          [identifier('SubClass')]
+        ),
+      ];
+      const subClassPrivateGenericExpectedNodes = [
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('SubClass'))],
+          [
+            variableDeclaratorValue(
+              typeCastExpression(
+                typeCastExpression(
+                  callExpression(identifier('setmetatable'), [
+                    tableConstructor(),
+                    tableConstructor([
+                      tableNameKeyField(
+                        identifier('__index'),
+                        identifier('BaseClass')
+                      ),
+                    ]),
+                  ]),
+                  typeAny()
+                ),
+                typeIntersection([
+                  typeReference(identifier('SubClass'), [typeAny(), typeAny()]),
+                  typeReference(identifier('SubClass_statics')),
+                ])
+              )
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('SubClass_private'))],
+          [
+            variableDeclaratorValue(
+              typeCastExpression(
+                identifier('SubClass'),
+                typeIntersection([
+                  typeReference(identifier('SubClass_private'), [
+                    typeAny(),
+                    typeAny(),
+                  ]),
+                  typeReference(identifier('SubClass_statics')),
+                ])
+              )
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [
+            memberExpression(
+              typeCastExpression(identifier('SubClass'), typeAny()),
+              '.',
+              identifier('__index')
+            ),
+          ],
+          [identifier('SubClass')]
+        ),
+      ];
 
       it('should convert class', () => {
         const given = getProgramNode(`
@@ -1780,22 +2366,24 @@ describe('Program handler', () => {
                 typeLiteral([]),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('SubClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('SubClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('SubClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`SubClass.new`),
@@ -1847,22 +2435,24 @@ describe('Program handler', () => {
                 typeLiteral([]),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('SubClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('SubClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('SubClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier('SubClass.new'),
@@ -1929,22 +2519,24 @@ describe('Program handler', () => {
                 ]),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('SubClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('SubClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('SubClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`SubClass.new`),
@@ -2003,22 +2595,24 @@ describe('Program handler', () => {
                 typeLiteral([]),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('SubClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('SubClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('SubClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...subClassDefaultExpectedNodes,
             functionDeclaration(
               identifier(`SubClass.new`),
@@ -2077,22 +2671,24 @@ describe('Program handler', () => {
                 typeLiteral([]),
               ])
             ),
-            typeAliasDeclaration(
-              identifier('SubClass_statics'),
-              typeLiteral([
-                typePropertySignature(
-                  identifier('new'),
-                  typeAnnotation(
-                    typeFunction(
-                      [],
-                      functionReturnType([
-                        typeReference(identifier('SubClass')),
-                      ])
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass_statics'),
+                typeLiteral([
+                  typePropertySignature(
+                    identifier('new'),
+                    typeAnnotation(
+                      typeFunction(
+                        [],
+                        functionReturnType([
+                          typeReference(identifier('SubClass')),
+                        ])
+                      )
                     )
-                  )
-                ),
-              ])
-            ),
+                  ),
+                ])
+              ),
+            ]),
             ...subClassDefaultExpectedNodes,
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
@@ -2137,6 +2733,398 @@ describe('Program handler', () => {
         ]);
 
         expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      });
+
+      describe('private members', () => {
+        it('should convert class methods to <ClassId>:<methodName> function', () => {
+          const given = getProgramNode(`
+            class SubClass extends BaseClass{
+                private myMethod(){}
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass'),
+                typeIntersection([
+                  typeReference(identifier('BaseClass')),
+                  typeLiteral([]),
+                ])
+              ),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('SubClass_private'),
+                  typeIntersection([
+                    typeReference(identifier('BaseClass')),
+                    typeLiteral([
+                      withLeadingComments(
+                        typePropertySignature(
+                          identifier('myMethod'),
+                          typeAnnotation(
+                            typeFunction(
+                              [
+                                functionParamName(
+                                  identifier('self'),
+                                  typeReference(identifier('SubClass_private'))
+                                ),
+                              ],
+                              functionReturnType([typeAny()])
+                            )
+                          )
+                        ),
+                        commentLine(''),
+                        commentLine(' *** PRIVATE *** '),
+                        commentLine('')
+                      ),
+                    ]),
+                  ])
+                ),
+                typeAliasDeclaration(
+                  identifier('SubClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('SubClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...subClassPrivateExpectedNodes,
+              functionDeclaration(
+                identifier(`SubClass_private.new`),
+                [],
+                nodeGroup([
+                  withTrailingConversionComment(
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(selfIdentifier())],
+                      [
+                        variableDeclaratorValue(
+                          callExpression(identifier('setmetatable'), [
+                            tableConstructor(),
+                            identifier('SubClass'),
+                          ])
+                        ),
+                      ]
+                    ),
+                    `ROBLOX TODO: super constructor may be used`
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('SubClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('SubClass')),
+                false
+              ),
+              functionDeclaration(
+                identifier('SubClass_private:myMethod'),
+                [],
+                nodeGroup([]),
+                undefined,
+                false
+              ),
+            ]),
+          ]);
+
+          const actual = handleProgram.handler(source, {}, given);
+          expect(actual).toEqual(expected);
+        });
+
+        it('should convert static class methods to <ClassId>.<methodName> function', () => {
+          const given = getProgramNode(`
+            class SubClass extends BaseClass{
+                private static myStaticMethod(){}
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass'),
+                typeIntersection([
+                  typeReference(identifier('BaseClass')),
+                  typeLiteral([]),
+                ])
+              ),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('SubClass_private'),
+                  typeIntersection([
+                    typeReference(identifier('BaseClass')),
+                    typeLiteral([]),
+                  ])
+                ),
+                typeAliasDeclaration(
+                  identifier('SubClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('SubClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...subClassPrivateExpectedNodes,
+              functionDeclaration(
+                identifier(`SubClass_private.new`),
+                [],
+                nodeGroup([
+                  withTrailingConversionComment(
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(selfIdentifier())],
+                      [
+                        variableDeclaratorValue(
+                          callExpression(identifier('setmetatable'), [
+                            tableConstructor(),
+                            identifier('SubClass'),
+                          ])
+                        ),
+                      ]
+                    ),
+                    `ROBLOX TODO: super constructor may be used`
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('SubClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('SubClass')),
+                false
+              ),
+              functionDeclaration(
+                identifier('SubClass_private.myStaticMethod'),
+                [],
+                nodeGroup([]),
+                undefined,
+                false
+              ),
+            ]),
+          ]);
+
+          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        });
+
+        it('should convert static properties to <ClassId>.<property>', () => {
+          const given = getProgramNode(`
+            class SubClass extends BaseClass{
+                private static staticProperty = "foo"
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass'),
+                typeIntersection([
+                  typeReference(identifier('BaseClass')),
+                  typeLiteral([]),
+                ])
+              ),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('SubClass_private'),
+                  typeIntersection([
+                    typeReference(identifier('BaseClass')),
+                    typeLiteral([]),
+                  ])
+                ),
+                typeAliasDeclaration(
+                  identifier('SubClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('SubClass')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...subClassPrivateExpectedNodes,
+              assignmentStatement(
+                AssignmentStatementOperatorEnum.EQ,
+                [
+                  memberExpression(
+                    identifier('SubClass_private'),
+                    '.',
+                    identifier('staticProperty')
+                  ),
+                ],
+                [stringLiteral('foo')]
+              ),
+              functionDeclaration(
+                identifier(`SubClass_private.new`),
+                [],
+                nodeGroup([
+                  withTrailingConversionComment(
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(selfIdentifier())],
+                      [
+                        variableDeclaratorValue(
+                          callExpression(identifier('setmetatable'), [
+                            tableConstructor(),
+                            identifier('SubClass'),
+                          ])
+                        ),
+                      ]
+                    ),
+                    `ROBLOX TODO: super constructor may be used`
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('SubClass'))
+                    )
+                  ),
+                ]),
+                typeReference(identifier('SubClass')),
+                false
+              ),
+            ]),
+          ]);
+
+          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        });
+
+        it('should convert generic class with private properties', () => {
+          const given = getProgramNode(`
+            class SubClass<T, U> extends BaseClass<U> {
+                private privateProperty
+            }
+          `);
+
+          const expected = program([
+            nodeGroup([
+              typeAliasDeclaration(
+                identifier('SubClass'),
+                typeIntersection([
+                  typeReference(identifier('BaseClass'), [
+                    typeReference(identifier('U')),
+                  ]),
+                  typeLiteral([]),
+                ]),
+                typeParameterDeclaration([
+                  typeReference(identifier('T')),
+                  typeReference(identifier('U')),
+                ])
+              ),
+              nodeGroup([
+                typeAliasDeclaration(
+                  identifier('SubClass_private'),
+                  typeIntersection([
+                    typeReference(identifier('BaseClass'), [
+                      typeReference(identifier('U')),
+                    ]),
+                    typeLiteral([
+                      withLeadingComments(
+                        typePropertySignature(
+                          identifier('privateProperty'),
+                          typeAnnotation(typeAny())
+                        ),
+                        commentLine(''),
+                        commentLine(' *** PRIVATE *** '),
+                        commentLine('')
+                      ),
+                    ]),
+                  ]),
+                  typeParameterDeclaration([
+                    typeReference(identifier('T')),
+                    typeReference(identifier('U')),
+                  ])
+                ),
+                typeAliasDeclaration(
+                  identifier('SubClass_statics'),
+                  typeLiteral([
+                    typePropertySignature(
+                      identifier('new'),
+                      typeAnnotation(
+                        typeFunction(
+                          [],
+                          functionReturnType([
+                            typeReference(identifier('SubClass'), [
+                              typeReference(identifier('T')),
+                              typeReference(identifier('U')),
+                            ]),
+                          ]),
+                          typeParameterDeclaration([
+                            typeReference(identifier('T')),
+                            typeReference(identifier('U')),
+                          ])
+                        )
+                      )
+                    ),
+                  ])
+                ),
+              ]),
+              ...subClassPrivateGenericExpectedNodes,
+              functionDeclaration(
+                identifier(`SubClass_private.new`),
+                [],
+                nodeGroup([
+                  withTrailingConversionComment(
+                    variableDeclaration(
+                      [variableDeclaratorIdentifier(selfIdentifier())],
+                      [
+                        variableDeclaratorValue(
+                          callExpression(identifier('setmetatable'), [
+                            tableConstructor(),
+                            identifier('SubClass'),
+                          ])
+                        ),
+                      ]
+                    ),
+                    `ROBLOX TODO: super constructor may be used`
+                  ),
+                  returnStatement(
+                    typeCastExpression(
+                      typeCastExpression(selfIdentifier(), typeAny()),
+                      typeReference(identifier('SubClass'), [
+                        typeReference(identifier('T')),
+                        typeReference(identifier('U')),
+                      ])
+                    )
+                  ),
+                ]),
+                typeReference(identifier('SubClass'), [
+                  typeReference(identifier('T')),
+                  typeReference(identifier('U')),
+                ]),
+                false,
+                typeParameterDeclaration([
+                  typeReference(identifier('T')),
+                  typeReference(identifier('U')),
+                ])
+              ),
+            ]),
+          ]);
+
+          const actual = handleProgram.handler(source, {}, given);
+          expect(actual).toEqual(expected);
+        });
       });
     });
   });

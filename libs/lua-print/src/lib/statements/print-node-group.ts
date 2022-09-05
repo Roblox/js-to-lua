@@ -1,4 +1,5 @@
 import { LuaNodeGroup } from '@js-to-lua/lua-types';
+import { fmtJoin } from '@js-to-lua/shared-utils';
 import { PrintNode } from '../print-node';
 import {
   _printComments,
@@ -10,10 +11,10 @@ export const createPrintNodeGroup = (
   printNode: PrintNode
 ): PrinterFunction<LuaNodeGroup> => {
   return (node) => {
-    const printedBody = node.body
-      .map((node) => printNode(node))
-      .filter(Boolean)
-      .join('\n');
+    const printedBody = fmtJoin(
+      '\n',
+      node.body.map((node) => printNode(node))
+    );
 
     const innerComments = _printComments(
       getPrintableInnerComments(node.innerComments)

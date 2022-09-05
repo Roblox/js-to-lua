@@ -20,7 +20,24 @@ describe('With class declaration extra', () => {
     const given = withClassDeclarationExtra(
       nodeGroup([
         typeAliasDeclaration(identifier('foo'), typeLiteral([])),
-        typeAliasDeclaration(identifier('bar'), typeLiteral([])),
+        nodeGroup([
+          typeAliasDeclaration(identifier('bar'), typeLiteral([])),
+          typeAliasDeclaration(identifier('fizz'), typeLiteral([])),
+        ]),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('baz'))],
+          [variableDeclaratorValue(tableConstructor())]
+        ),
+      ])
+    );
+    expect(isClassDeclaration(given)).toBe(true);
+  });
+
+  it('should return true when is proper class declaration - without private type', () => {
+    const given = withClassDeclarationExtra(
+      nodeGroup([
+        typeAliasDeclaration(identifier('foo'), typeLiteral([])),
+        nodeGroup([typeAliasDeclaration(identifier('bar'), typeLiteral([]))]),
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('baz'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -34,7 +51,7 @@ describe('With class declaration extra', () => {
     const given = withClassDeclarationExtra(
       nodeGroup([
         typeAliasDeclaration(identifier('foo'), typeLiteral([])),
-        typeAliasDeclaration(identifier('bar'), typeLiteral([])),
+        nodeGroup([typeAliasDeclaration(identifier('bar'), typeLiteral([]))]),
       ])
     );
     expect(isClassDeclaration(given)).toBe(false);
@@ -48,7 +65,7 @@ describe('With class declaration extra', () => {
           [variableDeclaratorIdentifier(identifier('baz'))],
           [variableDeclaratorValue(tableConstructor())]
         ),
-        typeAliasDeclaration(identifier('bar'), typeLiteral([])),
+        nodeGroup([typeAliasDeclaration(identifier('bar'), typeLiteral([]))]),
       ])
     );
     expect(isClassDeclaration(given)).toBe(false);

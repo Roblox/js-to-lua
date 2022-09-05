@@ -25,6 +25,24 @@ export const withLeadingComments = <N extends BaseLuaNode>(
   };
 };
 
+export const prependLeadingComments = <N extends BaseLuaNode>(
+  node: N,
+  ...comments: LuaComment[]
+): N => {
+  const leadingComments = Array<LuaComment>().concat(
+    ...[comments, node.leadingComments].filter(isTruthy)
+  );
+
+  return {
+    ...node,
+    ...(leadingComments.length
+      ? {
+          leadingComments,
+        }
+      : {}),
+  };
+};
+
 export const withLeadingConversionComments = <N extends BaseLuaNode>(
   node: N,
   location: CommentLocation,

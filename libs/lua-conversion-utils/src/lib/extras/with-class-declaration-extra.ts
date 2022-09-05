@@ -26,7 +26,7 @@ export const isClassDeclaration = (
 
 export type ClassDeclarationBody = [
   LuaTypeAliasDeclaration,
-  LuaTypeAliasDeclaration,
+  LuaNodeGroup<Array<LuaTypeAliasDeclaration>>,
   LuaStatement,
   ...LuaStatement[]
 ];
@@ -36,4 +36,5 @@ const isClassDeclarationBody = (
 ): body is ClassDeclarationBody =>
   body.length >= 3 &&
   isTypeAliasDeclaration(body[0]) &&
-  isTypeAliasDeclaration(body[1]);
+  isNodeGroup(body[1]) &&
+  body[1].body.every(isTypeAliasDeclaration);
