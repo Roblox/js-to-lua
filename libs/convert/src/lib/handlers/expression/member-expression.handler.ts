@@ -1,11 +1,5 @@
+import * as Babel from '@babel/types';
 import {
-  Expression,
-  isPrivateName,
-  MemberExpression,
-  PrivateName,
-} from '@babel/types';
-import {
-  BaseNodeHandler,
   createHandler,
   createHandlerFunction,
   HandlerFunction,
@@ -21,8 +15,6 @@ import {
   indexExpression,
   isIdentifier,
   LuaExpression,
-  LuaIndexExpression,
-  LuaMemberExpression,
   LuaNumericLiteral,
   LuaStringLiteral,
   memberExpression,
@@ -32,13 +24,11 @@ import { applyTo } from 'ramda';
 import { handleNumericLiteral } from '../primitives/numeric.handler';
 import { createStringLiteralHandler } from '../primitives/string.handler';
 import { createBinaryExpressionHandler } from './binary-expression/binary-expression.handler';
+import { createMemberExpressionSpecialCasesHandler } from './member/special-cases/member-expression-special-cases.handler';
 
 export const createMemberExpressionHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
-): BaseNodeHandler<
-  LuaIndexExpression | LuaMemberExpression,
-  MemberExpression
-> => {
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>
+) => {
   const handleBinaryExpression =
     createBinaryExpressionHandler(handleExpression);
   const { handler: handleStringLiteral } = createStringLiteralHandler();
@@ -46,7 +36,7 @@ export const createMemberExpressionHandler = (
     (
       source,
       config,
-      node: Expression | PrivateName
+      node: Babel.Expression | Babel.PrivateName
     ):
       | LuaStringLiteral
       | LuaNumericLiteral
@@ -85,16 +75,20 @@ export const createMemberExpressionHandler = (
     }
   );
 
-  return createHandler(
+  return createHandler<LuaExpression, Babel.MemberExpression>(
     'MemberExpression',
-    (
-      source,
-      config,
-      node: MemberExpression
-    ): LuaIndexExpression | LuaMemberExpression => {
+    (source, config, node) => {
+      const handled = createMemberExpressionSpecialCasesHandler()(
+        source,
+        config,
+        node
+      );
+
+      if (handled) return handled;
+
       const objectExpression = handleExpression(source, config, node.object);
       if (!node.computed) {
-        const propertyExpression = isPrivateName(node.property)
+        const propertyExpression = Babel.isPrivateName(node.property)
           ? defaultExpressionHandler(source, config, node.property)
           : applyTo(handleExpression(source, config, node.property))(
               (expression) =>

@@ -5,6 +5,7 @@ export type PolyfillID =
   | 'Array'
   | 'Boolean'
   | 'Map'
+  | 'Math'
   | 'Number'
   | 'Object'
   | 'Set'

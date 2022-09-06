@@ -2,6 +2,7 @@ import { LuaProgram } from '@js-to-lua/lua-types';
 import { pipe } from 'ramda';
 import { addExports } from './add-exports';
 import { addImports } from './add-imports';
+import { addMathConsts } from './add-math-consts';
 import { addPolyfills } from './add-polyfills';
 import { addQualifiedNameImports } from './add-qualified-name-imports';
 import { addUnknownPolyfillType } from './add-unknown-polyfill-type';
@@ -14,6 +15,7 @@ export const postProcess = (program: LuaProgram): LuaProgram => {
     gatherExtras,
     addExports,
     addPolyfills,
+    addMathConsts,
     addImports,
     addUnknownPolyfillType,
     addVoidPolyfillType,
