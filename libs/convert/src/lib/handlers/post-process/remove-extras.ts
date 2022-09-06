@@ -1,11 +1,11 @@
 import { visit } from '@js-to-lua/lua-conversion-utils';
-import { LuaProgram } from '@js-to-lua/lua-types';
+import { ProcessProgramFunction } from './types';
 
-export function removeExtras(program: LuaProgram): LuaProgram {
+export const removeExtras: ProcessProgramFunction = (program) => {
   visit(program, (node) => {
     if (node.extras) {
       delete node.extras;
     }
   });
   return program;
-}
+};

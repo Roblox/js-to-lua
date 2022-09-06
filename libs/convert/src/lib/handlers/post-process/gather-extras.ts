@@ -1,9 +1,10 @@
 import { visit } from '@js-to-lua/lua-conversion-utils';
-import { BaseLuaNode, LuaProgram } from '@js-to-lua/lua-types';
+import { BaseLuaNode } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { mergeDeepRight } from 'ramda';
+import { ProcessProgramFunction } from './types';
 
-export function gatherExtras(program: LuaProgram): LuaProgram {
+export const gatherExtras: ProcessProgramFunction = (program) => {
   const extras = Array<BaseLuaNode['extras']>();
   visit(program, (node) => {
     if (node.extras) {
@@ -21,4 +22,4 @@ export function gatherExtras(program: LuaProgram): LuaProgram {
         }
       : {}),
   };
-}
+};

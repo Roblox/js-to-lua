@@ -1,13 +1,13 @@
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
-  LuaProgram,
   variableDeclaration,
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
 import { packagesIdentifier } from './common-identifiers';
 import { prependProgram } from './prepend-program';
+import { ProcessProgramFunction } from './types';
 
-export function addImports(program: LuaProgram): LuaProgram {
+export const addImports: ProcessProgramFunction = (program) => {
   return program.extras?.needsPackages
     ? prependProgram(
         [
@@ -22,4 +22,4 @@ export function addImports(program: LuaProgram): LuaProgram {
         program
       )
     : program;
-}
+};

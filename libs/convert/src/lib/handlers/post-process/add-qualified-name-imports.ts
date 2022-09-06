@@ -7,13 +7,13 @@ import {
   identifier,
   isMemberExpression,
   isTypeAliasDeclaration,
-  LuaProgram,
   memberExpression,
   nodeGroup,
   typeAliasDeclaration,
 } from '@js-to-lua/lua-types';
+import { ProcessProgramFunction } from './types';
 
-export function addQualifiedNameImports(program: LuaProgram): LuaProgram {
+export const addQualifiedNameImports: ProcessProgramFunction = (program) => {
   if (isWithQualifiedNameAdditionalImportExtra(program)) {
     const allQualifiedNameAdditionalImportExtra =
       getAllQualifiedNameAdditionalImportExtra(program);
@@ -57,4 +57,4 @@ export function addQualifiedNameImports(program: LuaProgram): LuaProgram {
   }
 
   return program;
-}
+};

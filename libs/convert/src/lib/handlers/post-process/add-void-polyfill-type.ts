@@ -4,13 +4,13 @@ import {
 } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
-  LuaProgram,
   typeAliasDeclaration,
   typeNil,
 } from '@js-to-lua/lua-types';
 import { prependProgram } from './prepend-program';
+import { ProcessProgramFunction } from './types';
 
-export function addVoidPolyfillType(program: LuaProgram) {
+export const addVoidPolyfillType: ProcessProgramFunction = (program) => {
   return hasVoidTypePolyfillExtra(program)
     ? prependProgram(
         [
@@ -22,4 +22,4 @@ export function addVoidPolyfillType(program: LuaProgram) {
         program
       )
     : program;
-}
+};

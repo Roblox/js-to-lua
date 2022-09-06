@@ -1,7 +1,6 @@
 import {
   callExpression,
   identifier,
-  LuaProgram,
   memberExpression,
   typeAliasDeclaration,
   typeParameterDeclaration,
@@ -11,8 +10,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { packagesIdentifier, polyfillIdentifier } from './common-identifiers';
+import { prependProgram } from './prepend-program';
+import { ProcessProgramFunction } from './types';
 
-export function addPolyfills(program: LuaProgram) {
+export const addPolyfills: ProcessProgramFunction = (program) => {
   const extras = program.extras || {};
   const polyfills = Object.keys(extras)
     .filter((key) => key.startsWith('polyfill.'))
@@ -29,9 +30,8 @@ export function addPolyfills(program: LuaProgram) {
   }[];
 
   return polyfills.length || polyfillTypes.length
-    ? {
-        ...program,
-        body: [
+    ? prependProgram(
+        [
           variableDeclaration(
             [variableDeclaratorIdentifier(polyfillIdentifier)],
             [
@@ -69,8 +69,8 @@ export function addPolyfills(program: LuaProgram) {
                 : undefined
             )
           ),
-          ...program.body,
         ],
-      }
+        program
+      )
     : program;
-}
+};
