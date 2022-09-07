@@ -4,6 +4,7 @@ import { withExtras } from './extras';
 export type PolyfillID =
   | 'Array'
   | 'Boolean'
+  | 'instanceof'
   | 'Map'
   | 'Math'
   | 'Number'

@@ -773,5 +773,60 @@ string\` +
 
       expect(luaProgram).toEqual(expected);
     });
+
+    it('should handle instanceof operator', () => {
+      const given = getProgramNode(`
+        fizz = foo instanceof bar
+      `);
+      const expected = program([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+          [
+            variableDeclaratorValue(
+              callExpression(identifier('require'), [
+                memberExpression(
+                  identifier('Packages'),
+                  '.',
+                  identifier('LuauPolyfill')
+                ),
+              ])
+            ),
+          ]
+        ),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(identifier('instanceof'))],
+          [
+            variableDeclaratorValue(
+              memberExpression(
+                identifier('LuauPolyfill'),
+                '.',
+                identifier('instanceof')
+              )
+            ),
+          ]
+        ),
+        assignmentStatement(
+          AssignmentStatementOperatorEnum.EQ,
+          [identifier('fizz')],
+          [
+            callExpression(identifier('instanceof'), [
+              identifier('foo'),
+              identifier('bar'),
+            ]),
+          ]
+        ),
+      ]);
+
+      const luaProgram = handleProgram.handler(source, {}, given);
+
+      expect(luaProgram).toEqual(expected);
+    });
   });
 });

@@ -12,9 +12,11 @@ import {
   arrayIdentifier,
   arrayIndexOf,
   bit32Identifier,
+  booleanInferableExpression,
   objectIdentifier,
   objectKeys,
   stringInferableExpression,
+  withPolyfillExtra,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -670,6 +672,31 @@ describe('Binary Expression Handler', () => {
         [identifier('foo'), identifier('bar')]
       ),
       'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
+    );
+
+    expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle instanceof operator`, () => {
+    const given = babelBinaryExpression(
+      'instanceof',
+      babelIdentifier('foo'),
+      babelIdentifier('bar')
+    );
+
+    const handleBinaryExpression = createBinaryExpressionHandler(
+      forwardHandlerRef(() => expressionHandler)
+    );
+
+    const expected: LuaCallExpression = withTrailingConversionComment(
+      booleanInferableExpression(
+        withPolyfillExtra<LuaCallExpression, 'instanceof'>('instanceof')(
+          callExpression(identifier('instanceof'), [
+            identifier('foo'),
+            identifier('bar'),
+          ])
+        )
+      )
     );
 
     expect(handleBinaryExpression.handler(source, {}, given)).toEqual(expected);

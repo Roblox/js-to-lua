@@ -1,15 +1,18 @@
-import { BinaryExpression, Expression } from '@babel/types';
+import * as Babel from '@babel/types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
 import {
   arrayIndexOf,
   bit32MethodCall,
+  booleanInferableExpression,
   getNodeSource,
   objectKeys,
+  withPolyfillExtra,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   callExpression,
+  identifier,
   LuaExpression,
   numericLiteral,
   unhandledExpression,
@@ -25,13 +28,21 @@ import { createStrictEqualsOperatorHandlerFunction } from './strict-equals-opera
 import { createStrictNotEqualsOperatorHandlerFunction } from './strict-not-equals-operator.handler';
 
 export const createBinaryExpressionHandler = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>
 ) =>
-  createHandler<LuaExpression, BinaryExpression>(
+  createHandler<LuaExpression, Babel.BinaryExpression>(
     'BinaryExpression',
-    (source, config, node) => {
+    (source, config, node): LuaExpression => {
       const handleOperandAsString =
         createOperandAsStringHandlerFunction(handleExpression);
+
+      if (Babel.isPrivateName(node.left)) {
+        return withTrailingConversionComment(
+          unhandledExpression(),
+          `ROBLOX TODO: Unhandled node for type: ${node.type} with '${node.left.type}' as left-hand side operand`,
+          getNodeSource(source, node)
+        );
+      }
 
       switch (node.operator) {
         case '-':
@@ -106,7 +117,7 @@ export const createBinaryExpressionHandler = (
               callExpression(objectKeys(), [
                 handleExpression(source, config, node.right),
               ]),
-              handleOperandAsString(source, config, node.left as Expression),
+              handleOperandAsString(source, config, node.left),
             ]),
             '~=',
             numericLiteral(-1)
@@ -115,8 +126,8 @@ export const createBinaryExpressionHandler = (
           return withTrailingConversionComment(
             bit32MethodCall(
               'band',
-              handleExpression(source, config, node.left as Expression),
-              handleExpression(source, config, node.right as Expression)
+              handleExpression(source, config, node.left),
+              handleExpression(source, config, node.right)
             ),
             'ROBLOX CHECK: `bit32.band` clamps arguments and result to [0,2^32 - 1]'
           );
@@ -125,8 +136,8 @@ export const createBinaryExpressionHandler = (
           return withTrailingConversionComment(
             bit32MethodCall(
               'bor',
-              handleExpression(source, config, node.left as Expression),
-              handleExpression(source, config, node.right as Expression)
+              handleExpression(source, config, node.left),
+              handleExpression(source, config, node.right)
             ),
             'ROBLOX CHECK: `bit32.bor` clamps arguments and result to [0,2^32 - 1]'
           );
@@ -134,8 +145,8 @@ export const createBinaryExpressionHandler = (
           return withTrailingConversionComment(
             bit32MethodCall(
               'bxor',
-              handleExpression(source, config, node.left as Expression),
-              handleExpression(source, config, node.right as Expression)
+              handleExpression(source, config, node.left),
+              handleExpression(source, config, node.right)
             ),
             'ROBLOX CHECK: `bit32.bxor` clamps arguments and result to [0,2^32 - 1]'
           );
@@ -143,8 +154,8 @@ export const createBinaryExpressionHandler = (
           return withTrailingConversionComment(
             bit32MethodCall(
               'rshift',
-              handleExpression(source, config, node.left as Expression),
-              handleExpression(source, config, node.right as Expression)
+              handleExpression(source, config, node.left),
+              handleExpression(source, config, node.right)
             ),
             'ROBLOX CHECK: `bit32.rshift` clamps arguments and result to [0,2^32 - 1]'
           );
@@ -152,8 +163,8 @@ export const createBinaryExpressionHandler = (
           return withTrailingConversionComment(
             bit32MethodCall(
               'arshift',
-              handleExpression(source, config, node.left as Expression),
-              handleExpression(source, config, node.right as Expression)
+              handleExpression(source, config, node.left),
+              handleExpression(source, config, node.right)
             ),
             'ROBLOX CHECK: `bit32.arshift` clamps arguments and result to [0,2^32 - 1]'
           );
@@ -161,10 +172,19 @@ export const createBinaryExpressionHandler = (
           return withTrailingConversionComment(
             bit32MethodCall(
               'lshift',
-              handleExpression(source, config, node.left as Expression),
-              handleExpression(source, config, node.right as Expression)
+              handleExpression(source, config, node.left),
+              handleExpression(source, config, node.right)
             ),
             'ROBLOX CHECK: `bit32.lshift` clamps arguments and result to [0,2^32 - 1]'
+          );
+        case 'instanceof':
+          return booleanInferableExpression(
+            withPolyfillExtra<LuaExpression, 'instanceof'>('instanceof')(
+              callExpression(identifier('instanceof'), [
+                handleExpression(source, config, node.left),
+                handleExpression(source, config, node.right),
+              ])
+            )
           );
         default:
           return withTrailingConversionComment(
