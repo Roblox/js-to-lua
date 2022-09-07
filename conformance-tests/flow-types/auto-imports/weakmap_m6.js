@@ -1,0 +1,1 @@
+type Bar = WeakMap<any, any>

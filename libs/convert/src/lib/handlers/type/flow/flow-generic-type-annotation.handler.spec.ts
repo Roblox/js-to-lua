@@ -1,33 +1,27 @@
-import {
-  anyTypeAnnotation as babelAnyTypeAnnotation,
-  genericTypeAnnotation as babelGenericTypeAnnotation,
-  GenericTypeAnnotation,
-  identifier as babelIdentifier,
-  Identifier as BabelIdentifier,
-  numberTypeAnnotation as babelNumberTypeAnnotation,
-  qualifiedTypeIdentifier,
-  stringTypeAnnotation as babelStringTypeAnnotation,
-  typeParameterInstantiation as babelTypeParameterInstantiation,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import { createHandlerFunction, testUtils } from '@js-to-lua/handler-utils';
 import {
   createWithQualifiedNameAdditionalImportExtra,
+  PolyfillTypeID,
   withOriginalIds,
+  withPolyfillTypeExtra,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
+  LuaType,
   typeAny,
   typeReference,
   unhandledExpression,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
+import { NonEmptyArray } from '@js-to-lua/shared-utils';
 import { createFlowGenericTypeAnnotationHandler } from './flow-generic-type-annotation.handler';
 
 const { mockNodeWithValueHandler } = testUtils;
 
 const handler = createFlowGenericTypeAnnotationHandler(
-  createHandlerFunction((_source, _config, node: BabelIdentifier) =>
+  createHandlerFunction((_source, _config, node: Babel.Identifier) =>
     identifier(node.name)
   ),
   mockNodeWithValueHandler
@@ -37,16 +31,16 @@ const source = '';
 
 describe('Flow - GenericAnnotationType handler', () => {
   it('should handle generic type annotation without params', () => {
-    const given = babelGenericTypeAnnotation(babelIdentifier('A'));
+    const given = Babel.genericTypeAnnotation(Babel.identifier('A'));
     const expected = typeReference(identifier('A'));
 
     expect(handler(source, {}, given)).toEqual(expected);
   });
 
   it('should handle generic type annotation with empty params', () => {
-    const given = babelGenericTypeAnnotation(
-      babelIdentifier('A'),
-      babelTypeParameterInstantiation([])
+    const given = Babel.genericTypeAnnotation(
+      Babel.identifier('A'),
+      Babel.typeParameterInstantiation([])
     );
     const expected = typeReference(identifier('A'));
 
@@ -54,39 +48,42 @@ describe('Flow - GenericAnnotationType handler', () => {
   });
 
   it('should handle generic type annotation with one param', () => {
-    const given = babelGenericTypeAnnotation(
-      babelIdentifier('A'),
-      babelTypeParameterInstantiation([babelAnyTypeAnnotation()])
+    const given = Babel.genericTypeAnnotation(
+      Babel.identifier('A'),
+      Babel.typeParameterInstantiation([Babel.anyTypeAnnotation()])
     );
 
     const expected = typeReference(identifier('A'), [
-      mockNodeWithValue(babelAnyTypeAnnotation()),
+      mockNodeWithValue(Babel.anyTypeAnnotation()),
     ]);
 
     expect(handler(source, {}, given)).toEqual(expected);
   });
 
   it('should handle generic type annotation with multiple params', () => {
-    const given = babelGenericTypeAnnotation(
-      babelIdentifier('A'),
-      babelTypeParameterInstantiation([
-        babelAnyTypeAnnotation(),
-        babelStringTypeAnnotation(),
-        babelNumberTypeAnnotation(),
+    const given = Babel.genericTypeAnnotation(
+      Babel.identifier('A'),
+      Babel.typeParameterInstantiation([
+        Babel.anyTypeAnnotation(),
+        Babel.stringTypeAnnotation(),
+        Babel.numberTypeAnnotation(),
       ])
     );
     const expected = typeReference(identifier('A'), [
-      mockNodeWithValue(babelAnyTypeAnnotation()),
-      mockNodeWithValue(babelStringTypeAnnotation()),
-      mockNodeWithValue(babelNumberTypeAnnotation()),
+      mockNodeWithValue(Babel.anyTypeAnnotation()),
+      mockNodeWithValue(Babel.stringTypeAnnotation()),
+      mockNodeWithValue(Babel.numberTypeAnnotation()),
     ]);
 
     expect(handler(source, {}, given)).toEqual(expected);
   });
 
   it('should handle node of type QualifiedTypeIdentifier', () => {
-    const given = babelGenericTypeAnnotation(
-      qualifiedTypeIdentifier(babelIdentifier('A'), babelIdentifier('B'))
+    const given = Babel.genericTypeAnnotation(
+      Babel.qualifiedTypeIdentifier(
+        Babel.identifier('A'),
+        Babel.identifier('B')
+      )
     );
     const expected = typeReference(
       createWithQualifiedNameAdditionalImportExtra(
@@ -98,10 +95,13 @@ describe('Flow - GenericAnnotationType handler', () => {
     expect(handler(source, {}, given)).toEqual(expected);
   });
   it('should handle node of type QualifiedTypeIdentifier with nested QualifiedTypeIdentifiers', () => {
-    const given = babelGenericTypeAnnotation(
-      qualifiedTypeIdentifier(
-        babelIdentifier('A'),
-        qualifiedTypeIdentifier(babelIdentifier('B'), babelIdentifier('C'))
+    const given = Babel.genericTypeAnnotation(
+      Babel.qualifiedTypeIdentifier(
+        Babel.identifier('A'),
+        Babel.qualifiedTypeIdentifier(
+          Babel.identifier('B'),
+          Babel.identifier('C')
+        )
       )
     );
     const expected = typeReference(
@@ -122,8 +122,8 @@ describe('Flow - GenericAnnotationType handler', () => {
       mockNodeWithValueHandler
     ).handler;
 
-    const given: GenericTypeAnnotation = {
-      ...babelGenericTypeAnnotation(babelIdentifier('NaN')),
+    const given: Babel.GenericTypeAnnotation = {
+      ...Babel.genericTypeAnnotation(Babel.identifier('NaN')),
       start: 11,
       end: 14,
     };
@@ -134,5 +134,62 @@ describe('Flow - GenericAnnotationType handler', () => {
     );
 
     expect(handler(source, {}, given)).toEqual(expected);
+  });
+
+  describe('should add polyfills', () => {
+    it.each([
+      ['Array', ['T']],
+      ['Error', undefined],
+      ['Map', ['T', 'U']],
+      ['Object', undefined],
+      ['Promise', ['T']],
+      ['Set', ['T']],
+      ['WeakMap', ['T', 'U']],
+    ] as Array<[string, NonEmptyArray<string> | undefined]>)(
+      'should autoimport %s type from polyfill',
+      (name, generics) => {
+        const given = Babel.genericTypeAnnotation(
+          Babel.identifier(name),
+          generics
+            ? Babel.typeParameterInstantiation(
+                generics.map(() => Babel.anyTypeAnnotation())
+              )
+            : undefined
+        );
+        const expected = withPolyfillTypeExtra(
+          name as PolyfillTypeID,
+          generics
+        )(
+          typeReference(
+            identifier(name),
+            generics
+              ? ([
+                  ...generics.map(() =>
+                    mockNodeWithValue<LuaType, Babel.AnyTypeAnnotation>(
+                      Babel.anyTypeAnnotation()
+                    )
+                  ),
+                ] as NonEmptyArray<LuaType>)
+              : undefined
+          )
+        );
+
+        expect(handler(source, {}, given)).toEqual(expected);
+      }
+    );
+
+    it('should not autoimport PromiseLike type from polyfill', () => {
+      const given = Babel.genericTypeAnnotation(
+        Babel.identifier('PromiseLike'),
+        Babel.typeParameterInstantiation([Babel.anyTypeAnnotation()])
+      );
+      const expected = typeReference(identifier('PromiseLike'), [
+        mockNodeWithValue<LuaType, Babel.AnyTypeAnnotation>(
+          Babel.anyTypeAnnotation()
+        ),
+      ]);
+
+      expect(handler(source, {}, given)).toEqual(expected);
+    });
   });
 });

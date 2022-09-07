@@ -1,5 +1,5 @@
 import { LuaNode } from '@js-to-lua/lua-types';
-import { hasOwnProperty } from '@js-to-lua/shared-utils';
+import { hasOwnProperty, isTruthy } from '@js-to-lua/shared-utils';
 import { withExtras } from './extras';
 
 const polyfillTypeIds = [
@@ -15,7 +15,7 @@ const polyfillTypeIds = [
 
 export type PolyfillTypeID = typeof polyfillTypeIds[number];
 
-const requiresTypePolyfillMap: {
+const requiresTsTypePolyfillMap: {
   [P in PolyfillTypeID]: {
     name: P;
     generics?: string[];
@@ -31,9 +31,33 @@ const requiresTypePolyfillMap: {
   WeakMap: { name: 'WeakMap', generics: ['T', 'U'] },
 };
 
-export const requiresTypePolyfill = (
-  Object.keys(requiresTypePolyfillMap) as Array<PolyfillTypeID>
-).map((key) => requiresTypePolyfillMap[key]);
+export const requiresTsTypePolyfill = (
+  Object.keys(requiresTsTypePolyfillMap) as Array<PolyfillTypeID>
+).map((key) => requiresTsTypePolyfillMap[key]);
+
+export const requiresFlowTypePolyfillMap: {
+  [P in PolyfillTypeID]:
+    | {
+        name: P;
+        generics?: string[];
+      }
+    | undefined;
+} = {
+  Array: { name: 'Array', generics: ['T'] },
+  Error: { name: 'Error' },
+  Map: { name: 'Map', generics: ['T', 'U'] },
+  Object: { name: 'Object' },
+  Promise: { name: 'Promise', generics: ['T'] },
+  PromiseLike: undefined,
+  Set: { name: 'Set', generics: ['T'] },
+  WeakMap: { name: 'WeakMap', generics: ['T', 'U'] },
+};
+
+export const requiresFlowTypePolyfill = (
+  Object.keys(requiresFlowTypePolyfillMap) as Array<PolyfillTypeID>
+)
+  .map((key) => requiresFlowTypePolyfillMap[key])
+  .filter(isTruthy);
 
 type PolyfillTypeName<S extends PolyfillTypeID> = `polyfillType.${S}`;
 

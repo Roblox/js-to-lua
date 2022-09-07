@@ -4,8 +4,18 @@ import {
   isIdentifier as isBabelIdentifier,
 } from '@babel/types';
 import { createHandler, HandlerFunction } from '@js-to-lua/handler-utils';
-import { defaultTypeHandler } from '@js-to-lua/lua-conversion-utils';
-import { isIdentifier, LuaType, typeReference } from '@js-to-lua/lua-types';
+import {
+  defaultTypeHandler,
+  PolyfillTypeID,
+  requiresFlowTypePolyfill,
+  withPolyfillTypeExtra,
+} from '@js-to-lua/lua-conversion-utils';
+import {
+  isIdentifier,
+  LuaType,
+  LuaTypeReference,
+  typeReference,
+} from '@js-to-lua/lua-types';
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
 import { createFlowQualifiedTypeIdentifierHandler } from './qualified-identifer.handler';
@@ -32,9 +42,20 @@ export const createFlowGenericTypeAnnotationHandler = (
         : handleFlowQualifiedTypeIdentifier(source, config, node.id);
 
       if (isIdentifier(id)) {
-        return isNonEmptyArray(params)
+        const polyfillType = requiresFlowTypePolyfill.find(
+          (type) => type.name === id.name
+        );
+
+        const returnValue = isNonEmptyArray(params)
           ? typeReference(id, params)
           : typeReference(id);
+
+        return polyfillType
+          ? withPolyfillTypeExtra<LuaTypeReference, PolyfillTypeID>(
+              polyfillType.name,
+              polyfillType.generics
+            )(returnValue)
+          : returnValue;
       }
 
       return defaultTypeHandler(source, config, node);

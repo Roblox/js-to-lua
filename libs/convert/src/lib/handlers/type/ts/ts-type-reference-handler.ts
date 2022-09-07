@@ -13,7 +13,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   PolyfillTypeID,
-  requiresTypePolyfill,
+  requiresTsTypePolyfill,
   withPolyfillTypeExtra,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -41,7 +41,7 @@ export const createTsTypeReferenceHandler = (
       const handleTypeName = typeNameHandler(source, config);
       const id = handleTypeName(node.typeName);
 
-      const polyfillType = requiresTypePolyfill.find(
+      const polyfillType = requiresTsTypePolyfill.find(
         (type) => type.name === id.name
       );
 
