@@ -1,3 +1,4 @@
+import * as Babel from '@babel/types';
 import {
   FlowType,
   Identifier,
@@ -14,6 +15,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import { withInnerConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
+  AssignmentStatement,
   blockStatement,
   booleanLiteral,
   callExpression,
@@ -25,7 +27,10 @@ import {
   isNodeGroup,
   isReturnStatement,
   LuaCallExpression,
+  LuaDeclaration,
   LuaIdentifier,
+  LuaLVal,
+  LuaNodeGroup,
   LuaStatement,
   LuaType,
   nodeGroup,
@@ -37,11 +42,20 @@ import {
 } from '@js-to-lua/lua-types';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { applyTo, dropLast, last, pipe } from 'ramda';
-import { createFunctionParamsHandler } from '../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../function-params-with-body.handler';
 
 export const createTryStatementHandler = (
   statementHandlerFunction: HandlerFunction<LuaStatement, Statement>,
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>,
+  declarationHandlerFunction: HandlerFunction<
+    LuaNodeGroup | LuaDeclaration,
+    Babel.Declaration
+  >,
+  assignmentPatternHandlerFunction: HandlerFunction<
+    AssignmentStatement,
+    Babel.AssignmentPattern
+  >,
+  lValHandlerFunction: HandlerFunction<LuaLVal, Babel.LVal>,
   typesAnnotationHandlerFunction: HandlerFunction<
     LuaType,
     TypeAnnotation | TSTypeAnnotation
@@ -79,8 +93,11 @@ export const createTryStatementHandler = (
             })
           : result
     );
-    const functionParamsHandler = createFunctionParamsHandler(
+    const handleParamsWithBody = createFunctionParamsWithBodyHandler(
       identifierHandlerFunction,
+      declarationHandlerFunction,
+      assignmentPatternHandlerFunction,
+      lValHandlerFunction,
       typesAnnotationHandlerFunction,
       typesHandlerFunction
     );
@@ -102,42 +119,50 @@ export const createTryStatementHandler = (
     return withInnerConversionComment(
       blockStatement([
         ...(node.handler
-          ? [
-              executeTryCatchDeclaration(
-                callExpression(identifier('xpcall'), [
-                  functionExpression(
-                    [],
-                    nodeGroup(node.block.body.map(handleTryCatchStatement))
+          ? applyTo(
+              node.handler,
+              pipe(
+                (catchClause: Babel.CatchClause) => ({
+                  paramsResponse: handleParamsWithBody(source, config, {
+                    params: catchClause.param ? [catchClause.param] : [],
+                  }),
+                  catchBody: (catchClause.body.body || []).map(
+                    handleTryCatchStatement
                   ),
-                  functionExpression(
-                    node.handler.param
-                      ? functionParamsHandler(source, config, {
-                          params: [node.handler.param],
-                        })
-                      : [],
-                    nodeGroup(
-                      (node.handler.body.body || []).map(
-                        handleTryCatchStatement
-                      )
+                }),
+                ({
+                  paramsResponse: { params: functionParams, body: paramsBody },
+                  catchBody,
+                }) => [
+                  executeTryCatchDeclaration(
+                    callExpression(identifier('xpcall'), [
+                      functionExpression(
+                        [],
+                        nodeGroup(node.block.body.map(handleTryCatchStatement))
+                      ),
+                      functionExpression(
+                        functionParams,
+                        nodeGroup([...paramsBody, ...catchBody])
+                      ),
+                    ])
+                  ),
+                  ...finalizerStatements,
+                  ifStatement(
+                    ifClause(
+                      identifier('hasReturned'),
+                      nodeGroup([returnStatement(identifier('result'))])
                     )
                   ),
-                ])
-              ),
-              ...finalizerStatements,
-              ifStatement(
-                ifClause(
-                  identifier('hasReturned'),
-                  nodeGroup([returnStatement(identifier('result'))])
-                )
-              ),
-            ]
+                ]
+              )
+            )
           : [
               executeTryCatchDeclaration(
                 callExpression(identifier('pcall'), [
                   functionExpression(
                     [],
                     nodeGroup(node.block.body.map(handleStatement))
-                  ), // body
+                  ),
                 ])
               ),
               ...finalizerStatements,

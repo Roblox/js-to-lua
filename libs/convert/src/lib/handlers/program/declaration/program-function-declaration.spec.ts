@@ -3,16 +3,15 @@ import {
   withLeadingComments,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  assignmentStatement,
-  AssignmentStatementOperatorEnum,
   binaryExpression,
   callExpression,
   commentBlock,
+  elseExpressionClause,
   functionDeclaration,
   functionExpression,
   identifier,
-  ifClause,
-  ifStatement,
+  ifElseExpression,
+  ifExpressionClause,
   LuaStatement,
   memberExpression,
   nilLiteral,
@@ -111,7 +110,7 @@ describe('Program handler', () => {
       const expected = program([
         functionDeclaration(
           identifier('foo'),
-          [identifier('ref'), identifier('ref_')],
+          [identifier('ref0'), identifier('ref1')],
           nodeGroup([
             variableDeclaration(
               [
@@ -120,10 +119,10 @@ describe('Program handler', () => {
               ],
               [
                 variableDeclaratorValue(
-                  memberExpression(identifier('ref'), '.', identifier('bar'))
+                  memberExpression(identifier('ref0'), '.', identifier('bar'))
                 ),
                 variableDeclaratorValue(
-                  memberExpression(identifier('ref'), '.', identifier('baz'))
+                  memberExpression(identifier('ref0'), '.', identifier('baz'))
                 ),
               ]
             ),
@@ -135,7 +134,7 @@ describe('Program handler', () => {
               [
                 variableDeclaratorValue(
                   tableUnpackCall(
-                    identifier('ref_'),
+                    identifier('ref1'),
                     numericLiteral(1),
                     numericLiteral(2)
                   )
@@ -159,38 +158,53 @@ describe('Program handler', () => {
           identifier('foo'),
           [
             identifier('bar'),
-            identifier('baz', typeAnnotation(typeOptional(typeString()))),
+            identifier('baz_', typeAnnotation(typeOptional(typeString()))),
             identifier(
-              'fizz',
+              'fizz_',
               typeAnnotation(
                 typeOptional(typeUnion([typeString(), typeNumber()]))
               )
             ),
           ],
           nodeGroup([
-            ifStatement(
-              ifClause(
-                binaryExpression(identifier('baz'), '==', nilLiteral()),
-                nodeGroup([
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.EQ,
-                    [identifier('baz')],
-                    [stringLiteral('hello')]
-                  ),
-                ])
-              )
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(
+                  identifier('baz', typeAnnotation(typeString()))
+                ),
+              ],
+              [
+                variableDeclaratorValue(
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(identifier('baz_'), '~=', nilLiteral()),
+                      identifier('baz_')
+                    ),
+                    elseExpressionClause(stringLiteral('hello'))
+                  )
+                ),
+              ]
             ),
-            ifStatement(
-              ifClause(
-                binaryExpression(identifier('fizz'), '==', nilLiteral()),
-                nodeGroup([
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.EQ,
-                    [identifier('fizz')],
-                    [numericLiteral(1, '1')]
-                  ),
-                ])
-              )
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(
+                  identifier(
+                    'fizz',
+                    typeAnnotation(typeUnion([typeString(), typeNumber()]))
+                  )
+                ),
+              ],
+              [
+                variableDeclaratorValue(
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(identifier('fizz_'), '~=', nilLiteral()),
+                      identifier('fizz_')
+                    ),
+                    elseExpressionClause(numericLiteral(1, '1'))
+                  )
+                ),
+              ]
             ),
           ])
         ),
@@ -212,20 +226,26 @@ describe('Program handler', () => {
           identifier('foo'),
           [
             identifier('bar'),
-            identifier('baz', typeAnnotation(typeOptional(typeString()))),
+            identifier('baz_', typeAnnotation(typeOptional(typeString()))),
           ],
           nodeGroup([
-            ifStatement(
-              ifClause(
-                binaryExpression(identifier('baz'), '==', nilLiteral()),
-                nodeGroup([
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.EQ,
-                    [identifier('baz')],
-                    [stringLiteral('hello')]
-                  ),
-                ])
-              )
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(
+                  identifier('baz', typeAnnotation(typeString()))
+                ),
+              ],
+              [
+                variableDeclaratorValue(
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(identifier('baz_'), '~=', nilLiteral()),
+                      identifier('baz_')
+                    ),
+                    elseExpressionClause(stringLiteral('hello'))
+                  )
+                ),
+              ]
             ),
             nodeGroup([
               variableDeclaration(
@@ -280,20 +300,30 @@ describe('Program handler', () => {
             identifier('foo'),
             [
               identifier('bar'),
-              identifier('baz', typeAnnotation(typeOptional(typeString()))),
+              identifier('baz_', typeAnnotation(typeOptional(typeString()))),
             ],
             nodeGroup([
-              ifStatement(
-                ifClause(
-                  binaryExpression(identifier('baz'), '==', nilLiteral()),
-                  nodeGroup([
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('baz')],
-                      [stringLiteral('hello')]
-                    ),
-                  ])
-                )
+              variableDeclaration(
+                [
+                  variableDeclaratorIdentifier(
+                    identifier('baz', typeAnnotation(typeString()))
+                  ),
+                ],
+                [
+                  variableDeclaratorValue(
+                    ifElseExpression(
+                      ifExpressionClause(
+                        binaryExpression(
+                          identifier('baz_'),
+                          '~=',
+                          nilLiteral()
+                        ),
+                        identifier('baz_')
+                      ),
+                      elseExpressionClause(stringLiteral('hello'))
+                    )
+                  ),
+                ]
               ),
               returnStatement(
                 callExpression(
@@ -325,20 +355,30 @@ describe('Program handler', () => {
             identifier('foo'),
             [
               identifier('bar'),
-              identifier('baz', typeAnnotation(typeOptional(typeString()))),
+              identifier('baz_', typeAnnotation(typeOptional(typeString()))),
             ],
             nodeGroup([
-              ifStatement(
-                ifClause(
-                  binaryExpression(identifier('baz'), '==', nilLiteral()),
-                  nodeGroup([
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('baz')],
-                      [stringLiteral('hello')]
-                    ),
-                  ])
-                )
+              variableDeclaration(
+                [
+                  variableDeclaratorIdentifier(
+                    identifier('baz', typeAnnotation(typeString()))
+                  ),
+                ],
+                [
+                  variableDeclaratorValue(
+                    ifElseExpression(
+                      ifExpressionClause(
+                        binaryExpression(
+                          identifier('baz_'),
+                          '~=',
+                          nilLiteral()
+                        ),
+                        identifier('baz_')
+                      ),
+                      elseExpressionClause(stringLiteral('hello'))
+                    )
+                  ),
+                ]
               ),
               returnStatement(
                 callExpression(

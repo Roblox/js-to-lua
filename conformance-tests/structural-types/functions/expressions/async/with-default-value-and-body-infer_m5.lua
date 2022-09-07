@@ -1,31 +1,23 @@
-local function fooBool(bar: boolean?)
-	if bar == nil then
-		bar = true
-	end
+local function fooBool(bar_: boolean?)
+	local bar: boolean = if bar_ ~= nil then bar_ else true
 	return Promise.resolve():andThen(function()
 		return bar
 	end)
 end
-local function fooNoom(bar: number?)
-	if bar == nil then
-		bar = 0
-	end
+local function fooNoom(bar_: number?)
+	local bar: number = if bar_ ~= nil then bar_ else 0
 	return Promise.resolve():andThen(function()
 		return bar
 	end)
 end
-local function fooStroom(bar: string?)
-	if bar == nil then
-		bar = "fallback"
-	end
+local function fooStroom(bar_: string?)
+	local bar: string = if bar_ ~= nil then bar_ else "fallback"
 	return Promise.resolve():andThen(function()
 		return bar
 	end)
 end
-local function fooArroom(bar: Array<any>?)
-	if bar == nil then
-		bar = {}
-	end
+local function fooArroom(bar_: Array<any>?)
+	local bar: Array<any> = if bar_ ~= nil then bar_ else {}
 	return Promise.resolve():andThen(function()
 		return bar
 	end)

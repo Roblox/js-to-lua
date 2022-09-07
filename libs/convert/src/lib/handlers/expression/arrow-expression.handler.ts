@@ -37,8 +37,7 @@ import {
   noShadowIdentifiersConfig,
   removeNoShadowIdentifierConfig,
 } from '../../config/no-shadow-identifiers.config';
-import { createFunctionParamsBodyHandler } from '../function-params-body.handler';
-import { createFunctionParamsHandler } from '../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../function-params-with-body.handler';
 import { createFunctionBodyHandler } from './function-body.handler';
 import { IdentifierHandlerFunction } from './identifier-handler-types';
 
@@ -69,12 +68,6 @@ export const createArrowExpressionHandler = (
     ArrowFunctionExpression,
     AssignedToConfig
   >('ArrowFunctionExpression', (source, config, node) => {
-    const functionParamsHandler = createFunctionParamsHandler(
-      handleIdentifier,
-      handleTypeAnnotation,
-      handleType
-    );
-
     const bodyConfig = pipe(
       removeAssignedToConfig,
       removeNoShadowIdentifierConfig
@@ -84,21 +77,22 @@ export const createArrowExpressionHandler = (
       handleStatement,
       handleExpressionAsStatement
     )(source, bodyConfig);
-    const handleParamsBody = createFunctionParamsBodyHandler(
+    const handleParamsWithBody = createFunctionParamsWithBodyHandler(
+      handleIdentifier,
       handleDeclaration,
       handleAssignmentPattern,
-      handleLVal
+      handleLVal,
+      handleTypeAnnotation,
+      handleType
+    );
+    const { params: functionParams, body: paramsBody } = handleParamsWithBody(
+      source,
+      noShadowIdentifiersConfig('self')(config),
+      node
     );
     return functionExpression(
-      functionParamsHandler(
-        source,
-        noShadowIdentifiersConfig('self')(config),
-        node
-      ),
-      nodeGroup([
-        ...handleParamsBody(source, bodyConfig, node),
-        ...handleFunctionBody(node),
-      ]),
+      functionParams,
+      nodeGroup([...paramsBody, ...handleFunctionBody(node)]),
       node.returnType
         ? handleTypeAnnotation(source, config, node.returnType)
         : undefined

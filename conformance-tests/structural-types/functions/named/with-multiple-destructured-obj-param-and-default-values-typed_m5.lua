@@ -1,12 +1,8 @@
 local fizz, fuzz
-local function reduce(ref: { foo: string }?, ref_: Array<number>?)
-	if ref == nil then
-		ref = fizz
-	end
-	local foo = ref.foo
-	if ref_ == nil then
-		ref_ = fuzz
-	end
-	local bar = ref_[1]
+local function reduce(ref0_: { foo: string }?, ref1_: Array<number>?)
+	local ref0: { foo: string } = if ref0_ ~= nil then ref0_ else fizz
+	local foo = ref0.foo
+	local ref1: Array<number> = if ref1_ ~= nil then ref1_ else fuzz
+	local bar = ref1[1]
 	return { foo, bar }
 end

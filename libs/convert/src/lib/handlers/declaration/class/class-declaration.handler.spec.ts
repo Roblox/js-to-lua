@@ -11,14 +11,15 @@ import {
   binaryExpression,
   callExpression,
   commentLine,
+  elseExpressionClause,
   expressionStatement,
   functionDeclaration,
   functionDeclarationMultipleReturn,
   functionParamName,
   functionReturnType,
   identifier,
-  ifClause,
-  ifStatement,
+  ifElseExpression,
+  ifExpressionClause,
   memberExpression,
   nilLiteral,
   nodeGroup,
@@ -1601,7 +1602,7 @@ describe('Class Declaration', () => {
                     typeFunction(
                       [
                         functionParamName(
-                          identifier('publicProperty'),
+                          identifier('publicProperty_'),
                           typeOptional(typeString())
                         ),
                       ],
@@ -1619,7 +1620,7 @@ describe('Class Declaration', () => {
             identifier(`BaseClass.new`),
             [
               identifier(
-                'publicProperty',
+                'publicProperty_',
                 typeAnnotation(typeOptional(typeString()))
               ),
             ],
@@ -1635,21 +1636,27 @@ describe('Class Declaration', () => {
                   ),
                 ]
               ),
-              ifStatement(
-                ifClause(
-                  binaryExpression(
-                    identifier('publicProperty'),
-                    '==',
-                    nilLiteral()
+              variableDeclaration(
+                [
+                  variableDeclaratorIdentifier(
+                    identifier('publicProperty', typeAnnotation(typeString()))
                   ),
-                  nodeGroup([
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('publicProperty')],
-                      [stringLiteral('foo')]
-                    ),
-                  ])
-                )
+                ],
+                [
+                  variableDeclaratorValue(
+                    ifElseExpression(
+                      ifExpressionClause(
+                        binaryExpression(
+                          identifier('publicProperty_'),
+                          '~=',
+                          nilLiteral()
+                        ),
+                        identifier('publicProperty_')
+                      ),
+                      elseExpressionClause(stringLiteral('foo'))
+                    )
+                  ),
+                ]
               ),
               assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,
@@ -1731,7 +1738,7 @@ describe('Class Declaration', () => {
                     typeFunction(
                       [
                         functionParamName(
-                          identifier('publicProperty'),
+                          identifier('publicProperty_'),
                           typeOptional(typeUnion([typeString(), typeNumber()]))
                         ),
                       ],
@@ -1749,7 +1756,7 @@ describe('Class Declaration', () => {
             identifier(`BaseClass.new`),
             [
               identifier(
-                'publicProperty',
+                'publicProperty_',
                 typeAnnotation(
                   typeOptional(typeUnion([typeString(), typeNumber()]))
                 )
@@ -1767,21 +1774,30 @@ describe('Class Declaration', () => {
                   ),
                 ]
               ),
-              ifStatement(
-                ifClause(
-                  binaryExpression(
-                    identifier('publicProperty'),
-                    '==',
-                    nilLiteral()
+              variableDeclaration(
+                [
+                  variableDeclaratorIdentifier(
+                    identifier(
+                      'publicProperty',
+                      typeAnnotation(typeUnion([typeString(), typeNumber()]))
+                    )
                   ),
-                  nodeGroup([
-                    assignmentStatement(
-                      AssignmentStatementOperatorEnum.EQ,
-                      [identifier('publicProperty')],
-                      [stringLiteral('foo')]
-                    ),
-                  ])
-                )
+                ],
+                [
+                  variableDeclaratorValue(
+                    ifElseExpression(
+                      ifExpressionClause(
+                        binaryExpression(
+                          identifier('publicProperty_'),
+                          '~=',
+                          nilLiteral()
+                        ),
+                        identifier('publicProperty_')
+                      ),
+                      elseExpressionClause(stringLiteral('foo'))
+                    )
+                  ),
+                ]
               ),
               assignmentStatement(
                 AssignmentStatementOperatorEnum.EQ,
@@ -2074,7 +2090,7 @@ describe('Class Declaration', () => {
                       typeFunction(
                         [
                           functionParamName(
-                            identifier('privateProperty'),
+                            identifier('privateProperty_'),
                             typeOptional(typeString())
                           ),
                         ],
@@ -2092,7 +2108,7 @@ describe('Class Declaration', () => {
               identifier(`BaseClass_private.new`),
               [
                 identifier(
-                  'privateProperty',
+                  'privateProperty_',
                   typeAnnotation(typeOptional(typeString()))
                 ),
               ],
@@ -2108,21 +2124,30 @@ describe('Class Declaration', () => {
                     ),
                   ]
                 ),
-                ifStatement(
-                  ifClause(
-                    binaryExpression(
-                      identifier('privateProperty'),
-                      '==',
-                      nilLiteral()
+                variableDeclaration(
+                  [
+                    variableDeclaratorIdentifier(
+                      identifier(
+                        'privateProperty',
+                        typeAnnotation(typeString())
+                      )
                     ),
-                    nodeGroup([
-                      assignmentStatement(
-                        AssignmentStatementOperatorEnum.EQ,
-                        [identifier('privateProperty')],
-                        [stringLiteral('foo')]
-                      ),
-                    ])
-                  )
+                  ],
+                  [
+                    variableDeclaratorValue(
+                      ifElseExpression(
+                        ifExpressionClause(
+                          binaryExpression(
+                            identifier('privateProperty_'),
+                            '~=',
+                            nilLiteral()
+                          ),
+                          identifier('privateProperty_')
+                        ),
+                        elseExpressionClause(stringLiteral('foo'))
+                      )
+                    ),
+                  ]
                 ),
                 assignmentStatement(
                   AssignmentStatementOperatorEnum.EQ,
@@ -2210,7 +2235,7 @@ describe('Class Declaration', () => {
                       typeFunction(
                         [
                           functionParamName(
-                            identifier('privateProperty'),
+                            identifier('privateProperty_'),
                             typeOptional(
                               typeUnion([typeString(), typeNumber()])
                             )
@@ -2230,7 +2255,7 @@ describe('Class Declaration', () => {
               identifier(`BaseClass_private.new`),
               [
                 identifier(
-                  'privateProperty',
+                  'privateProperty_',
                   typeAnnotation(
                     typeOptional(typeUnion([typeString(), typeNumber()]))
                   )
@@ -2248,21 +2273,30 @@ describe('Class Declaration', () => {
                     ),
                   ]
                 ),
-                ifStatement(
-                  ifClause(
-                    binaryExpression(
-                      identifier('privateProperty'),
-                      '==',
-                      nilLiteral()
+                variableDeclaration(
+                  [
+                    variableDeclaratorIdentifier(
+                      identifier(
+                        'privateProperty',
+                        typeAnnotation(typeUnion([typeString(), typeNumber()]))
+                      )
                     ),
-                    nodeGroup([
-                      assignmentStatement(
-                        AssignmentStatementOperatorEnum.EQ,
-                        [identifier('privateProperty')],
-                        [stringLiteral('foo')]
-                      ),
-                    ])
-                  )
+                  ],
+                  [
+                    variableDeclaratorValue(
+                      ifElseExpression(
+                        ifExpressionClause(
+                          binaryExpression(
+                            identifier('privateProperty_'),
+                            '~=',
+                            nilLiteral()
+                          ),
+                          identifier('privateProperty_')
+                        ),
+                        elseExpressionClause(stringLiteral('foo'))
+                      )
+                    ),
+                  ]
                 ),
                 assignmentStatement(
                   AssignmentStatementOperatorEnum.EQ,
@@ -2556,7 +2590,7 @@ describe('Class Declaration', () => {
                       typeFunction(
                         [
                           functionParamName(
-                            identifier('protectedProperty'),
+                            identifier('protectedProperty_'),
                             typeOptional(typeString())
                           ),
                         ],
@@ -2574,7 +2608,7 @@ describe('Class Declaration', () => {
               identifier(`BaseClass_private.new`),
               [
                 identifier(
-                  'protectedProperty',
+                  'protectedProperty_',
                   typeAnnotation(typeOptional(typeString()))
                 ),
               ],
@@ -2590,21 +2624,30 @@ describe('Class Declaration', () => {
                     ),
                   ]
                 ),
-                ifStatement(
-                  ifClause(
-                    binaryExpression(
-                      identifier('protectedProperty'),
-                      '==',
-                      nilLiteral()
+                variableDeclaration(
+                  [
+                    variableDeclaratorIdentifier(
+                      identifier(
+                        'protectedProperty',
+                        typeAnnotation(typeString())
+                      )
                     ),
-                    nodeGroup([
-                      assignmentStatement(
-                        AssignmentStatementOperatorEnum.EQ,
-                        [identifier('protectedProperty')],
-                        [stringLiteral('foo')]
-                      ),
-                    ])
-                  )
+                  ],
+                  [
+                    variableDeclaratorValue(
+                      ifElseExpression(
+                        ifExpressionClause(
+                          binaryExpression(
+                            identifier('protectedProperty_'),
+                            '~=',
+                            nilLiteral()
+                          ),
+                          identifier('protectedProperty_')
+                        ),
+                        elseExpressionClause(stringLiteral('foo'))
+                      )
+                    ),
+                  ]
                 ),
                 assignmentStatement(
                   AssignmentStatementOperatorEnum.EQ,
@@ -2692,7 +2735,7 @@ describe('Class Declaration', () => {
                       typeFunction(
                         [
                           functionParamName(
-                            identifier('protectedProperty'),
+                            identifier('protectedProperty_'),
                             typeOptional(
                               typeUnion([typeString(), typeNumber()])
                             )
@@ -2712,7 +2755,7 @@ describe('Class Declaration', () => {
               identifier(`BaseClass_private.new`),
               [
                 identifier(
-                  'protectedProperty',
+                  'protectedProperty_',
                   typeAnnotation(
                     typeOptional(typeUnion([typeString(), typeNumber()]))
                   )
@@ -2730,21 +2773,30 @@ describe('Class Declaration', () => {
                     ),
                   ]
                 ),
-                ifStatement(
-                  ifClause(
-                    binaryExpression(
-                      identifier('protectedProperty'),
-                      '==',
-                      nilLiteral()
+                variableDeclaration(
+                  [
+                    variableDeclaratorIdentifier(
+                      identifier(
+                        'protectedProperty',
+                        typeAnnotation(typeUnion([typeString(), typeNumber()]))
+                      )
                     ),
-                    nodeGroup([
-                      assignmentStatement(
-                        AssignmentStatementOperatorEnum.EQ,
-                        [identifier('protectedProperty')],
-                        [stringLiteral('foo')]
-                      ),
-                    ])
-                  )
+                  ],
+                  [
+                    variableDeclaratorValue(
+                      ifElseExpression(
+                        ifExpressionClause(
+                          binaryExpression(
+                            identifier('protectedProperty_'),
+                            '~=',
+                            nilLiteral()
+                          ),
+                          identifier('protectedProperty_')
+                        ),
+                        elseExpressionClause(stringLiteral('foo'))
+                      )
+                    ),
+                  ]
                 ),
                 assignmentStatement(
                   AssignmentStatementOperatorEnum.EQ,

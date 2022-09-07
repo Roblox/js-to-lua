@@ -34,8 +34,7 @@ import {
   removeAssignedToConfig,
 } from '../../config/assigned-to.config';
 import { removeNoShadowIdentifierConfig } from '../../config/no-shadow-identifiers.config';
-import { createFunctionParamsBodyHandler } from '../function-params-body.handler';
-import { createFunctionParamsHandler } from '../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../function-params-with-body.handler';
 import { createFunctionReturnTypeHandler } from '../function-return-type.handler';
 import { createFunctionBodyHandler } from './function-body.handler';
 import { IdentifierHandlerFunction } from './identifier-handler-types';
@@ -67,12 +66,6 @@ export const createFunctionExpressionHandler = (
     FunctionExpression,
     AssignedToConfig
   >('FunctionExpression', (source, config, node) => {
-    const functionParamsHandler = createFunctionParamsHandler(
-      handleIdentifier,
-      handleTypeAnnotation,
-      handleType
-    );
-
     const bodyConfig = pipe(
       removeAssignedToConfig,
       removeNoShadowIdentifierConfig
@@ -82,22 +75,27 @@ export const createFunctionExpressionHandler = (
       handleStatement,
       handleExpressionAsStatement
     )(source, bodyConfig);
-    const handleParamsBody = createFunctionParamsBodyHandler(
+    const handleParamsWithBody = createFunctionParamsWithBodyHandler(
+      handleIdentifier,
       handleDeclaration,
       handleAssignmentPattern,
-      handleLVal
+      handleLVal,
+      handleTypeAnnotation,
+      handleType
     );
 
     const handleReturnType =
       createFunctionReturnTypeHandler(handleTypeAnnotation);
     const returnType = handleReturnType(source, config, node);
 
+    const { params: functionParams, body: paramsBody } = handleParamsWithBody(
+      source,
+      config,
+      node
+    );
     return functionExpressionMultipleReturn(
-      functionParamsHandler(source, config, node),
-      nodeGroup([
-        ...handleParamsBody(source, bodyConfig, node),
-        ...handleFunctionBody(node),
-      ]),
+      functionParams,
+      nodeGroup([...paramsBody, ...handleFunctionBody(node)]),
       returnType
     );
   });

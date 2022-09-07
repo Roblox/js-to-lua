@@ -1,21 +1,23 @@
 import {
-  assignmentStatement,
-  AssignmentStatementOperatorEnum,
   binaryExpression,
+  elseExpressionClause,
   functionDeclaration,
   identifier,
-  ifClause,
-  ifStatement,
+  ifElseExpression,
+  ifExpressionClause,
   nilLiteral,
   nodeGroup,
   program,
   typeAnnotation,
   typeAny,
   typeOptional,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
+import { handleProgram } from '../program.handler';
 
 import { getProgramNode } from '../program.spec.utils';
-import { handleProgram } from '../program.handler';
 
 const source = '';
 describe('Program handler', () => {
@@ -27,19 +29,25 @@ describe('Program handler', () => {
       const expected = program([
         functionDeclaration(
           identifier('func'),
-          [identifier('foo', typeAnnotation(typeOptional(typeAny())))],
+          [identifier('foo_', typeAnnotation(typeOptional(typeAny())))],
           nodeGroup([
-            ifStatement(
-              ifClause(
-                binaryExpression(identifier('foo'), '==', nilLiteral()),
-                nodeGroup([
-                  assignmentStatement(
-                    AssignmentStatementOperatorEnum.EQ,
-                    [identifier('foo')],
-                    [identifier('bar')]
-                  ),
-                ])
-              )
+            variableDeclaration(
+              [
+                variableDeclaratorIdentifier(
+                  identifier('foo', typeAnnotation(typeAny()))
+                ),
+              ],
+              [
+                variableDeclaratorValue(
+                  ifElseExpression(
+                    ifExpressionClause(
+                      binaryExpression(identifier('foo_'), '~=', nilLiteral()),
+                      identifier('foo_')
+                    ),
+                    elseExpressionClause(identifier('bar'))
+                  )
+                ),
+              ]
             ),
           ])
         ),

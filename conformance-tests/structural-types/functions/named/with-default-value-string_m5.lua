@@ -1,5 +1,3 @@
-local function foo(bar: string?)
-	if bar == nil then
-		bar = "bar"
-	end
+local function foo(bar_: string?)
+	local bar: string = if bar_ ~= nil then bar_ else "bar"
 end

@@ -32,8 +32,7 @@ import {
   tableExpressionKeyField,
   tableKeyField,
 } from '@js-to-lua/lua-types';
-import { createFunctionParamsBodyHandler } from '../../function-params-body.handler';
-import { createFunctionParamsHandler } from '../../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
 import { createFunctionReturnTypeHandler } from '../../function-return-type.handler';
 import { IdentifierHandlerFunction } from '../identifier-handler-types';
 import { createObjectKeyExpressionHandler } from './object-key-expression.handler';
@@ -68,22 +67,21 @@ export const createObjectMethodHandler = (
     'ObjectMethod',
     (source, config, node) => {
       const { key, computed } = node;
-      const handleParamsBody = createFunctionParamsBodyHandler(
+      const handleParamsWithBody = createFunctionParamsWithBodyHandler(
+        handleIdentifier,
         handleDeclaration,
         handleAssignmentPattern,
-        handleLVal
-      );
-
-      const functionParamsHandler = createFunctionParamsHandler(
-        handleIdentifier,
+        handleLVal,
         handleTypeAnnotation,
         handleType
       );
 
-      const params = [
-        identifier('self'),
-        ...functionParamsHandler(source, config, node),
-      ];
+      const { params: functionParams, body: paramsBody } = handleParamsWithBody(
+        source,
+        config,
+        node
+      );
+      const params = [identifier('self'), ...functionParams];
 
       const handleReturnType =
         createFunctionReturnTypeHandler(handleTypeAnnotation);
@@ -97,7 +95,7 @@ export const createObjectMethodHandler = (
             functionExpressionMultipleReturn(
               params,
               nodeGroup([
-                ...handleParamsBody(source, config, node),
+                ...paramsBody,
                 ...node.body.body.map<LuaStatement>(
                   handleStatement(source, config)
                 ),
@@ -111,7 +109,7 @@ export const createObjectMethodHandler = (
             functionExpressionMultipleReturn(
               params,
               nodeGroup([
-                ...handleParamsBody(source, config, node),
+                ...paramsBody,
                 ...node.body.body.map<LuaStatement>(
                   handleStatement(source, config)
                 ),

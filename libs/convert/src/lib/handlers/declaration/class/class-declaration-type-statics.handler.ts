@@ -4,6 +4,7 @@ import {
   EmptyConfig,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
+import { defaultStatementHandler } from '@js-to-lua/lua-conversion-utils';
 import {
   functionReturnType,
   identifier,
@@ -23,7 +24,7 @@ import {
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { applyTo, pipe } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
-import { createFunctionTypeParamsHandler } from '../../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
 import { createTypeParameterDeclarationHandler } from '../../type/type-parameter-declaration.handler';
 import {
   createClassIdentifierStatics,
@@ -82,13 +83,16 @@ export const createHandleClassTypeStaticsAlias = (
 
       const constructorMethod = node.body.body.find(isClassConstructor);
 
-      const functionTypeParamsHandler = createFunctionTypeParamsHandler(
+      const handleParamsWithBody = createFunctionParamsWithBodyHandler(
         handleIdentifier,
+        defaultStatementHandler,
+        defaultStatementHandler,
+        defaultStatementHandler,
         handleTypeAnnotation,
         handleType
       );
 
-      const constructorParameters = functionTypeParamsHandler(
+      const constructorParameters = handleParamsWithBody(
         source,
         {
           assignedTo: undefined,
@@ -96,7 +100,7 @@ export const createHandleClassTypeStaticsAlias = (
           ...config,
         },
         constructorMethod?.params ? constructorMethod : { params: [] }
-      );
+      ).typeParams;
 
       const classType = typeLiteral([
         typePropertySignature(

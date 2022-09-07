@@ -8,15 +8,13 @@ type Person_private = { --
 	--
 	privateName: string,
 }
-type Person_statics = { new: (privateName: string?) -> Person }
+type Person_statics = { new: (privateName_: string?) -> Person }
 local Person = {} :: Person & Person_statics
 local Person_private = Person :: Person_private & Person_statics;
 (Person :: any).__index = Person
-function Person_private.new(privateName: string?): Person
+function Person_private.new(privateName_: string?): Person
 	local self = setmetatable({}, Person)
-	if privateName == nil then
-		privateName = "World"
-	end
+	local privateName: string = if privateName_ ~= nil then privateName_ else "World"
 	self.privateName = privateName
 	return (self :: any) :: Person
 end

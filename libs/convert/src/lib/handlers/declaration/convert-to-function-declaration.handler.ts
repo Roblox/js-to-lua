@@ -31,8 +31,7 @@ import {
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
 import { createFunctionBodyHandler } from '../expression/function-body.handler';
-import { createFunctionParamsBodyHandler } from '../function-params-body.handler';
-import { createFunctionParamsHandler } from '../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../function-params-with-body.handler';
 import { createFunctionReturnTypeHandler } from '../function-return-type.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
@@ -60,11 +59,6 @@ export function createConvertToFunctionDeclarationHandler(
     handleTypeAnnotation,
     handleType: { handler: handleType },
   } = createTypeAnnotationHandler(handleExpression, handleIdentifier);
-  const functionParamsHandler = createFunctionParamsHandler(
-    handleIdentifier,
-    handleTypeAnnotation,
-    handleType
-  );
 
   return function (
     source: string,
@@ -79,10 +73,13 @@ export function createConvertToFunctionDeclarationHandler(
       handleStatement,
       handleExpressionAsStatement
     )(source, config);
-    const handleParamsBody = createFunctionParamsBodyHandler(
+    const handleParamsWithBody = createFunctionParamsWithBodyHandler(
+      handleIdentifier,
       handleDeclaration,
       handleAssignmentPattern,
-      handleLVal
+      handleLVal,
+      handleTypeAnnotation,
+      handleType
     );
 
     const typeParameters =
@@ -94,18 +91,21 @@ export function createConvertToFunctionDeclarationHandler(
       createFunctionReturnTypeHandler(handleTypeAnnotation);
     const returnType = handleReturnType(source, config, node);
 
+    const { params: functionParams, body: paramsBody } = handleParamsWithBody(
+      source,
+      config,
+      node
+    );
+
     const functionBody = unwrapNestedNodeGroups(
-      nodeGroup([
-        ...handleParamsBody(source, config, node),
-        ...handleFunctionBody(node),
-      ])
+      nodeGroup([...paramsBody, ...handleFunctionBody(node)])
     );
     return id.typeAnnotation
       ? nodeGroup([
           variableDeclaration([variableDeclaratorIdentifier(id)], []),
           functionDeclarationMultipleReturn(
             removeIdTypeAnnotation(id),
-            functionParamsHandler(source, config, node),
+            functionParams,
             functionBody,
             returnType,
             false,
@@ -114,7 +114,7 @@ export function createConvertToFunctionDeclarationHandler(
         ])
       : functionDeclarationMultipleReturn(
           id,
-          functionParamsHandler(source, config, node),
+          functionParams,
           functionBody,
           returnType,
           true,

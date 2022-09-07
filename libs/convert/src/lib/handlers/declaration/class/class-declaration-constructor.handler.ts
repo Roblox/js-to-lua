@@ -47,8 +47,7 @@ import {
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
 import { createFunctionBodyHandler } from '../../expression/function-body.handler';
-import { createFunctionParamsBodyHandler } from '../../function-params-body.handler';
-import { createFunctionParamsHandler } from '../../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
 import { createAssignmentPatternHandlerFunction } from '../../statement/assignment/assignment-pattern.handler';
 import { createTypeParameterDeclarationHandler } from '../../type/type-parameter-declaration.handler';
 import {
@@ -90,16 +89,13 @@ export const createConstructorHandlerFunction = (
         handleIdentifier
       );
 
-      const functionParamsHandler = createFunctionParamsHandler(
+      const handleParamsWithBody = createFunctionParamsWithBodyHandler(
         handleIdentifier,
-        handleTypeAnnotation,
-        handleType
-      );
-
-      const handleParamsBody = createFunctionParamsBodyHandler(
         handleDeclaration,
         handleAssignmentPattern,
-        handleLVal
+        handleLVal,
+        handleTypeAnnotation,
+        handleType
       );
 
       const functionBodyHandler = createFunctionBodyHandler(
@@ -183,44 +179,46 @@ export const createConstructorHandlerFunction = (
           )
         : undefined;
       return constructorMethod
-        ? handleComments(
-            source,
-            constructorMethod,
-            functionDeclaration(
-              identifier(`${classBaseIdentifier.name}.new`),
-              [
-                ...functionParamsHandler(
-                  source,
-                  {
-                    assignedTo: undefined,
-                    noShadowIdentifiers: undefined,
-                    ...config,
-                  },
-                  constructorMethod
-                ),
-              ],
-              nodeGroup([
-                defaultSelfDeclaration,
-                ...handleParamsBody(source, config, constructorMethod),
-                ...constructorMethod.params
-                  .filter((n): n is Babel.TSParameterProperty =>
-                    Babel.isTSParameterProperty(n)
-                  )
-                  .map(handleConstructorTsParameterProp),
-                ...nonStaticPropertiesConstructorInitializers,
-                ...functionBodyHandler(source, config, constructorMethod),
-                returnStatement(
-                  typeCastExpression(
-                    typeCastExpression(selfIdentifier(), typeAny()),
-                    typeReference(classIdentifier, genericTypeParameters)
-                  )
-                ),
-              ]),
+        ? applyTo(
+            handleParamsWithBody(
+              source,
+              {
+                assignedTo: undefined,
+                noShadowIdentifiers: undefined,
+                ...config,
+              },
+              constructorMethod
+            ),
+            (paramsResponse) =>
+              handleComments(
+                source,
+                constructorMethod,
+                functionDeclaration(
+                  identifier(`${classBaseIdentifier.name}.new`),
+                  [...paramsResponse.params],
+                  nodeGroup([
+                    defaultSelfDeclaration,
+                    ...paramsResponse.body,
+                    ...constructorMethod.params
+                      .filter((n): n is Babel.TSParameterProperty =>
+                        Babel.isTSParameterProperty(n)
+                      )
+                      .map(handleConstructorTsParameterProp),
+                    ...nonStaticPropertiesConstructorInitializers,
+                    ...functionBodyHandler(source, config, constructorMethod),
+                    returnStatement(
+                      typeCastExpression(
+                        typeCastExpression(selfIdentifier(), typeAny()),
+                        typeReference(classIdentifier, genericTypeParameters)
+                      )
+                    ),
+                  ]),
 
-              typeReference(classIdentifier, genericTypeParameters),
-              false,
-              genericTypeParametersDeclaration
-            )
+                  typeReference(classIdentifier, genericTypeParameters),
+                  false,
+                  genericTypeParametersDeclaration
+                )
+              )
           )
         : functionDeclaration(
             identifier(`${classBaseIdentifier.name}.new`),

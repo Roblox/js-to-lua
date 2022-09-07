@@ -13,10 +13,9 @@ import {
   LuaTypeAnnotation,
   nodeGroup,
 } from '@js-to-lua/lua-types';
-import { createFunctionParamsHandler } from '../../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
 import { createFunctionReturnTypeHandler } from '../../function-return-type.handler';
 import { IdentifierHandlerFunction } from '../identifier-handler-types';
-import { isBabelAssignmentPattern } from './babel-assignment-pattern';
 
 export const createObjectValueFunctionExpressionHandler = (
   handleStatement: HandlerFunction<LuaStatement, Babel.Statement>,
@@ -39,27 +38,30 @@ export const createObjectValueFunctionExpressionHandler = (
   return createHandler<LuaFunctionExpression, Babel.FunctionExpression>(
     'FunctionExpression',
     (source, config, node) => {
-      const functionParamsHandler = createFunctionParamsHandler(
+      const handleParamsWithBody = createFunctionParamsWithBodyHandler(
         handleIdentifier,
+        handleDeclaration,
+        handleAssignmentPattern,
+        handleLVal,
         handleTypeAnnotation,
         handleType
       );
 
-      const params = [
-        identifier('self'),
-        ...functionParamsHandler(source, config, node),
-      ];
+      const { params, body: paramsBody } = handleParamsWithBody(
+        source,
+        config,
+        node
+      );
+      const functionParams = [identifier('self'), ...params];
 
       const handleReturnType =
         createFunctionReturnTypeHandler(handleTypeAnnotation);
       const returnType = handleReturnType(source, config, node);
 
       return functionExpressionMultipleReturn(
-        params,
+        functionParams,
         nodeGroup([
-          ...node.params
-            .filter(isBabelAssignmentPattern)
-            .map((param) => handleAssignmentPattern(source, config, param)),
+          ...paramsBody,
           ...node.body.body.map<LuaStatement>(handleStatement(source, config)),
         ]),
         returnType

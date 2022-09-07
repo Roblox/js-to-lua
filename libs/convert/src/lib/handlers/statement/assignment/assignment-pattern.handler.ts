@@ -1,9 +1,4 @@
-import {
-  AssignmentPattern,
-  Expression,
-  Identifier,
-  isIdentifier as isBabelIdentifier,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   createHandlerFunction,
   HandlerFunction,
@@ -13,39 +8,59 @@ import {
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  assignmentStatement,
-  AssignmentStatement,
-  AssignmentStatementOperatorEnum,
   binaryExpression,
-  ifClause,
-  ifStatement,
+  elseExpressionClause,
+  identifier,
+  ifElseExpression,
+  ifExpressionClause,
   LuaExpression,
   LuaIdentifier,
+  LuaStatement,
+  LuaTypeAnnotation,
   nilLiteral,
-  nodeGroup,
+  typeAnnotation,
   unhandledStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
+import { inferType } from '../../type/infer-type';
 
 export const createAssignmentPatternHandlerFunction = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>,
-  handleIdentifier: HandlerFunction<LuaIdentifier, Identifier>
-): HandlerFunction<AssignmentStatement, AssignmentPattern> =>
-  createHandlerFunction((source, config, node: AssignmentPattern) => {
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
+  handleIdentifier: HandlerFunction<LuaIdentifier, Babel.Identifier>
+) =>
+  createHandlerFunction<
+    LuaStatement,
+    Babel.AssignmentPattern,
+    { refTypeAnnotation?: LuaTypeAnnotation }
+  >((source, config, node) => {
     const rightExpression = handleExpression(source, config, node.right);
-    if (isBabelIdentifier(node.left)) {
+    if (Babel.isIdentifier(node.left)) {
       const leftExpression = handleIdentifier(source, config, node.left);
-      delete leftExpression.typeAnnotation;
-      return ifStatement(
-        ifClause(
-          binaryExpression(leftExpression, '==', nilLiteral()),
-          nodeGroup([
-            assignmentStatement(
-              AssignmentStatementOperatorEnum.EQ,
-              [leftExpression],
-              [rightExpression]
-            ),
-          ])
-        )
+      const leftTemporaryExpression = identifier(leftExpression.name + '_');
+      const leftExpressionTyped = {
+        ...leftExpression,
+        typeAnnotation:
+          config.refTypeAnnotation ||
+          typeAnnotation(
+            leftExpression.typeAnnotation?.typeAnnotation ||
+              inferType(node.right)
+          ),
+      };
+      return variableDeclaration(
+        [variableDeclaratorIdentifier(leftExpressionTyped)],
+        [
+          variableDeclaratorValue(
+            ifElseExpression(
+              ifExpressionClause(
+                binaryExpression(leftTemporaryExpression, '~=', nilLiteral()),
+                leftTemporaryExpression
+              ),
+              elseExpressionClause(rightExpression)
+            )
+          ),
+        ]
       );
     }
     return withTrailingConversionComment(

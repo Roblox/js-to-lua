@@ -35,6 +35,9 @@ describe('Try Statement Handler', () => {
     mockNodeWithValueHandler,
     mockNodeWithValueHandler,
     mockNodeWithValueHandler,
+    mockNodeWithValueHandler,
+    mockNodeWithValueHandler,
+    mockNodeWithValueHandler,
     mockNodeWithValueHandler
   ).handler;
 

@@ -5,6 +5,7 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
+  defaultStatementHandler,
   getReturnType,
   reassignComments,
   removeTypeAnnotation,
@@ -25,7 +26,7 @@ import {
   typeReference,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import { createFunctionTypeParamsHandler } from '../../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
 import { inferType } from '../../type/infer-type';
 
 export const createHandleMethodsAndProperties = (
@@ -37,8 +38,11 @@ export const createHandleMethodsAndProperties = (
   >,
   handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
 ) => {
-  const functionTypeParamsHandler = createFunctionTypeParamsHandler(
+  const handleParamsWithBody = createFunctionParamsWithBodyHandler(
     handleIdentifier,
+    defaultStatementHandler,
+    defaultStatementHandler,
+    defaultStatementHandler,
     handleTypeAnnotation,
     handleType
   );
@@ -57,11 +61,11 @@ export const createHandleMethodsAndProperties = (
       node: Babel.ClassMethod | Babel.TSDeclareMethod | Babel.ClassProperty
     ): LuaTypeAnnotation {
       if (Babel.isClassMethod(node) || Babel.isTSDeclareMethod(node)) {
-        const fnParams = functionTypeParamsHandler(
+        const fnParams = handleParamsWithBody(
           source,
           config as EmptyConfig,
           node
-        );
+        ).typeParams;
 
         const returnType = node.returnType
           ? applyTo(

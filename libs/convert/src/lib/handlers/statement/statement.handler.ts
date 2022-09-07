@@ -146,6 +146,9 @@ export const createStatementHandler = (
       createTryStatementHandler(
         forwardedHandleStatement,
         handleIdentifier,
+        forwardedHandleDeclaration,
+        handleAssignmentPattern,
+        handleLVal,
         forwardedHandleTypeAnnotation,
         forwardedHandleType
       ),

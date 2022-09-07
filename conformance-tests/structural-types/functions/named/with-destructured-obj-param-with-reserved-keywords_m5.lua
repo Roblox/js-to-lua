@@ -1,5 +1,5 @@
-local function reduce(ref)
+local function reduce(ref0)
 	local foo, bar, table_, error_, repeat_, until_ =
-		ref.foo, ref.bar, ref.table, ref.error, ref["repeat"], ref["until"]
+		ref0.foo, ref0.bar, ref0.table, ref0.error, ref0["repeat"], ref0["until"]
 	return { foo, bar, table_, error_, repeat_, until_ }
 end

@@ -1,6 +1,4 @@
-local function foo(bar: any?)
-	if bar == nil then
-		bar = defaultBar
-	end
+local function foo(bar_: any?)
+	local bar: any = if bar_ ~= nil then bar_ else defaultBar
 	return Promise.resolve(nil)
 end

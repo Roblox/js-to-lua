@@ -1,4 +1,4 @@
-local function reduce(ref: Array<string>)
-	local foo, bar = table.unpack(ref, 1, 2)
+local function reduce(ref0: Array<string>)
+	local foo, bar = table.unpack(ref0, 1, 2)
 	return { foo = foo, bar = bar }
 end

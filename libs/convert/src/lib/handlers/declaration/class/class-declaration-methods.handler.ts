@@ -24,9 +24,9 @@ import {
   nodeGroup,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
+import { applyTo } from 'ramda';
 import { createFunctionBodyHandler } from '../../expression/function-body.handler';
-import { createFunctionParamsBodyHandler } from '../../function-params-body.handler';
-import { createFunctionParamsHandler } from '../../function-params.handler';
+import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
 import { createFunctionReturnTypeHandler } from '../../function-return-type.handler';
 import { createAssignmentPatternHandlerFunction } from '../../statement/assignment/assignment-pattern.handler';
 import {
@@ -71,16 +71,13 @@ export const createClassMethodsHandlerFunction = (
         handleIdentifier
       );
 
-      const functionParamsHandler = createFunctionParamsHandler(
+      const handleParamsWithBody = createFunctionParamsWithBodyHandler(
         handleIdentifier,
-        handleTypeAnnotation,
-        handleType
-      );
-
-      const handleParamsBody = createFunctionParamsBodyHandler(
         handleDeclaration,
         handleAssignmentPattern,
-        handleLVal
+        handleLVal,
+        handleTypeAnnotation,
+        handleType
       );
 
       const functionBodyHandler = createFunctionBodyHandler(
@@ -128,29 +125,31 @@ export const createClassMethodsHandlerFunction = (
         const returnType = handleReturnType(source, config, node);
 
         return Babel.isIdentifier(node.key) && isIdentifier(id)
-          ? functionDeclarationMultipleReturn(
-              identifier(
-                `${classBaseIdentifier.name}${node.static ? '.' : ':'}${
-                  id.name
-                }`
+          ? applyTo(
+              handleParamsWithBody(
+                source,
+                {
+                  assignedTo: undefined,
+                  noShadowIdentifiers: undefined,
+                  ...config,
+                },
+                node
               ),
-              [
-                ...functionParamsHandler(
-                  source,
-                  {
-                    assignedTo: undefined,
-                    noShadowIdentifiers: undefined,
-                    ...config,
-                  },
-                  node
-                ),
-              ],
-              nodeGroup([
-                ...handleParamsBody(source, config, node),
-                ...functionBodyHandler(source, config, node),
-              ]),
-              returnType,
-              false
+              (paramsResponse) =>
+                functionDeclarationMultipleReturn(
+                  identifier(
+                    `${classBaseIdentifier.name}${node.static ? '.' : ':'}${
+                      id.name
+                    }`
+                  ),
+                  [...paramsResponse.params],
+                  nodeGroup([
+                    ...paramsResponse.body,
+                    ...functionBodyHandler(source, config, node),
+                  ]),
+                  returnType,
+                  false
+                )
             )
           : withTrailingConversionComment(
               unhandledStatement(),

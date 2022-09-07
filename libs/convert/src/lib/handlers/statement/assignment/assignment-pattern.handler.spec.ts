@@ -1,105 +1,125 @@
-import {
-  assignmentPattern as babelAssignmentPattern,
-  identifier as babelIdentifier,
-  Identifier,
-  memberExpression,
-  tsAnyKeyword as babelTsAnyKeyword,
-  tsTypeAnnotation as babelTsTypeAnnotation,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import { createHandlerFunction, testUtils } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
-  assignmentStatement,
-  AssignmentStatementOperatorEnum,
   binaryExpression,
+  elseExpressionClause,
   identifier,
-  ifClause,
-  ifStatement,
+  ifElseExpression,
+  ifExpressionClause,
   LuaIdentifier,
   nilLiteral,
-  nodeGroup,
+  typeAnnotation,
+  typeAny,
+  typeString,
   unhandledStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { createAssignmentPatternHandlerFunction } from './assignment-pattern.handler';
 
 const { mockNodeWithValueHandler } = testUtils;
 
+const mockedHandleIdentifier = jest.fn(
+  mockNodeWithValue<LuaIdentifier, Babel.Identifier>
+);
+const handleIdentifier = createHandlerFunction<LuaIdentifier, Babel.Identifier>(
+  (source, config, node) => mockedHandleIdentifier(node)
+);
+
 const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
   mockNodeWithValueHandler,
-  mockNodeWithValueHandler
+  handleIdentifier
 );
 
 const source = '';
 
 const withTypeAnnotation = (
-  id: Identifier,
-  typeAnnotation: Identifier['typeAnnotation']
-): Identifier => ({
+  id: Babel.Identifier,
+  typeAnnotation: Babel.Identifier['typeAnnotation']
+): Babel.Identifier => ({
   ...id,
   typeAnnotation,
 });
 
 describe('Assignment Pattern Handler', () => {
-  it(`should handle AssignmentPattern `, () => {
-    const leftGiven = babelIdentifier('foo');
-    const rightGiven = babelIdentifier('bar');
-    const given = babelAssignmentPattern(leftGiven, rightGiven);
+  beforeEach(() => {
+    mockedHandleIdentifier.mockImplementation(mockNodeWithValue);
+  });
 
-    const expected = ifStatement(
-      ifClause(
-        binaryExpression(mockNodeWithValue(leftGiven), '==', nilLiteral()),
-        nodeGroup([
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [mockNodeWithValue(leftGiven) as LuaIdentifier],
-            [mockNodeWithValue(rightGiven)]
-          ),
-        ])
-      )
+  it(`should handle AssignmentPattern `, () => {
+    mockedHandleIdentifier.mockImplementation((node) => identifier(node.name));
+
+    const leftGiven = Babel.identifier('foo');
+    const rightGiven = Babel.identifier('bar');
+    const given = Babel.assignmentPattern(leftGiven, rightGiven);
+
+    const expected = variableDeclaration(
+      [
+        variableDeclaratorIdentifier(
+          identifier('foo', typeAnnotation(typeAny()))
+        ),
+      ],
+      [
+        variableDeclaratorValue(
+          ifElseExpression(
+            ifExpressionClause(
+              binaryExpression(identifier('foo_'), '~=', nilLiteral()),
+              identifier('foo_')
+            ),
+            elseExpressionClause(mockNodeWithValue(rightGiven))
+          )
+        ),
+      ]
     );
 
     expect(handleAssignmentPattern(source, {}, given)).toEqual(expected);
   });
 
-  it(`should remove type annotation when handling AssignmentPattern `, () => {
-    const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
-      mockNodeWithValueHandler,
-      createHandlerFunction<LuaIdentifier, Identifier>((source, config, node) =>
-        identifier(node.name)
-      )
+  it(`should preserve type annotation when handling AssignmentPattern `, () => {
+    mockedHandleIdentifier.mockImplementation((node) =>
+      identifier(node.name, typeAnnotation(typeString()))
     );
 
     const leftGiven = withTypeAnnotation(
-      babelIdentifier('foo'),
-      babelTsTypeAnnotation(babelTsAnyKeyword())
+      Babel.identifier('foo'),
+      Babel.tsTypeAnnotation(Babel.tsStringKeyword())
     );
-    const rightGiven = babelIdentifier('bar');
-    const given = babelAssignmentPattern(leftGiven, rightGiven);
+    const rightGiven = Babel.identifier('bar');
+    const given = Babel.assignmentPattern(leftGiven, rightGiven);
 
-    const expected = ifStatement(
-      ifClause(
-        binaryExpression(identifier('foo'), '==', nilLiteral()),
-        nodeGroup([
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [identifier('foo')],
-            [mockNodeWithValue(rightGiven)]
-          ),
-        ])
-      )
+    const expected = variableDeclaration(
+      [
+        variableDeclaratorIdentifier({
+          ...identifier('foo'),
+          typeAnnotation: typeAnnotation(typeString()),
+        }),
+      ],
+      [
+        variableDeclaratorValue(
+          ifElseExpression(
+            ifExpressionClause(
+              binaryExpression(identifier('foo_'), '~=', nilLiteral()),
+              identifier('foo_')
+            ),
+            elseExpressionClause(mockNodeWithValue(rightGiven))
+          )
+        ),
+      ]
     );
 
     expect(handleAssignmentPattern(source, {}, given)).toEqual(expected);
   });
 
   it(`should return UnhandledStatement `, () => {
-    const leftGiven = memberExpression(
-      babelIdentifier('foo'),
-      babelIdentifier('bar')
+    const leftGiven = Babel.memberExpression(
+      Babel.identifier('foo'),
+      Babel.identifier('bar')
     );
-    const rightGiven = babelIdentifier('fizz');
-    const given = babelAssignmentPattern(leftGiven, rightGiven);
+    const rightGiven = Babel.identifier('fizz');
+    const given = Babel.assignmentPattern(leftGiven, rightGiven);
 
     const expected = withTrailingConversionComment(
       unhandledStatement(),

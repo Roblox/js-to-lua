@@ -1,5 +1,3 @@
-local function foo(bar: Object?)
-	if bar == nil then
-		bar = {}
-	end
+local function foo(bar_: Object?)
+	local bar: Object = if bar_ ~= nil then bar_ else {}
 end

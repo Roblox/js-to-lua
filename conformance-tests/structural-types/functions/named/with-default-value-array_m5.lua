@@ -1,5 +1,3 @@
-local function foo(bar: Array<any>?)
-	if bar == nil then
-		bar = {}
-	end
+local function foo(bar_: Array<any>?)
+	local bar: Array<any> = if bar_ ~= nil then bar_ else {}
 end

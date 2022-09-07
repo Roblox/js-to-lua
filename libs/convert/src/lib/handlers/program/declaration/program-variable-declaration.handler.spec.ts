@@ -1724,7 +1724,7 @@ describe('Program handler', () => {
         const expected: LuaProgram = program([
           functionDeclaration(
             identifier('fn'),
-            [identifier('ref')],
+            [identifier('ref0')],
             nodeGroup([
               withTrailingConversionComment(
                 unhandledStatement(),
@@ -1760,7 +1760,7 @@ describe('Program handler', () => {
         const expected: LuaProgram = program([
           functionDeclaration(
             identifier('fn'),
-            [identifier('ref')],
+            [identifier('ref0')],
             nodeGroup([
               withTrailingConversionComment(
                 unhandledStatement(),

@@ -1,5 +1,3 @@
-local function foo(bar: boolean?)
-	if bar == nil then
-		bar = true
-	end
+local function foo(bar_: boolean?)
+	local bar: boolean = if bar_ ~= nil then bar_ else true
 end
