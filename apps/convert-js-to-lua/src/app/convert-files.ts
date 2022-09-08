@@ -1,6 +1,8 @@
+import { execSync } from 'child_process';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
-import { join, parse } from 'path';
+import { dirname, join, parse, relative } from 'path';
 import { format_code } from 'stylua-wasm';
+import throat from 'throat';
 import { convert } from './convert';
 import { transform } from './transform';
 
@@ -15,11 +17,30 @@ const safeApply =
     }
   };
 
+// TODO: move to a proper lib when dealing with upstream comment
+const inferRootDir = (filePath: string): string => {
+  try {
+    return execSync(`git -C ${dirname(filePath)} rev-parse --show-toplevel`, {
+      encoding: 'utf8',
+    }).trim();
+  } catch {
+    return './';
+  }
+};
+
 export const convertFiles =
-  (outputDir: string, babelConfig?: string, babelTransformConfig?: string) =>
+  (
+    rootDir: string,
+    outputDir: string,
+    babelConfig?: string,
+    babelTransformConfig?: string
+  ) =>
   (files: string[]) => {
-    const output = (filePath: string) =>
-      join(outputDir, changeExtension(filePath, '.lua'));
+    const output = (filePath: string) => {
+      const rootDir_ = rootDir ? rootDir : inferRootDir(filePath);
+      const filePathRelative = relative(rootDir_, filePath);
+      return join(outputDir, changeExtension(filePathRelative, '.lua'));
+    };
 
     const babelOptions = babelConfig
       ? readFile(babelConfig, { encoding: 'utf-8' })
@@ -39,40 +60,39 @@ export const convertFiles =
             );
           })
       : Promise.resolve();
-    return Promise.all([babelOptions, babelTransformOptions]).then(
-      ([options, transformOptions]) =>
-        Promise.all(
-          files.map((file) =>
-            readFile(file, { encoding: 'utf-8' })
-              .then((code) =>
-                transform(transformOptions, parse(file).base, code)
-              )
-              .then((code) =>
-                convert(options)({ isInitFile: isInitFile(file) }, code)
-              )
-              .then((code) => {
-                let beforeCode = code,
-                  afterCode = code;
-                // apply StyLua code formatting (which is not stable) until the code is not changed
-                do {
-                  beforeCode = afterCode;
-                  afterCode = safeApply(format_code)(beforeCode);
-                } while (beforeCode !== afterCode);
 
-                return afterCode;
-              })
-              .then((luaCode) => {
-                console.info('output file', output(file));
-                return prepareDir(output(file)).then((outputFile) =>
-                  writeFile(outputFile, luaCode)
-                );
-              })
-              .catch((err) => {
-                console.warn('failed file:', file);
-                console.warn('error: ', err);
-              })
-          )
-        )
+    return Promise.all([babelOptions, babelTransformOptions]).then(
+      ([options, transformOptions]) => {
+        const convertFile = (file: string): Promise<void> =>
+          readFile(file, { encoding: 'utf-8' })
+            .then((code) => transform(transformOptions, parse(file).base, code))
+            .then((code) =>
+              convert(options)({ isInitFile: isInitFile(file) }, code)
+            )
+            .then((code) => {
+              let beforeCode = code,
+                afterCode = code;
+              // apply StyLua code formatting (which is not stable) until the code is not changed
+              do {
+                beforeCode = afterCode;
+                afterCode = safeApply(format_code)(beforeCode);
+              } while (beforeCode !== afterCode);
+
+              return afterCode;
+            })
+            .then((luaCode) => {
+              console.info('output file', output(file));
+              return prepareDir(output(file)).then((outputFile) =>
+                writeFile(outputFile, luaCode)
+              );
+            })
+            .catch((err) => {
+              console.warn('failed file:', file);
+              console.warn('error: ', err);
+            });
+
+        return Promise.all(files.map(throat(1, convertFile)));
+      }
     );
   };
 

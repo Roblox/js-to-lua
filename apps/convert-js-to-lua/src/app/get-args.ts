@@ -3,6 +3,7 @@ import * as yargs from 'yargs';
 interface Args {
   input: Array<string | number>;
   output: string;
+  rootDir: string;
   babelConfig: string;
   babelTransformConfig: string;
 }
@@ -19,6 +20,11 @@ export const getArgs = (): Args => {
       description: 'Output directory',
       type: 'string',
     })
+    .option('rootDir', {
+      alias: 'root',
+      description: 'Root repo directory',
+      type: 'string',
+    })
     .option('babelConfig', {
       description: 'Babel config file',
       type: 'string',
@@ -33,6 +39,7 @@ export const getArgs = (): Args => {
   const DEFAULT_ARGS: Args = {
     input: [__dirname + '/fixtures/**/*sample.ts'],
     output: __dirname + '/output',
+    rootDir: '',
     babelConfig: '',
     babelTransformConfig: '',
   };
