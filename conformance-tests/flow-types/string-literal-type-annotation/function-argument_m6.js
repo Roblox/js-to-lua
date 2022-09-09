@@ -1,0 +1,1 @@
+const foo = (arg: "foo" | "bar") => arg
