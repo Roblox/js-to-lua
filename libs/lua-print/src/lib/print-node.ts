@@ -5,8 +5,6 @@ import {
   isSameLineLeadingComment,
   isSameLineTrailingComment,
   isUnaryExpression,
-  LuaCallExpression,
-  LuaExpression,
   LuaFunctionDeclaration,
   LuaFunctionExpression,
   LuaNode,
@@ -21,6 +19,7 @@ import { createPrintTypeParameterDeclaration } from './declaration/print-type-pa
 import { createPrintVariableDeclaration } from './declaration/variable-declaration/print-variable-declaration';
 import { createPrintVariableDeclaratorIdentifier } from './declaration/variable-declaration/print-variable-declarator-identifier';
 import { createPrintVariableDeclaratorValue } from './declaration/variable-declaration/print-variable-declarator-value';
+import { createPrintCallExpression } from './expression/print-call-expression';
 import { createPrintIfExpression } from './expression/print-if-expression';
 import { createPrintIndexExpression } from './expression/print-index-expression';
 import { createPrintMemberExpression } from './expression/print-member-expression';
@@ -190,7 +189,7 @@ const _printNode = (node: LuaNode): PrintableNode | string => {
     case 'TableConstructor':
       return createPrintTableConstructor(printNode)(node);
     case 'CallExpression':
-      return printCallExpression(node);
+      return createPrintCallExpression(printNode)(node);
     case 'TableNoKeyField':
       return createPrintTableNoKeyField(printNode)(node);
     case 'TableNameKeyField':
@@ -304,24 +303,6 @@ const _printNode = (node: LuaNode): PrintableNode | string => {
       return '--[[ default ]]';
   }
 };
-
-function printCallExpression(node: LuaCallExpression): string {
-  return `${printCalleeExpression(node.callee)}(${node.arguments
-    .map((e) => printNode(e))
-    .join(', ')})`;
-}
-
-function printCalleeExpression(callee: LuaExpression): string {
-  switch (callee.type) {
-    case 'CallExpression':
-    case 'Identifier':
-    case 'LuaMemberExpression':
-    case 'IndexExpression':
-      return `${printNode(callee)}`;
-    default:
-      return `(${printNode(callee)})`;
-  }
-}
 
 export function printFunction(
   node: LuaFunctionExpression | LuaFunctionDeclaration
