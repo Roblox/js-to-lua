@@ -16,6 +16,7 @@ import {
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
+import { extractWithComments } from '@js-to-lua/lua-conversion-utils';
 import {
   AssignmentStatement,
   functionExpression,
@@ -90,12 +91,17 @@ export const createArrowExpressionHandler = (
       noShadowIdentifiersConfig('self')(config),
       node
     );
+    const returnType = node.returnType
+      ? extractWithComments(
+          handleTypeAnnotation(source, config, node.returnType),
+          (base) => base.typeAnnotation
+        )
+      : undefined;
+
     return functionExpression(
       functionParams,
       nodeGroup([...paramsBody, ...handleFunctionBody(node)]),
-      node.returnType
-        ? handleTypeAnnotation(source, config, node.returnType)
-        : undefined
+      returnType
     );
   });
 };

@@ -1,3 +1,4 @@
+export * from './extract-with-comments';
 export * from './has-any-comment';
 export * from './inner-comment';
 export * from './leading-comment';
