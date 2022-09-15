@@ -19,6 +19,7 @@ import { createFlowObjectTypeAnnotationHandler } from './object-type-annotation.
 import { createStringLiteralTypeAnnotationHandler } from './string-literal-type-annotation.handler';
 import { createFlowStringTypeAnnotationHandler } from './string-type-annotation.handler';
 import { createUnionTypeAnnotationHandler } from './union-type-annotation.handler';
+import { createFlowVoidTypeAnnotationHandler } from './void-type-annotation.handler';
 
 export const createFlowTypeHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction
@@ -33,6 +34,7 @@ export const createFlowTypeHandler = (
       createFlowBooleanTypeAnnotationHandler(),
       createFlowAnyTypeAnnotationHandler(),
       createFlowNumberLiteralTypeAnnotationHandler(),
+      createFlowVoidTypeAnnotationHandler(),
       createFlowGenericTypeAnnotationHandler(
         handleIdentifierStrict,
         forwardHandlerRef(() => handleFlowTypes)

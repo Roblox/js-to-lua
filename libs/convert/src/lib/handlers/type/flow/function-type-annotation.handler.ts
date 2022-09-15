@@ -13,11 +13,11 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   getNodeSource,
+  getReturnType,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   functionParamName,
-  functionReturnType,
   functionTypeParamEllipse,
   LuaType,
   LuaTypeFunction,
@@ -82,17 +82,19 @@ export const createFunctionTypeAnnotationHandler = (
         ? handleFlowTypeParameterDeclaration(node.typeParameters)
         : undefined;
     const params = node.params.map(handleFunctionParam);
-    const returnType = handleFlowType(source, config, node.returnType);
+    const returnType = getReturnType(
+      handleFlowType(source, config, node.returnType)
+    );
     return node.rest
       ? typeFunction(
           [
             ...params,
             functionTypeParamEllipse(handleRestFunctionParam(node.rest)),
           ],
-          functionReturnType([returnType]),
+          returnType,
           typeParameters
         )
-      : typeFunction(params, functionReturnType([returnType]), typeParameters);
+      : typeFunction(params, returnType, typeParameters);
   });
 
   return handleTsTypeFunction;
