@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/while/while-nested_m5.js
 local i = 0
 while true do
 	local j = 0

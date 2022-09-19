@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/expressions/member/known-math-methods/mapped-math-properties_m5.js
 local Math_E = 2.718281828459045
 local Math_LN2 = 0.6931471805599453
 local Math_SQRT2 = 1.4142135623730951

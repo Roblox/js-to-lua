@@ -5,10 +5,12 @@ import {
   memberExpression,
   nodeGroup,
   numericLiteral,
-  program,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -18,7 +20,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         ++foo;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.ADD,
           [identifier('foo')],
@@ -35,7 +37,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         ++foo.bar;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.ADD,
           [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -52,7 +54,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         foo++;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.ADD,
           [identifier('foo')],
@@ -69,7 +71,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         --foo;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.SUB,
           [identifier('foo')],
@@ -86,7 +88,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         foo--;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.SUB,
           [identifier('foo')],
@@ -103,7 +105,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         a = ++foo;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.ADD,
@@ -127,7 +129,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         a = ++foo.bar;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.ADD,
@@ -151,7 +153,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         a = foo++;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -175,7 +177,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         a = --foo;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.SUB,
@@ -199,7 +201,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         a = foo--;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,

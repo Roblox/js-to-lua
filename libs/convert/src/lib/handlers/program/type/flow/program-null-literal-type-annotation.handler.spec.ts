@@ -1,7 +1,6 @@
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
-  program,
   stringLiteral,
   typeAliasDeclaration,
   typeAnnotation,
@@ -13,7 +12,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../../program.handler';
-import { getProgramNode } from '../../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 const source = '';
 
@@ -26,7 +28,7 @@ describe('Program handler', () => {
       `,
         { plugins: ['flow'] }
       );
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeUnion([
@@ -49,7 +51,7 @@ describe('Program handler', () => {
       `,
         { plugins: ['flow'] }
       );
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier({

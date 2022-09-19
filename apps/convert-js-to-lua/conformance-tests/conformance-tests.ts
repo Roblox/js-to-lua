@@ -68,7 +68,7 @@ export const conformanceTests = (
       config?.babelTransformConfig
         ? ` --babelTransformConfig ${config.babelTransformConfig}`
         : ''
-    } --rootDir './'`;
+    } --rootDir './' --sha sha`;
 
     execSync(command, { stdio: [] });
 

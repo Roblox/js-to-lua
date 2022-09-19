@@ -4,11 +4,13 @@ import {
   functionDeclaration,
   identifier,
   nodeGroup,
-  program,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 describe('Program handler', () => {
@@ -19,7 +21,7 @@ describe('Program handler', () => {
           return
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('func'),
           [],
@@ -36,7 +38,7 @@ describe('Program handler', () => {
           return foo
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('func'),
           [],
@@ -53,7 +55,7 @@ describe('Program handler', () => {
           return foo = bar
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('func'),
           [],

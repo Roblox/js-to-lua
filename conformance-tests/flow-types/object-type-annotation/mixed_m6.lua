@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/flow-types/object-type-annotation/mixed_m6.js
 type Foo = { foo: string }
 type Bar = { bar: string }
 type Test = Foo & Bar & {

@@ -3,7 +3,6 @@ import {
   identifier,
   memberExpression,
   nodeGroup,
-  program,
   typeAliasDeclaration,
   typeReference,
   variableDeclaration,
@@ -11,7 +10,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../../program.handler';
-import { getProgramNode } from '../../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 describe('Program handler', () => {
   describe('TSQualifiedName', () => {
@@ -21,7 +23,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeReference(identifier('Bar_Baz'))
@@ -38,7 +40,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeReference(identifier('Bar_Baz_Fizz_Buzz'))
@@ -56,7 +58,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('barModule'))],
@@ -108,7 +110,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('barModule'))],
@@ -161,7 +163,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('barModule'))],

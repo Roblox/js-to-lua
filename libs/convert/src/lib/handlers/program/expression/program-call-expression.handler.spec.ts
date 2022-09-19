@@ -8,13 +8,15 @@ import {
   identifier,
   memberExpression,
   numericLiteral,
-  program,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Call Expression Handler', () => {
@@ -24,7 +26,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(identifier('foo'), [
             numericLiteral(1, '1'),
@@ -42,7 +44,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(identifier('foo'), [
             identifier('fooThis'),
@@ -61,7 +63,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(identifier('foo'), [identifier('fooThis')])
         ),
@@ -76,7 +78,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(identifier('foo'), [
             identifier('fooThis'),
@@ -94,7 +96,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(
             memberExpression(identifier('foo'), ':', identifier('apply')),
@@ -116,7 +118,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('t'))],
           [
@@ -140,7 +142,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(identifier('tonumber'), [identifier('foo')])
         ),
@@ -155,7 +157,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(identifier('tonumber'), [
             identifier('foo'),

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/base-types/template-literals/multi-line-template-with-expressions-escaped-chars-and-format-patterns_m5.js
 local foo = ([[
 
 value1%%s:]] .. "\t%s" .. ([[%%]] .. "\n" .. [[

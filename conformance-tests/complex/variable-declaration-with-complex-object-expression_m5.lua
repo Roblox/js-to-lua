@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/complex/variable-declaration-with-complex-object-expression_m5.js
 local a, b = 0, 0
 local refProp0 = a
 a += 1

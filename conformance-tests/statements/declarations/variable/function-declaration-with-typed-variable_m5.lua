@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/variable/function-declaration-with-typed-variable_m5.ts
 local foo: (p1: string, p2: number) -> ()
 function foo(p1, p2): () end
 local bar: (p1: string, p2: number) -> number

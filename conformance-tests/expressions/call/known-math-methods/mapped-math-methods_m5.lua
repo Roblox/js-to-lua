@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/expressions/call/known-math-methods/mapped-math-methods_m5.js
 math.abs(10.4) -- Comment for Math.abs
 math.acos(0.3) -- Comment for Math.acos
 math.asin(0.3) -- Comment for Math.asin

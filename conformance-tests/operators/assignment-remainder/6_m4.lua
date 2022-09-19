@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/operators/assignment-remainder/6_m4.js
 local a, b, c = 1, 2, 3
 b %= c
 a %= b

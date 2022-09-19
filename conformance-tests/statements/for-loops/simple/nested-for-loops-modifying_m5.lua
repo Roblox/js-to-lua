@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/for-loops/simple/nested-for-loops-modifying_m5.js
 do
 	local i = 0
 	while i < 3 do

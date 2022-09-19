@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/ts-module/with-class-declaration_m5.ts
 local Foo = {}
 do
 	type Bar = { property: string, method: (self: Bar) -> () }

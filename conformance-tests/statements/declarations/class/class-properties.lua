@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/class/class-properties.js
 type BaseClass = { initializedProperty: boolean, notInitializedProperty: any }
 type BaseClass_statics = { new: () -> BaseClass }
 local BaseClass = {} :: BaseClass & BaseClass_statics;

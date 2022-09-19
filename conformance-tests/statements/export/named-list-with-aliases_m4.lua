@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/export/named-list-with-aliases_m4.js
 local exports = {}
 local a = 10
 local b = 8

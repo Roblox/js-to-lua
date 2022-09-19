@@ -3,11 +3,13 @@ import {
   AssignmentStatementOperatorEnum,
   identifier,
   LuaProgram,
-  program,
   stringLiteral,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -19,7 +21,7 @@ describe('Program handler', () => {
         foo = "2"
         foo = "34"
       `);
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
@@ -52,7 +54,7 @@ describe('Program handler', () => {
         foo = '\\u{5a}'
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],

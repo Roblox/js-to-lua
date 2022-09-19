@@ -17,7 +17,6 @@ import {
   LuaLogicalExpressionOperatorEnum,
   nodeGroup,
   numericLiteral,
-  program,
   repeatStatement,
   tableConstructor,
   tableNoKeyField,
@@ -27,7 +26,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Switch Statement Handler', () => {
   const source = '';
@@ -44,7 +46,7 @@ describe('Switch Statement Handler', () => {
           break;
       }
     `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withInnerConversionComment(
           repeatStatement(booleanLiteral(true), [
             variableDeclaration(
@@ -173,7 +175,7 @@ describe('Switch Statement Handler', () => {
       }
     `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withInnerConversionComment(
           repeatStatement(booleanLiteral(true), [
             variableDeclaration(
@@ -300,7 +302,7 @@ describe('Switch Statement Handler', () => {
       }
     `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withInnerConversionComment(
           repeatStatement(booleanLiteral(true), [
             variableDeclaration(
@@ -474,7 +476,7 @@ describe('Switch Statement Handler', () => {
           break;
       }
     `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('condition_'))],
@@ -518,7 +520,7 @@ describe('Switch Statement Handler', () => {
       }
     `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('condition_'))],
@@ -565,7 +567,7 @@ describe('Switch Statement Handler', () => {
       }
     `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('condition_'))],
@@ -630,7 +632,7 @@ describe('Switch Statement Handler', () => {
           break;
       }
     `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withInnerConversionComment(
           repeatStatement(booleanLiteral(true), [
             variableDeclaration(

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/structural-types/object/object-method.js
 local obj = {
 	method1 = function(self) end,
 	method2 = function(self, name) end,

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/base-types/strings/multiline-template-with-closing-bracket-at-the-end.js
 local foo = [=[
 
 Schedule update [count]]=]

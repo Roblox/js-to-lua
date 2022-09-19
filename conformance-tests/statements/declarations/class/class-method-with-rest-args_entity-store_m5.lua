@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/class/class-method-with-rest-args_entity-store_m5.ts
 type EntityStore = {
 	makeCacheKey: (self: EntityStore, ...any) -> any,
 	makeCacheKey: (self: EntityStore) -> any,

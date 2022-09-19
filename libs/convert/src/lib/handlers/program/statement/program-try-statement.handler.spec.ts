@@ -12,7 +12,6 @@ import {
   ifClause,
   ifStatement,
   nodeGroup,
-  program,
   returnStatement,
   stringLiteral,
   unaryNegationExpression,
@@ -21,7 +20,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 describe('Program handler', () => {
@@ -34,7 +36,7 @@ describe('Program handler', () => {
           b = error.toString();
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withInnerConversionComment(
           blockStatement([
             variableDeclaration(
@@ -96,7 +98,7 @@ describe('Program handler', () => {
           b = 'bar';
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withInnerConversionComment(
           blockStatement([
             variableDeclaration(
@@ -163,7 +165,7 @@ describe('Program handler', () => {
           }
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],
@@ -234,7 +236,7 @@ describe('Program handler', () => {
           }
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],
@@ -312,7 +314,7 @@ describe('Program handler', () => {
           }
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],
@@ -384,7 +386,7 @@ describe('Program handler', () => {
           }
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],

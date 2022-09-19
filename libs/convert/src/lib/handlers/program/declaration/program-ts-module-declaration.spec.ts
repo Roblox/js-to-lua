@@ -11,7 +11,6 @@ import {
   memberExpression,
   nilLiteral,
   nodeGroup,
-  program,
   returnStatement,
   stringLiteral,
   tableConstructor,
@@ -32,7 +31,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -43,7 +45,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           namespace Empty {}
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Empty'))],
@@ -61,7 +63,7 @@ describe('Program handler', () => {
             type Bar = { bar: string }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -90,7 +92,7 @@ describe('Program handler', () => {
             export type Bar = { bar: string }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -135,7 +137,7 @@ describe('Program handler', () => {
         `,
       ])('should handle namespace with function declaration: %s', (code) => {
         const given = getProgramNode(code);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -168,7 +170,7 @@ describe('Program handler', () => {
         'should handle namespace with function declaration - exported %s',
         (code) => {
           const given = getProgramNode(code);
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -196,7 +198,7 @@ describe('Program handler', () => {
             function bar() {}
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -227,7 +229,7 @@ describe('Program handler', () => {
             export function bar() {}
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -267,7 +269,7 @@ describe('Program handler', () => {
             const bar: Bar = { bar: 'bar' }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -317,7 +319,7 @@ describe('Program handler', () => {
             export const bar: Bar = { bar: 'bar' }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -380,7 +382,7 @@ describe('Program handler', () => {
             }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -505,7 +507,7 @@ describe('Program handler', () => {
             }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -647,7 +649,7 @@ describe('Program handler', () => {
             function baz() {}
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Foo'))],
@@ -696,7 +698,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           export namespace Empty {}
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -730,7 +732,7 @@ describe('Program handler', () => {
             type Bar = { bar: string }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -769,7 +771,7 @@ describe('Program handler', () => {
             export type Bar = { bar: string }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -826,7 +828,7 @@ describe('Program handler', () => {
         `,
       ])('should handle namespace with function declaration: %s', (code) => {
         const given = getProgramNode(code);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -869,7 +871,7 @@ describe('Program handler', () => {
         'should handle namespace with function declaration - exported %s',
         (code) => {
           const given = getProgramNode(code);
-          const expected = program([
+          const expected = programWithUpstreamComment([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('exports'))],
               [variableDeclaratorValue(tableConstructor())]
@@ -913,7 +915,7 @@ describe('Program handler', () => {
             function bar() {}
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -954,7 +956,7 @@ describe('Program handler', () => {
             export function bar() {}
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -1006,7 +1008,7 @@ describe('Program handler', () => {
             const bar: Bar = { bar: 'bar' }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -1066,7 +1068,7 @@ describe('Program handler', () => {
             export const bar: Bar = { bar: 'bar' }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -1141,7 +1143,7 @@ describe('Program handler', () => {
             }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -1276,7 +1278,7 @@ describe('Program handler', () => {
             }
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -1445,7 +1447,7 @@ describe('Program handler', () => {
             function baz() {}
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]

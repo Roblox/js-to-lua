@@ -1,10 +1,15 @@
-import { execSync } from 'child_process';
+import { createUpstreamPath, inferRootDir } from '@js-to-lua/upstream-utils';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
-import { dirname, join, parse, relative } from 'path';
+import { join, parse, relative } from 'path';
 import { format_code } from 'stylua-wasm';
 import throat from 'throat';
 import { convert } from './convert';
 import { transform } from './transform';
+
+type ConvertFilesOptions = {
+  rootDir?: string;
+  sha?: string;
+};
 
 const safeApply =
   <T>(fn: (arg: T) => T, defaultValue?: T) =>
@@ -17,27 +22,16 @@ const safeApply =
     }
   };
 
-// TODO: move to a proper lib when dealing with upstream comment
-const inferRootDir = (filePath: string): string => {
-  try {
-    return execSync(`git -C ${dirname(filePath)} rev-parse --show-toplevel`, {
-      encoding: 'utf8',
-    }).trim();
-  } catch {
-    return './';
-  }
-};
-
 export const convertFiles =
   (
-    rootDir: string,
     outputDir: string,
     babelConfig?: string,
-    babelTransformConfig?: string
+    babelTransformConfig?: string,
+    { rootDir, sha }: ConvertFilesOptions = {}
   ) =>
-  (files: string[]) => {
-    const output = (filePath: string) => {
-      const rootDir_ = rootDir ? rootDir : inferRootDir(filePath);
+  async (files: string[]) => {
+    const output = async (filePath: string) => {
+      const rootDir_ = await (rootDir ? rootDir : inferRootDir(filePath));
       const filePathRelative = relative(rootDir_, filePath);
       return join(outputDir, changeExtension(filePathRelative, '.lua'));
     };
@@ -66,9 +60,13 @@ export const convertFiles =
         const convertFile = (file: string): Promise<void> =>
           readFile(file, { encoding: 'utf-8' })
             .then((code) => transform(transformOptions, parse(file).base, code))
-            .then((code) =>
-              convert(options)({ isInitFile: isInitFile(file) }, code)
-            )
+            .then(async (code) => {
+              const upstreamPath = await createUpstreamPath(file, rootDir, sha);
+              return convert(options)(
+                { isInitFile: isInitFile(file), upstreamPath },
+                code
+              );
+            })
             .then((code) => {
               let beforeCode = code,
                 afterCode = code;
@@ -81,10 +79,13 @@ export const convertFiles =
               return afterCode;
             })
             .then((luaCode) => {
-              console.info('output file', output(file));
-              return prepareDir(output(file)).then((outputFile) =>
-                writeFile(outputFile, luaCode)
-              );
+              return output(file)
+                .then((outputFile) => {
+                  console.info('output file', outputFile);
+                  return outputFile;
+                })
+                .then(prepareDir)
+                .then((outputFile) => writeFile(outputFile, luaCode));
             })
             .catch((err) => {
               console.warn('failed file:', file);

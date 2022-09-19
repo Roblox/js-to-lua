@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/operators/arithmetic/add-strings-with-ternary-operators_m5.js
 local foo = "1"
 	.. tostring(bar)
 	.. (if sth == 1 then "2" else "3")

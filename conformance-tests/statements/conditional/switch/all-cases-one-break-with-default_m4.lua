@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/conditional/switch/all-cases-one-break-with-default_m4.js
 local a, b, c
 repeat --[[ ROBLOX comment: switch statement conversion ]]
 	local entered_, break_ = false, false

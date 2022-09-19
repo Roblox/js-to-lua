@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/flow-types/generic-type-annotation/generic-type-annotation-qualified-identifer-with-comments_m6.js
 local foo:  --[[ Before A ]]--[[ Before B ]]--[[ Before C ]]A_B_C--[[ After A ]]--[[ After B ]]--[[ After C ]] =
 	bar
 local function myFunc(

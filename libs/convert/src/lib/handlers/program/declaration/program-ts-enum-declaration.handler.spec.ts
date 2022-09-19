@@ -1,32 +1,34 @@
 import {
-  program,
-  typeAliasDeclaration,
+  assignmentStatement,
+  AssignmentStatementOperatorEnum,
+  exportTypeStatement,
   identifier,
-  typeLiteral,
-  typePropertySignature,
+  memberExpression,
+  nilLiteral,
+  nodeGroup,
+  numericLiteral,
+  returnStatement,
+  stringLiteral,
+  tableConstructor,
+  tableNameKeyField,
+  typeAliasDeclaration,
   typeAnnotation,
+  typeAny,
+  typeLiteral,
+  typeNil,
+  typeNumber,
+  typePropertySignature,
   typeString,
   typeUnion,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  stringLiteral,
-  tableConstructor,
-  tableNameKeyField,
-  nodeGroup,
-  typeAny,
-  typeNumber,
-  typeNil,
-  numericLiteral,
-  nilLiteral,
-  returnStatement,
-  assignmentStatement,
-  AssignmentStatementOperatorEnum,
-  memberExpression,
-  exportTypeStatement,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 describe('Program handler', () => {
@@ -38,7 +40,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           typeAliasDeclaration(
             identifier('SimpleEnum'),
@@ -75,7 +77,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           typeAliasDeclaration(
             identifier('AutoIncrementingEnum'),
@@ -127,7 +129,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           typeAliasDeclaration(
             identifier('AutoIncrementingEnum'),
@@ -180,7 +182,7 @@ describe('Program handler', () => {
         enum EmptyEnum {}
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           typeAliasDeclaration(
             identifier('EmptyEnum'),
@@ -208,7 +210,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           typeAliasDeclaration(
             identifier('FancyEnum'),
@@ -253,7 +255,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor([]))]

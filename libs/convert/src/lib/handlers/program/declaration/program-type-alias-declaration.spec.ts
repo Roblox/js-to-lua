@@ -3,7 +3,6 @@ import {
   callExpression,
   identifier,
   memberExpression,
-  program,
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
@@ -20,7 +19,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -30,7 +32,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         type foo = any;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(identifier('foo'), typeAny()),
       ]);
 
@@ -46,7 +48,7 @@ describe('Program handler', () => {
           buzz?: any
         };
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -103,7 +105,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         type foo = number | string | TypeReference;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('foo'),
           typeUnion([
@@ -123,7 +125,7 @@ describe('Program handler', () => {
           bar: number;
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeLiteral([
@@ -143,7 +145,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         type Foo<T> = Bar<T>
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeReference(identifier('Bar'), [typeReference(identifier('T'))]),
@@ -158,7 +160,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         type Foo<T> = Record<string, T>
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeReference(identifier('Record'), [

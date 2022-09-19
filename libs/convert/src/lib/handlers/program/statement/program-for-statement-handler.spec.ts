@@ -16,7 +16,6 @@ import {
   memberExpression,
   nodeGroup,
   numericLiteral,
-  program,
   returnStatement,
   tableConstructor,
   tableNameKeyField,
@@ -26,7 +25,10 @@ import {
   whileStatement,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -38,7 +40,7 @@ describe('Program handler', () => {
           foo(i)
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
@@ -78,7 +80,7 @@ describe('Program handler', () => {
           foo(i)
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
@@ -137,7 +139,7 @@ describe('Program handler', () => {
           foo(i)
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         whileStatement(
           withTrailingConversionComment(
             binaryExpression(identifier('i'), '<', numericLiteral(10, '10')),
@@ -170,7 +172,7 @@ describe('Program handler', () => {
           foo(i)
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
@@ -203,7 +205,7 @@ describe('Program handler', () => {
           foo(i)
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
@@ -235,7 +237,7 @@ describe('Program handler', () => {
           foo(i)
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         whileStatement(booleanLiteral(true), [
           nodeGroup([
             expressionStatement(
@@ -253,7 +255,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         for (let i = 0; i < 10; i++) foo(i)
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         blockStatement([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('i'))],
@@ -294,7 +296,7 @@ describe('Program handler', () => {
           })
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         blockStatement([
           functionDeclaration(
             identifier('_loop'),
@@ -357,7 +359,7 @@ describe('Program handler', () => {
           })
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         blockStatement([
           functionDeclaration(
             identifier('_loop'),

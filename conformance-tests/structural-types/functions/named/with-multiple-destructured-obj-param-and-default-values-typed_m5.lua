@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/structural-types/functions/named/with-multiple-destructured-obj-param-and-default-values-typed_m5.ts
 local fizz, fuzz
 local function reduce(ref0_: { foo: string }?, ref1_: Array<number>?)
 	local ref0: { foo: string } = if ref0_ ~= nil then ref0_ else fizz

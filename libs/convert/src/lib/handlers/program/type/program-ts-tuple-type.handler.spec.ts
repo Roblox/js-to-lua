@@ -1,6 +1,5 @@
 import {
   identifier,
-  program,
   typeAliasDeclaration,
   typeAny,
   typeLiteral,
@@ -10,7 +9,10 @@ import {
   typeUnion,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -20,7 +22,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         type SingleNumber = [number];
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('SingleNumber'),
           typeReference(identifier('Array'), [typeNumber()])
@@ -34,7 +36,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         type SingleNumber = [];
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(identifier('SingleNumber'), typeLiteral([])),
       ]);
 
@@ -45,7 +47,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         type CustomTuple = [number, string, Foo<any>];
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('CustomTuple'),
           typeReference(identifier('Array'), [
@@ -65,7 +67,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         type NestedTuple = [[number], [string, any, [Foo, Bar, Baz<any>]]];
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('NestedTuple'),
           typeReference(identifier('Array'), [

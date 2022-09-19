@@ -3,13 +3,15 @@ import {
   callExpression,
   identifier,
   memberExpression,
-  program,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('TSImportEqualsDeclaration Handler', () => {
@@ -19,7 +21,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -51,7 +53,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [

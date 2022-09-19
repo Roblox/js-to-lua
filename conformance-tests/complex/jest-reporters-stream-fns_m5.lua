@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/complex/jest-reporters-stream-fns_m5.ts
 type DefaultReporter = {}
 type DefaultReporter_statics = { new: () -> DefaultReporter }
 local DefaultReporter = {} :: DefaultReporter & DefaultReporter_statics;

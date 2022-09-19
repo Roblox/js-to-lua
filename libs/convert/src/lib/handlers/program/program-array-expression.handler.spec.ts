@@ -6,7 +6,6 @@ import {
   LuaProgram,
   memberExpression,
   numericLiteral,
-  program,
   stringLiteral,
   tableConstructor,
   tableNoKeyField,
@@ -15,7 +14,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -25,7 +27,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         const foo = []
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [variableDeclaratorValue(tableConstructor([]))]
@@ -39,7 +41,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         const foo = [1, true, 'string']
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -62,7 +64,7 @@ describe('Program handler', () => {
         const foo = [[], []]
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -84,7 +86,7 @@ describe('Program handler', () => {
         const foo =[[[[]]]]
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -111,7 +113,7 @@ describe('Program handler', () => {
         const foo = [1, 2, ...[3,4]]
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -186,7 +188,7 @@ describe('Program handler', () => {
           ...baz
         ]
       `);
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -278,7 +280,7 @@ describe('Program handler', () => {
           ...'baz'
         ]
       `);
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],

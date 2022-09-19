@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/expressions/identifier/keyword-identifiers_m5.js
 --[[ only included identifiers that are not keywords in JS ]]
 foo = and_
 foo = elseif_

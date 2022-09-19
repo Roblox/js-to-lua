@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/for-loops/complex/with-directly-using-let-scoped-variable_m5.js
 local function printFn(num)
 	return num
 end

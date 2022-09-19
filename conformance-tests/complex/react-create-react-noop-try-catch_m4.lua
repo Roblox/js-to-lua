@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/complex/react-create-react-noop-try-catch_m4.ts
 local function noopAct()
 	do --[[ ROBLOX COMMENT: try-catch block conversion ]]
 		local ok, result, hasReturned = xpcall(function()

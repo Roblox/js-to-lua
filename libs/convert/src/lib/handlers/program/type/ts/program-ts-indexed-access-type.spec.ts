@@ -4,7 +4,6 @@ import {
   indexExpression,
   memberExpression,
   numericLiteral,
-  program,
   tableConstructor,
   typeAliasDeclaration,
   typeAny,
@@ -14,7 +13,10 @@ import {
   typeUnion,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../../program.handler';
-import { getProgramNode } from '../../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 describe('Program handler', () => {
   describe('TSIndexedAccessType handler', () => {
@@ -24,7 +26,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeofExpression(
@@ -50,7 +52,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           withTrailingConversionComment(
@@ -79,7 +81,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           withTrailingConversionComment(
@@ -100,7 +102,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeUnion([

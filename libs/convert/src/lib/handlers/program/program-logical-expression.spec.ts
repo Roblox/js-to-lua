@@ -15,7 +15,6 @@ import {
   nilLiteral,
   nodeGroup,
   numericLiteral,
-  program,
   stringLiteral,
   tableConstructor,
   typeAnnotation,
@@ -25,7 +24,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -35,7 +37,7 @@ describe('Program handler', () => {
       it('with 2 identifiers', () => {
         const given = getProgramNode('const fizz = foo || bar;');
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           withTrailingConversionComment(
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -102,7 +104,7 @@ describe('Program handler', () => {
       it('with 2 call expressions', () => {
         const given = getProgramNode('const fizz = foo() || bar();');
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           withTrailingConversionComment(
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -182,7 +184,7 @@ describe('Program handler', () => {
             baz === 3
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [
               variableDeclaratorIdentifier(
@@ -227,7 +229,7 @@ describe('Program handler', () => {
       it('when right side is unknown', () => {
         const given = getProgramNode('foo = foo && bar;');
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           withTrailingConversionComment(
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -291,7 +293,7 @@ describe('Program handler', () => {
       it('with 2 call expressions', () => {
         const given = getProgramNode('const fizz = foo() && bar();');
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           withTrailingConversionComment(
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -384,7 +386,7 @@ describe('Program handler', () => {
         ({ code, leftExpected, rightExpected }) => {
           const given = getProgramNode(code);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             withTrailingConversionComment(
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -498,7 +500,7 @@ describe('Program handler', () => {
         ({ code, leftExpected, rightExpected }) => {
           const given = getProgramNode(code);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             withTrailingConversionComment(
               variableDeclaration(
                 [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -568,7 +570,7 @@ describe('Program handler', () => {
             baz === 3
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [
               variableDeclaratorIdentifier(
@@ -613,7 +615,7 @@ describe('Program handler', () => {
       it('with 2 identifiers', () => {
         const given = getProgramNode('const fizz = foo ?? bar;');
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('fizz'))],
             [
@@ -640,7 +642,7 @@ describe('Program handler', () => {
       it('with 2 call expressions', () => {
         const given = getProgramNode('const fizz = foo() ?? bar();');
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('ref'))],
@@ -739,7 +741,7 @@ describe('Program handler', () => {
         ({ code, leftExpected, rightExpected }) => {
           const given = getProgramNode(code);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
               [identifier('bar')],

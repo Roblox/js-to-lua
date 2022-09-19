@@ -16,14 +16,16 @@ import {
   memberExpression,
   nodeGroup,
   numericLiteral,
-  program,
   stringLiteral,
   typeAnnotation,
   typeAny,
   typeString,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 describe('Program handler', () => {
@@ -33,7 +35,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo = bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -48,7 +50,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo = bar = baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
@@ -70,7 +72,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar = baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -86,7 +88,7 @@ describe('Program handler', () => {
           foo[bar] = baz
           foo['bar'] = baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [
@@ -113,7 +115,7 @@ describe('Program handler', () => {
             this.baz(arg)
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -151,7 +153,7 @@ describe('Program handler', () => {
             this.baz(arg)
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -191,7 +193,7 @@ describe('Program handler', () => {
             const test = function(testArg) {}
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -234,7 +236,7 @@ describe('Program handler', () => {
             const test = function(testArg) {}
           }
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -275,7 +277,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo += bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.ADD,
             [identifier('foo')],
@@ -290,7 +292,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo += bar += baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.ADD,
@@ -312,7 +314,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar += baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.ADD,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -328,7 +330,7 @@ describe('Program handler', () => {
           foo[bar] += baz
           foo['bar'] += baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.ADD,
             [
@@ -353,7 +355,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo += 'bar'
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.CONCAT,
             [identifier('foo')],
@@ -368,7 +370,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo += bar += 'baz'
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.CONCAT,
@@ -390,7 +392,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar += 'baz'
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.CONCAT,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -406,7 +408,7 @@ describe('Program handler', () => {
           foo[bar] += 'baz'
           foo['bar'] += 'baz'
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.CONCAT,
             [
@@ -433,7 +435,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo -= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.SUB,
             [identifier('foo')],
@@ -448,7 +450,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo -= bar -= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.SUB,
@@ -470,7 +472,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar -= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.SUB,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -486,7 +488,7 @@ describe('Program handler', () => {
           foo[bar] -= baz
           foo['bar'] -= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.SUB,
             [
@@ -513,7 +515,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo *= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.MUL,
             [identifier('foo')],
@@ -528,7 +530,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo *= bar *= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.MUL,
@@ -550,7 +552,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar *= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.MUL,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -566,7 +568,7 @@ describe('Program handler', () => {
           foo[bar] *= baz
           foo['bar'] *= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.MUL,
             [
@@ -593,7 +595,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo /= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.DIV,
             [identifier('foo')],
@@ -608,7 +610,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo /= bar /= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.DIV,
@@ -630,7 +632,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar /= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.DIV,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -646,7 +648,7 @@ describe('Program handler', () => {
           foo[bar] /= baz
           foo['bar'] /= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.DIV,
             [
@@ -673,7 +675,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo %= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.REMAINDER,
             [identifier('foo')],
@@ -688,7 +690,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo %= bar %= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             assignmentStatement(
               AssignmentStatementOperatorEnum.REMAINDER,
@@ -710,7 +712,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar %= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.REMAINDER,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -726,7 +728,7 @@ describe('Program handler', () => {
           foo[bar] %= baz
           foo['bar'] %= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.REMAINDER,
             [
@@ -753,7 +755,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo &= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -773,7 +775,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar &= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -798,7 +800,7 @@ describe('Program handler', () => {
           foo[bar] &= baz
           foo['bar'] &= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [
@@ -846,7 +848,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo |= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -866,7 +868,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar |= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -891,7 +893,7 @@ describe('Program handler', () => {
           foo[bar] |= baz
           foo['bar'] |= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [
@@ -939,7 +941,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo ^= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -959,7 +961,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar ^= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -984,7 +986,7 @@ describe('Program handler', () => {
           foo[bar] ^= baz
           foo['bar'] ^= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [
@@ -1032,7 +1034,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo >>>= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -1052,7 +1054,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar >>>= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -1077,7 +1079,7 @@ describe('Program handler', () => {
           foo[bar] >>>= baz
           foo['bar'] >>>= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [
@@ -1125,7 +1127,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo >>= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -1149,7 +1151,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar >>= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -1174,7 +1176,7 @@ describe('Program handler', () => {
           foo[bar] >>= baz
           foo['bar'] >>= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [
@@ -1222,7 +1224,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo <<= bar
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -1242,7 +1244,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           foo.bar <<= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -1267,7 +1269,7 @@ describe('Program handler', () => {
           foo[bar] <<= baz
           foo['bar'] <<= baz
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [
@@ -1316,7 +1318,7 @@ describe('Program handler', () => {
       ([foo, bar] = baz);
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [identifier('foo'), identifier('bar')],
@@ -1338,7 +1340,7 @@ describe('Program handler', () => {
       ([foo, [bar, baz]] = fizz);
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
@@ -1371,7 +1373,7 @@ describe('Program handler', () => {
       ([foo, ...bar] = baz);
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
@@ -1394,7 +1396,7 @@ describe('Program handler', () => {
       (fizz = [foo, bar] = baz);
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
@@ -1423,7 +1425,7 @@ describe('Program handler', () => {
       ({foo, bar} = baz);
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [identifier('foo'), identifier('bar')],
@@ -1442,7 +1444,7 @@ describe('Program handler', () => {
       ({foo:fun, bar:bat} = baz);
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [identifier('fun'), identifier('bat')],
@@ -1461,7 +1463,7 @@ describe('Program handler', () => {
       ({foo:{bar, baz}} = fizz);
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [identifier('bar'), identifier('baz')],
@@ -1488,7 +1490,7 @@ describe('Program handler', () => {
       (fizz = {foo, bar} = baz);
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       nodeGroup([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,

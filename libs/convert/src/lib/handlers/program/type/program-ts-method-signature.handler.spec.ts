@@ -3,7 +3,6 @@ import {
   functionReturnType,
   functionTypeParamEllipse,
   identifier,
-  program,
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
@@ -18,7 +17,10 @@ import {
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -30,7 +32,7 @@ describe('Program handler', () => {
           bar: <T,V>(fizz: string, ...buzz: number[]) => void;
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeLiteral([
@@ -61,7 +63,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: { toString(): string }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(

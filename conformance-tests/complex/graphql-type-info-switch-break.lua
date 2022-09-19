@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/complex/graphql-type-info-switch-break.ts
 local function enter(node)
 	repeat --[[ ROBLOX comment: switch statement conversion ]]
 		local entered_, break_ = false, false

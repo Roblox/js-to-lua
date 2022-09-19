@@ -13,7 +13,6 @@ import {
   memberExpression,
   nilLiteral,
   numericLiteral,
-  program,
   unaryExpression,
   unaryNegationExpression,
   unaryVoidExpression,
@@ -22,7 +21,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -32,7 +34,7 @@ describe('Unary Expression Handler', () => {
             typeof foo
     `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       expressionStatement(
         callExpression(identifier('typeof'), [identifier('foo')])
       ),
@@ -46,7 +48,7 @@ describe('Unary Expression Handler', () => {
     const bar = +foo
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('bar'))],
         [
@@ -65,7 +67,7 @@ describe('Unary Expression Handler', () => {
     const bar = -foo
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('bar'))],
         [variableDeclaratorValue(unaryExpression('-', identifier('foo')))]
@@ -80,7 +82,7 @@ describe('Unary Expression Handler', () => {
     const bar = void foo
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('bar'))],
         [variableDeclaratorValue(unaryVoidExpression(identifier('foo')))]
@@ -95,7 +97,7 @@ describe('Unary Expression Handler', () => {
     const foo = void "foo"
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
         [variableDeclaratorValue(identifier('nil'))]
@@ -110,7 +112,7 @@ describe('Unary Expression Handler', () => {
     const foo = void 0
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
         [variableDeclaratorValue(identifier('nil'))]
@@ -125,7 +127,7 @@ describe('Unary Expression Handler', () => {
     const foo = void false
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
         [variableDeclaratorValue(identifier('nil'))]
@@ -138,7 +140,7 @@ describe('Unary Expression Handler', () => {
   it(`should handle negation operator`, () => {
     const given = getProgramNode(`const bar = !foo`);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -197,7 +199,7 @@ describe('Unary Expression Handler', () => {
   it(`should handle negation operator of BooleanLiteral`, () => {
     const given = getProgramNode(`const foo = !true`);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
         [variableDeclaratorValue(unaryNegationExpression(booleanLiteral(true)))]
@@ -212,7 +214,7 @@ describe('Unary Expression Handler', () => {
       delete foo.bar
     `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       assignmentStatement(
         AssignmentStatementOperatorEnum.EQ,
         [memberExpression(identifier('foo'), '.', identifier('bar'))],
@@ -228,7 +230,7 @@ describe('Unary Expression Handler', () => {
     ~5
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       expressionStatement(
         withTrailingConversionComment(
           callExpression(

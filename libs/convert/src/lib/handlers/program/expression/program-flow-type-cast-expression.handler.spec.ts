@@ -4,7 +4,6 @@ import {
   functionDeclaration,
   identifier,
   nodeGroup,
-  program,
   returnStatement,
   typeAny,
   typeCastExpression,
@@ -13,8 +12,11 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Flow type cast expression', () => {
@@ -24,7 +26,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -44,7 +46,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(identifier('foo'), [
             typeCastExpression(identifier('bar'), typeAny()),
@@ -63,7 +65,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],
@@ -82,7 +84,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [

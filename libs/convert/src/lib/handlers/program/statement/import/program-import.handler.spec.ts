@@ -4,14 +4,16 @@ import {
   identifier,
   memberExpression,
   nodeGroup,
-  program,
   typeAliasDeclaration,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../../program.handler';
-import { getProgramNode } from '../../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 const source = '';
 
@@ -21,7 +23,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import foo from './foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -57,7 +59,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import foo from '../foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -97,7 +99,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import foo from 'foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -136,7 +138,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import type foo from './foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('barModule'))],
@@ -180,7 +182,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import { foo } from './foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -216,7 +218,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import { foo } from '../foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -256,7 +258,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import { fizz, buzz } from '../foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('barModule'))],
@@ -318,7 +320,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import { foo } from 'foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -357,7 +359,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import { fizz, buzz } from 'foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -420,7 +422,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import * as foo from './foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -452,7 +454,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import * as foo from '../foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -488,7 +490,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         import * as foo from 'foo/bar'
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],

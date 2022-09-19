@@ -14,7 +14,6 @@ import {
   memberExpression,
   nodeGroup,
   numericLiteral,
-  program,
   returnStatement,
   tableConstructor,
   typeAliasDeclaration,
@@ -32,7 +31,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../../program.handler';
-import { getProgramNode } from '../../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 const source = '';
 
@@ -42,7 +44,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         export const foo = 10
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -68,7 +70,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         export function foo() {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -92,7 +94,7 @@ describe('Program handler', () => {
         export function foo() {}
         export const bar = 10
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -129,7 +131,7 @@ describe('Program handler', () => {
         export { foo, bar }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -164,7 +166,7 @@ describe('Program handler', () => {
         export { foo as foo1, bar as bar1 }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -198,7 +200,7 @@ describe('Program handler', () => {
         export { foo as default }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -228,7 +230,7 @@ describe('Program handler', () => {
         export type Foo = {foo: string};
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -256,7 +258,7 @@ describe('Program handler', () => {
           prop: string
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -358,7 +360,7 @@ describe('Program handler', () => {
           // leading comment
           export const foo = 10
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -394,7 +396,7 @@ describe('Program handler', () => {
           export const foo = 10
           // trailing comment
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -431,7 +433,7 @@ describe('Program handler', () => {
           export const foo = 10
           // trailing comment
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -471,7 +473,7 @@ describe('Program handler', () => {
         export { foo, bar } from './foo/bar'
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -521,7 +523,7 @@ describe('Program handler', () => {
         export { foo as foo1, bar as bar1 } from './foo/bar'
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -571,7 +573,7 @@ describe('Program handler', () => {
         export { foo as default }  from './foo/bar'
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -622,7 +624,7 @@ describe('Program handler', () => {
         export { foo, bar } from 'foo/bar'
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -675,7 +677,7 @@ describe('Program handler', () => {
         export { foo as foo1, bar as bar1 } from 'foo/bar'
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -728,7 +730,7 @@ describe('Program handler', () => {
         export { foo as default }  from 'foo/bar'
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],

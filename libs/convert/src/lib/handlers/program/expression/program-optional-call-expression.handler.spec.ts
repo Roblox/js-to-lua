@@ -14,14 +14,16 @@ import {
   memberExpression,
   nilLiteral,
   nodeGroup,
-  program,
   stringLiteral,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('OptionalCallExpression handler', () => {
@@ -33,7 +35,7 @@ describe('Program handler', () => {
           foo = bar?.()
         `;
         const given = getProgramNode(source);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -58,7 +60,7 @@ describe('Program handler', () => {
         `;
         const given = getProgramNode(source);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('foo')],
@@ -87,7 +89,7 @@ describe('Program handler', () => {
         `;
         const given = getProgramNode(source);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('ref'))],
@@ -144,7 +146,7 @@ describe('Program handler', () => {
 
         const refId = identifier(generateUniqueIdentifier([], 'ref'));
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             variableDeclaration(
               [variableDeclaratorIdentifier(refId)],

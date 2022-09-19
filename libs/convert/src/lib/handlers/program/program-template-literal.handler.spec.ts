@@ -8,11 +8,13 @@ import {
   memberExpression,
   multilineStringLiteral,
   numericLiteral,
-  program,
   stringLiteral,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -23,7 +25,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`foo\`;
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -40,7 +42,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`foo: \${bar}\`;
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -66,7 +68,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`backspace: \\b, combined: \\t\\b\\r, tab: \\t\`;
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -83,7 +85,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`double quote: \\", single quote: \\', c: \\c, d: \\d\`;
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -100,7 +102,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`abc%s\${value}%sdef\`;
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -128,7 +130,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`foo\nbar\nbaz\n\`;
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -145,7 +147,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`\nfoo\nbar\nbaz\n\`;
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -162,7 +164,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`foo: \${foo}\nbar: \${"bar"}\nbaz: \${1}\n\`
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -194,7 +196,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`\nbackspace: \\b\ncombined: \\t\\b\\r\ntab: \\t\nescapeAndInterpolate: \\t\${expression}\ninterpolated: \${expression}\n\`
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -239,7 +241,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`\nsingle quote: \\'\ndouble quote: \\"\nbacktick: \\\`\nc: \\c\nd: \\d\n\`
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],
@@ -260,7 +262,7 @@ describe('Program handler', () => {
         const given = getProgramNode(`
           fizz = \`\nabc\n%s\${value}%s\ndef\n\`;
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [identifier('fizz')],

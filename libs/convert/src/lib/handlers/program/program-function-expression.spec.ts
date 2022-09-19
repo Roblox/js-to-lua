@@ -15,7 +15,6 @@ import {
   nilLiteral,
   nodeGroup,
   numericLiteral,
-  program,
   returnStatement,
   stringLiteral,
   tableConstructor,
@@ -34,7 +33,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -45,7 +47,7 @@ describe('Program handler', () => {
         const foo = function foo() {}
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(identifier('foo'), [], nodeGroup([])),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -57,7 +59,7 @@ describe('Program handler', () => {
         const foo = function () {}
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(identifier('foo'), [], nodeGroup([])),
       ]);
       const luaProgram = handleProgram.handler(source, {}, given);
@@ -69,7 +71,7 @@ describe('Program handler', () => {
         const foo = function (bar, baz) {}
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [identifier('bar'), identifier('baz')],
@@ -85,7 +87,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
       const foo = function (bar?, baz?: string) {}
     `);
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [
@@ -104,7 +106,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         const foo = function({bar, baz}, [fizz,fuzz]) {}
       `);
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [identifier('ref0'), identifier('ref1')],
@@ -151,7 +153,7 @@ describe('Program handler', () => {
         const foo = function (bar, baz = 'hello') {}
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [
@@ -192,7 +194,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [
@@ -237,7 +239,7 @@ describe('Program handler', () => {
         const foo: FooFunction = function () {}
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         nodeGroup([
           variableDeclaration(
             [
@@ -270,7 +272,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(
           identifier('reduce'),
           [
@@ -318,7 +320,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(
           identifier('reduce'),
           [
@@ -365,7 +367,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected: LuaProgram = program([
+      const expected: LuaProgram = programWithUpstreamComment([
         functionDeclaration(
           identifier('reduce'),
           [
@@ -491,7 +493,7 @@ describe('Program handler', () => {
           const foo = async function(bar, baz) {}
         `);
 
-        const expected: LuaProgram = program([
+        const expected: LuaProgram = programWithUpstreamComment([
           functionDeclaration(
             identifier('foo'),
             [identifier('bar'), identifier('baz')],
@@ -519,7 +521,7 @@ describe('Program handler', () => {
           const foo = async function(bar, baz = 'hello') {}
         `);
 
-        const expected: LuaProgram = program([
+        const expected: LuaProgram = programWithUpstreamComment([
           functionDeclaration(
             identifier('foo'),
             [
@@ -574,7 +576,7 @@ describe('Program handler', () => {
           }
         `);
 
-        const expected: LuaProgram = program([
+        const expected: LuaProgram = programWithUpstreamComment([
           functionDeclaration(
             identifier('foo'),
             [
@@ -665,7 +667,7 @@ describe('Program handler', () => {
             [functionExpression([], nodeGroup([callBody]))]
           );
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           functionDeclaration(
             identifier('foo'),
             [],

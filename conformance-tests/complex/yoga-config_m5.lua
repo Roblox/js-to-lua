@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/complex/yoga-config_m5.ts
 type Config = {
 	config: YGConfig,
 	free: (self: Config) -> (),

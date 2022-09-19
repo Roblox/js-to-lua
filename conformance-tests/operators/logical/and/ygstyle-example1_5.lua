@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/operators/logical/and/ygstyle-example1_5.ts
 local areNonFloatValuesEqual: boolean = self.direction == style.direction
 	and self.flexDirection == style.flexDirection
 	and self.justifyContent == style.justifyContent

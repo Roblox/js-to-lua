@@ -7,7 +7,6 @@ import {
   identifier,
   memberExpression,
   nodeGroup,
-  program,
   repeatStatement,
   unaryNegationExpression,
   variableDeclaration,
@@ -16,7 +15,10 @@ import {
   whileStatement,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -26,7 +28,7 @@ describe('While statement Handler', () => {
       do {} while(foo)
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -86,7 +88,7 @@ describe('While statement Handler', () => {
       } while(foo)
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -148,7 +150,7 @@ describe('While statement Handler', () => {
       do {} while(true)
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       repeatStatement(unaryNegationExpression(booleanLiteral(true)), [
         nodeGroup([]),
       ]),
@@ -168,7 +170,7 @@ describe('While statement Handler', () => {
       } while(true)
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       repeatStatement(unaryNegationExpression(booleanLiteral(true)), [
         nodeGroup([
           whileStatement(booleanLiteral(true), [nodeGroup([breakStatement()])]),

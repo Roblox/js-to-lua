@@ -5,7 +5,6 @@ import {
   booleanLiteral,
   identifier,
   numericLiteral,
-  program,
   stringLiteral,
   tableConstructor,
   tableNoKeyField,
@@ -13,8 +12,11 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -25,7 +27,7 @@ describe('Program handler', () => {
       {
       }
     `);
-      const expected = program([blockStatement([])]);
+      const expected = programWithUpstreamComment([blockStatement([])]);
 
       const luaProgram = handleProgram.handler(source, {}, given);
 
@@ -41,7 +43,7 @@ describe('Program handler', () => {
     }
   `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       blockStatement([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('name'))],
@@ -77,7 +79,7 @@ describe('Program handler', () => {
       }
     }
   `);
-    const expected = program([
+    const expected = programWithUpstreamComment([
       blockStatement([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('name'))],
@@ -116,7 +118,7 @@ describe('Program handler', () => {
       }
     }
   `);
-    const expected = program([
+    const expected = programWithUpstreamComment([
       blockStatement([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('name'))],

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/conditional/switch/one-case-without-break_m4.js
 local function foo(a)
 	local result = 0
 	repeat --[[ ROBLOX comment: switch statement conversion ]]

@@ -8,13 +8,15 @@ import {
   ifStatement,
   memberExpression,
   nodeGroup,
-  program,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -24,7 +26,7 @@ describe('If statement Handler', () => {
         if(foo) {}
       `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -82,7 +84,7 @@ describe('If statement Handler', () => {
         if(foo) {} else {}
       `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -141,7 +143,7 @@ describe('If statement Handler', () => {
         if(foo) {} else if (bar) {}
       `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -211,7 +213,7 @@ describe('If statement Handler', () => {
         if(foo) {} else if (bar) {} else {}
       `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],

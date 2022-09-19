@@ -10,16 +10,16 @@ import {
   AssignmentStatementOperatorEnum,
   booleanLiteral,
   callExpression,
+  commentLine,
   expressionStatement,
   functionDeclaration,
   functionDeclarationMultipleReturn,
-  functionReturnType,
   functionParamName,
+  functionReturnType,
   identifier,
   memberExpression,
   nodeGroup,
   numericLiteral,
-  program,
   returnStatement,
   stringLiteral,
   tableConstructor,
@@ -41,10 +41,12 @@ import {
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
-  commentLine,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -152,7 +154,7 @@ describe('Program handler', () => {
           class BaseClass {}
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
             nodeGroup([
@@ -210,7 +212,7 @@ describe('Program handler', () => {
           class BaseClass<T> {}
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -285,7 +287,7 @@ describe('Program handler', () => {
           }
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -360,7 +362,7 @@ describe('Program handler', () => {
           }
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
             nodeGroup([
@@ -420,7 +422,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -505,7 +507,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -590,7 +592,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -680,7 +682,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
             nodeGroup([
@@ -747,7 +749,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
             nodeGroup([
@@ -818,7 +820,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -909,7 +911,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1000,7 +1002,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1096,7 +1098,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1164,7 +1166,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1232,7 +1234,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1311,7 +1313,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1390,7 +1392,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1471,7 +1473,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1557,7 +1559,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1638,7 +1640,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1722,7 +1724,7 @@ describe('Program handler', () => {
         }
       `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(
                 identifier('BaseClass'),
@@ -1824,7 +1826,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
               nodeGroup([
@@ -1916,7 +1918,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
               nodeGroup([
@@ -1987,7 +1989,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
               nodeGroup([
@@ -2062,7 +2064,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
               nodeGroup([
@@ -2136,7 +2138,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(identifier('BaseClass'), typeLiteral([])),
               nodeGroup([
@@ -2357,7 +2359,7 @@ describe('Program handler', () => {
         class SubClass extends BaseClass{}
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('SubClass'),
@@ -2426,7 +2428,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('SubClass'),
@@ -2495,7 +2497,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('SubClass'),
@@ -2586,7 +2588,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('SubClass'),
@@ -2662,7 +2664,7 @@ describe('Program handler', () => {
         }
        `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           nodeGroup([
             typeAliasDeclaration(
               identifier('SubClass'),
@@ -2743,7 +2745,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(
                 identifier('SubClass'),
@@ -2847,7 +2849,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(
                 identifier('SubClass'),
@@ -2930,7 +2932,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(
                 identifier('SubClass'),
@@ -3017,7 +3019,7 @@ describe('Program handler', () => {
             }
           `);
 
-          const expected = program([
+          const expected = programWithUpstreamComment([
             nodeGroup([
               typeAliasDeclaration(
                 identifier('SubClass'),

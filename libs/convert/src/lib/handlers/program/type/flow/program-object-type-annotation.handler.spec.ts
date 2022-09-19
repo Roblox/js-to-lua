@@ -4,7 +4,6 @@ import {
 } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
-  program,
   stringLiteral,
   typeAliasDeclaration,
   typeAnnotation,
@@ -20,7 +19,10 @@ import {
 } from '@js-to-lua/lua-types';
 import { dedent } from '@js-to-lua/shared-utils';
 import { handleProgram } from '../../program.handler';
-import { getProgramNode } from '../../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Flow - ObjectTypeAnnotation handler', () => {
@@ -31,7 +33,7 @@ describe('Program handler', () => {
         type Test = {};
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(identifier('Test'), typeLiteral([])),
       ]);
 
@@ -47,7 +49,7 @@ describe('Program handler', () => {
         };
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeLiteral([
@@ -79,7 +81,7 @@ describe('Program handler', () => {
         };
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeLiteral([
@@ -113,7 +115,7 @@ describe('Program handler', () => {
         };
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeLiteral([
@@ -150,7 +152,7 @@ describe('Program handler', () => {
         };
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeReference(identifier('AnotherType'))
@@ -170,7 +172,7 @@ describe('Program handler', () => {
         };
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeIntersection([
@@ -203,7 +205,7 @@ describe('Program handler', () => {
         };
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeLiteral([
@@ -223,7 +225,7 @@ describe('Program handler', () => {
         };
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           withTrailingConversionComment(
@@ -249,7 +251,7 @@ describe('Program handler', () => {
         }
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           withInnerConversionComment(
@@ -271,7 +273,7 @@ describe('Program handler', () => {
         };
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           withInnerConversionComment(
@@ -293,7 +295,7 @@ describe('Program handler', () => {
         }
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           withInnerConversionComment(
@@ -319,7 +321,7 @@ describe('Program handler', () => {
         }
       `;
       const given = getProgramNode(source, { plugins: ['flow'] });
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Test'),
           typeIntersection([

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/comments/variable-declaration-with-object-expression-and-multiple-comments_m5.ts
 local Packages --[[ ROBLOX comment: must define Packages module ]]
 local LuauPolyfill = require(Packages.LuauPolyfill)
 local Object = LuauPolyfill.Object

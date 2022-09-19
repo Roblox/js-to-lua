@@ -7,7 +7,6 @@ import {
   memberExpression,
   nodeGroup,
   numericLiteral,
-  program,
   returnStatement,
   stringLiteral,
   tableConstructor,
@@ -16,8 +15,11 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../../program.spec.utils';
 import { handleProgram } from '../../program.handler';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 const source = '';
 
@@ -29,7 +31,7 @@ describe('Program handler', () => {
         export const bar = 10
         export default foo
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -72,7 +74,7 @@ describe('Program handler', () => {
           foo: 'bar'
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -117,7 +119,7 @@ describe('Program handler', () => {
         export const bar = 10
         export default function buzz() {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -172,7 +174,7 @@ describe('Program handler', () => {
           export default foo
           // comment 4
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -249,7 +251,7 @@ describe('Program handler', () => {
           }
           // comment 4
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -328,7 +330,7 @@ describe('Program handler', () => {
           export default function buzz() {}
           // comment 4
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]

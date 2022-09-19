@@ -17,7 +17,6 @@ import {
   nilLiteral,
   nodeGroup,
   numericLiteral,
-  program,
   returnStatement,
   stringLiteral,
   typeAnnotation,
@@ -31,7 +30,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -41,7 +43,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo() {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(identifier('foo'), [], nodeGroup([])),
       ]);
 
@@ -53,7 +55,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo() /* comment */ {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],
@@ -72,7 +74,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo(bar, baz) {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [identifier('bar'), identifier('baz')],
@@ -88,7 +90,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo(bar?, baz?: string) {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [
@@ -107,7 +109,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo({bar, baz}, [fizz,fuzz]) {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [identifier('ref0'), identifier('ref1')],
@@ -153,7 +155,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function foo(bar, baz = 'hello', fizz: string | number = 1) {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [
@@ -221,7 +223,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [
@@ -267,7 +269,7 @@ describe('Program handler', () => {
           async function foo(bar, baz) {}
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           functionDeclaration(
             identifier('foo'),
             [identifier('bar'), identifier('baz')],
@@ -295,7 +297,7 @@ describe('Program handler', () => {
           async function foo(bar, baz = 'hello') {}
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           functionDeclaration(
             identifier('foo'),
             [
@@ -350,7 +352,7 @@ describe('Program handler', () => {
           }
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           functionDeclaration(
             identifier('foo'),
             [
@@ -441,7 +443,7 @@ describe('Program handler', () => {
             [functionExpression([], nodeGroup([callBody]))]
           );
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           functionDeclaration(
             identifier('foo'),
             [],

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/comments/class-properties-with-comments_m5.js
 type BaseClass = { --[[ Initialized property comment in BaseClass ]]
 	initializedProperty: boolean,
 	--[[ Not initialzed property comment in BaseClass ]]

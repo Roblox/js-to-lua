@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/base-types/template-literals/multiline-escape-sequences-with-expressions_m5.js
 local value = ([[
 
 backspace       --> abc%s]] .. "\b%s" .. [[def

@@ -2,7 +2,6 @@ import {
   functionDeclaration,
   identifier,
   nodeGroup,
-  program,
   typeAliasDeclaration,
   typeAnnotation,
   typeBoolean,
@@ -10,7 +9,10 @@ import {
   typeOptional,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../../program.handler';
-import { getProgramNode } from '../../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 const source = '';
 
@@ -23,7 +25,7 @@ describe('Program handler', () => {
       `,
         { plugins: ['flow'] }
       );
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(identifier('Test'), typeOptional(typeNumber())),
       ]);
 
@@ -37,7 +39,7 @@ describe('Program handler', () => {
       `,
         { plugins: ['flow'] }
       );
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('testFn'),
           [

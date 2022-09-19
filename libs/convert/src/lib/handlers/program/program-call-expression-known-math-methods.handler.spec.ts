@@ -5,13 +5,15 @@ import {
   LuaProgram,
   memberExpression,
   numericLiteral,
-  program,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -23,7 +25,7 @@ describe('Known Math methods', () => {
       const min = Math.min(10,34,12);
     `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('ceil'))],
         [
@@ -71,7 +73,7 @@ describe('Known Math methods', () => {
       const clz32 = Math.clz32(128);
     `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('clz32'))],
         [
@@ -93,7 +95,7 @@ describe('Known Math methods', () => {
       const trunc = Math.trunc(1.23)
     `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -151,7 +153,7 @@ describe('Known Math methods', () => {
     const foo = Math.foo(456)
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('foo'))],
         [
@@ -172,7 +174,7 @@ describe('Known Math methods', () => {
       const pi = Math.PI;
     `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('pi'))],
         [
@@ -194,7 +196,7 @@ describe('Known Math methods', () => {
     const eulersConstant = Math.E
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('Math_E'))],
         [variableDeclaratorValue(numericLiteral(2.718281828459045))]
@@ -213,7 +215,7 @@ describe('Known Math methods', () => {
     const bar = Math.bar
   `);
 
-    const expected: LuaProgram = program([
+    const expected: LuaProgram = programWithUpstreamComment([
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('bar'))],
         [

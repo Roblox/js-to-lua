@@ -11,7 +11,6 @@ import {
   identifier,
   memberExpression,
   nodeGroup,
-  program,
   returnStatement,
   stringLiteral,
   tableConstructor,
@@ -31,7 +30,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../../program.handler';
-import { getProgramNode } from '../../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../../program.spec.utils';
 
 const source = '';
 
@@ -41,7 +43,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         export default foo
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -63,7 +65,7 @@ describe('Program handler', () => {
           foo: 'bar'
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -87,7 +89,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         export default function foo() {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -116,7 +118,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         export default function () {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -138,7 +140,7 @@ describe('Program handler', () => {
           prop: string
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -244,7 +246,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         export default () => {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -264,7 +266,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         export default foo()
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('exports'))],
           [variableDeclaratorValue(tableConstructor())]
@@ -286,7 +288,7 @@ describe('Program handler', () => {
           // leading comment
           export default foo
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -316,7 +318,7 @@ describe('Program handler', () => {
           export default foo
           // trailing comment
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]
@@ -347,7 +349,7 @@ describe('Program handler', () => {
           export default foo
           // trailing comment
         `);
-        const expected = program([
+        const expected = programWithUpstreamComment([
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('exports'))],
             [variableDeclaratorValue(tableConstructor())]

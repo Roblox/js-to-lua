@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/comments/class-declaration-with-comments_m5.js
 --[[ BaseClass comment ]]
 type BaseClass = {}
 type BaseClass_statics = { new: () -> BaseClass }

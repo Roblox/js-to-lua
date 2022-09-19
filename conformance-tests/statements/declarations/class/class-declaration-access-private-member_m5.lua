@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/class/class-declaration-access-private-member_m5.ts
 type Person = { getGreeting: (self: Person) -> any }
 type Person_private = { --
 	-- *** PUBLIC ***

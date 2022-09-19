@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/expressions/optional-member/with-lua-reserved-word-as-key_m5.js
 local foo = {}
 local a = if typeof(foo) == "table" then foo["repeat"] else nil
 local b = if typeof(foo) == "table" then foo["until"] else nil

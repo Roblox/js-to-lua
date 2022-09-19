@@ -6,10 +6,12 @@ import {
   identifier,
   memberExpression,
   nodeGroup,
-  program,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -19,7 +21,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         func(foo = bar)
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -39,7 +41,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         func(foo.bar = bar)
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -61,7 +63,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         func(foo = bar = baz)
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -86,7 +88,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         func(foo.bar = bar.baz = baz)
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,

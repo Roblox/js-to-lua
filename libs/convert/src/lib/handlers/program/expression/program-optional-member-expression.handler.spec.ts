@@ -10,11 +10,13 @@ import {
   indexExpression,
   memberExpression,
   nilLiteral,
-  program,
   stringLiteral,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('OptionalMemberExpression handler', () => {
@@ -25,7 +27,7 @@ describe('Program handler', () => {
 
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('test')],
@@ -55,7 +57,7 @@ describe('Program handler', () => {
 
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('test')],

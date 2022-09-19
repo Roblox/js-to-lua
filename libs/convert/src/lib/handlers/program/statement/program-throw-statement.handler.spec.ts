@@ -2,10 +2,12 @@ import {
   callExpression,
   expressionStatement,
   identifier,
-  program,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -14,7 +16,7 @@ describe('Throw Statement Handler', () => {
     const given = getProgramNode(`
         throw foo
       `);
-    const expected = program([
+    const expected = programWithUpstreamComment([
       expressionStatement(
         callExpression(identifier('error'), [identifier('foo')])
       ),

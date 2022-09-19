@@ -3,7 +3,6 @@ import {
   functionDeclaration,
   identifier,
   nodeGroup,
-  program,
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
@@ -22,7 +21,10 @@ import {
   variableDeclaratorIdentifier,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -32,7 +34,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: any;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -50,7 +52,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: string;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -68,7 +70,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: number;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -86,7 +88,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: boolean;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -104,7 +106,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: unknown;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           typeAliasDeclaration(identifier('unknown'), typeAny()),
           'ROBLOX FIXME: adding `unknown` type alias to make it easier to use Luau unknown equivalent when supported'
@@ -129,7 +131,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: null;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -155,7 +157,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: undefined;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -173,7 +175,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         let foo: typeof bar;
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -192,7 +194,7 @@ describe('Program handler', () => {
         function foo(bar): bar is string {}
       `;
       const given = getProgramNode(source);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [identifier('bar')],
@@ -217,7 +219,7 @@ describe('Program handler', () => {
         fuzz: any
       }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -262,7 +264,7 @@ describe('Program handler', () => {
         fuzz?: any
       }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -303,7 +305,7 @@ describe('Program handler', () => {
         let foo: TypeReference;
       `;
       const given = getProgramNode(source);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -325,7 +327,7 @@ describe('Program handler', () => {
         let foo: number | string | TypeReference;
       `;
       const given = getProgramNode(source);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(
@@ -353,7 +355,7 @@ describe('Program handler', () => {
         let foo: number & string & TypeReference;
       `;
       const given = getProgramNode(source);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [
             variableDeclaratorIdentifier(

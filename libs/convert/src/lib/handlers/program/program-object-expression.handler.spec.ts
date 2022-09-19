@@ -8,7 +8,6 @@ import {
   identifier,
   memberExpression,
   numericLiteral,
-  program,
   stringLiteral,
   tableConstructor,
   tableExpressionKeyField,
@@ -18,7 +17,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -28,7 +30,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         foo = {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
@@ -47,7 +49,7 @@ describe('Program handler', () => {
           baz: 'abc'
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
@@ -72,7 +74,7 @@ describe('Program handler', () => {
           baz,
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
@@ -97,7 +99,7 @@ describe('Program handler', () => {
           ['baz']: 'abc'
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
@@ -131,7 +133,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -201,7 +203,7 @@ describe('Program handler', () => {
         }
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -277,7 +279,7 @@ describe('Program handler', () => {
           },
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
@@ -320,7 +322,7 @@ describe('Program handler', () => {
           }
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
@@ -352,7 +354,7 @@ describe('Program handler', () => {
           }
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],
@@ -385,7 +387,7 @@ describe('Program handler', () => {
           ...{baz: 'abc'},
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -453,7 +455,7 @@ describe('Program handler', () => {
           ...{baz: 'abc'},
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -521,7 +523,7 @@ describe('Program handler', () => {
           ...{baz: 'abc'},
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -589,7 +591,7 @@ describe('Program handler', () => {
           },
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -677,7 +679,7 @@ describe('Program handler', () => {
           ...baz
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],

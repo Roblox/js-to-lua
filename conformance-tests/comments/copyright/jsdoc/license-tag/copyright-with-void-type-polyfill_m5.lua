@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/comments/copyright/jsdoc/license-tag/copyright-with-void-type-polyfill_m5.ts
 --[[*
  * Utility functions for the foo package.
  * @module foo/util

@@ -10,7 +10,6 @@ import {
   memberExpression,
   nilLiteral,
   numericLiteral,
-  program,
   stringLiteral,
   tableConstructor,
   variableDeclaration,
@@ -18,7 +17,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Conditional Expression Handler', () => {
@@ -27,7 +29,7 @@ describe('Program handler', () => {
         let foo = a ? b : c
       `;
       const given = getProgramNode(source);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -122,7 +124,7 @@ describe('Program handler', () => {
             let foo = ${testGiven} ? b : c
           `;
           const given = getProgramNode(source);
-          const expected = program([
+          const expected = programWithUpstreamComment([
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('foo'))],
               [
@@ -148,7 +150,7 @@ describe('Program handler', () => {
             foo2 = a ? undefined : c
       `;
       const given = getProgramNode(source);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -256,7 +258,7 @@ describe('Program handler', () => {
             foo7 = a ? NaN : c
       `;
       const given = getProgramNode(source);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],

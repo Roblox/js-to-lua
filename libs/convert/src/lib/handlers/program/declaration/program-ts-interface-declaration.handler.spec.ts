@@ -3,7 +3,6 @@ import {
   callExpression,
   identifier,
   memberExpression,
-  program,
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
@@ -20,7 +19,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -32,7 +34,7 @@ describe('Program handler', () => {
           bar: string
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeLiteral([
@@ -56,7 +58,7 @@ describe('Program handler', () => {
           buzz?: any
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         withTrailingConversionComment(
           variableDeclaration(
             [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -115,7 +117,7 @@ describe('Program handler', () => {
           baz: number,
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeIntersection([
@@ -139,7 +141,7 @@ describe('Program handler', () => {
           baz: number,
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeIntersection([
@@ -164,7 +166,7 @@ describe('Program handler', () => {
           bar: number,
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeLiteral([
@@ -186,7 +188,7 @@ describe('Program handler', () => {
           baz: number,
         }
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeIntersection([

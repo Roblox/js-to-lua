@@ -3,13 +3,15 @@ import {
   expressionStatement,
   identifier,
   memberExpression,
-  program,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from '../program.spec.utils';
 import { handleProgram } from '../program.handler';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Await Expression Handler', () => {
@@ -19,7 +21,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(
             memberExpression(identifier('foo'), ':', identifier('expect')),
@@ -37,7 +39,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('foo'))],
           [
@@ -71,7 +73,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('v'))],
           [
@@ -98,7 +100,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('v'))],
           [

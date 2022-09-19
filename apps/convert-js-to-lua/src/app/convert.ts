@@ -4,6 +4,7 @@ import { printNode } from '@js-to-lua/lua-print';
 
 export interface ConversionConfig {
   isInitFile: boolean;
+  upstreamPath?: string;
 }
 
 const DEFAULT_BABEL_OPTIONS: ParserOptions = {

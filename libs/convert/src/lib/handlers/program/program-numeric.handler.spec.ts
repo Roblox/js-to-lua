@@ -3,10 +3,12 @@ import {
   AssignmentStatementOperatorEnum,
   identifier,
   numericLiteral,
-  program,
 } from '@js-to-lua/lua-types';
-import { getProgramNode } from './program.spec.utils';
 import { handleProgram } from './program.handler';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -18,7 +20,7 @@ describe('Program handler', () => {
       foo = 2;
       foo = 34;
     `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         assignmentStatement(
           AssignmentStatementOperatorEnum.EQ,
           [identifier('foo')],

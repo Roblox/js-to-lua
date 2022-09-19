@@ -6,6 +6,7 @@ interface Args {
   rootDir: string;
   babelConfig: string;
   babelTransformConfig: string;
+  sha: string;
 }
 
 export const getArgs = (): Args => {
@@ -33,6 +34,10 @@ export const getArgs = (): Args => {
       description: 'Babel transform config file',
       type: 'string',
     })
+    .option('sha', {
+      description: 'SHA of the upstream repo we are converting',
+      type: 'string',
+    })
     .help()
     .alias('help', 'h');
 
@@ -42,6 +47,7 @@ export const getArgs = (): Args => {
     rootDir: '',
     babelConfig: '',
     babelTransformConfig: '',
+    sha: '',
   };
 
   return {

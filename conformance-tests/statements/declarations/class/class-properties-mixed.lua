@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/class/class-properties-mixed.ts
 type BaseClass = {
 	initializedProperty: boolean,
 	notInitializedProperty: any,

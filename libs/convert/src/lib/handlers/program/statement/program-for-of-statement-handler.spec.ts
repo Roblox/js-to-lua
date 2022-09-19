@@ -14,14 +14,16 @@ import {
   memberExpression,
   nodeGroup,
   numericLiteral,
-  program,
   tableConstructor,
   tableNoKeyField,
   unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { dedent } from '@js-to-lua/shared-utils';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('For Of statement Handler', () => {
@@ -31,7 +33,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('foo')],
           [
@@ -56,7 +58,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('foo')],
           [
@@ -85,7 +87,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('foo')],
           [
@@ -116,7 +118,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('foo')],
           [
@@ -155,7 +157,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
           [
@@ -190,7 +192,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
           [
@@ -229,7 +231,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
           [
@@ -272,7 +274,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
           [
@@ -316,7 +318,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
           [
@@ -369,7 +371,7 @@ describe('Program handler', () => {
         `;
         const given = getProgramNode(source);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           withTrailingConversionComment(
             unhandledStatement(),
             'ROBLOX TODO: Unhandled node for type: ForOfStatement where left side is not handled',
@@ -390,7 +392,7 @@ describe('Program handler', () => {
         `;
         const given = getProgramNode(source);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           withTrailingConversionComment(
             unhandledStatement(),
             'ROBLOX TODO: Unhandled node for type: ForOfStatement where left side is not handled',

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/class/class-properties-private.ts
 type BaseClass = {}
 type BaseClass_private = { --
 	-- *** PRIVATE ***

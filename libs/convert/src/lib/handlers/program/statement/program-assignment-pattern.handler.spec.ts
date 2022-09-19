@@ -7,7 +7,6 @@ import {
   ifExpressionClause,
   nilLiteral,
   nodeGroup,
-  program,
   typeAnnotation,
   typeAny,
   typeOptional,
@@ -17,7 +16,10 @@ import {
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
 
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 describe('Program handler', () => {
@@ -26,7 +28,7 @@ describe('Program handler', () => {
       const given = getProgramNode(`
         function func(foo = bar) {}
       `);
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('func'),
           [identifier('foo_', typeAnnotation(typeOptional(typeAny())))],

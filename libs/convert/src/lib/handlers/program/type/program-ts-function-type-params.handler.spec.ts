@@ -1,15 +1,17 @@
 import {
-  identifier,
-  typeReference,
-  typeParameterDeclaration,
   functionParamName,
-  typeAliasDeclaration,
-  program,
-  typeFunction,
   functionReturnType,
+  identifier,
+  typeAliasDeclaration,
+  typeFunction,
+  typeParameterDeclaration,
+  typeReference,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 const source = '';
 
@@ -21,7 +23,7 @@ describe('Program handler', () => {
         type Foo = <T, V>(bar: T, baz: V) => void
       `
       );
-      const expected = program([
+      const expected = programWithUpstreamComment([
         typeAliasDeclaration(
           identifier('Foo'),
           typeFunction(

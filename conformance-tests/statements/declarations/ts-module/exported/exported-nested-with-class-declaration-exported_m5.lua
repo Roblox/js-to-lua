@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/ts-module/exported/exported-nested-with-class-declaration-exported_m5.ts
 local exports = {}
 local Foo = {}
 local __Foo_BarClass__type

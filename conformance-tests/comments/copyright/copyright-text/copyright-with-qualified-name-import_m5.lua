@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/comments/copyright/copyright-text/copyright-with-qualified-name-import_m5.ts
 --[[*
  * Copyright (c) XYZ, Inc. and its affiliates. All Rights Reserved.
  *

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/class/class-properties-mixed-with-comments.ts
 type BaseClass = { --
 	-- comment not specified 1
 	initializedProperty: boolean, --

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/complex/react-hooks-with-noop-renderer-multiple-strings-concat.js
 local function test()
 	expect(Scheduler).toFlushAndThrow(
 		"Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for"

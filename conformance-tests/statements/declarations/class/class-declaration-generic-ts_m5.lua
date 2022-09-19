@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/class/class-declaration-generic-ts_m5.ts
 type BaseClass<T> = {}
 type BaseClass_statics = { new: <T>() -> BaseClass<T> }
 local BaseClass = {} :: BaseClass<any> & BaseClass_statics;

@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/structural-types/functions/expressions/async/with-default-value-and-body-infer_m5.js
 local function fooBool(bar_: boolean?)
 	local bar: boolean = if bar_ ~= nil then bar_ else true
 	return Promise.resolve():andThen(function()

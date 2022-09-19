@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/complex/graph-ql-lexer-test.ts
 return function()
 	-- extracted from https://github.com/graphql/graphql-js/blob/1951bce42092123e844763b6a8e985a8a3327511/src/language/__tests__/lexer-test.js
 	-- skip imports to simplify test case

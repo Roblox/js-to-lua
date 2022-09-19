@@ -1,3 +1,4 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/statements/declarations/class/class-with-constructor.js
 type BaseClass = {}
 type BaseClass_statics = { new: () -> BaseClass }
 local BaseClass = {} :: BaseClass & BaseClass_statics;

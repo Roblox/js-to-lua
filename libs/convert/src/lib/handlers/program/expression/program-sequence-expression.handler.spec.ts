@@ -9,7 +9,6 @@ import {
   identifier,
   nodeGroup,
   numericLiteral,
-  program,
   returnStatement,
   tableConstructor,
   tableNameKeyField,
@@ -19,7 +18,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from '../program.handler';
-import { getProgramNode } from '../program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from '../program.spec.utils';
 
 describe('Program handler', () => {
   describe('Sequence Expression Handler', () => {
@@ -31,7 +33,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -68,7 +70,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.ADD,
@@ -107,7 +109,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
@@ -136,7 +138,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         nodeGroup([
           assignmentStatement(
             AssignmentStatementOperatorEnum.ADD,
@@ -169,7 +171,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],
@@ -199,7 +201,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],
@@ -228,7 +230,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],
@@ -262,7 +264,7 @@ describe('Program handler', () => {
       `;
       const given = getProgramNode(source);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         functionDeclaration(
           identifier('foo'),
           [],

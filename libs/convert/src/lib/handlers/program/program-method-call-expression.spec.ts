@@ -8,7 +8,6 @@ import {
   identifier,
   indexExpression,
   memberExpression,
-  program,
   stringLiteral,
   tableConstructor,
   tableNoKeyField,
@@ -17,7 +16,10 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { handleProgram } from './program.handler';
-import { getProgramNode } from './program.spec.utils';
+import {
+  getProgramNode,
+  programWithUpstreamComment,
+} from './program.spec.utils';
 
 const source = '';
 
@@ -29,7 +31,7 @@ describe('Call Expression Handler', () => {
       foo.bar['baz']()
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       expressionStatement(
         callExpression(
           indexExpression(identifier('foo'), stringLiteral('bar')),
@@ -63,7 +65,7 @@ describe('Call Expression Handler', () => {
       foo.bar.baz()
       `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       expressionStatement(
         callExpression(
           memberExpression(identifier('foo'), ':', identifier('bar')),
@@ -96,7 +98,7 @@ describe('Call Expression Handler', () => {
           expect_(foo).never.to.be.empty()
         `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       expressionStatement(
         callExpression(
           memberExpression(
@@ -131,7 +133,7 @@ describe('Call Expression Handler', () => {
       foo['bar'](...fizz, 'baz')
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -243,7 +245,7 @@ describe('Call Expression Handler', () => {
       foo.bar(...fizz, 'baz')
     `);
 
-    const expected = program([
+    const expected = programWithUpstreamComment([
       withTrailingConversionComment(
         variableDeclaration(
           [variableDeclaratorIdentifier(identifier('Packages'))],
@@ -354,7 +356,7 @@ describe('Call Expression Handler', () => {
         foo['toString']('baz')
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(identifier('tostring'), [identifier('foo')])
         ),
@@ -387,7 +389,7 @@ describe('Call Expression Handler', () => {
       React['foo']()
       `);
 
-      const expected = program([
+      const expected = programWithUpstreamComment([
         expressionStatement(
           callExpression(
             memberExpression(
@@ -430,7 +432,7 @@ describe('Call Expression Handler', () => {
           expect(foo).toEqual(bar)
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           expressionStatement(
             callExpression(
               memberExpression(
@@ -451,7 +453,7 @@ describe('Call Expression Handler', () => {
           expect(foo).never.toEqual(bar)
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           expressionStatement(
             callExpression(
               memberExpression(
@@ -476,7 +478,7 @@ describe('Call Expression Handler', () => {
           expect(foo).never.to.be.empty()
         `);
 
-        const expected = program([
+        const expected = programWithUpstreamComment([
           expressionStatement(
             callExpression(
               memberExpression(
