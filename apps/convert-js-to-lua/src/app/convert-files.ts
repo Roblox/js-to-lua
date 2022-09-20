@@ -1,3 +1,5 @@
+import { JsToLuaPlugin } from '@js-to-lua/plugin-utils';
+import { safeApply } from '@js-to-lua/shared-utils';
 import { createUpstreamPath, inferRootDir } from '@js-to-lua/upstream-utils';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
 import { join, parse, relative } from 'path';
@@ -7,29 +9,24 @@ import { convert } from './convert';
 import { transform } from './transform';
 
 type ConvertFilesOptions = {
-  rootDir?: string;
+  rootDir: string;
+  outputDir: string;
+  babelConfig?: string;
+  babelTransformConfig?: string;
   sha?: string;
+  plugins?: Array<JsToLuaPlugin>;
 };
 
-const safeApply =
-  <T>(fn: (arg: T) => T, defaultValue?: T) =>
-  (arg: T) => {
-    try {
-      return fn(arg);
-    } catch {
-      console.warn('failed to format file');
-      return defaultValue || arg;
-    }
-  };
-
 export const convertFiles =
-  (
-    outputDir: string,
-    babelConfig?: string,
-    babelTransformConfig?: string,
-    { rootDir, sha }: ConvertFilesOptions = {}
-  ) =>
-  async (files: string[]) => {
+  ({
+    rootDir,
+    outputDir,
+    babelConfig,
+    babelTransformConfig,
+    sha,
+    plugins,
+  }: ConvertFilesOptions) =>
+  (files: string[]) => {
     const output = async (filePath: string) => {
       const rootDir_ = await (rootDir ? rootDir : inferRootDir(filePath));
       const filePathRelative = relative(rootDir_, filePath);
@@ -63,7 +60,7 @@ export const convertFiles =
             .then(async (code) => {
               const upstreamPath = await createUpstreamPath(file, rootDir, sha);
               return convert(options)(
-                { isInitFile: isInitFile(file), upstreamPath },
+                { isInitFile: isInitFile(file), upstreamPath, plugins },
                 code
               );
             })

@@ -1,5 +1,6 @@
 import { LuaNode } from '@js-to-lua/lua-types';
 import { withExtras } from './extras';
+import { NeedsPackagesExtra } from './with-needs-packages-extra';
 
 export type PolyfillID =
   | 'Array'
@@ -28,9 +29,7 @@ type PolyfillName<S extends string> = `polyfill.${S}`;
 
 type PolyfillExtra<S extends string> = {
   [Property in PolyfillName<S>]: true;
-} & {
-  needsPackages: true;
-};
+} & NeedsPackagesExtra;
 
 const polyfillExtra = <P extends PolyfillID>(p: P): PolyfillExtra<P> =>
   ({

@@ -14,7 +14,7 @@ import {
   variableDeclaratorValue,
   whileStatement,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -77,8 +77,8 @@ describe('While statement Handler', () => {
       ),
     ]);
 
-    handleProgram.handler(source, {}, given);
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    convertProgram(source, {}, given);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle while with body`, () => {
@@ -141,8 +141,8 @@ describe('While statement Handler', () => {
       ),
     ]);
 
-    handleProgram.handler(source, {}, given);
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    convertProgram(source, {}, given);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle while with boolean inferrable test`, () => {
@@ -156,8 +156,8 @@ describe('While statement Handler', () => {
       ]),
     ]);
 
-    handleProgram.handler(source, {}, given);
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    convertProgram(source, {}, given);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle nested while`, () => {
@@ -179,7 +179,7 @@ describe('While statement Handler', () => {
       ]),
     ]);
 
-    handleProgram.handler(source, {}, given);
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    convertProgram(source, {}, given);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 });

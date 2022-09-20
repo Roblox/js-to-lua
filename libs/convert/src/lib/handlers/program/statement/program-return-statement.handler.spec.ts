@@ -6,7 +6,7 @@ import {
   nodeGroup,
   returnStatement,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -29,7 +29,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle simple ReturnStatement `, () => {
@@ -46,7 +46,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle ReturnStatement that yields another statement`, () => {
@@ -70,7 +70,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

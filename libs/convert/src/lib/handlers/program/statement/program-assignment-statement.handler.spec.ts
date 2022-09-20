@@ -21,7 +21,7 @@ import {
   typeAny,
   typeString,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -43,7 +43,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle chained AssignmentStatement', () => {
@@ -65,7 +65,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -80,7 +80,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -106,7 +106,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement of a function expression to a member expression', () => {
@@ -144,7 +144,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement of a arrow expression to a member expression', () => {
@@ -182,7 +182,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement of a function expression to a member expression and not propagate self in inner functions', () => {
@@ -225,7 +225,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement of a arrow expression to a member expression and not propagate self in inner functions', () => {
@@ -268,7 +268,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -285,7 +285,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle chained AssignmentStatement', () => {
@@ -307,7 +307,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -322,7 +322,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -348,7 +348,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle simple AssignmentStatement with string literal on the right', () => {
@@ -363,7 +363,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle chained AssignmentStatement with string literal on the right', () => {
@@ -385,7 +385,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left and string literal on the right', () => {
@@ -400,7 +400,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left and string literal on the right', () => {
@@ -426,7 +426,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -443,7 +443,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle chained AssignmentStatement', () => {
@@ -465,7 +465,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -480,7 +480,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -506,7 +506,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -523,7 +523,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle chained AssignmentStatement', () => {
@@ -545,7 +545,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -560,7 +560,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -586,7 +586,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -603,7 +603,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle chained AssignmentStatement', () => {
@@ -625,7 +625,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -640,7 +640,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -666,7 +666,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -683,7 +683,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle chained AssignmentStatement', () => {
@@ -705,7 +705,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -720,7 +720,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -746,7 +746,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -768,7 +768,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -792,7 +792,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -839,7 +839,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -861,7 +861,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -885,7 +885,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -932,7 +932,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -954,7 +954,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -978,7 +978,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -1025,7 +1025,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -1047,7 +1047,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -1071,7 +1071,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -1118,7 +1118,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -1144,7 +1144,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -1168,7 +1168,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -1215,7 +1215,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -1237,7 +1237,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with member expression on the left', () => {
@@ -1261,7 +1261,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle AssignmentStatement with index expression on the left', () => {
@@ -1308,7 +1308,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
   });
@@ -1332,7 +1332,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle array destructuring with nested arrays`, () => {
@@ -1365,7 +1365,7 @@ describe('Program handler', () => {
       ]),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle array destructuring with rest element`, () => {
@@ -1388,7 +1388,7 @@ describe('Program handler', () => {
       ]),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle chained array destructuring`, () => {
@@ -1417,7 +1417,7 @@ describe('Program handler', () => {
       ]),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle object destructuring`, () => {
@@ -1436,7 +1436,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle object destructuring with aliases`, () => {
@@ -1455,7 +1455,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle object destructuring with nested object pattern`, () => {
@@ -1482,7 +1482,7 @@ describe('Program handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle chained object destructuring`, () => {
@@ -1508,6 +1508,6 @@ describe('Program handler', () => {
       ]),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 });

@@ -19,7 +19,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -28,8 +28,6 @@ import {
 describe('Program handler', () => {
   describe('OptionalCallExpression handler', () => {
     describe('as expression', () => {
-      const { handler } = handleProgram;
-
       it('should handle simple identifier optional call expression', () => {
         const source = `
           foo = bar?.()
@@ -51,7 +49,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handler('', {}, given)).toEqual(expected);
+        expect(convertProgram('', {}, given)).toEqual(expected);
       });
 
       it('should handle simple identifier optional call expression with params', () => {
@@ -80,7 +78,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        expect(handler('', {}, given)).toEqual(expected);
+        expect(convertProgram('', {}, given)).toEqual(expected);
       });
 
       it('should handle optional member expression call', () => {
@@ -131,13 +129,11 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handler('', {}, given)).toEqual(expected);
+        expect(convertProgram('', {}, given)).toEqual(expected);
       });
     });
 
     describe('as statement', () => {
-      const { handler } = handleProgram;
-
       it('should handle simple identifier optional call expression', () => {
         const source = `
           foo?.bar()
@@ -181,7 +177,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handler('', {}, given)).toEqual(expected);
+        expect(convertProgram('', {}, given)).toEqual(expected);
       });
     });
   });

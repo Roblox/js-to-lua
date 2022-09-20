@@ -18,7 +18,7 @@ import {
   typeString,
 } from '@js-to-lua/lua-types';
 import { dedent } from '@js-to-lua/shared-utils';
-import { handleProgram } from '../../program.handler';
+import { convertProgram } from '../../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -26,8 +26,6 @@ import {
 
 describe('Program handler', () => {
   describe('Flow - ObjectTypeAnnotation handler', () => {
-    const { handler } = handleProgram;
-
     it('should handle empty ObjectTypeAnnotation', () => {
       const source = `
         type Test = {};
@@ -37,7 +35,7 @@ describe('Program handler', () => {
         typeAliasDeclaration(identifier('Test'), typeLiteral([])),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with props with simple types', () => {
@@ -69,7 +67,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with props with simple types and string literals as keys', () => {
@@ -101,7 +99,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with nested ObjectTypeAnnotation', () => {
@@ -142,7 +140,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with ObjectTypeSpreadProperty', () => {
@@ -159,7 +157,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with ObjectTypeSpreadProperty and additional props', () => {
@@ -195,7 +193,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with ObjectTypeIndexer', () => {
@@ -214,7 +212,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with multiple ObjectTypeIndexers', () => {
@@ -241,7 +239,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with ObjectTypeCallProperty', () => {
@@ -262,7 +260,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with multiple ObjectTypeCallProperties', () => {
@@ -285,7 +283,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with ObjectTypeInternalSlot', () => {
@@ -306,7 +304,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle ObjectTypeAnnotation with all possible properties', () => {
@@ -344,7 +342,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

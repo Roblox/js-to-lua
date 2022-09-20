@@ -1,6 +1,7 @@
 import { LuaNode } from '@js-to-lua/lua-types';
 import { hasOwnProperty, isTruthy } from '@js-to-lua/shared-utils';
 import { withExtras } from './extras';
+import { NeedsPackagesExtra } from './with-needs-packages-extra';
 
 const polyfillTypeIds = [
   'Array',
@@ -63,9 +64,7 @@ type PolyfillTypeName<S extends PolyfillTypeID> = `polyfillType.${S}`;
 
 type PolyfillTypeExtra<S extends PolyfillTypeID> = {
   [Property in PolyfillTypeName<S>]: true;
-} & {
-  needsPackages: true;
-};
+} & NeedsPackagesExtra;
 
 const polyfillTypeExtra = <P extends PolyfillTypeID>(
   polyfillIdentifier: P,

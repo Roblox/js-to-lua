@@ -9,7 +9,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from './program.handler';
+import { convertProgram } from '../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -65,7 +65,7 @@ describe('Known Math methods', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it('should convert JS Math methods that have Polyfills', () => {
@@ -87,7 +87,7 @@ describe('Known Math methods', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it('should convert JS Math methods that do NOT have Polyfills', () => {
@@ -146,7 +146,7 @@ describe('Known Math methods', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
   it('should convert JS Math methods that DO NOT exist on the JS Math Object assuming they have been shadowed/implemented', () => {
     const given = getProgramNode(`
@@ -167,7 +167,7 @@ describe('Known Math methods', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
   it('should convert JS Math static properties that have Lua equivalents', () => {
     const given = getProgramNode(`
@@ -185,7 +185,7 @@ describe('Known Math methods', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   // We currently don't have any polyfilled properties - we'll add this test once we do
@@ -208,7 +208,7 @@ describe('Known Math methods', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
   it('should convert JS Math properties that DO NOT exist on the JS Math Object assuming they have been shadowed/implemented', () => {
     const given = getProgramNode(`
@@ -226,6 +226,6 @@ describe('Known Math methods', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 });

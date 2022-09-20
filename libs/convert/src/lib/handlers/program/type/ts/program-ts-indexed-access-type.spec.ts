@@ -12,7 +12,7 @@ import {
   typeReference,
   typeUnion,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../../program.handler';
+import { convertProgram } from '../../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -42,7 +42,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
+      const actual = convertProgram(source, {}, given);
       expect(actual).toEqual(expected);
     });
 
@@ -71,7 +71,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
+      const actual = convertProgram(source, {}, given);
       expect(actual).toEqual(expected);
     });
 
@@ -92,7 +92,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
+      const actual = convertProgram(source, {}, given);
       expect(actual).toEqual(expected);
     });
 
@@ -130,7 +130,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
+      const actual = convertProgram(source, {}, given);
       expect(actual).toEqual(expected);
     });
   });

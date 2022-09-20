@@ -24,7 +24,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -61,7 +61,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle auto-incrementing enum values', () => {
@@ -112,7 +112,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle auto-incrementing enum values with non-zero reset values', () => {
@@ -174,7 +174,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle an empty enum declaration', () => {
@@ -197,7 +197,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle an enum with multiple literal types', () => {
@@ -242,7 +242,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle an exported enum with complex types', () => {
@@ -312,7 +312,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

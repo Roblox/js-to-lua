@@ -15,7 +15,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../../program.handler';
+import { convertProgram } from '../../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -63,7 +63,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export mixed named and default ObjectExpression`, () => {
@@ -110,7 +110,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export mixed named and default function declaration`, () => {
@@ -160,7 +160,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     describe('with comments', () => {
@@ -236,7 +236,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it(`should export mixed named and default ObjectExpression`, () => {
@@ -317,7 +317,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it(`should export mixed named and default function declaration`, () => {
@@ -395,7 +395,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
   });

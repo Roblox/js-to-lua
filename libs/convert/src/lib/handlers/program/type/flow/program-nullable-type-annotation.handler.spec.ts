@@ -8,7 +8,7 @@ import {
   typeNumber,
   typeOptional,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../../program.handler';
+import { convertProgram } from '../../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -29,7 +29,7 @@ describe('Program handler', () => {
         typeAliasDeclaration(identifier('Test'), typeOptional(typeNumber())),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle function declaration with nullable type parameter', () => {
@@ -52,7 +52,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

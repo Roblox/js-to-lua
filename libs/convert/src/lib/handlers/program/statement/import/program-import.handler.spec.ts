@@ -9,7 +9,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../../program.handler';
+import { convertProgram } from '../../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -52,7 +52,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative default identifier - parent directory`, () => {
@@ -92,7 +92,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import global default identifier`, () => {
@@ -131,7 +131,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative default type identifier`, () => {
@@ -173,7 +173,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -211,7 +211,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative named identifier - parent directory`, () => {
@@ -251,7 +251,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative multiple named identifiers`, () => {
@@ -313,7 +313,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import global named identifier`, () => {
@@ -352,7 +352,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import global multiple named identifiers`, () => {
@@ -413,7 +413,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -447,7 +447,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import relative default identifier - parent directory`, () => {
@@ -483,7 +483,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should import global default identifier`, () => {
@@ -518,7 +518,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

@@ -1,1 +1,1 @@
-export * from './lib/handlers/program/program.handler';
+export * from './lib/convert-program';

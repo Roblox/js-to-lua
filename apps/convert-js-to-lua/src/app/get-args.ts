@@ -7,6 +7,7 @@ interface Args {
   babelConfig: string;
   babelTransformConfig: string;
   sha: string;
+  plugin: Array<string>;
 }
 
 export const getArgs = (): Args => {
@@ -38,6 +39,11 @@ export const getArgs = (): Args => {
       description: 'SHA of the upstream repo we are converting',
       type: 'string',
     })
+    .option('plugin', {
+      alias: 'p',
+      description: 'Post processing plugins',
+      type: 'array',
+    })
     .help()
     .alias('help', 'h');
 
@@ -48,6 +54,7 @@ export const getArgs = (): Args => {
     babelConfig: '',
     babelTransformConfig: '',
     sha: '',
+    plugin: [],
   };
 
   return {

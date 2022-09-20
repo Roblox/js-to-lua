@@ -202,7 +202,13 @@ export function hasUnhandledArrayDestructuringParam(
           isBabelRestElement,
           isBabelArrayPattern,
           isHandledAssignmentPattern,
-        ])(el, undefined)
+        ])(
+          el,
+          // TODO: improve ramda types
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          undefined
+        )
     ) ||
     elements
       .filter((el): el is ArrayPattern => isBabelArrayPattern(el))

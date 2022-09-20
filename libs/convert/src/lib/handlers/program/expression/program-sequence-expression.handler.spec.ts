@@ -17,7 +17,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -59,7 +59,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle sequence expression in object prop - with updateExpressions', () => {
@@ -100,7 +100,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle sequence expression in variable declaration - with simple expressions', () => {
@@ -129,7 +129,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle sequence expression in variable declaration - with updateExpressions', () => {
@@ -162,7 +162,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle sequence expression in arrow function shorthand return syntax - with simple expressions', () => {
@@ -192,7 +192,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle sequence expression in arrow function shorthand return syntax - with function call as last expressions', () => {
@@ -221,7 +221,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should handle sequence expression in arrow function shorthand return syntax - with updateExpressions', () => {
@@ -255,7 +255,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it('should not ignore parts of sequence expression which are not valid in Luau', () => {
@@ -289,7 +289,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

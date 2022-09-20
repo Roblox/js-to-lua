@@ -1,3 +1,6 @@
+export * from './lib/append-program';
+export * from './lib/prepend-program';
+export * from './lib/common-identifiers';
 export * from './lib/array-inferable';
 export * from './lib/as-statement-return-type-to-statement';
 export * from './lib/bit-32-method';

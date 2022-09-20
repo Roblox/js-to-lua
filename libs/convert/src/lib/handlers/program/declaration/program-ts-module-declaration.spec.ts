@@ -30,7 +30,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -54,7 +54,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type', () => {
@@ -83,7 +83,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type - exported', () => {
@@ -116,7 +116,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it.each([
@@ -147,7 +147,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it.each([
@@ -187,7 +187,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         }
       );
 
@@ -219,7 +219,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type and function declaration - exported', () => {
@@ -259,7 +259,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type and variable declaration', () => {
@@ -309,7 +309,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type and variable declaration - exported', () => {
@@ -368,7 +368,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with class declaration', () => {
@@ -493,7 +493,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with class declaration - exported', () => {
@@ -637,7 +637,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with multiple type and function declarations - exported and not exported', () => {
@@ -689,7 +689,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
 
@@ -723,7 +723,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type', () => {
@@ -762,7 +762,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type - exported', () => {
@@ -807,7 +807,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it.each([
@@ -848,7 +848,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it.each([
@@ -904,7 +904,7 @@ describe('Program handler', () => {
             returnStatement(identifier('exports')),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         }
       );
 
@@ -946,7 +946,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type and function declaration - exported', () => {
@@ -998,7 +998,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type and variable declaration', () => {
@@ -1058,7 +1058,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with type and variable declaration - exported', () => {
@@ -1129,7 +1129,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with class declaration', () => {
@@ -1264,7 +1264,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should handle namespace with class declaration - exported', () => {
@@ -1434,7 +1434,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        const actual = handleProgram.handler(source, {}, given);
+        const actual = convertProgram(source, {}, given);
         expect(actual).toEqual(expected);
       });
 
@@ -1499,7 +1499,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
   });

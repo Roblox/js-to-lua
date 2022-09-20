@@ -7,7 +7,7 @@ import {
   memberExpression,
   nodeGroup,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -34,7 +34,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should wrap assignment statement with an IIFE - assign to member expression`, () => {
@@ -56,7 +56,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle wrap chained AssignmentStatement with an IIFE`, () => {
@@ -81,7 +81,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle wrap chained AssignmentStatement WITHOUT an IIFE - assign to member expression`, () => {
@@ -108,7 +108,7 @@ describe('Program handler', () => {
         ]),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

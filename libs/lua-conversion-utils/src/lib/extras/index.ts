@@ -4,6 +4,7 @@ export * from './with-class-declaration-extra';
 export * from './with-export-skip-extra';
 export * from './with-exports-extra';
 export * from './with-math-const-extra';
+export * from './with-needs-packages-extra';
 export * from './with-original-identifier-name-extras';
 export * from './with-original-ids-extra';
 export * from './with-polyfill-extra';

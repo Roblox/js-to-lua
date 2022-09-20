@@ -4,7 +4,7 @@ import {
   identifier,
   numericLiteral,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from './program.handler';
+import { convertProgram } from '../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -38,7 +38,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      const luaProgram = handleProgram.handler(source, {}, given);
+      const luaProgram = convertProgram(source, {}, given);
 
       expect(luaProgram).toEqual(expected);
     });

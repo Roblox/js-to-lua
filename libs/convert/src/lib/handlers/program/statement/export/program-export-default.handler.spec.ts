@@ -29,7 +29,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../../program.handler';
+import { convertProgram } from '../../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -56,7 +56,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export default ObjectExpression`, () => {
@@ -82,7 +82,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export default function declaration`, () => {
@@ -111,7 +111,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export default function unnamed declaration`, () => {
@@ -131,7 +131,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export default class declaration`, () => {
@@ -238,7 +238,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
+      const actual = convertProgram(source, {}, given);
       expect(actual).toEqual(expected);
     });
 
@@ -259,7 +259,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export default expression`, () => {
@@ -279,7 +279,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     describe('with comments', () => {
@@ -310,7 +310,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it(`should export default identifier with trailing comment`, () => {
@@ -340,7 +340,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it(`should export default identifier with leading and trailing comment`, () => {
@@ -372,7 +372,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
   });

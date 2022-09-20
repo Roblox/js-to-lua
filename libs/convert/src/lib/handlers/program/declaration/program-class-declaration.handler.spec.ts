@@ -42,7 +42,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -204,7 +204,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert generic class', () => {
@@ -276,7 +276,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        const actual = handleProgram.handler(source, {}, given);
+        const actual = convertProgram(source, {}, given);
         expect(actual).toEqual(expected);
       });
 
@@ -351,7 +351,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        const actual = handleProgram.handler(source, {}, given);
+        const actual = convertProgram(source, {}, given);
         expect(actual).toEqual(expected);
       });
 
@@ -412,7 +412,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class methods to <ClassId>:<methodName> function', () => {
@@ -497,7 +497,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class methods to <ClassId>:<methodName> function with explicit return type', () => {
@@ -582,7 +582,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class methods to <ClassId>:<methodName> function with params and explicit return type', () => {
@@ -672,7 +672,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert static class methods to <ClassId>.<methodName> function', () => {
@@ -739,7 +739,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert static properties to <ClassId>.<property>', () => {
@@ -810,7 +810,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class abstract methods to <ClassId>:<methodName> function', () => {
@@ -901,7 +901,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class abstract methods to <ClassId>:<methodName> function with explicit return type', () => {
@@ -992,7 +992,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class abstract methods to <ClassId>:<methodName> function with params and explicit return type', () => {
@@ -1088,7 +1088,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class properties without explicit typing', () => {
@@ -1156,7 +1156,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class properties with explicit typing', () => {
@@ -1224,7 +1224,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class properties without explicit typing and with inferrable assignment - string', () => {
@@ -1303,7 +1303,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class properties without explicit typing and with inferrable assignment - boolean', () => {
@@ -1382,7 +1382,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class properties without explicit typing and with inferrable assignment - number', () => {
@@ -1461,7 +1461,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class properties without explicit typing and with inferrable assignment - object', () => {
@@ -1549,7 +1549,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class properties without explicit typing and with inferrable assignment - array', () => {
@@ -1630,7 +1630,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class properties without explicit typing and with non inferrable assignment', () => {
@@ -1709,7 +1709,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       describe('comments', () => {
@@ -1812,7 +1812,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          const actual = handleProgram.handler(source, {}, given);
+          const actual = convertProgram(source, {}, given);
 
           expect(actual).toEqual(expected);
         });
@@ -1907,7 +1907,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          const actual = handleProgram.handler(source, {}, given);
+          const actual = convertProgram(source, {}, given);
           expect(actual).toEqual(expected);
         });
 
@@ -1979,7 +1979,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should convert static properties to <ClassId>.<property>', () => {
@@ -2054,7 +2054,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should convert class properties without explicit typing', () => {
@@ -2128,7 +2128,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should convert class properties with explicit typing', () => {
@@ -2202,7 +2202,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
       });
     });
@@ -2418,7 +2418,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class constructor to <ClassId>.new function', () => {
@@ -2487,7 +2487,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert class methods to <ClassId>:<methodName> function', () => {
@@ -2578,7 +2578,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert static class methods to <ClassId>.<methodName> function', () => {
@@ -2654,7 +2654,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it('should convert static properties to <ClassId>.<property>', () => {
@@ -2734,7 +2734,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       describe('private members', () => {
@@ -2838,7 +2838,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          const actual = handleProgram.handler(source, {}, given);
+          const actual = convertProgram(source, {}, given);
           expect(actual).toEqual(expected);
         });
 
@@ -2922,7 +2922,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should convert static properties to <ClassId>.<property>', () => {
@@ -3009,7 +3009,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should convert generic class with private properties', () => {
@@ -3124,7 +3124,7 @@ describe('Program handler', () => {
             ]),
           ]);
 
-          const actual = handleProgram.handler(source, {}, given);
+          const actual = convertProgram(source, {}, given);
           expect(actual).toEqual(expected);
         });
       });

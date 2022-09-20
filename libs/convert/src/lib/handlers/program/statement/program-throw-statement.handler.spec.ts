@@ -3,7 +3,7 @@ import {
   expressionStatement,
   identifier,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -22,6 +22,6 @@ describe('Throw Statement Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 });

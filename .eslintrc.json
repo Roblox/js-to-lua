@@ -15,15 +15,20 @@
               /* type constraints */
               {
                 "sourceTag": "type:app",
-                "onlyDependOnLibsWithTags": ["type:entry"]
+                "onlyDependOnLibsWithTags": [
+                  "type:entry",
+                  "type:utils",
+                  "type:plugin"
+                ]
               },
               {
                 "sourceTag": "type:entry",
                 "onlyDependOnLibsWithTags": [
                   "type:feature",
+                  "type:plugin",
+                  "type:utils",
                   "type:utils:convert",
                   "type:utils:luaTypes",
-                  "type:utils",
                   "type:utils:luaTypes:test"
                 ]
               },
@@ -31,8 +36,33 @@
                 "sourceTag": "type:feature",
                 "onlyDependOnLibsWithTags": [
                   "type:utils",
-                  "type:feature",
+                  "type:utils:convert",
+                  "type:utils:luaTypes",
+                  "type:utils:plugin",
+                  "type:utils:test",
+                  "type:feature"
+                ]
+              },
+              {
+                "sourceTag": "type:plugin",
+                "onlyDependOnLibsWithTags": [
+                  "type:utils",
+                  "type:utils:convert",
+                  "type:utils:luaTypes",
+                  "type:utils:plugin",
                   "type:utils:test"
+                ]
+              },
+              {
+                "sourceTag": "type:plugin:e2e",
+                "onlyDependOnLibsWithTags": [
+                  "type:utils",
+                  "type:utils:convert",
+                  "type:utils:luaTypes",
+                  "type:utils:plugin",
+                  "type:utils:test",
+                  "type:plugin",
+                  "type:entry"
                 ]
               },
               {
@@ -43,6 +73,13 @@
                   "type:utils:luaTypes:test",
                   "type:utils",
                   "type:utils:test"
+                ]
+              },
+              {
+                "sourceTag": "type:utils:plugin",
+                "onlyDependOnLibsWithTags": [
+                  "type:utils",
+                  "type:utils:luaTypes"
                 ]
               },
               {
@@ -71,6 +108,7 @@
                   "feature:convert",
                   "feature:luaTypes",
                   "feature:luaTypes:test",
+                  "feature:plugin",
                   "feature:shared"
                 ]
               },

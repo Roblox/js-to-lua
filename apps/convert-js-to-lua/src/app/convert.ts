@@ -1,10 +1,12 @@
 import { parse, ParserOptions } from '@babel/parser';
-import { handleProgram } from '@js-to-lua/convert';
+import { convertProgram } from '@js-to-lua/convert';
 import { printNode } from '@js-to-lua/lua-print';
+import { JsToLuaPlugin } from '@js-to-lua/plugin-utils';
 
 export interface ConversionConfig {
   isInitFile: boolean;
   upstreamPath?: string;
+  plugins?: Array<JsToLuaPlugin>;
 }
 
 const DEFAULT_BABEL_OPTIONS: ParserOptions = {
@@ -20,11 +22,9 @@ export const convert =
       ...babelOptions_,
     };
     const babelASTFile = parse(code, babelOptions);
-    const luaASTProgram = handleProgram.handler(
-      code,
-      config,
-      babelASTFile.program
-    );
+    const luaASTProgram = convertProgram(code, config, babelASTFile.program, {
+      plugins: config.plugins,
+    });
 
     return String(printNode(luaASTProgram));
   };

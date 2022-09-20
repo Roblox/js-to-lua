@@ -16,7 +16,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -86,7 +86,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     const coercableTestCases = [
@@ -138,7 +138,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         }
       );
     });
@@ -243,7 +243,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle ConditionalExpression when consequent expression is truthy in Lua`, () => {
@@ -436,7 +436,7 @@ describe('Program handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

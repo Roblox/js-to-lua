@@ -20,7 +20,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from './program.handler';
+import { convertProgram } from '../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -40,7 +40,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle plus operator`, () => {
@@ -59,7 +59,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle minus operator`, () => {
@@ -74,7 +74,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle void operator`, () => {
@@ -89,7 +89,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle void operator with string literals`, () => {
@@ -104,7 +104,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle void operator with numeric literals`, () => {
@@ -119,7 +119,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle void operator with boolean literals`, () => {
@@ -134,7 +134,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle negation operator`, () => {
@@ -193,7 +193,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle negation operator of BooleanLiteral`, () => {
@@ -206,7 +206,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle delete operator`, () => {
@@ -222,7 +222,7 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle ~ operator`, () => {
@@ -242,6 +242,6 @@ describe('Unary Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 });

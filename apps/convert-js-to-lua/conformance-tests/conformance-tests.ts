@@ -1,7 +1,7 @@
+import { execSync } from 'child_process';
 import { rmSync } from 'fs';
 import { readFile } from 'fs/promises';
 import { format, join, normalize, ParsedPath } from 'path';
-import { execSync } from 'child_process';
 
 import {
   changeExtension,
@@ -17,6 +17,7 @@ export enum Milestone {
   M4,
   M5,
   M6,
+  M7,
   Unspecified,
 }
 
@@ -27,6 +28,7 @@ const descriptions = {
   [Milestone.M4]: 'Milestone 4',
   [Milestone.M5]: 'Milestone 5',
   [Milestone.M6]: 'Milestone 6 - Flow',
+  [Milestone.M7]: 'Milestone 7 - jestGlobals plugin',
   [Milestone.Unspecified]: 'Milestone Unspecified',
 };
 
@@ -37,6 +39,7 @@ const predicates = {
   [Milestone.M4]: (filePath: ParsedPath) => /_m4x?$/.test(filePath.name),
   [Milestone.M5]: (filePath: ParsedPath) => /_m5x?$/.test(filePath.name),
   [Milestone.M6]: (filePath: ParsedPath) => /_m6x?$/.test(filePath.name),
+  [Milestone.M7]: (filePath: ParsedPath) => /_m7x?$/.test(filePath.name),
   [Milestone.Unspecified]: (filePath: ParsedPath) =>
     !/_m\dx?$/.test(filePath.name),
 };
@@ -51,7 +54,11 @@ interface Jest {
 export const conformanceTests = (
   milestone: Milestone,
   { describe, it, xit, expect }: Jest,
-  config?: { babelConfig: string; babelTransformConfig: string }
+  config?: {
+    babelConfig?: string;
+    babelTransformConfig?: string;
+    plugins?: Array<string>;
+  }
 ) =>
   describe(`conformance tests - ${descriptions[milestone]}`, () => {
     const outputPath = join(normalizedConfig.outputPath, Milestone[milestone]);
@@ -67,6 +74,10 @@ export const conformanceTests = (
     }${
       config?.babelTransformConfig
         ? ` --babelTransformConfig ${config.babelTransformConfig}`
+        : ''
+    }${
+      config?.plugins?.length
+        ? config.plugins.map((plugin) => ` --plugin ${plugin}`)
         : ''
     } --rootDir './' --sha sha`;
 

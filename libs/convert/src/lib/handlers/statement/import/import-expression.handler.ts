@@ -3,7 +3,7 @@ import { createHandlerFunction } from '@js-to-lua/handler-utils';
 import {
   getModulePath,
   memberExpressionFromPath,
-  withExtras,
+  withNeedsPackagesExtra,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
@@ -28,9 +28,7 @@ export const createImportExpressionHandler = () => {
       ]);
       return isRelative
         ? requireExpression
-        : withExtras<{ needsPackages: true }, LuaCallExpression>({
-            needsPackages: true,
-          })(requireExpression);
+        : withNeedsPackagesExtra(requireExpression);
     }
   );
 };

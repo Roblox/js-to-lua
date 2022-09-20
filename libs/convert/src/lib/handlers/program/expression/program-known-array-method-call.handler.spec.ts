@@ -18,7 +18,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -47,7 +47,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array push method with multiple arguments', () => {
@@ -108,7 +108,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array unshift method with single argument', () => {
@@ -130,7 +130,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array unshift method with multiple arguments', () => {
@@ -189,7 +189,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array pop method with no argument', () => {
@@ -211,7 +211,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array shift method with no argument', () => {
@@ -233,7 +233,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         describe('call', () => {
@@ -256,7 +256,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array push method with multiple arguments', () => {
@@ -317,7 +317,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array unshift method with single argument', () => {
@@ -343,7 +343,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array unshift method with multiple arguments', () => {
@@ -402,7 +402,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array pop method with no argument', () => {
@@ -424,7 +424,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array shift method with no argument', () => {
@@ -446,7 +446,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
         });
 
@@ -506,7 +506,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array push method with multiple arguments', () => {
@@ -567,7 +567,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array unshift method with single argument', () => {
@@ -629,7 +629,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array unshift method with multiple arguments', () => {
@@ -692,7 +692,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array pop method with no argument', () => {
@@ -714,7 +714,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array shift method with no argument', () => {
@@ -736,7 +736,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
         });
 
@@ -799,9 +799,7 @@ describe('Program handler', () => {
                 ),
               ]);
 
-              expect(handleProgram.handler(source, {}, given)).toEqual(
-                expected
-              );
+              expect(convertProgram(source, {}, given)).toEqual(expected);
             });
 
             it('should handle when using call', () => {
@@ -860,9 +858,7 @@ describe('Program handler', () => {
                 ),
               ]);
 
-              expect(handleProgram.handler(source, {}, given)).toEqual(
-                expected
-              );
+              expect(convertProgram(source, {}, given)).toEqual(expected);
             });
 
             it('should handle when using apply', () => {
@@ -925,9 +921,7 @@ describe('Program handler', () => {
                 ),
               ]);
 
-              expect(handleProgram.handler(source, {}, given)).toEqual(
-                expected
-              );
+              expect(convertProgram(source, {}, given)).toEqual(expected);
             });
           }
         );
@@ -956,7 +950,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array push method with multiple arguments', () => {
@@ -1020,7 +1014,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array unshift method with single argument', () => {
@@ -1045,7 +1039,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array unshift method with multiple arguments', () => {
@@ -1107,7 +1101,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array pop method with no argument', () => {
@@ -1132,7 +1126,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle array shift method with no argument', () => {
@@ -1157,7 +1151,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         it('should handle chained methods', () => {
@@ -1252,7 +1246,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
         });
 
         describe('call', () => {
@@ -1278,7 +1272,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array push method with multiple arguments', () => {
@@ -1342,7 +1336,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array unshift method with single argument', () => {
@@ -1371,7 +1365,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array unshift method with multiple arguments', () => {
@@ -1433,7 +1427,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array pop method with no argument', () => {
@@ -1458,7 +1452,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array shift method with no argument', () => {
@@ -1483,7 +1477,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
         });
 
@@ -1543,7 +1537,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array push method with multiple arguments', () => {
@@ -1604,7 +1598,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array unshift method with single argument', () => {
@@ -1666,7 +1660,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array unshift method with multiple arguments', () => {
@@ -1729,7 +1723,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array pop method with no argument', () => {
@@ -1751,7 +1745,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
 
           it('should handle array shift method with no argument', () => {
@@ -1773,7 +1767,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
         });
 
@@ -1839,9 +1833,7 @@ describe('Program handler', () => {
                 ),
               ]);
 
-              expect(handleProgram.handler(source, {}, given)).toEqual(
-                expected
-              );
+              expect(convertProgram(source, {}, given)).toEqual(expected);
             });
 
             it('should handle when using call', () => {
@@ -1903,9 +1895,7 @@ describe('Program handler', () => {
                 ),
               ]);
 
-              expect(handleProgram.handler(source, {}, given)).toEqual(
-                expected
-              );
+              expect(convertProgram(source, {}, given)).toEqual(expected);
             });
 
             it('should handle when using apply', () => {
@@ -1971,9 +1961,7 @@ describe('Program handler', () => {
                 ),
               ]);
 
-              expect(handleProgram.handler(source, {}, given)).toEqual(
-                expected
-              );
+              expect(convertProgram(source, {}, given)).toEqual(expected);
             });
           }
         );
@@ -2001,7 +1989,7 @@ describe('Program handler', () => {
               ),
             ]);
 
-            expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+            expect(convertProgram(source, {}, given)).toEqual(expected);
           });
         }
       );

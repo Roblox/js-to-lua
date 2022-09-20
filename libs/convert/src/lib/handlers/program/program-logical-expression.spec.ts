@@ -23,7 +23,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from './program.handler';
+import { convertProgram } from '../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -96,7 +96,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = convertProgram(source, {}, given);
 
         expect(luaProgram).toEqual(expected);
       });
@@ -169,7 +169,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = convertProgram(source, {}, given);
 
         expect(JSON.stringify(luaProgram, undefined, 2)).toEqual(
           JSON.stringify(expected, undefined, 2)
@@ -219,7 +219,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = convertProgram(source, {}, given);
 
         expect(luaProgram).toEqual(expected);
       });
@@ -285,7 +285,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = convertProgram(source, {}, given);
 
         expect(luaProgram).toEqual(expected);
       });
@@ -356,7 +356,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = convertProgram(source, {}, given);
 
         expect(JSON.stringify(luaProgram, undefined, 2)).toEqual(
           JSON.stringify(expected, undefined, 2)
@@ -442,7 +442,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          const luaProgram = handleProgram.handler(source, {}, given);
+          const luaProgram = convertProgram(source, {}, given);
 
           expect(luaProgram).toEqual(expected);
         }
@@ -556,7 +556,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          const luaProgram = handleProgram.handler(source, {}, given);
+          const luaProgram = convertProgram(source, {}, given);
 
           expect(luaProgram).toEqual(expected);
         }
@@ -605,7 +605,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = convertProgram(source, {}, given);
 
         expect(luaProgram).toEqual(expected);
       });
@@ -632,7 +632,7 @@ describe('Program handler', () => {
           ),
         ]);
 
-        const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = convertProgram(source, {}, given);
 
         expect(JSON.stringify(luaProgram, undefined, 2)).toEqual(
           JSON.stringify(expected, undefined, 2)
@@ -665,7 +665,7 @@ describe('Program handler', () => {
           ]),
         ]);
 
-        const luaProgram = handleProgram.handler(source, {}, given);
+        const luaProgram = convertProgram(source, {}, given);
 
         expect(JSON.stringify(luaProgram, undefined, 2)).toEqual(
           JSON.stringify(expected, undefined, 2)
@@ -757,7 +757,7 @@ describe('Program handler', () => {
             ),
           ]);
 
-          const luaProgram = handleProgram.handler(source, {}, given);
+          const luaProgram = convertProgram(source, {}, given);
 
           expect(luaProgram).toEqual(expected);
         }

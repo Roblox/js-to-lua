@@ -30,7 +30,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../../program.handler';
+import { convertProgram } from '../../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -63,7 +63,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export named function declaration`, () => {
@@ -86,7 +86,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export multiple named declarations`, () => {
@@ -121,7 +121,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export named list`, () => {
@@ -156,7 +156,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export named list with alias identifiers`, () => {
@@ -191,7 +191,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export named list with default alias`, () => {
@@ -222,7 +222,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export named type alias`, () => {
@@ -249,7 +249,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should export named class declaration`, () => {
@@ -350,7 +350,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      const actual = handleProgram.handler(source, {}, given);
+      const actual = convertProgram(source, {}, given);
       expect(actual).toEqual(expected);
     });
 
@@ -388,7 +388,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it(`should export named variable declaration with trailing comment`, () => {
@@ -424,7 +424,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it(`should export named variable declaration with leading and trailing comment`, () => {
@@ -462,7 +462,7 @@ describe('Program handler', () => {
           returnStatement(identifier('exports')),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
   });
@@ -515,7 +515,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should re-export named list with alias identifiers`, () => {
@@ -565,7 +565,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should re-export named list with default alias`, () => {
@@ -614,7 +614,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 
@@ -669,7 +669,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should re-export named list with alias identifiers`, () => {
@@ -722,7 +722,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should re-export named list with default alias`, () => {
@@ -774,7 +774,7 @@ describe('Program handler', () => {
         returnStatement(identifier('exports')),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
   });
 });

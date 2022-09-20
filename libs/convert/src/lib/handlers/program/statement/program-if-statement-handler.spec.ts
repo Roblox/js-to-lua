@@ -12,7 +12,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from '../program.handler';
+import { convertProgram } from '../../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -75,8 +75,8 @@ describe('If statement Handler', () => {
       ),
     ]);
 
-    handleProgram.handler(source, {}, given);
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    convertProgram(source, {}, given);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle if/else`, () => {
@@ -135,7 +135,7 @@ describe('If statement Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle if/elseif`, () => {
@@ -205,7 +205,7 @@ describe('If statement Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle if/elseif/else`, () => {
@@ -276,6 +276,6 @@ describe('If statement Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 });

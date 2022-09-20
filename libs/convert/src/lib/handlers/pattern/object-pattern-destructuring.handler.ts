@@ -153,6 +153,9 @@ export function hasUnhandledObjectDestructuringParam(
       (el) =>
         !anyPass([isIdentifier, isObjectPattern, isHandledAssignmentPattern])(
           el.value,
+          // TODO: improve ramda types
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           undefined
         )
     ) ||

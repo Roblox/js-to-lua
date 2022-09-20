@@ -1,6 +1,9 @@
-import { handleProgram } from '@js-to-lua/convert';
+import { convertProgram } from '@js-to-lua/convert';
 import { parse } from '@babel/parser';
 import { printNode } from '@js-to-lua/lua-print';
+import { jestPostProcessPlugin } from '@js-to-lua/plugins/jest-globals';
+import { safeApply } from '@js-to-lua/shared-utils';
+import { format_code } from 'stylua-wasm';
 
 export const run = () => {
   // THIS IS A PLAYGROUND FILE
@@ -29,7 +32,13 @@ export const run = () => {
 code start
 ----------
 
-${printNode(handleProgram.handler(code, {}, file.program))}
+${safeApply(format_code)(
+  printNode(
+    convertProgram(code, {}, file.program, {
+      plugins: [jestPostProcessPlugin],
+    })
+  ).toString()
+)}
 
 ----------
 code end

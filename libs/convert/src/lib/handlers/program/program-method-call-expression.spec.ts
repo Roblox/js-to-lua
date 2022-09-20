@@ -15,7 +15,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { handleProgram } from './program.handler';
+import { convertProgram } from '../../convert-program';
 import {
   getProgramNode,
   programWithUpstreamComment,
@@ -55,7 +55,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle not computed member expressions`, () => {
@@ -90,7 +90,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle deeply nested method call`, () => {
@@ -123,7 +123,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle computed member expressions with spread element`, () => {
@@ -235,7 +235,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   it(`should handle not computed member expressions with spread element`, () => {
@@ -344,7 +344,7 @@ describe('Call Expression Handler', () => {
       ),
     ]);
 
-    expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+    expect(convertProgram(source, {}, given)).toEqual(expected);
   });
 
   describe('Special cases', () => {
@@ -378,7 +378,7 @@ describe('Call Expression Handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     it(`should handle React object`, () => {
@@ -423,7 +423,7 @@ describe('Call Expression Handler', () => {
         ),
       ]);
 
-      expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+      expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
     describe('should handle Jest expect calls', () => {
@@ -445,7 +445,7 @@ describe('Call Expression Handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it(`nested method call`, () => {
@@ -470,7 +470,7 @@ describe('Call Expression Handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
 
       it(`deeply nested method call`, () => {
@@ -503,7 +503,7 @@ describe('Call Expression Handler', () => {
           ),
         ]);
 
-        expect(handleProgram.handler(source, {}, given)).toEqual(expected);
+        expect(convertProgram(source, {}, given)).toEqual(expected);
       });
     });
   });
