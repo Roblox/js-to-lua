@@ -9,10 +9,15 @@ import { ExecException } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const STDOUT_FILENAME = 'fast-follow.stdout.log';
+const STDERR_FILENAME = 'fast-follow.stderr.log';
+
 export interface CompareOptions {
   sourceDir: string;
   outDir?: string;
+  revision?: string;
   pullRequest: boolean;
+  log: boolean;
 }
 
 interface ChildExecException extends ExecException {
@@ -20,7 +25,7 @@ interface ChildExecException extends ExecException {
   stderr?: string;
 }
 
-export async function compareDownstreams(options: CompareOptions) {
+export async function compareSinceLastSync(options: CompareOptions) {
   const downstreamRepoRoot = await findRepositoryRoot(options.sourceDir);
   if (!downstreamRepoRoot) {
     throw new Error(
@@ -28,24 +33,19 @@ export async function compareDownstreams(options: CompareOptions) {
     );
   }
 
-  const conversionConfig = await getLocalRepoConversionConfig(
-    path.join(downstreamRepoRoot, 'js-to-lua.config.json')
-  );
+  let stdout = '';
+  let stderr = '';
 
   try {
+    const conversionConfig = await getLocalRepoConversionConfig(
+      path.join(downstreamRepoRoot, 'js-to-lua.config.json')
+    );
+
     console.log('🛞  Downloading and installing js-to-lua "main"');
     const currentToolPath = await setupConversionTool('main');
     console.log('✅ ...done!\n');
 
-    const ref = conversionConfig.lastSync.conversionToolVersion;
-    console.log(`🛞  Downloading and installing js-to-lua "${ref}"`);
-    const previousToolPath = await setupConversionTool(ref);
-    console.log('✅ ...done!\n');
-
-    const upstreamRef = conversionConfig.lastSync.ref;
-    console.log(
-      `🛞  Downloading ${conversionConfig.upstream.repo} "${upstreamRef}"`
-    );
+    console.log(`🛞  Downloading ${conversionConfig.upstream.repo}`);
     const upstreamPath = await setupUpstreamRepository(
       conversionConfig.upstream.owner,
       conversionConfig.upstream.repo,
@@ -53,33 +53,39 @@ export async function compareDownstreams(options: CompareOptions) {
     );
     console.log('✅ ...done!\n');
 
-    const patch = await compare(
+    const comparisonResponse = await compare(
       conversionConfig,
-      previousToolPath,
       currentToolPath,
       upstreamPath,
-      downstreamRepoRoot
+      downstreamRepoRoot,
+      { targetRevision: options.revision, outDir: options.outDir }
     );
-    await fs.promises.writeFile('./fast-follow.patch', patch);
+    stdout += comparisonResponse.stdout;
+    stderr += comparisonResponse.stderr;
   } catch (e) {
-    let stderr: string | undefined;
-    let stdout: string | undefined;
-
     if (e instanceof Error && errorHasOutput(e) && e.stderr) {
-      stderr = e.stderr;
+      stderr += e.stderr;
     }
     if (e instanceof Error && errorHasOutput(e) && e.stdout) {
-      stdout = e.stdout;
+      stdout += e.stdout;
     }
 
     if (stderr) {
       console.error(stderr);
-    } else {
-      console.error(e);
+    }
+    if (stdout) {
+      console.log(stderr);
     }
 
-    if (stdout) {
-      console.log(stdout);
+    throw e;
+  } finally {
+    if (options.log) {
+      if (stdout) {
+        await fs.promises.writeFile(STDOUT_FILENAME, stdout);
+      }
+      if (stderr) {
+        await fs.promises.writeFile(STDERR_FILENAME, stderr);
+      }
     }
   }
 }

@@ -124,7 +124,6 @@ describe('versionManager', () => {
 
     expect(clone).toHaveBeenCalledTimes(1);
     expect(exec).toHaveBeenCalledWith('npm run build:prod', expect.anything());
-    expect(rm).toHaveBeenCalledTimes(0);
   });
 
   it('should not install if wasm-pack is missing', async () => {
@@ -157,7 +156,7 @@ describe('versionManager', () => {
       versionManager.setupConversionTool('fake-branch-name')
     ).rejects.toThrow();
 
-    expect(rm).toHaveBeenCalledTimes(1);
+    expect(rm).toHaveBeenCalledTimes(2);
   });
 
   it('should update if the repo already exists', async () => {

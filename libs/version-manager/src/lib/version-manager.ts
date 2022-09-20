@@ -54,7 +54,7 @@ export async function setupConversionTool(ref: string): Promise<string> {
   const installDirName = `js-to-lua-${ref}`;
   const localRepoPath = path.join(cloneDir, installDirName);
 
-  if (fs.existsSync(localRepoPath)) {
+  if (fs.existsSync(path.join(localRepoPath, '.git/config'))) {
     await updateConversionTool(localRepoPath, ref, { fetch: true });
   } else {
     await installConversionTool(localRepoPath, ref);
@@ -76,6 +76,7 @@ async function installConversionTool(installPath: string, ref: string) {
     const remoteUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${ORG_NAME}/${REPO_NAME}.git`;
 
     console.log('⬇️  Cloning js-to-lua from github...');
+    await fs.promises.rm(installPath, { recursive: true, force: true });
     await shallowCloneRepository(remoteUrl, ref, installPath);
     await buildConversionTool(installPath);
   } catch (e) {
@@ -154,10 +155,11 @@ export async function setupUpstreamRepository(
   const installDirName = `${owner}-${name}-${ref}`;
   const localRepoPath = path.join(cloneDir, installDirName);
 
-  if (fs.existsSync(localRepoPath)) {
+  if (fs.existsSync(path.join(localRepoPath, '.git/config'))) {
     await updateUpstreamRepository(localRepoPath, ref);
   } else {
     console.log(`⬇️  Cloning upstream repository '${name}' from github...`);
+    await fs.promises.rm(localRepoPath, { recursive: true, force: true });
     await cloneUpstreamRepository(owner, name, localRepoPath, ref);
   }
 
@@ -170,10 +172,14 @@ async function cloneUpstreamRepository(
   repoPath: string,
   ref: string
 ) {
+  const git = simpleGit();
+
   try {
     const remoteUrl = `https://github.com/${owner}/${name}.git`;
 
-    await shallowCloneRepository(remoteUrl, ref, repoPath);
+    await git.clone(remoteUrl, repoPath);
+    await git.cwd(repoPath);
+    await git.checkout(ref);
   } catch (e) {
     await fs.promises.rm(repoPath, { recursive: true, force: true });
     throw e;

@@ -30,7 +30,15 @@ export const convertFiles =
     const output = async (filePath: string) => {
       const rootDir_ = await (rootDir ? rootDir : inferRootDir(filePath));
       const filePathRelative = relative(rootDir_, filePath);
-      return join(outputDir, changeExtension(filePathRelative, '.lua'));
+      return join(
+        outputDir,
+        changeExtension(filePathRelative, {
+          'test.ts': 'spec.lua',
+          'test.js': 'spec.lua',
+          'test.ts.snap': 'snap.lua',
+          'test.js.snap': 'snap.lua',
+        })
+      );
     };
 
     const babelOptions = babelConfig
@@ -102,9 +110,25 @@ const prepareDir = (file: string) => {
     .then(() => file);
 };
 
-function changeExtension(filePath: string, extension: string): string {
+function changeExtension(
+  filePath: string,
+  extensions: Record<string, string>
+): string {
   const file = parse(filePath);
-  return join(file.dir, file.name + extension);
+
+  const [name, ...extensionParts] = file.base.split('.');
+  const extension = extensionParts.join('.');
+  const newExtension = extensions[extension];
+
+  let filename;
+  if (newExtension) {
+    const newName = name === 'index' ? 'init' : name;
+    filename = `${newName}.${newExtension}`;
+  } else {
+    filename = `${file.name}.lua`;
+  }
+
+  return join(file.dir, filename);
 }
 
 function isInitFile(filePath: string): boolean {

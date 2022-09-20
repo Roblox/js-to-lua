@@ -17,10 +17,10 @@ export interface ConversionConfig {
     owner: string;
     repo: string;
     primaryBranch: string;
-    patterns: string[];
   };
   downstream: {
     primaryBranch: string;
+    patterns: string[];
   };
 }
 

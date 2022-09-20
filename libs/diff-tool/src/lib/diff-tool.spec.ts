@@ -1,8 +1,9 @@
 import * as diffTool from './diff-tool';
 import * as simpleGit from 'simple-git';
+import * as lp from 'lookpath';
 import * as childProcess from 'node:child_process';
 import * as fs from 'fs';
-import { SimpleGit } from 'simple-git';
+import { MergeResult, SimpleGit } from 'simple-git';
 import { ConversionConfig } from '@roblox/release-tracker';
 import { ExecException, ExecFileException } from 'child_process';
 import { ExecFileOptions } from 'node:child_process';
@@ -16,21 +17,17 @@ const MOCK_CONFIG: ConversionConfig = {
     owner: 'facebook',
     repo: 'jest',
     primaryBranch: 'main',
-    patterns: ['packages/**/*.js', 'packages/**/*.ts'],
   },
   downstream: {
     primaryBranch: 'master',
+    patterns: ['src/**/*.lua'],
   },
 };
 
 const MOCK_TOOL_PATH = '/path/to/tool';
 const MOCK_TOOL_CMD_PATH = `${MOCK_TOOL_PATH}/dist/apps/convert-js-to-lua/main.js`;
-const MOCK_DESTINATION_BRANCH = 'destination-branch';
 const MOCK_UPSTREAM_PATH = '/path/to/upstream';
 const MOCK_DOWNSTREAM_PATH = '/path/to/downstream';
-
-const MOCK_OLD_TOOL_PATH = '/path/to/old/tool';
-const MOCK_OLD_TOOL_CMD_PATH = `${MOCK_OLD_TOOL_PATH}/dist/apps/convert-js-to-lua/main.js`;
 
 type execType = (
   command: string,
@@ -54,7 +51,6 @@ type execFileType = (
 
 describe('diffTool', () => {
   let execFile: jest.SpyInstance,
-    rm: jest.SpyInstance,
     gitCwd: jest.Mock,
     checkIsRepo: jest.Mock,
     checkout: jest.Mock,
@@ -63,6 +59,10 @@ describe('diffTool', () => {
     add: jest.Mock,
     commit: jest.Mock,
     raw: jest.Mock,
+    mergeFromTo: jest.Mock,
+    diff: jest.Mock,
+    show: jest.Mock,
+    init: jest.Mock,
     deleteLocalBranch: jest.Mock;
 
   beforeEach(() => {
@@ -95,7 +95,20 @@ describe('diffTool', () => {
     jest.spyOn(fs, 'mkdirSync').mockImplementation();
     jest.spyOn(fs, 'readdirSync').mockReturnValue([]);
     jest.spyOn(fs, 'copyFileSync').mockImplementation();
-    rm = jest.spyOn(fs.promises, 'rm').mockImplementation();
+    jest.spyOn(fs.promises, 'rm').mockImplementation();
+    jest.spyOn(fs.promises, 'mkdir').mockImplementation();
+    jest
+      .spyOn(fs.promises, 'readFile')
+      .mockImplementation((path) =>
+        typeof path === 'string' && path.includes('foreman.toml')
+          ? Promise.resolve(
+              '[tools]\nstylua = { source = "JohnnyMorganz/StyLua", version = "=0.14.2" }'
+            )
+          : Promise.resolve('')
+      );
+    jest.spyOn(fs.promises, 'writeFile').mockImplementation();
+    jest.spyOn(fs.promises, 'copyFile').mockImplementation();
+    jest.spyOn(lp, 'lookpath').mockReturnValue(Promise.resolve('/fake-path'));
 
     jest.spyOn(process, 'chdir').mockImplementation((directory) => {
       workingDir = directory;
@@ -110,6 +123,12 @@ describe('diffTool', () => {
     add = jest.fn();
     commit = jest.fn();
     raw = jest.fn();
+    mergeFromTo = jest.fn(() =>
+      Promise.resolve({ conflicts: [] } as unknown as MergeResult)
+    );
+    diff = jest.fn(() => '');
+    show = jest.fn();
+    init = jest.fn();
     deleteLocalBranch = jest.fn();
 
     jest.spyOn(simpleGit, 'simpleGit').mockReturnValue({
@@ -121,6 +140,10 @@ describe('diffTool', () => {
       add,
       commit,
       raw,
+      mergeFromTo,
+      diff,
+      show,
+      init,
       deleteLocalBranch,
     } as unknown as SimpleGit);
   });
@@ -129,32 +152,21 @@ describe('diffTool', () => {
     jest.resetAllMocks();
   });
 
-  it('should be able to use the conversion tool to convert sources', async () => {
-    await diffTool.convert(
+  it('should use the conversion tool to convert sources', async () => {
+    await diffTool.compare(
       MOCK_CONFIG,
       MOCK_TOOL_PATH,
-      MOCK_DESTINATION_BRANCH,
       MOCK_UPSTREAM_PATH,
-      MOCK_DOWNSTREAM_PATH,
-      MOCK_CONFIG.downstream.primaryBranch
+      MOCK_DOWNSTREAM_PATH
     );
 
-    expect(gitCwd).toHaveBeenNthCalledWith(1, MOCK_UPSTREAM_PATH);
-    expect(checkout).toHaveBeenCalledWith(MOCK_CONFIG.upstream.primaryBranch);
-
-    expect(gitCwd).toHaveBeenNthCalledWith(2, MOCK_DOWNSTREAM_PATH);
-    expect(checkoutBranch).toHaveBeenCalledWith(
-      MOCK_DESTINATION_BRANCH,
-      MOCK_CONFIG.downstream.primaryBranch
-    );
-    expect(add).toHaveBeenCalledTimes(1);
-    expect(commit).toHaveBeenCalledTimes(1);
-
+    expect(add).toHaveBeenCalled();
+    expect(commit).toHaveBeenCalledTimes(4);
+    expect(mergeFromTo).toHaveBeenCalledTimes(1);
+    expect(diff).toHaveBeenCalledWith(['HEAD~1']);
     expect(execFile).toHaveBeenCalledWith(
       'node',
-      [MOCK_TOOL_CMD_PATH, '-o', 'output', '-i'].concat(
-        MOCK_CONFIG.upstream.patterns
-      ),
+      [MOCK_TOOL_CMD_PATH, '-o', 'output', '-i', '**/*'],
       expect.objectContaining({ maxBuffer: Infinity }),
       expect.any(Function)
     );
@@ -172,135 +184,38 @@ describe('diffTool', () => {
       add,
       commit,
       raw,
+      mergeFromTo,
+      diff,
+      show,
+      init,
       deleteLocalBranch,
     } as unknown as SimpleGit);
 
     await expect(async () =>
-      diffTool.convert(
+      diffTool.compare(
         MOCK_CONFIG,
         MOCK_TOOL_PATH,
-        MOCK_DESTINATION_BRANCH,
         MOCK_UPSTREAM_PATH,
-        MOCK_DOWNSTREAM_PATH,
-        MOCK_CONFIG.downstream.primaryBranch
+        MOCK_DOWNSTREAM_PATH
       )
     ).rejects.toThrow(
-      `Unable to run conversion for '${MOCK_UPSTREAM_PATH}': destination directory is not a git repository`
+      `Unable to run conversion for '${MOCK_DOWNSTREAM_PATH}': destination directory is not a git repository`
     );
   });
 
   it('should fail if given a config with no source patterns', async () => {
     const config: ConversionConfig = JSON.parse(JSON.stringify(MOCK_CONFIG));
-    config.upstream.patterns = [];
+    config.downstream.patterns = [];
 
     await expect(async () =>
-      diffTool.convert(
+      diffTool.compare(
         config,
         MOCK_TOOL_PATH,
-        MOCK_DESTINATION_BRANCH,
         MOCK_UPSTREAM_PATH,
-        MOCK_DOWNSTREAM_PATH,
-        MOCK_CONFIG.downstream.primaryBranch
+        MOCK_DOWNSTREAM_PATH
       )
     ).rejects.toThrow(
-      `Unable to run conversion for '${MOCK_UPSTREAM_PATH}': no source patterns are specified in the downstream conversion config`
-    );
-  });
-
-  it('should clean up the output directory whenever the conversion fails', async () => {
-    const config: ConversionConfig = JSON.parse(JSON.stringify(MOCK_CONFIG));
-    config.upstream.patterns = [];
-
-    await expect(async () =>
-      diffTool.convert(
-        config,
-        MOCK_TOOL_PATH,
-        MOCK_DESTINATION_BRANCH,
-        MOCK_UPSTREAM_PATH,
-        MOCK_DOWNSTREAM_PATH,
-        MOCK_CONFIG.downstream.primaryBranch
-      )
-    ).rejects.toThrow(
-      `Unable to run conversion for '${MOCK_UPSTREAM_PATH}': no source patterns are specified in the downstream conversion config`
-    );
-
-    expect(rm).toHaveBeenCalledWith(
-      `${MOCK_UPSTREAM_PATH}/output`,
-      expect.objectContaining({ recursive: true, force: true })
-    );
-  });
-
-  it('should compare with two different versions of the conversion tool', async () => {
-    await diffTool.compare(
-      MOCK_CONFIG,
-      MOCK_OLD_TOOL_PATH,
-      MOCK_TOOL_PATH,
-      MOCK_UPSTREAM_PATH,
-      MOCK_DOWNSTREAM_PATH
-    );
-
-    expect(execFile).toHaveBeenCalledTimes(2);
-    expect(execFile).toHaveBeenNthCalledWith(
-      1,
-      'node',
-      [MOCK_OLD_TOOL_CMD_PATH, '-o', 'output', '-i'].concat(
-        MOCK_CONFIG.upstream.patterns
-      ),
-      expect.objectContaining({ maxBuffer: Infinity }),
-      expect.any(Function)
-    );
-    expect(execFile).toHaveBeenNthCalledWith(
-      2,
-      'node',
-      [MOCK_TOOL_CMD_PATH, '-o', 'output', '-i'].concat(
-        MOCK_CONFIG.upstream.patterns
-      ),
-      expect.objectContaining({ maxBuffer: Infinity }),
-      expect.any(Function)
-    );
-
-    expect(raw).toHaveBeenCalledWith(
-      expect.arrayContaining(['format-patch', '-1', 'HEAD', '--stdout'])
-    );
-  });
-
-  it('should cleanup after failing to commit due to downstream not being a git repo', async () => {
-    const config: ConversionConfig = JSON.parse(JSON.stringify(MOCK_CONFIG));
-    let inDownstreamPath = false;
-
-    gitCwd = jest.fn().mockImplementation((directory: string) => {
-      inDownstreamPath = directory === MOCK_DOWNSTREAM_PATH;
-    });
-    checkIsRepo = jest.fn().mockImplementation(() => !inDownstreamPath);
-
-    jest.spyOn(simpleGit, 'simpleGit').mockReturnValue({
-      cwd: gitCwd,
-      checkIsRepo,
-      checkout,
-      checkoutBranch,
-      revparse,
-      add,
-      commit,
-      raw,
-      deleteLocalBranch,
-    } as unknown as SimpleGit);
-
-    await expect(async () =>
-      diffTool.convert(
-        config,
-        MOCK_TOOL_PATH,
-        MOCK_DESTINATION_BRANCH,
-        MOCK_UPSTREAM_PATH,
-        MOCK_DOWNSTREAM_PATH,
-        MOCK_CONFIG.downstream.primaryBranch
-      )
-    ).rejects.toThrow(
-      `Unable to commit transpiled sources into '${MOCK_DOWNSTREAM_PATH}': destination directory is not a git repository`
-    );
-
-    expect(rm).toHaveBeenCalledWith(
-      `${MOCK_UPSTREAM_PATH}/output`,
-      expect.objectContaining({ recursive: true, force: true })
+      `Unable to run conversion for '${MOCK_DOWNSTREAM_PATH}': no source patterns are specified in the downstream conversion config`
     );
   });
 });

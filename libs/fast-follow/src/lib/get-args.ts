@@ -4,11 +4,11 @@ import { CompareOptions } from './commands/compare';
 export function setupCommands({
   scanReleases,
   scanCommits,
-  compareDownstreams,
+  compareSinceLastSync,
 }: {
   scanReleases: (owner: string, repo: string, channel: string) => Promise<void>;
   scanCommits: (owner: string, repo: string, channel: string) => Promise<void>;
-  compareDownstreams: (options: CompareOptions) => Promise<void>;
+  compareSinceLastSync: (options: CompareOptions) => Promise<void>;
 }) {
   return yargs
     .scriptName('fast-follow')
@@ -25,6 +25,12 @@ export function setupCommands({
             describe: 'location of the source code to work with',
             demandOption: true,
           })
+          .option('revision', {
+            alias: ['r'],
+            type: 'string',
+            describe: 'target revision upstream to sync to',
+            requiresArg: true,
+          })
           .option('outDir', {
             alias: ['out-dir', 'o'],
             type: 'string',
@@ -37,11 +43,23 @@ export function setupCommands({
             describe:
               'open or update a pull request in the downstream repository',
             default: false,
+          })
+          .option('log', {
+            alias: ['l'],
+            type: 'boolean',
+            describe: 'output log files with output if specified',
+            default: false,
           }),
       async (argv) => {
-        const { sourceDir, outDir, pullRequest } = argv;
+        const { sourceDir, outDir, pullRequest, revision, log } = argv;
 
-        return compareDownstreams({ sourceDir, outDir, pullRequest });
+        return compareSinceLastSync({
+          sourceDir,
+          outDir,
+          pullRequest,
+          revision,
+          log,
+        });
       }
     )
     .command(
