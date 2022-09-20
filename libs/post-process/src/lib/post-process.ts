@@ -13,7 +13,6 @@ import { gatherExtras } from './steps/gather-extras';
 import { removeExtras } from './steps/remove-extras';
 
 const runStage = pipe(
-  extractCopyrightComment,
   addExports,
   addPolyfills,
   addMathConsts,
@@ -22,6 +21,8 @@ const runStage = pipe(
   addVoidPolyfillType,
   addQualifiedNameImports
 );
+
+const gatherStage = pipe(extractCopyrightComment, gatherExtras);
 
 export const postProcess = (
   program: LuaProgram,
@@ -35,7 +36,7 @@ export const postProcess = (
     /**
      * gather stage
      */
-    gatherExtras,
+    gatherStage,
     postGather,
     preRun,
     /**
