@@ -19,11 +19,27 @@ import {
 
 type MemberExpressionPredicate = (node: Babel.MemberExpression) => boolean;
 
+const knownJestExpectMethods = [
+  'any',
+  'arrayContaining',
+  'assertions',
+  'closeTo',
+  'hasAssertions',
+  'objectContaining',
+  'stringContaining',
+  'stringMatching',
+  'addSnapshotSerializer',
+] as const;
+
+const isExpectIdentifier = (
+  node: Babel.Node
+): node is Babel.Identifier & { name: 'expect' } =>
+  Babel.isIdentifier(node) && node.name === 'expect';
+
 const isExpectCall = (node: Babel.MemberExpression): boolean => {
   return (
     Babel.isCallExpression(node.object) &&
-    Babel.isIdentifier(node.object.callee) &&
-    node.object.callee.name === 'expect'
+    isExpectIdentifier(node.object.callee)
   );
 };
 
@@ -31,6 +47,16 @@ const isNestedExpectCall = (node: Babel.MemberExpression): boolean => {
   return (
     Babel.isMemberExpression(node.object) &&
     (isExpectCall(node.object) || isNestedExpectCall(node.object))
+  );
+};
+
+const isExpectMethod = (node: Babel.MemberExpression): boolean => {
+  return (
+    isExpectIdentifier(node.object) &&
+    Babel.isIdentifier(node.property) &&
+    (knownJestExpectMethods as ReadonlyArray<string>).includes(
+      node.property.name
+    )
   );
 };
 
@@ -46,6 +72,7 @@ export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
   'chalk',
   isExpectCall,
   isNestedExpectCall,
+  isExpectMethod,
 ];
 
 export const ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION: Array<PolyfillID> = [

@@ -1,0 +1,10 @@
+-- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/expressions/call/special-cases/expect-methods_m5.js
+expect.any()
+expect.arrayContaining()
+expect.assertions(4)
+expect.closeTo(value)
+expect.hasAssertions()
+expect.objectContaining(value)
+expect.stringContaining(value)
+expect.stringMatching(value)
+expect.addSnapshotSerializer(mySerializer)
