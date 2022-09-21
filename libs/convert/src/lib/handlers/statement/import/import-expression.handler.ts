@@ -18,10 +18,9 @@ export const createImportExpressionHandler = () => {
       config: { isInitFile?: boolean },
       node: StringLiteral
     ): LuaCallExpression => {
-      const { isRelative, path } = getModulePath(
-        { isInitFile: !!config.isInitFile },
-        node.value
-      );
+      const { isRelative, path } = getModulePath({
+        isInitFile: !!config.isInitFile,
+      })(node.value);
 
       const requireExpression = callExpression(identifier('require'), [
         memberExpressionFromPath(path),

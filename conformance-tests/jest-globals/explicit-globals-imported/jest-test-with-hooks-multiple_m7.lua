@@ -1,12 +1,12 @@
 -- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/jest-globals/explicit-globals-imported/jest-test-with-hooks-multiple_m7.js
 local Packages --[[ ROBLOX comment: must define Packages module ]]
-local globalsModule = require(Packages["@jest"].globals)
-local describe = globalsModule.describe
-local it = globalsModule.it
-local beforeAll = globalsModule.beforeAll
-local afterAll = globalsModule.afterAll
-local beforeEach = globalsModule.beforeEach
-local afterEach = globalsModule.afterEach
+local jestGlobalsModule = require(Packages["@jest"].globals)
+local describe = jestGlobalsModule.describe
+local it = jestGlobalsModule.it
+local beforeAll = jestGlobalsModule.beforeAll
+local afterAll = jestGlobalsModule.afterAll
+local beforeEach = jestGlobalsModule.beforeEach
+local afterEach = jestGlobalsModule.afterEach
 describe("foo", function()
 	beforeEach(function() end)
 	afterEach(function() end)

@@ -5,7 +5,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   getModulePath,
-  toValidIdentifier,
+  removeInvalidChars,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
@@ -15,6 +15,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
+import { capitalize, decapitalize } from '@js-to-lua/shared-utils';
 
 export const createImportModuleDeclarationHandler = (
   importExpressionHandler: HandlerFunction<LuaExpression, StringLiteral>
@@ -25,11 +26,20 @@ export const createImportModuleDeclarationHandler = (
       config: { isInitFile?: boolean },
       node: StringLiteral
     ): LuaVariableDeclaration => {
-      const { path } = getModulePath(
-        { isInitFile: !!config.isInitFile },
-        node.value
-      );
-      const moduleName = toValidIdentifier(`${path[path.length - 1]}Module`);
+      const { path, isRelative } = getModulePath({
+        isInitFile: !!config.isInitFile,
+      })(node.value);
+      const moduleQualifiedName = isRelative
+        ? path[path.length - 1]
+        : decapitalize(
+            removeInvalidChars(
+              path
+                .filter((p) => p !== 'Packages')
+                .map((p) => capitalize(p))
+                .join('')
+            )
+          );
+      const moduleName = `${moduleQualifiedName}Module`;
 
       return variableDeclaration(
         [variableDeclaratorIdentifier(identifier(moduleName))],

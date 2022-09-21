@@ -5,9 +5,9 @@ local afterAll = JestGlobals.afterAll
 local afterEach = JestGlobals.afterEach
 local beforeAll = JestGlobals.beforeAll
 local beforeEach = JestGlobals.beforeEach
-local globalsModule = require(Packages["@jest"].globals)
-local it = globalsModule.it
-local describe = globalsModule.describe
+local jestGlobalsModule = require(Packages["@jest"].globals)
+local it = jestGlobalsModule.it
+local describe = jestGlobalsModule.describe
 describe("foo", function()
 	beforeEach(function() end)
 	afterEach(function() end)

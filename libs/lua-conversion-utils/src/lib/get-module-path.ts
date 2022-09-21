@@ -1,12 +1,12 @@
 import { isTruthy } from '@js-to-lua/shared-utils';
-import { curry } from 'ramda';
 
 interface GetModulePathConfig {
   isInitFile: boolean;
 }
 
-export const getModulePath = curry(
-  ({ isInitFile }: GetModulePathConfig, str: string) => {
+export const getModulePath =
+  ({ isInitFile }: GetModulePathConfig) =>
+  (str: string) => {
     const isRelative = str.startsWith('.');
     const path = [
       ...(isRelative
@@ -33,5 +33,4 @@ export const getModulePath = curry(
       path,
       isRelative,
     };
-  }
-);
+  };

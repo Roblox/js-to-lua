@@ -638,7 +638,7 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('barModule'))],
+            [variableDeclaratorIdentifier(identifier('fooBarModule'))],
             [
               variableDeclaratorValue(
                 callExpression(identifier('require'), [
@@ -658,12 +658,24 @@ describe('Program handler', () => {
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo'))],
-            [memberExpression(identifier('barModule'), '.', identifier('foo'))]
+            [
+              memberExpression(
+                identifier('fooBarModule'),
+                '.',
+                identifier('foo')
+              ),
+            ]
           ),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar'))],
-            [memberExpression(identifier('barModule'), '.', identifier('bar'))]
+            [
+              memberExpression(
+                identifier('fooBarModule'),
+                '.',
+                identifier('bar')
+              ),
+            ]
           ),
         ]),
         returnStatement(identifier('exports')),
@@ -691,7 +703,7 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('barModule'))],
+            [variableDeclaratorIdentifier(identifier('fooBarModule'))],
             [
               variableDeclaratorValue(
                 callExpression(identifier('require'), [
@@ -711,12 +723,24 @@ describe('Program handler', () => {
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('foo1'))],
-            [memberExpression(identifier('barModule'), '.', identifier('foo'))]
+            [
+              memberExpression(
+                identifier('fooBarModule'),
+                '.',
+                identifier('foo')
+              ),
+            ]
           ),
           assignmentStatement(
             AssignmentStatementOperatorEnum.EQ,
             [memberExpression(identifier('exports'), '.', identifier('bar1'))],
-            [memberExpression(identifier('barModule'), '.', identifier('bar'))]
+            [
+              memberExpression(
+                identifier('fooBarModule'),
+                '.',
+                identifier('bar')
+              ),
+            ]
           ),
         ]),
         returnStatement(identifier('exports')),

@@ -176,7 +176,7 @@ describe('Program handler', () => {
           [
             variableDeclaratorValue(
               memberExpression(
-                identifier('globalsModule'),
+                identifier('jestGlobalsModule'),
                 '.',
                 identifier(hook)
               )
@@ -184,7 +184,7 @@ describe('Program handler', () => {
           ]
         );
       const explicitGlobalsDeclaration = variableDeclaration(
-        [variableDeclaratorIdentifier(identifier('globalsModule'))],
+        [variableDeclaratorIdentifier(identifier('jestGlobalsModule'))],
         [
           variableDeclaratorValue(
             callExpression(identifier('require'), [

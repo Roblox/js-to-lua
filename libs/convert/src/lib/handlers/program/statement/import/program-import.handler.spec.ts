@@ -369,7 +369,7 @@ describe('Program handler', () => {
         ),
         nodeGroup([
           variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('barModule'))],
+            [variableDeclaratorIdentifier(identifier('fooBarModule'))],
             [
               variableDeclaratorValue(
                 callExpression(identifier('require'), [
@@ -391,7 +391,7 @@ describe('Program handler', () => {
             [
               variableDeclaratorValue(
                 memberExpression(
-                  identifier('barModule'),
+                  identifier('fooBarModule'),
                   '.',
                   identifier('fizz')
                 )
@@ -403,7 +403,7 @@ describe('Program handler', () => {
             [
               variableDeclaratorValue(
                 memberExpression(
-                  identifier('barModule'),
+                  identifier('fooBarModule'),
                   '.',
                   identifier('buzz')
                 )
