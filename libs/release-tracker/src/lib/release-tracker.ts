@@ -1,5 +1,4 @@
 import { Octokit } from 'octokit';
-import * as fs from 'fs';
 import * as process from 'process';
 import * as semver from 'semver';
 
@@ -37,7 +36,7 @@ async function executeQuery<T>(
 export async function getLocalRepoConversionConfig(
   configPath: string
 ): Promise<ConversionConfig> {
-  return JSON.parse((await fs.promises.readFile(configPath)).toString());
+  return await import(configPath);
 }
 
 export async function getRepoConversionConfig(
@@ -45,9 +44,7 @@ export async function getRepoConversionConfig(
   name: string,
   ref?: string
 ): Promise<ConversionConfig> {
-  const expression = `${
-    ref ?? 'release-tracker-testing'
-  }:js-to-lua.config.json`;
+  const expression = `${ref ?? 'release-tracker-testing'}:js-to-lua.config.js`;
 
   const query = `
     query GetConversionConfig($owner: String!, $name: String!, $expression: String!) {

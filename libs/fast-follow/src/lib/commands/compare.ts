@@ -38,7 +38,7 @@ export async function compareSinceLastSync(options: CompareOptions) {
 
   try {
     const conversionConfig = await getLocalRepoConversionConfig(
-      path.join(downstreamRepoRoot, 'js-to-lua.config.json')
+      path.join(downstreamRepoRoot, 'js-to-lua.config.js')
     );
 
     console.log('🛞  Downloading and installing js-to-lua "main"');

@@ -8,6 +8,11 @@ export interface ConversionConfigResponse {
   };
 }
 
+export type ReplaceFileTuple = [
+  matchFn: (filename: string) => boolean,
+  replaceFn: (filename: string) => string
+];
+
 export interface ConversionConfig {
   lastSync: {
     ref: string;
@@ -22,6 +27,7 @@ export interface ConversionConfig {
     primaryBranch: string;
     patterns: string[];
   };
+  renameFiles?: Array<ReplaceFileTuple>;
 }
 
 export interface ReleaseResponse {

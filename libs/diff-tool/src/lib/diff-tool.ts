@@ -1,18 +1,19 @@
+import { ConversionConfig } from '@roblox/release-tracker';
+import * as fs from 'fs';
+import * as g from 'glob';
+import { lookpath } from 'lookpath';
+import { execFile as childProcessExecFile } from 'node:child_process';
+import * as os from 'os';
+import * as path from 'path';
+import * as process from 'process';
 import {
-  simpleGit,
   CheckRepoActions,
   GitError,
   GitResponseError,
   MergeResult,
+  simpleGit,
 } from 'simple-git';
-import { execFile as childProcessExecFile } from 'node:child_process';
-import { ConversionConfig } from '@roblox/release-tracker';
-import * as g from 'glob';
-import * as path from 'path';
 import * as util from 'util';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as process from 'process';
 import {
   ChildExecException,
   ComparisonResponse,
@@ -21,7 +22,7 @@ import {
   SourceMapping,
   UpstreamReference,
 } from './diff-tool.types';
-import { lookpath } from 'lookpath';
+import { renameFiles } from './rename-files';
 
 const DEFAULT_CONVERSION_OUTPUT_DIR = 'output';
 const DEFAULT_PATCH_NAME = 'fast-follow.patch';
@@ -113,6 +114,8 @@ export async function compare(
     stdout += initialUpstreamStyleResponse.stdout;
     stderr += initialUpstreamStyleResponse.stderr;
 
+    await renameFiles(DEFAULT_CONVERSION_OUTPUT_DIR, config);
+
     await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
     await git.commit(`port: initial upstream version`);
 
@@ -139,6 +142,8 @@ export async function compare(
     const latestUpstreamStyleResponse = await styluaFormat(conversionDir);
     stdout += latestUpstreamStyleResponse.stdout;
     stderr += latestUpstreamStyleResponse.stderr;
+
+    await renameFiles(DEFAULT_CONVERSION_OUTPUT_DIR, config);
 
     await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
     await git.commit(`port: latest upstream version`);

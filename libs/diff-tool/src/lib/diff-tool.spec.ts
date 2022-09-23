@@ -97,6 +97,7 @@ describe('diffTool', () => {
     jest.spyOn(fs, 'copyFileSync').mockImplementation();
     jest.spyOn(fs.promises, 'rm').mockImplementation();
     jest.spyOn(fs.promises, 'mkdir').mockImplementation();
+    jest.spyOn(fs.promises, 'readdir').mockResolvedValue([]);
     jest
       .spyOn(fs.promises, 'readFile')
       .mockImplementation((path) =>
