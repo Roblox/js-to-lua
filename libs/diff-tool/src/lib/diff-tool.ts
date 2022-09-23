@@ -22,6 +22,7 @@ import {
   SourceMapping,
   UpstreamReference,
 } from './diff-tool.types';
+import { logConflictsSummary } from './log-conflicts-summary';
 import { renameFiles } from './rename-files';
 
 const DEFAULT_CONVERSION_OUTPUT_DIR = 'output';
@@ -183,11 +184,17 @@ export async function compare(
       }
     }
 
+    let conflictsSummary: { [key: string]: number } = {};
     for (const conflict of summary.conflicts) {
       if (conflict.file) {
-        await resolveMergeConflicts(conflict.file);
+        conflictsSummary = {
+          ...conflictsSummary,
+          ...(await resolveMergeConflicts(conflict.file)),
+        };
       }
     }
+
+    logConflictsSummary(conflictsSummary);
 
     const mergedStyleResponse = await styluaFormat(conversionDir);
     stdout += mergedStyleResponse.stdout;
@@ -357,10 +364,12 @@ async function resolveMergeConflicts(file: string) {
 
   let sectionType = MergeSection.Resolved;
   let resolvedContents = '';
+  let count = 0;
 
   for (const line of contents.split('\n')) {
     if (line.startsWith('<<<<<<<')) {
       sectionType = MergeSection.Current;
+      count++;
     } else if (line.startsWith('=======')) {
       sectionType = MergeSection.Incoming;
     } else if (line.startsWith('>>>>>>>')) {
@@ -376,6 +385,7 @@ async function resolveMergeConflicts(file: string) {
   resolvedContents = `${resolvedContents.trimEnd()}\n`;
 
   await fs.promises.writeFile(file, resolvedContents);
+  return count > 0 ? { [file]: count } : {};
 }
 
 /**
