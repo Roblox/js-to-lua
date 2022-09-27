@@ -31,7 +31,6 @@ import {
   defaultUnhandledIdentifierHandler,
   getNodeSource,
   withTrailingConversionComment,
-  withUnknownTypePolyfillExtra,
   withVoidTypePolyfillExtra,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -92,7 +91,7 @@ export const createTsTypeAnnotationHandler = (
 
   const handleTsUnknownKeyword: BaseNodeHandler<LuaType, TSUnknownKeyword> =
     createHandler('TSUnknownKeyword', () =>
-      withUnknownTypePolyfillExtra(typeReference(identifier('unknown')))
+      typeReference(identifier('unknown'))
     );
 
   const handleTsNullKeyword: BaseNodeHandler<LuaType, TSNullKeyword> =

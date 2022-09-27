@@ -3,7 +3,6 @@ import {
   functionDeclaration,
   identifier,
   nodeGroup,
-  typeAliasDeclaration,
   typeAnnotation,
   typeAny,
   typeBoolean,
@@ -107,10 +106,6 @@ describe('Program handler', () => {
         let foo: unknown;
       `);
       const expected = programWithUpstreamComment([
-        withTrailingConversionComment(
-          typeAliasDeclaration(identifier('unknown'), typeAny()),
-          'ROBLOX FIXME: adding `unknown` type alias to make it easier to use Luau unknown equivalent when supported'
-        ),
         variableDeclaration(
           [
             variableDeclaratorIdentifier(

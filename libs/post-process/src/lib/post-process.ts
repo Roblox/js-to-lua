@@ -7,7 +7,6 @@ import { addMathConsts } from './steps/add-math-consts';
 import { addPolyfills } from './steps/add-polyfills';
 import { addPromiseImport } from './steps/add-promise-import';
 import { addQualifiedNameImports } from './steps/add-qualified-name-imports';
-import { addUnknownPolyfillType } from './steps/add-unknown-polyfill-type';
 import { addVoidPolyfillType } from './steps/add-void-polyfill-type';
 import { extractCopyrightComment } from './steps/extract-copyright-comment';
 import { gatherExtras } from './steps/gather-extras';
@@ -19,7 +18,6 @@ const runStage = pipe(
   addPolyfills,
   addMathConsts,
   addImports,
-  addUnknownPolyfillType,
   addVoidPolyfillType,
   addQualifiedNameImports
 );
