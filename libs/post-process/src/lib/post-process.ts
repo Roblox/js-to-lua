@@ -5,6 +5,7 @@ import { addExports } from './steps/add-exports';
 import { addImports } from './steps/add-imports';
 import { addMathConsts } from './steps/add-math-consts';
 import { addPolyfills } from './steps/add-polyfills';
+import { addPromiseImport } from './steps/add-promise-import';
 import { addQualifiedNameImports } from './steps/add-qualified-name-imports';
 import { addUnknownPolyfillType } from './steps/add-unknown-polyfill-type';
 import { addVoidPolyfillType } from './steps/add-void-polyfill-type';
@@ -14,6 +15,7 @@ import { removeExtras } from './steps/remove-extras';
 
 const runStage = pipe(
   addExports,
+  addPromiseImport,
   addPolyfills,
   addMathConsts,
   addImports,

@@ -1,4 +1,7 @@
-import { tableUnpackCall } from '@js-to-lua/lua-conversion-utils';
+import {
+  tableUnpackCall,
+  withTrailingConversionComment,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   callExpression,
@@ -494,6 +497,27 @@ describe('Program handler', () => {
         `);
 
         const expected: LuaProgram = programWithUpstreamComment([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Promise'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('Promise')
+                  ),
+                ])
+              ),
+            ]
+          ),
           functionDeclaration(
             identifier('foo'),
             [identifier('bar'), identifier('baz')],
@@ -522,6 +546,27 @@ describe('Program handler', () => {
         `);
 
         const expected: LuaProgram = programWithUpstreamComment([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Promise'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('Promise')
+                  ),
+                ])
+              ),
+            ]
+          ),
           functionDeclaration(
             identifier('foo'),
             [
@@ -577,6 +622,27 @@ describe('Program handler', () => {
         `);
 
         const expected: LuaProgram = programWithUpstreamComment([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Promise'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('Promise')
+                  ),
+                ])
+              ),
+            ]
+          ),
           functionDeclaration(
             identifier('foo'),
             [
@@ -668,6 +734,27 @@ describe('Program handler', () => {
           );
 
         const expected = programWithUpstreamComment([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Promise'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('Promise')
+                  ),
+                ])
+              ),
+            ]
+          ),
           functionDeclaration(
             identifier('foo'),
             [],

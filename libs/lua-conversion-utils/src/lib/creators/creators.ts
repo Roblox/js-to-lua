@@ -4,7 +4,7 @@ import {
   LuaMemberExpression,
   memberExpression,
 } from '@js-to-lua/lua-types';
-import { withPolyfillExtra } from '../extras';
+import { withNeedsPromiseExtra, withPolyfillExtra } from '../extras';
 
 type BooleanMethod = 'toJSBoolean';
 export const booleanIdentifier = (): LuaIdentifier =>
@@ -45,7 +45,8 @@ export const promiseMethods = ['resolve'] as const;
 
 export type PromiseMethodName = typeof promiseMethods[number];
 
-export const promiseIdentifier = (): LuaIdentifier => identifier('Promise');
+const promiseIdentifier = (): LuaIdentifier =>
+  withNeedsPromiseExtra(identifier('Promise'));
 export const promiseMethod = (
   methodName: PromiseMethodName
 ): LuaMemberExpression =>

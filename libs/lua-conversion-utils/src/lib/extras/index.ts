@@ -9,6 +9,7 @@ export * from './with-original-identifier-name-extras';
 export * from './with-original-ids-extra';
 export * from './with-polyfill-extra';
 export * from './with-polyfill-type-extra';
+export * from './with-promise-polyfill-extra';
 export * from './with-qualified-name-additional-import-extra';
 export * from './with-source-type-extra';
 export * from './with-unknown-type-polyfill-extra';
