@@ -8,6 +8,8 @@ import { identifier, LuaNode } from '@js-to-lua/lua-types';
 export const jestGlobalsIdentifier = identifier('JestGlobals');
 
 const jestGlobals = [
+  'jest',
+  'expect',
   'describe',
   'it',
   'test',
