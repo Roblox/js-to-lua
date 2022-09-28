@@ -135,8 +135,11 @@
                 "onlyDependOnLibsWithTags": ["feature:shared"]
               },
               {
-                "sourceTag": "scope:fast-follow",
-                "onlyDependOnLibsWithTags": ["scope:fast-follow"]
+                "sourceTag": "feature:fast-follow",
+                "onlyDependOnLibsWithTags": [
+                  "feature:fast-follow",
+                  "feature:upstream"
+                ]
               }
             ]
           }

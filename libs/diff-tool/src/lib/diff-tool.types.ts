@@ -6,11 +6,12 @@ export interface ConversionOptions {
 }
 
 export interface ComparisonResponse {
+  failedFiles: Set<string>;
   stdout: string;
   stderr: string;
 }
 
-export type SourceMapping = Record<string, UpstreamReference>;
+export type UpstreamFileMap = Record<string, UpstreamReference>;
 
 export interface UpstreamReference {
   ref: string;

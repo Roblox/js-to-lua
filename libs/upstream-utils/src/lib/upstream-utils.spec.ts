@@ -13,6 +13,8 @@ const getTag: jest.Mock = jest.fn();
 const getSha: jest.Mock = jest.fn();
 const getRemoteUrl: jest.Mock = jest.fn();
 const getTopLevelPath: jest.Mock = jest.fn();
+const commitFiles: jest.Mock = jest.fn();
+const applyPatch: jest.Mock = jest.fn();
 const realpath: jest.Mock = jest.fn(identity);
 const relative: jest.Mock = jest.fn();
 
@@ -22,6 +24,8 @@ jest.mock('./git-utils', (): typeof gitUtilsModule => {
     getSha: (...args) => getSha(...args),
     getRemoteUrl: (...args) => getRemoteUrl(...args),
     getTopLevelPath: (...args) => getTopLevelPath(...args),
+    commitFiles: (...args) => commitFiles(...args),
+    applyPatch: (...args) => applyPatch(...args),
   };
 });
 

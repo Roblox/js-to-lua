@@ -14,16 +14,21 @@ import {
   simpleGit,
 } from 'simple-git';
 import * as util from 'util';
+import * as crypto from 'crypto';
 import {
   ChildExecException,
   ComparisonResponse,
   ConversionOptions,
   MergeSection,
-  SourceMapping,
+  UpstreamFileMap,
   UpstreamReference,
 } from './diff-tool.types';
-import { logConflictsSummary } from './log-conflicts-summary';
 import { renameFiles } from './rename-files';
+import { applyPatch, commitFiles } from '@js-to-lua/upstream-utils';
+
+// TODO: Fix @js-to-lua/shared-utils build to allow usage by diff-tool.
+type Truthy<T> = NonNullable<T>;
+const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 
 const DEFAULT_CONVERSION_OUTPUT_DIR = 'output';
 const DEFAULT_PATCH_NAME = 'fast-follow.patch';
@@ -33,6 +38,8 @@ const STYLUA_FILENAME = '.stylua.toml';
 const ROBLOX_UPSTREAM_REGEX = /-- ROBLOX upstream: (.*$)/;
 const GITHUB_URL_REF_REGEX = /blob\/(.*?)\/(.*$)/;
 const STYLUA_REGEX = /^stylua = { source = ".*", version = ".*" }$/;
+const PATCH_ERROR_REGEX = /^error: (.*):(.*)$/;
+const DIFF_FILE_HEADER_REGEX = /^diff --git a\/output\/(.*) b\/output\/(.*)$/;
 
 /**
  * Generate a unified diff containing non-conflicting upstream changes in files
@@ -50,6 +57,8 @@ export async function compare(
   await git.cwd(downstreamPath);
   await git.checkout(config.downstream.primaryBranch);
 
+  const targetRevision =
+    options?.targetRevision ?? config.upstream.primaryBranch;
   const originalDir = process.cwd();
   const fullToolPath = path.join(
     path.resolve(toolPath),
@@ -57,6 +66,7 @@ export async function compare(
   );
   const conversionDir = path.join(os.tmpdir(), 'fast-follow-conversion');
 
+  let failedFiles = new Set<string>();
   let stdout = '';
   let stderr = '';
 
@@ -86,85 +96,54 @@ export async function compare(
 
     await setupStylua(downstreamPath, conversionDir);
 
-    const sourceMapping = await getUpstreamSourceReferences(
-      downstreamPath,
-      config
-    );
+    const fileMap = await getUpstreamSourceReferences(downstreamPath, config);
 
     // Step 1: Copy and convert referenced upstream files.
 
-    // Copy upstream sources for the version referenced at the top of each
-    // downstream file respectively, and put them into the temporary repo.
-    await Promise.allSettled(
-      Object.entries(sourceMapping).map(([downstreamFilePath, reference]) =>
-        copyUpstreamFile(
-          upstreamPath,
-          downstreamFilePath,
-          reference.path,
-          reference.ref
-        )
-      )
-    );
-
     console.log(`🔨 Converting referenced sources to Luau...`);
-    const initialUpstreamResponse = await convertSources(fullToolPath);
-    stdout += initialUpstreamResponse.stdout;
-    stderr += initialUpstreamResponse.stderr;
 
-    const initialUpstreamStyleResponse = await styluaFormat(conversionDir);
-    stdout += initialUpstreamStyleResponse.stdout;
-    stderr += initialUpstreamStyleResponse.stderr;
-
-    await renameFiles(DEFAULT_CONVERSION_OUTPUT_DIR, config);
-
-    await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
-    await git.commit(`port: initial upstream version`);
+    const initialUpstreamResults = await convertUpstreamSources(
+      config,
+      conversionDir,
+      fullToolPath,
+      upstreamPath,
+      fileMap,
+      'port: initial upstream version'
+    );
+    stdout += initialUpstreamResults.stdout;
+    stderr += initialUpstreamResults.stderr;
 
     // Step 2: Copy upstream sources from the new updated version and convert.
 
+    console.log(`🔨 Converting latest sources to Luau...`);
+
     await git.checkoutBranch('upstream', 'main');
 
-    await Promise.allSettled(
-      Object.entries(sourceMapping).map(([downstreamFilePath, reference]) =>
-        copyUpstreamFile(
-          upstreamPath,
-          downstreamFilePath,
-          reference.path,
-          options?.targetRevision ?? config.upstream.primaryBranch
-        )
-      )
+    const latestUpstreamResults = await convertUpstreamSources(
+      config,
+      conversionDir,
+      fullToolPath,
+      upstreamPath,
+      fileMap,
+      'port: latest upstream version',
+      targetRevision
     );
-
-    console.log(`🔨 Converting latest sources to Luau...`);
-    const latestUpstreamResponse = await convertSources(fullToolPath);
-    stdout += latestUpstreamResponse.stdout;
-    stderr += latestUpstreamResponse.stderr;
-
-    const latestUpstreamStyleResponse = await styluaFormat(conversionDir);
-    stdout += latestUpstreamStyleResponse.stdout;
-    stderr += latestUpstreamStyleResponse.stderr;
-
-    await renameFiles(DEFAULT_CONVERSION_OUTPUT_DIR, config);
-
-    await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
-    await git.commit(`port: latest upstream version`);
+    stdout += latestUpstreamResults.stdout;
+    stderr += latestUpstreamResults.stderr;
 
     // Step 3: Commit existing downstream changes into their own branch.
 
+    console.log(`🔨 Copying pre-existing downstream changes...`);
+
     await git.checkoutBranch('downstream', 'main');
 
-    await Promise.allSettled(
-      Object.keys(sourceMapping).map((downstreamFilePath) =>
-        copyDownstreamFile(
-          downstreamPath,
-          downstreamFilePath,
-          config.downstream.primaryBranch
-        )
-      )
+    await copyDownstreamSources(
+      conversionDir,
+      downstreamPath,
+      fileMap,
+      'port: latest downstream version',
+      config.downstream.primaryBranch
     );
-
-    await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
-    await git.commit(`port: latest downstream version`);
 
     // Step 4: Merge automatic upstream changes into the downstream branch and
     // attempt to automatically resolve conflicts if they're present in favor or
@@ -172,53 +151,224 @@ export async function compare(
 
     console.log(`↪️  Merging and automatically resolving conflicts...`);
 
-    let summary: MergeResult;
-
-    try {
-      summary = await git.mergeFromTo('upstream', 'downstream');
-    } catch (e) {
-      if (e instanceof GitResponseError) {
-        summary = e.git;
-      } else {
-        throw e;
-      }
-    }
-
-    let conflictsSummary: { [key: string]: number } = {};
-    for (const conflict of summary.conflicts) {
-      if (conflict.file) {
-        conflictsSummary = {
-          ...conflictsSummary,
-          ...(await resolveMergeConflicts(conflict.file)),
-        };
-      }
-    }
-
-    logConflictsSummary(conflictsSummary);
-
-    const mergedStyleResponse = await styluaFormat(conversionDir);
-    stdout += mergedStyleResponse.stdout;
-    stderr += mergedStyleResponse.stderr;
-
-    for (const conflict of summary.conflicts) {
-      if (conflict.file) {
-        await git.add(conflict.file);
-      }
-    }
-
-    await git.commit(`port: automatic merge of upstream changes`);
+    const mergeResults = await mergeUpstreamChanges(
+      conversionDir,
+      'port: automatic merge of upstream changes'
+    );
+    stdout += mergeResults.stdout;
+    stderr += mergeResults.stderr;
 
     // Step 5: Generate a patch file in the current working directory.
 
     const outputDir = options?.outDir ?? originalDir;
     const patchPath = await generatePatch(conversionDir, outputDir);
 
-    console.log(`✅ ...done! Patch file written to '${patchPath}'\n`);
+    // Step 6: Apply the patch file to the repository.
+
+    const { patchPath: newPatchPath, failedFiles: failedFilesFromFix } =
+      await attemptFixPatch(downstreamPath, patchPath);
+    failedFiles = failedFilesFromFix;
+
+    console.log(`✅ ...done! Patch file written to '${newPatchPath}'\n`);
   } finally {
     process.chdir(originalDir);
   }
 
+  return { failedFiles, stdout, stderr };
+}
+
+/**
+ * Copy upstream sources for the version referenced at the top of each
+ * downstream file respectively, and put them into the temporary repo.
+ */
+async function convertUpstreamSources(
+  config: ConversionConfig,
+  conversionDir: string,
+  toolPath: string,
+  upstreamPath: string,
+  fileMap: UpstreamFileMap,
+  message: string,
+  targetRef?: string
+) {
+  let stdout = '';
+  let stderr = '';
+
+  await Promise.allSettled(
+    Object.entries(fileMap).map(([downstreamFilePath, reference]) =>
+      copyUpstreamFile(
+        upstreamPath,
+        downstreamFilePath,
+        reference.path,
+        targetRef ?? reference.ref
+      )
+    )
+  );
+
+  const initialUpstreamResponse = await convertSources(toolPath, conversionDir);
+  stdout += initialUpstreamResponse.stdout;
+  stderr += initialUpstreamResponse.stderr;
+
+  const initialUpstreamStyleResponse = await styluaFormat(conversionDir);
+  stdout += initialUpstreamStyleResponse.stdout;
+  stderr += initialUpstreamStyleResponse.stderr;
+
+  await renameFiles(DEFAULT_CONVERSION_OUTPUT_DIR, config);
+
+  const outputDir = path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR);
+  await commitFiles(conversionDir, outputDir, message);
+
   return { stdout, stderr };
+}
+
+/**
+ * Copy downstream sources from a specified ref into the conversion directory.
+ */
+async function copyDownstreamSources(
+  conversionDir: string,
+  downstreamPath: string,
+  fileMap: UpstreamFileMap,
+  message: string,
+  targetRef: string
+) {
+  await Promise.allSettled(
+    Object.keys(fileMap).map((downstreamFilePath) =>
+      copyDownstreamFile(downstreamPath, downstreamFilePath, targetRef)
+    )
+  );
+
+  const outputDir = path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR);
+  await commitFiles(conversionDir, outputDir, message);
+}
+
+/**
+ * Merge upstream changes inside of the temporary repo with the downstream ones.
+ */
+async function mergeUpstreamChanges(conversionDir: string, message: string) {
+  const git = simpleGit(conversionDir);
+
+  let summary: MergeResult;
+  let stdout = '';
+  let stderr = '';
+
+  try {
+    summary = await git.mergeFromTo('upstream', 'downstream');
+  } catch (e) {
+    if (e instanceof GitResponseError) {
+      summary = e.git;
+    } else {
+      throw e;
+    }
+  }
+
+  for (const conflict of summary.conflicts) {
+    if (conflict.file) {
+      await resolveMergeConflicts(conflict.file);
+    }
+  }
+
+  const mergedStyleResponse = await styluaFormat(conversionDir);
+  stdout += mergedStyleResponse.stdout;
+  stderr += mergedStyleResponse.stderr;
+
+  const conflictFiles = summary.conflicts
+    .map((conflict) => conflict.file)
+    .filter(isTruthy);
+
+  for (const file of conflictFiles) {
+    await git.add(file);
+  }
+
+  await commitFiles(conversionDir, conflictFiles, message);
+
+  return { stdout, stderr };
+}
+
+/**
+ * Attempt to apply a patch to the target repository. Whenever files in the
+ * unified diff fail to apply, they will be removed and the patch application
+ * will be attempted again. This will happen either until the application
+ * succeeds, or it gets stuck with the same error.
+ */
+async function attemptFixPatch(targetRepository: string, patchPath: string) {
+  const newPatchFilename = `${crypto.randomBytes(16).toString('hex')}.patch`;
+  const newPatchPath = path.join(os.tmpdir(), newPatchFilename);
+
+  await fs.promises.copyFile(patchPath, newPatchPath);
+
+  let allFailedFiles: Set<string> = new Set();
+  let failedFiles: Set<string> = new Set();
+  let lastError = '';
+  let newPatchFile = '';
+
+  do {
+    try {
+      await applyPatch(targetRepository, newPatchPath, { check: true });
+
+      failedFiles = new Set();
+    } catch (e) {
+      if (e instanceof GitError) {
+        const message = e.message;
+
+        if (message === lastError) {
+          throw new Error(
+            `fatal: cannot apply patch '${newPatchPath}': ${message}`
+          );
+        }
+
+        lastError = message ?? '';
+      }
+
+      failedFiles = new Set(
+        lastError
+          .split('\n')
+          .map((error) => (error.match(PATCH_ERROR_REGEX) ?? [])[1])
+          .filter((filename): filename is string => !!filename)
+      );
+      allFailedFiles = new Set([...allFailedFiles, ...failedFiles]);
+
+      newPatchFile = await removeFilesFromUnifiedDiff(newPatchPath, [
+        ...failedFiles,
+      ]);
+      await fs.promises.writeFile(newPatchPath, newPatchFile, {
+        encoding: 'utf8',
+      });
+    }
+  } while (failedFiles.size > 0);
+
+  await fs.promises.writeFile(patchPath, newPatchFile, {
+    encoding: 'utf8',
+  });
+
+  return { patchPath, failedFiles: allFailedFiles };
+}
+
+async function removeFilesFromUnifiedDiff(
+  patchPath: string,
+  filenames: string[]
+) {
+  const patchContents = await fs.promises.readFile(patchPath, {
+    encoding: 'utf8',
+  });
+  const filenameSet = new Set(filenames);
+
+  let filteredPatch = '';
+  let inBadFile = false;
+
+  for (const line of patchContents.split('\n')) {
+    if (line.startsWith('diff --git a/')) {
+      const header = line.match(DIFF_FILE_HEADER_REGEX) ?? [];
+      const beforePath = header[1];
+      const afterPath = header[2];
+
+      inBadFile = filenameSet.has(beforePath) || filenameSet.has(afterPath);
+    }
+
+    if (!inBadFile) {
+      filteredPatch += line + '\n';
+    }
+  }
+
+  return filteredPatch;
 }
 
 async function setupStylua(downstreamPath: string, conversionDir: string) {
@@ -303,7 +453,7 @@ async function styluaFormat(conversionDir: string) {
 async function getUpstreamSourceReferences(
   downstreamPath: string,
   config: ConversionConfig
-): Promise<SourceMapping> {
+): Promise<UpstreamFileMap> {
   const glob = util.promisify(g);
 
   let sources: string[] = [];
@@ -323,7 +473,7 @@ async function getUpstreamSourceReferences(
       }
     }
     return previous;
-  }, {} as SourceMapping);
+  }, {} as UpstreamFileMap);
 }
 
 function extractUpstreamFileUrl(filepath: string): string | undefined {
@@ -499,14 +649,22 @@ async function generatePatch(
 /**
  * Convert all TypeScript and JavaScript sources to Luau.
  */
-async function convertSources(toolPath: string) {
-  const execFile = util.promisify(childProcessExecFile);
+async function convertSources(toolPath: string, conversionDir: string) {
+  const originalDir = process.cwd();
 
-  return execFile(
-    'node',
-    [toolPath, '-o', DEFAULT_CONVERSION_OUTPUT_DIR, '-i', '**/*'],
-    { maxBuffer: Infinity }
-  );
+  try {
+    const execFile = util.promisify(childProcessExecFile);
+
+    process.chdir(conversionDir);
+
+    return execFile(
+      'node',
+      [toolPath, '-o', DEFAULT_CONVERSION_OUTPUT_DIR, '-i', '**/*'],
+      { maxBuffer: Infinity }
+    );
+  } finally {
+    process.chdir(originalDir);
+  }
 }
 
 function errorHasOutput(e: Error): e is ChildExecException {

@@ -39,3 +39,29 @@ export const getTopLevelPath = async (filePath: string) => {
     return;
   }
 };
+
+export const commitFiles = async (
+  rootDir: string,
+  files: string | string[],
+  message: string
+) => {
+  const git = simpleGit(rootDir);
+
+  await git.add(files);
+  await git.commit(message);
+};
+
+export const applyPatch = async (
+  rootDir: string,
+  patchPath: string,
+  options?: { check: boolean }
+) => {
+  const git = simpleGit(rootDir);
+  const patchOptions = [];
+
+  if (options?.check) {
+    patchOptions.push('--check');
+  }
+
+  return git.applyPatch(patchPath, patchOptions);
+};

@@ -29,5 +29,5 @@
       }
     }
   },
-  "tags": ["type:entry", "scope:fast-follow"]
+  "tags": ["type:entry", "feature:fast-follow"]
 }
