@@ -7,6 +7,7 @@ import {
   TSAnyKeyword,
   TSBooleanKeyword,
   TSIntersectionType,
+  TSNeverKeyword,
   TSNullKeyword,
   TSNumberKeyword,
   TSStringKeyword,
@@ -94,6 +95,9 @@ export const createTsTypeAnnotationHandler = (
       typeReference(identifier('unknown'))
     );
 
+  const handleTsNeverKeyword: BaseNodeHandler<LuaType, TSNeverKeyword> =
+    createHandler('TSNeverKeyword', () => typeReference(identifier('never')));
+
   const handleTsNullKeyword: BaseNodeHandler<LuaType, TSNullKeyword> =
     createHandler('TSNullKeyword', () =>
       withTrailingConversionComment(
@@ -168,6 +172,7 @@ export const createTsTypeAnnotationHandler = (
       handleTsAnyKeyword,
       handleTsUndefinedKeyword,
       handleTsUnknownKeyword,
+      handleTsNeverKeyword,
       handleTsNullKeyword,
       handleTsTypeQuery,
       handleTsTypePredicate,

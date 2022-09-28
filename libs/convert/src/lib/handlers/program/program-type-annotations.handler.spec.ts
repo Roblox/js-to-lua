@@ -122,6 +122,27 @@ describe('Program handler', () => {
       expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
+    it('should handle "never"', () => {
+      const given = getProgramNode(`
+        let foo: never;
+      `);
+      const expected = programWithUpstreamComment([
+        variableDeclaration(
+          [
+            variableDeclaratorIdentifier(
+              identifier(
+                'foo',
+                typeAnnotation(typeReference(identifier('never')))
+              )
+            ),
+          ],
+          []
+        ),
+      ]);
+
+      expect(convertProgram(source, {}, given)).toEqual(expected);
+    });
+
     it('should handle "null"', () => {
       const given = getProgramNode(`
         let foo: null;
