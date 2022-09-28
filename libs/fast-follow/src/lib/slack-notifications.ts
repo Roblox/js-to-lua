@@ -34,3 +34,28 @@ export async function sendCommitNotification(
 
   await boltApp.client.chat.postMessage({ channel, text });
 }
+
+export async function sendPullRequestSuccessNotification(
+  data: {
+    html_url: string;
+    title: string;
+  },
+  channel: string
+): Promise<void> {
+  const boltApp = createApp();
+  const text = `An automated Pull Request has been opened: <${data.html_url}|${data.title}>`;
+
+  await boltApp.client.chat.postMessage({ channel, text, mrkdwn: true });
+}
+
+export async function sendPullRequestFailureNotification(
+  owner: string,
+  repo: string,
+  channel: string
+): Promise<void> {
+  const boltApp = createApp();
+  const url = `https://github.com/${owner}/${repo}`;
+  const text = `Failed to create automated PR for ${url}`;
+
+  await boltApp.client.chat.postMessage({ channel, text });
+}

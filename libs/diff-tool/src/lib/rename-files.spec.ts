@@ -13,6 +13,8 @@ const MOCK_CONFIG: ConversionConfig = {
     primaryBranch: 'main',
   },
   downstream: {
+    owner: 'roblox',
+    repo: 'jest-roblox',
     primaryBranch: 'master',
     patterns: ['src/**/*.lua'],
   },

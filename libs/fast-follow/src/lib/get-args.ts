@@ -1,14 +1,17 @@
 import * as yargs from 'yargs';
+import { ApplyPatchOptions } from './commands/apply-patch';
 import { CompareOptions } from './commands/compare';
 
 export function setupCommands({
   scanReleases,
   scanCommits,
   compareSinceLastSync,
+  applyPatch,
 }: {
   scanReleases: (owner: string, repo: string, channel: string) => Promise<void>;
   scanCommits: (owner: string, repo: string, channel: string) => Promise<void>;
   compareSinceLastSync: (options: CompareOptions) => Promise<void>;
+  applyPatch: (options: ApplyPatchOptions) => Promise<void>;
 }) {
   return yargs
     .scriptName('fast-follow')
@@ -26,7 +29,7 @@ export function setupCommands({
             demandOption: true,
           })
           .option('revision', {
-            alias: ['r'],
+            alias: ['rev'],
             type: 'string',
             describe: 'target revision upstream to sync to',
             requiresArg: true,
@@ -124,6 +127,55 @@ export function setupCommands({
         const { owner, repo, channel } = argv;
 
         return scanCommits(owner, repo, channel);
+      }
+    )
+    .command(
+      'apply-patch <sourceDir> <patchPath>',
+      'apply patch file in downstream repo',
+      (yargs) =>
+        yargs
+          .positional('sourceDir', {
+            alias: ['source-dir', 's'],
+            type: 'string',
+            describe: 'location of the source code to work with',
+            demandOption: true,
+          })
+          .positional('patchPath', {
+            alias: ['patch'],
+            type: 'string',
+            describe: 'location of the patch file to apply',
+            demandOption: true,
+          })
+          .option('revision', {
+            alias: ['rev'],
+            type: 'string',
+            describe: 'target revision upstream to sync to',
+            requiresArg: true,
+            demandOption: true,
+          })
+          .option('log', {
+            alias: ['l'],
+            type: 'boolean',
+            describe: 'output log files with output if specified',
+            default: false,
+          })
+          .option('channel', {
+            alias: 'c',
+            type: 'string',
+            describe: 'id of the slack channel to post the notification to',
+            demandOption: true,
+            requiresArg: true,
+          }),
+      async (argv) => {
+        const { sourceDir, patchPath, revision, log, channel } = argv;
+
+        return applyPatch({
+          sourceDir,
+          patchPath,
+          revision,
+          log,
+          channel,
+        });
       }
     )
     .help().argv;
