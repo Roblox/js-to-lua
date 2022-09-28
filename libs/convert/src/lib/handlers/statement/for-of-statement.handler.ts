@@ -6,11 +6,9 @@ import {
 } from '@js-to-lua/handler-utils';
 import {
   getNodeSource,
-  isArrayInferable,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  callExpression,
   ForGenericStatement,
   forGenericStatement,
   identifier,
@@ -21,11 +19,10 @@ import {
   unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { isSingleElementArray } from '@js-to-lua/shared-utils';
-import { applyTo } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../expression/identifier-handler-types';
 import { createInnerBodyStatementHandler } from '../inner-statement-body-handler';
-import { createExtractForStatementDeclaration } from './for-statement-extract-declaration';
 import { createExtractForOfAssignmentStatement } from './for-of-statement-extract-statement';
+import { createExtractForStatementDeclaration } from './for-statement-extract-declaration';
 
 export const createForOfStatementHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction,
@@ -63,20 +60,7 @@ export const createForOfStatementHandler = (
       return result
         ? forGenericStatement(
             [identifier('_'), result.identifier],
-            [
-              applyTo(callExpression(identifier('ipairs'), [rightExpression]))(
-                (expression) =>
-                  isArrayInferable(rightExpression)
-                    ? expression
-                    : withTrailingConversionComment(
-                        expression,
-                        `ROBLOX CHECK: check if '${getNodeSource(
-                          source,
-                          node.right
-                        )}' is an Array`
-                      )
-              ),
-            ],
+            [rightExpression],
             [result.statement, bodyStatementHandler(source, config, node.body)]
           )
         : withTrailingConversionComment(
@@ -107,20 +91,7 @@ export const createForOfStatementHandler = (
 
     return forGenericStatement(
       [identifier('_'), id],
-      [
-        applyTo(callExpression(identifier('ipairs'), [rightExpression]))(
-          (expression) =>
-            isArrayInferable(rightExpression)
-              ? expression
-              : withTrailingConversionComment(
-                  expression,
-                  `ROBLOX CHECK: check if '${getNodeSource(
-                    source,
-                    node.right
-                  )}' is an Array`
-                )
-        ),
-      ],
+      [rightExpression],
       [...statements, bodyStatementHandler(source, config, node.body)]
     );
   });

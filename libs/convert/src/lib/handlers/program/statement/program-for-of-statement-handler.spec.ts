@@ -36,12 +36,7 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('foo')],
-          [
-            withTrailingConversionComment(
-              callExpression(identifier('ipairs'), [identifier('bar')]),
-              "ROBLOX CHECK: check if 'bar' is an Array"
-            ),
-          ],
+          [identifier('bar')],
           [nodeGroup([])]
         ),
       ]);
@@ -61,12 +56,7 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('foo')],
-          [
-            withTrailingConversionComment(
-              callExpression(identifier('ipairs'), [identifier('bar')]),
-              "ROBLOX CHECK: check if 'bar' is an Array"
-            ),
-          ],
+          [identifier('bar')],
           [
             nodeGroup([
               expressionStatement(callExpression(identifier('foo'), [])),
@@ -90,11 +80,7 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('foo')],
-          [
-            callExpression(identifier('ipairs'), [
-              tableConstructor([tableNoKeyField(identifier('bar'))]),
-            ]),
-          ],
+          [tableConstructor([tableNoKeyField(identifier('bar'))])],
           [
             nodeGroup([
               expressionStatement(callExpression(identifier('foo'), [])),
@@ -121,22 +107,12 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('foo')],
-          [
-            withTrailingConversionComment(
-              callExpression(identifier('ipairs'), [identifier('bar')]),
-              "ROBLOX CHECK: check if 'bar' is an Array"
-            ),
-          ],
+          [identifier('bar')],
           [
             nodeGroup([
               forGenericStatement(
                 [identifier('_'), identifier('fizz')],
-                [
-                  withTrailingConversionComment(
-                    callExpression(identifier('ipairs'), [identifier('buzz')]),
-                    "ROBLOX CHECK: check if 'buzz' is an Array"
-                  ),
-                ],
+                [identifier('buzz')],
                 [nodeGroup([breakStatement()])]
               ),
               breakStatement(),
@@ -160,12 +136,7 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
-          [
-            withTrailingConversionComment(
-              callExpression(identifier('ipairs'), [identifier('bar')]),
-              "ROBLOX CHECK: check if 'bar' is an Array"
-            ),
-          ],
+          [identifier('bar')],
           [
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
@@ -195,12 +166,7 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
-          [
-            withTrailingConversionComment(
-              callExpression(identifier('ipairs'), [identifier('buzz')]),
-              "ROBLOX CHECK: check if 'buzz' is an Array"
-            ),
-          ],
+          [identifier('buzz')],
           [
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
@@ -234,12 +200,7 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
-          [
-            withTrailingConversionComment(
-              callExpression(identifier('ipairs'), [identifier('buzz')]),
-              "ROBLOX CHECK: check if 'buzz' is an Array"
-            ),
-          ],
+          [identifier('buzz')],
           [
             assignmentStatement(
               AssignmentStatementOperatorEnum.EQ,
@@ -277,12 +238,7 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
-          [
-            withTrailingConversionComment(
-              callExpression(identifier('ipairs'), [identifier('buzz')]),
-              "ROBLOX CHECK: check if 'buzz' is an Array"
-            ),
-          ],
+          [identifier('buzz')],
           [
             nodeGroup([
               assignmentStatement(
@@ -321,12 +277,7 @@ describe('Program handler', () => {
       const expected = programWithUpstreamComment([
         forGenericStatement(
           [identifier('_'), identifier('ref')],
-          [
-            withTrailingConversionComment(
-              callExpression(identifier('ipairs'), [identifier('buzz')]),
-              "ROBLOX CHECK: check if 'buzz' is an Array"
-            ),
-          ],
+          [identifier('buzz')],
           [
             nodeGroup([
               assignmentStatement(

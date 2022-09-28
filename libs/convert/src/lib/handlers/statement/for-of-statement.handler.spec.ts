@@ -2,7 +2,6 @@ import * as Babel from '@babel/types';
 import { testUtils } from '@js-to-lua/handler-utils';
 import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
-  callExpression,
   forGenericStatement,
   identifier,
   nodeGroup,
@@ -39,13 +38,8 @@ describe('For Of statement Handler', () => {
     const expected = forGenericStatement(
       [identifier('_'), mockNodeWithValue(Babel.identifier('foo'))],
       [
-        withTrailingConversionComment(
-          callExpression(identifier('ipairs'), [
-            mockNodeWithValue(
-              withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
-            ),
-          ]),
-          "ROBLOX CHECK: check if 'bar' is an Array"
+        mockNodeWithValue(
+          withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
         ),
       ],
       [nodeGroup([])]
@@ -72,13 +66,8 @@ describe('For Of statement Handler', () => {
     const expected = forGenericStatement(
       [identifier('_'), mockNodeWithValue(Babel.identifier('foo'))],
       [
-        withTrailingConversionComment(
-          callExpression(identifier('ipairs'), [
-            mockNodeWithValue(
-              withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
-            ),
-          ]),
-          "ROBLOX CHECK: check if 'bar' is an Array"
+        mockNodeWithValue(
+          withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
         ),
       ],
       [
@@ -154,13 +143,8 @@ describe('For Of statement Handler', () => {
           ),
         ],
         [
-          withTrailingConversionComment(
-            callExpression(identifier('ipairs'), [
-              mockNodeWithValue(
-                withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
-              ),
-            ]),
-            "ROBLOX CHECK: check if 'bar' is an Array"
+          mockNodeWithValue(
+            withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
           ),
         ],
         [nodeGroup([])]
