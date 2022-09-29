@@ -18,6 +18,7 @@ export enum Milestone {
   M5,
   M6,
   M7,
+  M8,
   Unspecified,
 }
 
@@ -29,6 +30,7 @@ const descriptions = {
   [Milestone.M5]: 'Milestone 5',
   [Milestone.M6]: 'Milestone 6 - Flow',
   [Milestone.M7]: 'Milestone 7 - jestGlobals plugin',
+  [Milestone.M8]: 'Milestone 8 - knownImports plugin',
   [Milestone.Unspecified]: 'Milestone Unspecified',
 };
 
@@ -40,6 +42,7 @@ const predicates = {
   [Milestone.M5]: (filePath: ParsedPath) => /_m5x?$/.test(filePath.name),
   [Milestone.M6]: (filePath: ParsedPath) => /_m6x?$/.test(filePath.name),
   [Milestone.M7]: (filePath: ParsedPath) => /_m7x?$/.test(filePath.name),
+  [Milestone.M8]: (filePath: ParsedPath) => /_m8x?$/.test(filePath.name),
   [Milestone.Unspecified]: (filePath: ParsedPath) =>
     !/_m\dx?$/.test(filePath.name),
 };

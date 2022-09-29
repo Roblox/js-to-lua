@@ -1,6 +1,7 @@
 import { JsToLuaPlugin } from '@js-to-lua/plugin-utils';
 // TODO: remove hard dependency when plugin is build separately
 import { jestPostProcessPlugin } from '@js-to-lua/plugins/jest-globals';
+import { knownImportsPlugin } from '@js-to-lua/plugins/known-imports';
 import { isTruthy } from '@js-to-lua/shared-utils';
 import { convertFiles } from './app/convert-files';
 import { getArgs } from './app/get-args';
@@ -33,7 +34,14 @@ const resolvePlugin = async (
     plugin === '@js-to-lua/plugins/jest-globals'
   ) {
     return jestPostProcessPlugin;
-  } else if (plugin) {
+  }
+  if (
+    plugin === 'knownImports' ||
+    plugin === '@js-to-lua/plugins/known-imports'
+  ) {
+    return knownImportsPlugin;
+  }
+  if (plugin) {
     try {
       return require(plugin);
     } catch (err) {

@@ -32,6 +32,9 @@
       "@js-to-lua/plugins/jest-globals": [
         "libs/plugins/jest-globals/src/index.ts"
       ],
+      "@js-to-lua/plugins/known-imports": [
+        "libs/plugins/known-imports/src/index.ts"
+      ],
       "@js-to-lua/post-process": ["libs/post-process/src/index.ts"],
       "@js-to-lua/shared-utils": ["libs/shared-utils/src/index.ts"],
       "@js-to-lua/upstream-utils": ["libs/upstream-utils/src/index.ts"],

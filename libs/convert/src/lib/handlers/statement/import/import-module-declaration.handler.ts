@@ -35,7 +35,11 @@ export const createImportModuleDeclarationHandler = (
             removeInvalidChars(
               path
                 .filter((p) => p !== 'Packages')
-                .map((p) => capitalize(p))
+                .map((p) =>
+                  capitalize(
+                    p.replace(/-(\w)/g, (m, first) => first.toUpperCase())
+                  )
+                )
                 .join('')
             )
           );
