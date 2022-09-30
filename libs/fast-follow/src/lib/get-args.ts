@@ -41,7 +41,7 @@ export function setupCommands({
             demandOption: true,
           })
           .option('revision', {
-            alias: ['rev'],
+            alias: ['r'],
             type: 'string',
             describe: 'target revision upstream to sync to',
             requiresArg: true,
@@ -198,14 +198,20 @@ export function setupCommands({
             type: 'boolean',
             describe: 'output log files with output if specified',
             default: false,
+          })
+          .options('revision', {
+            alias: ['r'],
+            type: 'string',
+            describe:
+              'target revision to upgrade to. If not provided latest release will be used',
           }),
       async (argv) => {
-        const { channel, sourceDir, outDir, log } = argv;
+        const { channel, sourceDir, outDir, log, revision: targetRev } = argv;
         const config = await getConfig(sourceDir);
 
         console.log('Scanning releases...');
 
-        const revision = await scanReleases({ config, channel });
+        const revision = targetRev || (await scanReleases({ config, channel }));
 
         if (!revision) {
           return console.log('Conversion up to date.');
@@ -218,7 +224,7 @@ export function setupCommands({
           return;
         }
 
-        console.log('New release found. Starting conversion...');
+        console.log(`New release found: ${revision}. Starting conversion...`);
 
         const { patchPath, failedFiles, conflictsSummary } =
           await compareSinceLastSync({
