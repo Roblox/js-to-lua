@@ -57,6 +57,17 @@ The CLI tool accepts the following input parameters:
 
 - `--input` (`-i`) - a list of input file(s) or glob patterns (for more info on supported format please read the [glob package docs](https://github.com/isaacs/node-glob#readme))
 - `--output` (`-o`) - a directory in which the output files should be saved. The tool will keep the files structure of the input files.
+
+- `--rootDir` (`-root`) - the root directory of the repository we are converting. In most cases, this is where the hidden `.git/` directory would reside.
+
+- `--sha` - the SHA of the upstream repo we are converting
+
+- `--plugin` (`-p`) - post-processing plugins. This is an array that can either be:
+
+  - an npm script that points to a valid post-processing plugin
+  - a local path that points to the root directory of a post-processing plugin eg. `./libs/plugins/jest-globals/src/lib/plugins-jest-globals.ts`.
+    To learn more about plugins and how to create and use them, check out the [contribution guide](CONTRIBUTING.md)
+
 - `--babelConfig` - a path to a JSON file containing [Babel Configuration options](https://babeljs.io/docs/en/configuration). This param is optional. In case it's not provided the tool will use the following default configration:
   ```json
   {
