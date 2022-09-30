@@ -9,18 +9,23 @@ inputs:
     required: true
   slack-app-token:
     required: true
-  github-pat:
+  github-token:
+    required: true
+  repo-path:
     required: true
 
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
+        repository: roblox/js-to-lua
         fetch-depth: 0
+        path: js-to-lua-build
+        token: ${{inputs.github-token}}
 
     - name: Use Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: '16.16.0'
         registry-url: https://npm.pkg.github.com/
@@ -37,9 +42,17 @@ runs:
           ${{ runner.OS }}-
 
     - name: Install dependencies
+      working-directory: js-to-lua-build
       run: npm i
+      shell: bash
+
+    - name: Install wasm-pack
+      shell: bash
+      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
     - name: Build Fast Follow
+      working-directory: js-to-lua-build
+      shell: bash
       run: |
         npx nx run upstream-utils:build
         npx nx run release-tracker:build
@@ -48,32 +61,39 @@ runs:
         npx nx run fast-follow:build
 
     - name: Link Release Tracker
-      working-directory: dist/libs/release-tracker
+      shell: bash
+      working-directory: js-to-lua-build/dist/libs/release-tracker
       run: npm link
 
     - name: Link Version Manager
-      working-directory: dist/libs/version-manager
+      shell: bash
+      working-directory: js-to-lua-build/dist/libs/version-manager
       run: npm link
 
     - name: Link Diff Tool
-      working-directory: dist/libs/diff-tool
+      shell: bash
+      working-directory: js-to-lua-build/dist/libs/diff-tool
       run: npm link
 
     - name: Link Upstream Utils
-      working-directory: dist/libs/upstream-utils
+      shell: bash
+      working-directory: js-to-lua-build/dist/libs/upstream-utils
       run: npm link
 
     - name: Link Fast Follow
-      working-directory: dist/libs/fast-follow
+      shell: bash
+      working-directory: js-to-lua-build/dist/libs/fast-follow
       run: |
         npm link @roblox/version-manager @roblox/release-tracker @roblox/diff-tool @js-to-lua/upstream-utils
         npm link
 
     - name: Link Release Tracker (root)
+      shell: bash
       run: npm link @roblox/version-manager @roblox/release-tracker @roblox/diff-tool @js-to-lua/upstream-utils
 
     - name: Run Fast Follow
-      run: npx fast-follow commit-scan -o roblox -r js-to-lua -c ${{ inputs.slack-channel-id }}
+      shell: bash
+      run: npx fast-follow upgrade ${{inputs.repo-path}} -c ${{ inputs.slack-channel-id }}
       env:
         SLACK_SIGNING_SECRET: ${{ inputs.slack-signing-secret }}
         SLACK_BOT_TOKEN: ${{ inputs.slack-bot-token }}

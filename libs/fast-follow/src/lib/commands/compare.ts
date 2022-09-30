@@ -1,5 +1,6 @@
 import { compare } from '@roblox/diff-tool';
-import { getLocalRepoConversionConfig } from '@roblox/release-tracker';
+import { ComparisonResponse } from '@roblox/diff-tool';
+import { ConversionConfig } from '@roblox/release-tracker';
 import {
   findRepositoryRoot,
   setupConversionTool,
@@ -7,17 +8,16 @@ import {
 } from '@roblox/version-manager';
 import { ExecException } from 'child_process';
 import * as fs from 'fs';
-import * as path from 'path';
 
 const STDOUT_FILENAME = 'fast-follow.stdout.log';
 const STDERR_FILENAME = 'fast-follow.stderr.log';
 
 export interface CompareOptions {
-  sourceDir: string;
+  log: boolean;
   outDir?: string;
   revision?: string;
-  pullRequest: boolean;
-  log: boolean;
+  sourceDir: string;
+  config: ConversionConfig;
 }
 
 interface ChildExecException extends ExecException {
@@ -25,7 +25,9 @@ interface ChildExecException extends ExecException {
   stderr?: string;
 }
 
-export async function compareSinceLastSync(options: CompareOptions) {
+export async function compareSinceLastSync(
+  options: CompareOptions
+): Promise<ComparisonResponse> {
   const downstreamRepoRoot = await findRepositoryRoot(options.sourceDir);
   if (!downstreamRepoRoot) {
     throw new Error(
@@ -35,26 +37,26 @@ export async function compareSinceLastSync(options: CompareOptions) {
 
   let stdout = '';
   let stderr = '';
+  let patchPath = '';
+  let revision = '';
+  let failedFiles: Set<string>;
+  let conflictsSummary: { [key: string]: number };
 
   try {
-    const conversionConfig = await getLocalRepoConversionConfig(
-      path.join(downstreamRepoRoot, 'js-to-lua.config.js')
-    );
-
     console.log('🛞  Downloading and installing js-to-lua "main"');
     const currentToolPath = await setupConversionTool('main');
     console.log('✅ ...done!\n');
 
-    console.log(`🛞  Downloading ${conversionConfig.upstream.repo}`);
+    console.log(`🛞  Downloading ${options.config.upstream.repo}`);
     const upstreamPath = await setupUpstreamRepository(
-      conversionConfig.upstream.owner,
-      conversionConfig.upstream.repo,
-      conversionConfig.upstream.primaryBranch
+      options.config.upstream.owner,
+      options.config.upstream.repo,
+      options.config.upstream.primaryBranch
     );
     console.log('✅ ...done!\n');
 
     const comparisonResponse = await compare(
-      conversionConfig,
+      options.config,
       currentToolPath,
       upstreamPath,
       downstreamRepoRoot,
@@ -62,6 +64,10 @@ export async function compareSinceLastSync(options: CompareOptions) {
     );
     stdout += comparisonResponse.stdout;
     stderr += comparisonResponse.stderr;
+    patchPath = comparisonResponse.patchPath;
+    revision = comparisonResponse.revision;
+    failedFiles = comparisonResponse.failedFiles;
+    conflictsSummary = comparisonResponse.conflictsSummary;
   } catch (e) {
     if (e instanceof Error && errorHasOutput(e) && e.stderr) {
       stderr += e.stderr;
@@ -88,6 +94,14 @@ export async function compareSinceLastSync(options: CompareOptions) {
       }
     }
   }
+  return {
+    stdout,
+    stderr,
+    patchPath,
+    revision,
+    failedFiles,
+    conflictsSummary,
+  };
 }
 
 function errorHasOutput(e: Error): e is ChildExecException {

@@ -9,6 +9,9 @@ export interface ComparisonResponse {
   failedFiles: Set<string>;
   stdout: string;
   stderr: string;
+  patchPath: string;
+  revision: string;
+  conflictsSummary: { [key: string]: number };
 }
 
 export type UpstreamFileMap = Record<string, UpstreamReference>;

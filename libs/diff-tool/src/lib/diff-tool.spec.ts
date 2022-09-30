@@ -54,6 +54,7 @@ type execFileType = (
 describe('diffTool', () => {
   let execFile: jest.SpyInstance,
     gitCwd: jest.Mock,
+    branch: jest.Mock,
     checkIsRepo: jest.Mock,
     checkout: jest.Mock,
     checkoutBranch: jest.Mock,
@@ -119,6 +120,7 @@ describe('diffTool', () => {
     jest.spyOn(process, 'cwd').mockImplementation(() => workingDir);
 
     gitCwd = jest.fn();
+    branch = jest.fn();
     checkIsRepo = jest.fn().mockReturnValue(true);
     checkout = jest.fn();
     checkoutBranch = jest.fn();
@@ -136,6 +138,7 @@ describe('diffTool', () => {
 
     jest.spyOn(simpleGit, 'simpleGit').mockReturnValue({
       cwd: gitCwd,
+      branch,
       checkIsRepo,
       checkout,
       checkoutBranch,
@@ -165,6 +168,8 @@ describe('diffTool', () => {
 
     expect(add).toHaveBeenCalled();
     expect(commit).toHaveBeenCalledTimes(4);
+    expect(branch).toHaveBeenCalledTimes(1);
+    expect(branch).toHaveBeenCalledWith(['-m', 'main']);
     expect(mergeFromTo).toHaveBeenCalledTimes(1);
     expect(diff).toHaveBeenCalledWith(['HEAD~1']);
     expect(execFile).toHaveBeenCalledWith(

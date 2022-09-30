@@ -1,8 +1,12 @@
+import { applyPatch, commitFiles } from '@js-to-lua/upstream-utils';
 import { ConversionConfig } from '@roblox/release-tracker';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as g from 'glob';
-import { lookpath } from 'lookpath';
-import { execFile as childProcessExecFile } from 'node:child_process';
+import {
+  exec as childProcessExec,
+  execFile as childProcessExecFile,
+} from 'node:child_process';
 import * as os from 'os';
 import * as path from 'path';
 import * as process from 'process';
@@ -14,7 +18,6 @@ import {
   simpleGit,
 } from 'simple-git';
 import * as util from 'util';
-import * as crypto from 'crypto';
 import {
   ChildExecException,
   ComparisonResponse,
@@ -23,8 +26,9 @@ import {
   UpstreamFileMap,
   UpstreamReference,
 } from './diff-tool.types';
+import { logConflictsSummary } from './log-conflicts-summary';
 import { renameFiles } from './rename-files';
-import { applyPatch, commitFiles } from '@js-to-lua/upstream-utils';
+export * from './diff-tool.types';
 
 // TODO: Fix @js-to-lua/shared-utils build to allow usage by diff-tool.
 type Truthy<T> = NonNullable<T>;
@@ -32,12 +36,9 @@ const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 
 const DEFAULT_CONVERSION_OUTPUT_DIR = 'output';
 const DEFAULT_PATCH_NAME = 'fast-follow.patch';
-const FOREMAN_FILENAME = 'foreman.toml';
-const STYLUA_FILENAME = '.stylua.toml';
 
 const ROBLOX_UPSTREAM_REGEX = /-- ROBLOX upstream: (.*$)/;
 const GITHUB_URL_REF_REGEX = /blob\/(.*?)\/(.*$)/;
-const STYLUA_REGEX = /^stylua = { source = ".*", version = ".*" }$/;
 const PATCH_ERROR_REGEX = /^error: (.*):(.*)$/;
 const DIFF_FILE_HEADER_REGEX = /^diff --git a\/output\/(.*) b\/output\/(.*)$/;
 
@@ -69,6 +70,8 @@ export async function compare(
   let failedFiles = new Set<string>();
   let stdout = '';
   let stderr = '';
+  let patchPath = '';
+  let conflictsSummary: { [key: string]: number };
 
   try {
     process.chdir(downstreamPath);
@@ -93,8 +96,7 @@ export async function compare(
 
     await git.cwd(conversionDir);
     await git.init();
-
-    await setupStylua(downstreamPath, conversionDir);
+    await git.branch(['-m', 'main']);
 
     const fileMap = await getUpstreamSourceReferences(downstreamPath, config);
 
@@ -157,16 +159,18 @@ export async function compare(
     );
     stdout += mergeResults.stdout;
     stderr += mergeResults.stderr;
+    conflictsSummary = mergeResults.conflictsSummary;
 
     // Step 5: Generate a patch file in the current working directory.
 
     const outputDir = options?.outDir ?? originalDir;
-    const patchPath = await generatePatch(conversionDir, outputDir);
+    patchPath = await generatePatch(conversionDir, outputDir);
 
     // Step 6: Apply the patch file to the repository.
 
     const { patchPath: newPatchPath, failedFiles: failedFilesFromFix } =
       await attemptFixPatch(downstreamPath, patchPath);
+    patchPath = newPatchPath;
     failedFiles = failedFilesFromFix;
 
     console.log(`✅ ...done! Patch file written to '${newPatchPath}'\n`);
@@ -174,7 +178,14 @@ export async function compare(
     process.chdir(originalDir);
   }
 
-  return { failedFiles, stdout, stderr };
+  return {
+    failedFiles,
+    stdout,
+    stderr,
+    patchPath,
+    revision: targetRevision,
+    conflictsSummary,
+  };
 }
 
 /**
@@ -260,11 +271,17 @@ async function mergeUpstreamChanges(conversionDir: string, message: string) {
     }
   }
 
+  let conflictsSummary: { [key: string]: number } = {};
   for (const conflict of summary.conflicts) {
     if (conflict.file) {
-      await resolveMergeConflicts(conflict.file);
+      conflictsSummary = {
+        ...conflictsSummary,
+        ...(await resolveMergeConflicts(conflict.file)),
+      };
     }
   }
+
+  logConflictsSummary(conflictsSummary);
 
   const mergedStyleResponse = await styluaFormat(conversionDir);
   stdout += mergedStyleResponse.stdout;
@@ -280,7 +297,7 @@ async function mergeUpstreamChanges(conversionDir: string, message: string) {
 
   await commitFiles(conversionDir, conflictFiles, message);
 
-  return { stdout, stderr };
+  return { stdout, stderr, conflictsSummary };
 }
 
 /**
@@ -371,62 +388,13 @@ async function removeFilesFromUnifiedDiff(
   return filteredPatch;
 }
 
-async function setupStylua(downstreamPath: string, conversionDir: string) {
-  const execFile = util.promisify(childProcessExecFile);
-  const originalDir = process.cwd();
-
-  const downstreamForemanPath = path.join(downstreamPath, FOREMAN_FILENAME);
-  if (!fs.existsSync(downstreamForemanPath)) {
-    throw new Error('fatal: no foreman.toml is present in the downstream repo');
-  }
-
-  if (!(await lookpath('foreman'))) {
-    throw new Error('fatal: foreman must be installed to install stylua');
-  }
-
-  const foremanConfig = await fs.promises.readFile(downstreamForemanPath, {
-    encoding: 'utf8',
-  });
-  let styluaDefinition = '';
-
-  for (const line of foremanConfig.split('\n')) {
-    if (STYLUA_REGEX.test(line)) {
-      styluaDefinition = line;
-      break;
-    }
-  }
-
-  if (!styluaDefinition) {
-    throw new Error('fatal: no stylua version specified in foreman.toml');
-  }
-
-  const newForemanPath = path.join(conversionDir, FOREMAN_FILENAME);
-  const newForemanConfig = `[tools]\n${styluaDefinition}`;
-  await fs.promises.writeFile(newForemanPath, newForemanConfig);
-
-  try {
-    process.chdir(conversionDir);
-
-    await execFile('foreman', ['install'], { maxBuffer: Infinity });
-
-    const downstreamStyluaPath = path.join(downstreamPath, STYLUA_FILENAME);
-    const destinationStyluaPath = path.join(conversionDir, STYLUA_FILENAME);
-
-    if (fs.existsSync(downstreamStyluaPath)) {
-      await fs.promises.copyFile(downstreamStyluaPath, destinationStyluaPath);
-    }
-  } finally {
-    process.chdir(originalDir);
-  }
-}
-
 async function styluaFormat(conversionDir: string) {
-  const execFile = util.promisify(childProcessExecFile);
+  const exec = util.promisify(childProcessExec);
   const originalDir = process.cwd();
 
   try {
     process.chdir(conversionDir);
-    const response = await execFile('stylua', ['.'], { maxBuffer: Infinity });
+    const response = await exec('npx @johnnymorganz/stylua-bin .');
     return response;
   } catch (e) {
     let stdout, stderr;

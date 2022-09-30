@@ -39,11 +39,11 @@ export async function getLocalRepoConversionConfig(
   return await import(configPath);
 }
 
-export async function getRepoConversionConfig(
-  owner: string,
-  name: string,
-  ref?: string
-): Promise<ConversionConfig> {
+export async function getRepoConversionConfig(options: {
+  config: ConversionConfig;
+  ref?: string;
+}): Promise<ConversionConfig | undefined> {
+  const { ref, config } = options;
   const expression = `${ref ?? 'release-tracker-testing'}:js-to-lua.config.js`;
 
   const query = `
@@ -59,12 +59,14 @@ export async function getRepoConversionConfig(
   `;
 
   const response = await executeQuery<ConversionConfigResponse>(query, {
-    owner,
-    name,
+    owner: config.upstream.owner,
+    name: config.upstream.repo,
     expression,
   });
 
-  return JSON.parse(response.repository.object.text);
+  return response.repository.object
+    ? JSON.parse(response.repository.object.text)
+    : undefined;
 }
 
 export async function getLatestRepoRelease(
@@ -118,11 +120,12 @@ export async function getLatestRepoCommit(
   return executeQuery<CommitResponse>(query, { owner, repo });
 }
 
-export async function checkForNewRelease(
-  owner: string,
-  repo: string
-): Promise<{ release: Release; config: ConversionConfig } | null> {
-  const config = await getRepoConversionConfig(owner, repo);
+export async function checkForNewRelease(options: {
+  config: ConversionConfig;
+}): Promise<{ release: Release; config: ConversionConfig } | null> {
+  const localConfig = options.config;
+  const repoConfig = await getRepoConversionConfig({ config: localConfig });
+  const config = repoConfig || localConfig;
 
   const release = await getLatestRepoRelease(
     config.upstream.owner,
@@ -137,11 +140,12 @@ export async function checkForNewRelease(
   return null;
 }
 
-export async function checkForNewCommits(
-  owner: string,
-  repo: string
-): Promise<{ commitHash: string; config: ConversionConfig } | null> {
-  const config = await getRepoConversionConfig(owner, repo);
+export async function checkForNewCommits(options: {
+  config: ConversionConfig;
+}): Promise<{ commitHash: string; config: ConversionConfig } | null> {
+  const localConfig = options.config;
+  const repoConfig = await getRepoConversionConfig({ config: localConfig });
+  const config = repoConfig || localConfig;
 
   const latestCommit = await getLatestRepoCommit(
     config.upstream.owner,
