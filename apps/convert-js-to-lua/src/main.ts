@@ -10,6 +10,7 @@ import { getFiles } from './app/get-files';
 const {
   input,
   output,
+  filemap,
   babelConfig,
   babelTransformConfig,
   rootDir,
@@ -55,6 +56,7 @@ const convertFilesFnPromise = resolvePlugins(argsPlugins).then((plugins) =>
   convertFiles({
     rootDir,
     outputDir: output,
+    fileMapPath: filemap,
     babelConfig,
     babelTransformConfig,
     sha,

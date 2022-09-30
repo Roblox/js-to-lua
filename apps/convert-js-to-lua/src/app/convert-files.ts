@@ -2,7 +2,7 @@ import { JsToLuaPlugin } from '@js-to-lua/plugin-utils';
 import { safeApply } from '@js-to-lua/shared-utils';
 import { createUpstreamPath, inferRootDir } from '@js-to-lua/upstream-utils';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
-import { join, parse, relative } from 'path';
+import { join, parse, relative, resolve } from 'path';
 import { format_code } from 'stylua-wasm';
 import throat from 'throat';
 import { convert } from './convert';
@@ -11,6 +11,7 @@ import { transform } from './transform';
 type ConvertFilesOptions = {
   rootDir: string;
   outputDir: string;
+  fileMapPath: string;
   babelConfig?: string;
   babelTransformConfig?: string;
   sha?: string;
@@ -21,6 +22,7 @@ export const convertFiles =
   ({
     rootDir,
     outputDir,
+    fileMapPath,
     babelConfig,
     babelTransformConfig,
     sha,
@@ -39,6 +41,17 @@ export const convertFiles =
           'test.js.snap': 'snap.lua',
         })
       );
+    };
+
+    const createFileMap = async () => await Promise.all(files.map(mapFile));
+
+    const mapFile = async (inputPath: string) => {
+      const outputPath = await output(inputPath);
+
+      return {
+        input: resolve(inputPath),
+        output: resolve(outputPath),
+      };
     };
 
     const babelOptions = babelConfig
@@ -90,14 +103,23 @@ export const convertFiles =
                   return outputFile;
                 })
                 .then(prepareDir)
-                .then((outputFile) => writeFile(outputFile, luaCode));
+                .then((outputFile) =>
+                  writeFile(outputFile, luaCode, { encoding: 'utf8' })
+                );
             })
             .catch((err) => {
               console.warn('failed file:', file);
               console.warn('error: ', err);
             });
 
-        return Promise.all(files.map(throat(1, convertFile)));
+        return Promise.all([
+          createFileMap().then((fileMap) =>
+            writeFile(fileMapPath, JSON.stringify(fileMap, undefined, 2), {
+              encoding: 'utf8',
+            })
+          ),
+          ...files.map(throat(1, convertFile)),
+        ]);
       }
     );
   };

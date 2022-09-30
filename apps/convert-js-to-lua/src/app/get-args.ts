@@ -3,6 +3,7 @@ import * as yargs from 'yargs';
 interface Args {
   input: Array<string | number>;
   output: string;
+  filemap: string;
   rootDir: string;
   babelConfig: string;
   babelTransformConfig: string;
@@ -20,6 +21,10 @@ export const getArgs = (): Args => {
     .option('output', {
       alias: 'o',
       description: 'Output directory',
+      type: 'string',
+    })
+    .option('filemap', {
+      description: 'Path of the file map',
       type: 'string',
     })
     .option('rootDir', {
@@ -50,6 +55,7 @@ export const getArgs = (): Args => {
   const DEFAULT_ARGS: Args = {
     input: [__dirname + '/fixtures/**/*sample.ts'],
     output: __dirname + '/output',
+    filemap: __dirname + '/filemap.json',
     rootDir: '',
     babelConfig: '',
     babelTransformConfig: '',
