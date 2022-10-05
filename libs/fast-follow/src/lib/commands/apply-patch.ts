@@ -14,7 +14,7 @@ export type ApplyPatchOptions = {
   patchPath: string;
   revision: string;
   log: boolean;
-  channel: string;
+  channel?: string;
   config: ConversionConfig;
   descriptionData?: {
     failedFiles: Set<string>;
@@ -93,7 +93,10 @@ export async function applyPatch(options: ApplyPatchOptions) {
 
   console.log('sending slack notification...');
   if (result && result.status === 201) {
-    await sendPullRequestSuccessNotification(result.data, options.channel);
+    await sendPullRequestSuccessNotification(
+      { htmlUrl: result.data.html_url, title: result.data.title },
+      options.channel
+    );
   } else {
     await sendPullRequestFailureNotification(
       config.downstream.owner,

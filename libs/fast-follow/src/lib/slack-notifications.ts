@@ -1,6 +1,16 @@
 import { App } from '@slack/bolt';
 
+const requiredEnvVars = [
+  'SLACK_BOT_TOKEN',
+  'SLACK_SIGNING_SECRET',
+  'SLACK_APP_TOKEN',
+];
+
 function createApp() {
+  const missingVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
+  if (missingVars.length) {
+    throw new Error(`Missing env variables: ${missingVars.join(', ')}`);
+  }
   return new App({
     token: process.env.SLACK_BOT_TOKEN,
     signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -9,53 +19,59 @@ function createApp() {
   });
 }
 
-export async function sendReleaseNotification(
+async function sendSlackMessage(opts: {
+  channel?: string;
+  text: string;
+}): Promise<void> {
+  const { channel, text } = opts;
+  if (channel) {
+    const boltApp = createApp();
+    await boltApp.client.chat.postMessage({ channel, text });
+  } else {
+    console.log('Slack channel not set');
+    console.log(text);
+  }
+}
+
+export function sendReleaseNotification(
   owner: string,
   repo: string,
   tag: string,
-  channel: string
+  channel?: string
 ): Promise<void> {
-  const boltApp = createApp();
   const url = `https://github.com/${owner}/${repo}/releases/tag/${tag}`;
   const text = `Upstream repository '${repo}' has just released version ${tag}, available: ${url}`;
-
-  await boltApp.client.chat.postMessage({ channel, text });
+  return sendSlackMessage({ channel, text });
 }
 
-export async function sendCommitNotification(
+export function sendCommitNotification(
   owner: string,
   repo: string,
   commitHash: string,
-  channel: string
+  channel?: string
 ): Promise<void> {
-  const boltApp = createApp();
   const url = `https://github.com/${owner}/${repo}/tree/${commitHash}`;
   const text = `Upstream repository '${repo}' has new commits, available: ${url}`;
-
-  await boltApp.client.chat.postMessage({ channel, text });
+  return sendSlackMessage({ channel, text });
 }
 
-export async function sendPullRequestSuccessNotification(
+export function sendPullRequestSuccessNotification(
   data: {
-    html_url: string;
+    htmlUrl: string;
     title: string;
   },
-  channel: string
+  channel?: string
 ): Promise<void> {
-  const boltApp = createApp();
-  const text = `An automated Pull Request has been opened: <${data.html_url}|${data.title}>`;
-
-  await boltApp.client.chat.postMessage({ channel, text, mrkdwn: true });
+  const text = `An automated Pull Request has been opened: <${data.htmlUrl}|${data.title}>`;
+  return sendSlackMessage({ channel, text });
 }
 
-export async function sendPullRequestFailureNotification(
+export function sendPullRequestFailureNotification(
   owner: string,
   repo: string,
-  channel: string
+  channel?: string
 ): Promise<void> {
-  const boltApp = createApp();
   const url = `https://github.com/${owner}/${repo}`;
   const text = `Failed to create automated PR for ${url}`;
-
-  await boltApp.client.chat.postMessage({ channel, text });
+  return sendSlackMessage({ channel, text });
 }

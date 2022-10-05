@@ -3,7 +3,7 @@ import { sendReleaseNotification } from '../slack-notifications';
 
 export async function scanReleases(options: {
   config: ConversionConfig;
-  channel: string;
+  channel?: string;
 }): Promise<string | void> {
   const { config, channel } = options;
   const newRelease = await checkForNewRelease({ config });

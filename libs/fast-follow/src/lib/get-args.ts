@@ -14,11 +14,11 @@ export function setupCommands({
 }: {
   scanReleases: (options: {
     config: ConversionConfig;
-    channel: string;
+    channel?: string;
   }) => Promise<string | void>;
   scanCommits: (options: {
     config: ConversionConfig;
-    channel: string;
+    channel?: string;
   }) => Promise<void>;
   compareSinceLastSync: (
     options: CompareOptions
@@ -85,7 +85,6 @@ export function setupCommands({
             alias: 'c',
             type: 'string',
             describe: 'id of the slack channel to post the notification to',
-            demandOption: true,
             requiresArg: true,
           }),
       async (argv) => {
@@ -102,7 +101,6 @@ export function setupCommands({
           alias: 'c',
           type: 'string',
           describe: 'id of the slack channel to post the notification to',
-          demandOption: true,
           requiresArg: true,
         }),
       async (argv) => {
@@ -145,7 +143,6 @@ export function setupCommands({
             alias: 'c',
             type: 'string',
             describe: 'id of the slack channel to post the notification to',
-            demandOption: true,
             requiresArg: true,
           }),
       async (argv) => {
@@ -190,7 +187,6 @@ export function setupCommands({
             alias: 'c',
             type: 'string',
             describe: 'id of the slack channel to post the notification to',
-            demandOption: true,
             requiresArg: true,
           })
           .option('log', {

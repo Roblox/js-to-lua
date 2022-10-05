@@ -3,7 +3,7 @@ import { sendCommitNotification } from '../slack-notifications';
 
 export async function scanCommits(options: {
   config: ConversionConfig;
-  channel: string;
+  channel?: string;
 }) {
   const { config, channel } = options;
   const newCommits = await checkForNewCommits({ config });
