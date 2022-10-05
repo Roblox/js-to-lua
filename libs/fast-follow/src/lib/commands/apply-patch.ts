@@ -77,7 +77,7 @@ export async function applyPatch(options: ApplyPatchOptions) {
       description +=
         '\n\nPatch files could not be applied to some files and were skipped:\n';
       description += [...descriptionData.failedFiles]
-        .map((file) => `- [ ] ${file})`)
+        .map((file) => `- [ ] ${file}`)
         .join('\n');
     }
   }
