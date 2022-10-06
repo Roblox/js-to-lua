@@ -1,11 +1,17 @@
-import { checkForNewRelease, ConversionConfig } from '@roblox/release-tracker';
+import { checkForNewRelease } from '@roblox/release-tracker';
 import { sendReleaseNotification } from '../slack-notifications';
+import { getConfig } from './get-config';
 
-export async function scanReleases(options: {
-  config: ConversionConfig;
+export type ScanReleasesOptions = {
+  sourceDir: string;
   channel?: string;
-}): Promise<string | void> {
-  const { config, channel } = options;
+};
+
+export async function scanReleases(
+  options: ScanReleasesOptions
+): Promise<string | void> {
+  const config = await getConfig(options.sourceDir);
+  const { channel } = options;
   const newRelease = await checkForNewRelease({ config });
   if (newRelease) {
     const { release, config } = newRelease;

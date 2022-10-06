@@ -1,29 +1,25 @@
 import { ComparisonResponse } from '@roblox/diff-tool';
-import { ConversionConfig } from '@roblox/release-tracker';
 import * as yargs from 'yargs';
 import { ApplyPatchOptions } from './commands/apply-patch';
 import { CompareOptions } from './commands/compare';
-import { getConfig } from './commands/get-config';
-import { isPullRequestOpen } from './commands/pr-utils';
+import { ScanCommitsOptions } from './commands/scan-commits';
+import { ScanReleasesOptions } from './commands/scan-releases';
+import { UpgradeOptions } from './commands/upgrade';
 
 export function setupCommands({
   scanReleases,
   scanCommits,
   compareSinceLastSync,
   applyPatch,
+  upgrade,
 }: {
-  scanReleases: (options: {
-    config: ConversionConfig;
-    channel?: string;
-  }) => Promise<string | void>;
-  scanCommits: (options: {
-    config: ConversionConfig;
-    channel?: string;
-  }) => Promise<void>;
+  scanReleases: (options: ScanReleasesOptions) => Promise<string | void>;
+  scanCommits: (options: ScanCommitsOptions) => Promise<void>;
   compareSinceLastSync: (
     options: CompareOptions
   ) => Promise<ComparisonResponse>;
   applyPatch: (options: ApplyPatchOptions) => Promise<void>;
+  upgrade: (options: UpgradeOptions) => Promise<string | void>;
 }) {
   return yargs
     .scriptName('fast-follow')
@@ -58,15 +54,13 @@ export function setupCommands({
             describe: 'output log files with output if specified',
             default: false,
           }),
-      async (argv) => {
+      (argv) => {
         const { sourceDir, outDir, revision, log } = argv;
-        const config = await getConfig(sourceDir);
         return compareSinceLastSync({
           sourceDir,
           outDir,
           revision,
           log,
-          config,
         });
       }
     )
@@ -87,10 +81,9 @@ export function setupCommands({
             describe: 'id of the slack channel to post the notification to',
             requiresArg: true,
           }),
-      async (argv) => {
+      (argv) => {
         const { sourceDir, channel } = argv;
-        const config = await getConfig(sourceDir);
-        return scanReleases({ config, channel });
+        return scanReleases({ sourceDir, channel });
       }
     )
     .command(
@@ -103,10 +96,9 @@ export function setupCommands({
           describe: 'id of the slack channel to post the notification to',
           requiresArg: true,
         }),
-      async (argv) => {
+      (argv) => {
         const { sourceDir, channel } = argv;
-        const config = await getConfig(sourceDir);
-        return scanCommits({ config, channel });
+        return scanCommits({ sourceDir, channel });
       }
     )
     .command(
@@ -145,16 +137,8 @@ export function setupCommands({
             describe: 'id of the slack channel to post the notification to',
             requiresArg: true,
           }),
-      async (argv) => {
+      (argv) => {
         const { sourceDir, patchPath, revision, log, channel } = argv;
-        const config = await getConfig(sourceDir);
-
-        if (await isPullRequestOpen(revision, config)) {
-          console.log(
-            `Fast Follow PR for ${revision} already exists. Skipping next steps`
-          );
-          return;
-        }
 
         return applyPatch({
           sourceDir,
@@ -162,7 +146,6 @@ export function setupCommands({
           revision,
           log,
           channel,
-          config,
         });
       }
     )
@@ -201,51 +184,14 @@ export function setupCommands({
             describe:
               'target revision to upgrade to. If not provided latest release will be used',
           }),
-      async (argv) => {
-        const { channel, sourceDir, outDir, log, revision: targetRev } = argv;
-        const config = await getConfig(sourceDir);
-
-        console.log('Scanning releases...');
-
-        const revision = targetRev || (await scanReleases({ config, channel }));
-
-        if (!revision) {
-          return console.log('Conversion up to date.');
-        }
-
-        if (await isPullRequestOpen(revision, config)) {
-          console.log(
-            `Fast Follow PR for ${revision} already exists. Skipping next steps`
-          );
-          return;
-        }
-
-        console.log(`New release found: ${revision}. Starting conversion...`);
-
-        const { patchPath, failedFiles, conflictsSummary } =
-          await compareSinceLastSync({
-            sourceDir,
-            outDir,
-            revision,
-            log,
-            config,
-          });
-
-        const descriptionData = {
-          failedFiles,
-          conflictsSummary,
-        };
-
-        console.log('Conversion completed.');
-
-        return applyPatch({
-          sourceDir,
-          patchPath,
-          revision,
-          log,
+      (argv) => {
+        const { channel, sourceDir, outDir, log, revision } = argv;
+        return upgrade({
           channel,
-          config,
-          descriptionData,
+          sourceDir,
+          outDir,
+          log,
+          revision,
         });
       }
     )

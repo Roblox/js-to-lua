@@ -1,8 +1,9 @@
 import { getLocalRepoConversionConfig } from '@roblox/release-tracker';
 import { findRepositoryRoot } from '@roblox/version-manager';
 import * as path from 'path';
+import { identity, memoizeWith } from 'ramda';
 
-export async function getConfig(sourceDir: string) {
+export const getConfig = memoizeWith(identity, async (sourceDir: string) => {
   const downstreamRepoRoot = await findRepositoryRoot(sourceDir);
   if (!downstreamRepoRoot) {
     throw new Error(
@@ -12,4 +13,4 @@ export async function getConfig(sourceDir: string) {
   return getLocalRepoConversionConfig(
     path.join(downstreamRepoRoot, 'js-to-lua.config.js')
   );
-}
+});

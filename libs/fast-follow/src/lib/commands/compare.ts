@@ -1,6 +1,4 @@
-import { compare } from '@roblox/diff-tool';
-import { ComparisonResponse } from '@roblox/diff-tool';
-import { ConversionConfig } from '@roblox/release-tracker';
+import { compare, ComparisonResponse } from '@roblox/diff-tool';
 import {
   findRepositoryRoot,
   setupConversionTool,
@@ -8,6 +6,7 @@ import {
 } from '@roblox/version-manager';
 import { ExecException } from 'child_process';
 import * as fs from 'fs';
+import { getConfig } from './get-config';
 
 const STDOUT_FILENAME = 'fast-follow.stdout.log';
 const STDERR_FILENAME = 'fast-follow.stderr.log';
@@ -17,7 +16,6 @@ export interface CompareOptions {
   outDir?: string;
   revision?: string;
   sourceDir: string;
-  config: ConversionConfig;
 }
 
 interface ChildExecException extends ExecException {
@@ -28,6 +26,7 @@ interface ChildExecException extends ExecException {
 export async function compareSinceLastSync(
   options: CompareOptions
 ): Promise<ComparisonResponse> {
+  const config = await getConfig(options.sourceDir);
   const downstreamRepoRoot = await findRepositoryRoot(options.sourceDir);
   if (!downstreamRepoRoot) {
     throw new Error(
@@ -47,16 +46,16 @@ export async function compareSinceLastSync(
     const currentToolPath = await setupConversionTool('main');
     console.log('✅ ...done!\n');
 
-    console.log(`🛞  Downloading ${options.config.upstream.repo}`);
+    console.log(`🛞  Downloading ${config.upstream.repo}`);
     const upstreamPath = await setupUpstreamRepository(
-      options.config.upstream.owner,
-      options.config.upstream.repo,
-      options.config.upstream.primaryBranch
+      config.upstream.owner,
+      config.upstream.repo,
+      config.upstream.primaryBranch
     );
     console.log('✅ ...done!\n');
 
     const comparisonResponse = await compare(
-      options.config,
+      config,
       currentToolPath,
       upstreamPath,
       downstreamRepoRoot,

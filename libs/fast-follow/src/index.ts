@@ -2,6 +2,7 @@ import { applyPatch } from './lib/commands/apply-patch';
 import { compareSinceLastSync } from './lib/commands/compare';
 import { scanCommits } from './lib/commands/scan-commits';
 import { scanReleases } from './lib/commands/scan-releases';
+import { upgrade } from './lib/commands/upgrade';
 import { setupCommands } from './lib/get-args';
 
 function main() {
@@ -10,6 +11,7 @@ function main() {
     scanCommits,
     compareSinceLastSync,
     applyPatch,
+    upgrade,
   });
 }
 

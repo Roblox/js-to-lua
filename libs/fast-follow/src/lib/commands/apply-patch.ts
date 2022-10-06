@@ -1,4 +1,3 @@
-import { ConversionConfig } from '@roblox/release-tracker';
 import { findRepositoryRoot } from '@roblox/version-manager';
 import { Octokit } from 'octokit';
 import * as path from 'path';
@@ -7,7 +6,8 @@ import {
   sendPullRequestFailureNotification,
   sendPullRequestSuccessNotification,
 } from '../slack-notifications';
-import { getPullRequestBranchName } from './pr-utils';
+import { getConfig } from './get-config';
+import { getPullRequestBranchName, isPullRequestOpen } from './pr-utils';
 
 export type ApplyPatchOptions = {
   sourceDir: string;
@@ -15,7 +15,6 @@ export type ApplyPatchOptions = {
   revision: string;
   log: boolean;
   channel?: string;
-  config: ConversionConfig;
   descriptionData?: {
     failedFiles: Set<string>;
     conflictsSummary: { [key: string]: number };
@@ -28,7 +27,17 @@ const DEFAULT_CONVERSION_OUTPUT_DIR = 'output';
  * apply patch file to a generated branch, push to remote and send slack message when done
  */
 export async function applyPatch(options: ApplyPatchOptions) {
-  const { config, descriptionData } = options;
+  const { sourceDir, descriptionData } = options;
+
+  const config = await getConfig(sourceDir);
+
+  if (await isPullRequestOpen(options.revision, config)) {
+    console.log(
+      `Fast Follow PR for ${options.revision} already exists. Skipping next steps`
+    );
+    return;
+  }
+
   const downstreamRepoRoot = await findRepositoryRoot(options.sourceDir);
   const patchFile = path.resolve(options.patchPath);
   if (!downstreamRepoRoot) {
