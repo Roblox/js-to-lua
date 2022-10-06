@@ -15,6 +15,7 @@ const {
   babelTransformConfig,
   rootDir,
   sha,
+  remoteUrl,
   plugin: argsPlugins,
 } = getArgs();
 
@@ -60,6 +61,7 @@ const convertFilesFnPromise = resolvePlugins(argsPlugins).then((plugins) =>
     babelConfig,
     babelTransformConfig,
     sha,
+    remoteUrl,
     plugins,
   })
 );

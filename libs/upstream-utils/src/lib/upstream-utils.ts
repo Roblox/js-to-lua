@@ -25,23 +25,56 @@ export const getRev = async (rootDir: string) => {
   return tag ? tag : getSha(rootDir);
 };
 
+const hasRemoteUrlProp = (
+  obj: Record<string, unknown>
+): obj is { remoteUrl: string } =>
+  Object.prototype.hasOwnProperty.call(obj, 'remoteUrl') &&
+  typeof obj['remoteUrl'] === 'string' &&
+  !!obj['remoteUrl'];
+
+type UpstreamPathOptions =
+  | {
+      rootDir?: string;
+      sha?: string;
+    }
+  | {
+      remoteUrl: string;
+      sha: string;
+      rootDir: string;
+    };
 export const createUpstreamPath = async (
   filePath: string,
-  rootDir_?: string,
-  sha?: string
+  options: UpstreamPathOptions
+) => {
+  const info = await getUpstreamPathInfo(filePath, options);
+  return info?.baseRepoUrl
+    ? `${info.baseRepoUrl}/blob/${info.sha}/${info.relativeFilePath}`
+    : undefined;
+};
+
+const getUpstreamPathInfo = async (
+  filePath: string,
+  options: UpstreamPathOptions
 ) => {
   const realFilePath = await realpath(filePath);
-  const rootDir = await (rootDir_ || inferRootDir(realFilePath));
-  const origin = await getRemoteUrl(rootDir);
-  if (origin) {
-    sha = await (sha || getRev(rootDir));
-
+  if (hasRemoteUrlProp(options)) {
+    const { remoteUrl, sha, rootDir } = options;
     const relativeFilePath = relative(rootDir, realFilePath);
-    const baseRepoUrl = extractUrl(origin);
+    const baseRepoUrl = extractUrl(remoteUrl);
 
-    return baseRepoUrl
-      ? `${baseRepoUrl}/blob/${sha}/${relativeFilePath}`
-      : undefined;
+    return { baseRepoUrl, sha, relativeFilePath };
+  } else {
+    const { rootDir: rootDir_, sha: sha_ } = options;
+    const rootDir = await (rootDir_ || inferRootDir(realFilePath));
+    const origin = await getRemoteUrl(rootDir);
+    if (origin) {
+      const sha = await (sha_ || getRev(rootDir));
+
+      const relativeFilePath = relative(rootDir, realFilePath);
+      const baseRepoUrl = extractUrl(origin);
+
+      return { baseRepoUrl, sha, relativeFilePath };
+    }
   }
   return;
 };

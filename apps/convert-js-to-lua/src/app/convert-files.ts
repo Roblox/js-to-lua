@@ -9,12 +9,13 @@ import { convert } from './convert';
 import { transform } from './transform';
 
 type ConvertFilesOptions = {
-  rootDir: string;
+  rootDir?: string;
   outputDir: string;
   fileMapPath: string;
   babelConfig?: string;
   babelTransformConfig?: string;
   sha?: string;
+  remoteUrl?: string;
   plugins?: Array<JsToLuaPlugin>;
 };
 
@@ -26,6 +27,7 @@ export const convertFiles =
     babelConfig,
     babelTransformConfig,
     sha,
+    remoteUrl,
     plugins,
   }: ConvertFilesOptions) =>
   (files: string[]) => {
@@ -79,7 +81,11 @@ export const convertFiles =
           readFile(file, { encoding: 'utf-8' })
             .then((code) => transform(transformOptions, parse(file).base, code))
             .then(async (code) => {
-              const upstreamPath = await createUpstreamPath(file, rootDir, sha);
+              const upstreamPath = await createUpstreamPath(file, {
+                rootDir,
+                sha,
+                remoteUrl,
+              });
               return convert(options)(
                 { isInitFile: isInitFile(file), upstreamPath, plugins },
                 code
