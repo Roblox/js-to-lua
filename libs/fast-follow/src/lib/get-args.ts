@@ -48,6 +48,16 @@ export function setupCommands({
             describe: 'location to dump patch files',
             requiresArg: true,
           })
+          .option('babelConfig', {
+            description: 'Babel config file',
+            type: 'string',
+            requiresArg: true,
+          })
+          .option('babelTransformConfig', {
+            description: 'Babel transform config file',
+            type: 'string',
+            requiresArg: true,
+          })
           .option('log', {
             alias: ['l'],
             type: 'boolean',
@@ -55,12 +65,21 @@ export function setupCommands({
             default: false,
           }),
       (argv) => {
-        const { sourceDir, outDir, revision, log } = argv;
+        const {
+          sourceDir,
+          outDir,
+          revision,
+          log,
+          babelConfig,
+          babelTransformConfig,
+        } = argv;
         return compareSinceLastSync({
           sourceDir,
           outDir,
           revision,
           log,
+          babelConfig,
+          babelTransformConfig,
         });
       }
     )
@@ -183,15 +202,35 @@ export function setupCommands({
             type: 'string',
             describe:
               'target revision to upgrade to. If not provided latest release will be used',
+          })
+          .option('babelConfig', {
+            description: 'Babel config file',
+            type: 'string',
+            requiresArg: true,
+          })
+          .option('babelTransformConfig', {
+            description: 'Babel transform config file',
+            type: 'string',
+            requiresArg: true,
           }),
       (argv) => {
-        const { channel, sourceDir, outDir, log, revision } = argv;
+        const {
+          channel,
+          sourceDir,
+          outDir,
+          log,
+          revision,
+          babelConfig,
+          babelTransformConfig,
+        } = argv;
         return upgrade({
           channel,
           sourceDir,
           outDir,
           log,
           revision,
+          babelConfig,
+          babelTransformConfig,
         });
       }
     )

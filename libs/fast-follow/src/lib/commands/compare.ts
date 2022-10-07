@@ -16,6 +16,8 @@ export interface CompareOptions {
   outDir?: string;
   revision?: string;
   sourceDir: string;
+  babelConfig?: string;
+  babelTransformConfig?: string;
 }
 
 interface ChildExecException extends ExecException {
@@ -59,7 +61,12 @@ export async function compareSinceLastSync(
       currentToolPath,
       upstreamPath,
       downstreamRepoRoot,
-      { targetRevision: options.revision, outDir: options.outDir }
+      {
+        targetRevision: options.revision,
+        outDir: options.outDir,
+        babelConfig: options.babelConfig,
+        babelTransformConfig: options.babelTransformConfig,
+      }
     );
     stdout += comparisonResponse.stdout;
     stderr += comparisonResponse.stderr;

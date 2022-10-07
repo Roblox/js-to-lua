@@ -10,6 +10,8 @@ export type UpgradeOptions = {
   sourceDir: string;
   outDir?: string;
   log: boolean;
+  babelConfig?: string;
+  babelTransformConfig?: string;
 };
 
 /**
@@ -17,10 +19,12 @@ export type UpgradeOptions = {
  */
 export const upgrade = async ({
   channel,
-  revision: targetRev,
   sourceDir,
   outDir,
   log,
+  revision: targetRev,
+  babelConfig,
+  babelTransformConfig,
 }: UpgradeOptions) => {
   const config = await getConfig(sourceDir);
 
@@ -32,15 +36,13 @@ export const upgrade = async ({
   }
 
   if (!revision) {
-    console.log('Conversion up to date.');
-    return;
+    return console.log('Conversion up to date.');
   }
 
   if (await isPullRequestOpen(revision, config)) {
-    console.log(
+    return console.log(
       `Fast Follow PR for ${revision} already exists. Skipping next steps`
     );
-    return;
   }
 
   console.log(`New release found: ${revision}. Starting conversion...`);
@@ -51,6 +53,8 @@ export const upgrade = async ({
       outDir,
       revision,
       log,
+      babelConfig,
+      babelTransformConfig,
     });
 
   const descriptionData = {

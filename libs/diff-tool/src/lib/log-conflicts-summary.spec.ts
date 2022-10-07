@@ -1,6 +1,8 @@
 import { logConflictsSummary } from './log-conflicts-summary';
 describe('log-conflicts-summary', function () {
-  const spy = jest.spyOn(console, 'log');
+  const spy = jest.spyOn(console, 'log').mockImplementation(() => {
+    /* Do nothing */
+  });
   const summary = { ['foo']: 1, ['bar']: 2 };
   beforeEach(() => {
     jest.clearAllMocks();

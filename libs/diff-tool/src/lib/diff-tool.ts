@@ -34,6 +34,7 @@ export * from './diff-tool.types';
 type Truthy<T> = NonNullable<T>;
 const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 
+const DEFAULT_CONVERSION_INPUT_DIR = 'input';
 const DEFAULT_CONVERSION_OUTPUT_DIR = 'output';
 const DEFAULT_PATCH_NAME = 'fast-follow.patch';
 
@@ -61,10 +62,6 @@ export async function compare(
   const targetRevision =
     options?.targetRevision ?? config.upstream.primaryBranch;
   const originalDir = process.cwd();
-  const fullToolPath = path.join(
-    path.resolve(toolPath),
-    'dist/apps/convert-js-to-lua/main.js'
-  );
   const conversionDir = path.join(os.tmpdir(), 'fast-follow-conversion');
 
   let failedFiles = new Set<string>();
@@ -92,6 +89,10 @@ export async function compare(
     // with the current one.
     await fs.promises.rm(conversionDir, { recursive: true, force: true });
     await fs.promises.mkdir(conversionDir, { recursive: true });
+    await fs.promises.mkdir(
+      `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}`,
+      { recursive: true }
+    );
     process.chdir(conversionDir);
 
     await git.cwd(conversionDir);
@@ -104,14 +105,15 @@ export async function compare(
 
     console.log(`🔨 Converting referenced sources to Luau...`);
 
-    const initialUpstreamResults = await convertUpstreamSources(
-      config,
+    const initialUpstreamResults = await convertUpstreamSources(config, {
       conversionDir,
-      fullToolPath,
+      toolPath,
       upstreamPath,
       fileMap,
-      'port: initial upstream version'
-    );
+      message: 'port: initial upstream version',
+      babelConfig: options?.babelConfig,
+      babelTransformConfig: options?.babelTransformConfig,
+    });
     stdout += initialUpstreamResults.stdout;
     stderr += initialUpstreamResults.stderr;
 
@@ -121,15 +123,16 @@ export async function compare(
 
     await git.checkoutBranch('upstream', 'main');
 
-    const latestUpstreamResults = await convertUpstreamSources(
-      config,
+    const latestUpstreamResults = await convertUpstreamSources(config, {
       conversionDir,
-      fullToolPath,
+      toolPath,
       upstreamPath,
       fileMap,
-      'port: latest upstream version',
-      targetRevision
-    );
+      message: 'port: latest upstream version',
+      babelConfig: options?.babelConfig,
+      babelTransformConfig: options?.babelTransformConfig,
+      targetRef: targetRevision,
+    });
     stdout += latestUpstreamResults.stdout;
     stderr += latestUpstreamResults.stderr;
 
@@ -188,19 +191,35 @@ export async function compare(
   };
 }
 
+type ConvertUpstreamSourcesOptions = {
+  conversionDir: string;
+  toolPath: string;
+  upstreamPath: string;
+  fileMap: UpstreamFileMap;
+  message: string;
+  babelConfig?: string;
+  babelTransformConfig?: string;
+  targetRef?: string;
+};
+
 /**
  * Copy upstream sources for the version referenced at the top of each
  * downstream file respectively, and put them into the temporary repo.
  */
 async function convertUpstreamSources(
   config: ConversionConfig,
-  conversionDir: string,
-  toolPath: string,
-  upstreamPath: string,
-  fileMap: UpstreamFileMap,
-  message: string,
-  targetRef?: string
+  options: ConvertUpstreamSourcesOptions
 ) {
+  const {
+    conversionDir,
+    toolPath,
+    upstreamPath,
+    fileMap,
+    message,
+    babelConfig,
+    babelTransformConfig,
+    targetRef,
+  } = options;
   let stdout = '';
   let stderr = '';
 
@@ -215,7 +234,12 @@ async function convertUpstreamSources(
     )
   );
 
-  const initialUpstreamResponse = await convertSources(toolPath, conversionDir);
+  const initialUpstreamResponse = await convertSources(
+    toolPath,
+    conversionDir,
+    babelConfig,
+    babelTransformConfig
+  );
   stdout += initialUpstreamResponse.stdout;
   stderr += initialUpstreamResponse.stderr;
 
@@ -519,6 +543,7 @@ async function copyUpstreamFile(
   const git = simpleGit();
   const upstreamFilename = path.basename(upstreamFilePath);
   const fullDownstreamPath = path.join(
+    DEFAULT_CONVERSION_INPUT_DIR,
     downstreamFilePath,
     '..',
     upstreamFilename
@@ -617,19 +642,36 @@ async function generatePatch(
 /**
  * Convert all TypeScript and JavaScript sources to Luau.
  */
-async function convertSources(toolPath: string, conversionDir: string) {
+async function convertSources(
+  toolPath: string,
+  conversionDir: string,
+  babelConfig?: string,
+  babelTransformConfig?: string
+) {
+  const DIST_MAIN_FILE = 'dist/apps/convert-js-to-lua/main.js';
   const originalDir = process.cwd();
+  process.chdir(path.resolve(toolPath));
 
   try {
     const execFile = util.promisify(childProcessExecFile);
 
-    process.chdir(conversionDir);
+    const args = [
+      DIST_MAIN_FILE,
+      '-o',
+      `${conversionDir}/${DEFAULT_CONVERSION_OUTPUT_DIR}`,
+      '-i',
+      `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}/**/*`,
+      '--root',
+      `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}`,
+    ];
+    if (babelConfig) {
+      args.push('--babelConfig', babelConfig);
+    }
+    if (babelTransformConfig) {
+      args.push('--babelTransformConfig', babelTransformConfig);
+    }
 
-    return execFile(
-      'node',
-      [toolPath, '-o', DEFAULT_CONVERSION_OUTPUT_DIR, '-i', '**/*'],
-      { maxBuffer: Infinity }
-    );
+    return execFile('node', args, { maxBuffer: Infinity });
   } finally {
     process.chdir(originalDir);
   }

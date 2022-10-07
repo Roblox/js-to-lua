@@ -3,6 +3,7 @@ import * as simpleGit from 'simple-git';
 import * as lp from 'lookpath';
 import * as childProcess from 'node:child_process';
 import * as fs from 'fs';
+import * as os from 'os';
 import { MergeResult, SimpleGit } from 'simple-git';
 import { ConversionConfig } from '@roblox/release-tracker';
 import { ExecException, ExecFileException } from 'child_process';
@@ -27,9 +28,11 @@ const MOCK_CONFIG: ConversionConfig = {
 };
 
 const MOCK_TOOL_PATH = '/path/to/tool';
-const MOCK_TOOL_CMD_PATH = `${MOCK_TOOL_PATH}/dist/apps/convert-js-to-lua/main.js`;
+const MOCK_TOOL_CMD_PATH = 'dist/apps/convert-js-to-lua/main.js';
+const MOCK_TMP_DIR = 'mocked/tmp';
 const MOCK_UPSTREAM_PATH = '/path/to/upstream';
 const MOCK_DOWNSTREAM_PATH = '/path/to/downstream';
+const FF_CONVERSION_FOLDER = 'fast-follow-conversion';
 
 type execType = (
   command: string,
@@ -66,7 +69,8 @@ describe('diffTool', () => {
     diff: jest.Mock,
     show: jest.Mock,
     init: jest.Mock,
-    deleteLocalBranch: jest.Mock;
+    deleteLocalBranch: jest.Mock,
+    mkdirSpy: jest.SpyInstance;
 
   beforeEach(() => {
     let workingDir = '/';
@@ -99,7 +103,7 @@ describe('diffTool', () => {
     jest.spyOn(fs, 'readdirSync').mockReturnValue([]);
     jest.spyOn(fs, 'copyFileSync').mockImplementation();
     jest.spyOn(fs.promises, 'rm').mockImplementation();
-    jest.spyOn(fs.promises, 'mkdir').mockImplementation();
+    mkdirSpy = jest.spyOn(fs.promises, 'mkdir').mockImplementation();
     jest.spyOn(fs.promises, 'readdir').mockResolvedValue([]);
     jest
       .spyOn(fs.promises, 'readFile')
@@ -152,6 +156,8 @@ describe('diffTool', () => {
       init,
       deleteLocalBranch,
     } as unknown as SimpleGit);
+
+    jest.spyOn(os, 'tmpdir').mockReturnValue(MOCK_TMP_DIR);
   });
 
   afterEach(() => {
@@ -174,7 +180,15 @@ describe('diffTool', () => {
     expect(diff).toHaveBeenCalledWith(['HEAD~1']);
     expect(execFile).toHaveBeenCalledWith(
       'node',
-      [MOCK_TOOL_CMD_PATH, '-o', 'output', '-i', '**/*'],
+      [
+        MOCK_TOOL_CMD_PATH,
+        '-o',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/output`,
+        '-i',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/**/*`,
+        '--root',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input`,
+      ],
       expect.objectContaining({ maxBuffer: Infinity }),
       expect.any(Function)
     );
@@ -225,5 +239,19 @@ describe('diffTool', () => {
     ).rejects.toThrow(
       `Unable to run conversion for '${MOCK_DOWNSTREAM_PATH}': no source patterns are specified in the downstream conversion config`
     );
+  });
+
+  it('should rethrow error if mkdir fails', async () => {
+    mkdirSpy.mockImplementation(() =>
+      Promise.reject(new Error('Something terrible happened'))
+    );
+    await expect(async () =>
+      diffTool.compare(
+        MOCK_CONFIG,
+        MOCK_TOOL_PATH,
+        MOCK_UPSTREAM_PATH,
+        MOCK_DOWNSTREAM_PATH
+      )
+    ).rejects.toThrow('Something terrible happened');
   });
 });
