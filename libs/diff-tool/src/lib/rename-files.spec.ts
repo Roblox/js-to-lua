@@ -1,5 +1,6 @@
 import { ConversionConfig } from '@roblox/release-tracker';
 import * as fs from 'fs';
+import * as fsPromises from 'fs/promises';
 import { renameFiles } from './rename-files';
 
 const MOCK_CONFIG: ConversionConfig = {
@@ -27,9 +28,9 @@ const MOCK_CONFIG: ConversionConfig = {
 };
 
 describe('rename-files', function () {
-  const readDirSpy = jest.spyOn(fs.promises, 'readdir');
+  const readDirSpy = jest.spyOn(fsPromises, 'readdir');
   const statSyncSpy = jest.spyOn(fs, 'statSync');
-  const renameSpy = jest.spyOn(fs.promises, 'rename').mockImplementation(() => {
+  const renameSpy = jest.spyOn(fsPromises, 'rename').mockImplementation(() => {
     return Promise.resolve();
   });
 

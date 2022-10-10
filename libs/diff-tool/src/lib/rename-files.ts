@@ -1,11 +1,12 @@
 import { ConversionConfig } from '@roblox/release-tracker';
 import * as fs from 'fs';
+import { mkdir, readdir, rename } from 'fs/promises';
 import * as path from 'path';
 async function getFilesToRename(
   directory: string,
   config: ConversionConfig
 ): Promise<Array<[string, string]>> {
-  const dirContent = await fs.promises.readdir(directory);
+  const dirContent = await readdir(directory);
 
   const actions = [] as Array<[string, string]>;
 
@@ -37,6 +38,7 @@ export async function renameFiles(
   const files = await getFilesToRename(directory, config);
   for (const [from, to] of files) {
     console.log('renaming file:', from, '=>', to);
-    await fs.promises.rename(from, to);
+    await mkdir(path.join(to, '..'), { recursive: true });
+    await rename(from, to);
   }
 }

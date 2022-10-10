@@ -1,13 +1,18 @@
-import * as diffTool from './diff-tool';
-import * as simpleGit from 'simple-git';
-import * as lp from 'lookpath';
-import * as childProcess from 'node:child_process';
-import * as fs from 'fs';
-import * as os from 'os';
-import { MergeResult, SimpleGit } from 'simple-git';
 import { ConversionConfig } from '@roblox/release-tracker';
-import { ExecException, ExecFileException } from 'child_process';
-import { ExecFileOptions } from 'node:child_process';
+import * as childProcess from 'child_process';
+import {
+  ExecException,
+  ExecFileException,
+  ExecFileOptions,
+} from 'child_process';
+import * as fs from 'fs';
+import { PathLike } from 'fs';
+import * as fsPromises from 'fs/promises';
+import * as lp from 'lookpath';
+import * as os from 'os';
+import * as simpleGit from 'simple-git';
+import { MergeResult, SimpleGit } from 'simple-git';
+import * as diffTool from './diff-tool';
 
 const MOCK_CONFIG: ConversionConfig = {
   lastSync: {
@@ -34,6 +39,17 @@ const MOCK_UPSTREAM_PATH = '/path/to/upstream';
 const MOCK_DOWNSTREAM_PATH = '/path/to/downstream';
 const FF_CONVERSION_FOLDER = 'fast-follow-conversion';
 
+jest.mock(
+  'glob',
+  () =>
+    (
+      _pattern: string,
+      _opts: Record<string, unknown>,
+      cb: (err: Error | null, paths: string[]) => void
+    ) =>
+      cb(null, ['boo'])
+);
+
 type execType = (
   command: string,
   callback?: (
@@ -58,6 +74,7 @@ describe('diffTool', () => {
   let execFile: jest.SpyInstance,
     gitCwd: jest.Mock,
     branch: jest.Mock,
+    applyPatch: jest.Mock,
     checkIsRepo: jest.Mock,
     checkout: jest.Mock,
     checkoutBranch: jest.Mock,
@@ -102,20 +119,25 @@ describe('diffTool', () => {
     jest.spyOn(fs, 'mkdirSync').mockImplementation();
     jest.spyOn(fs, 'readdirSync').mockReturnValue([]);
     jest.spyOn(fs, 'copyFileSync').mockImplementation();
-    jest.spyOn(fs.promises, 'rm').mockImplementation();
-    mkdirSpy = jest.spyOn(fs.promises, 'mkdir').mockImplementation();
-    jest.spyOn(fs.promises, 'readdir').mockResolvedValue([]);
+    jest.spyOn(fsPromises, 'rm').mockImplementation();
+    mkdirSpy = jest.spyOn(fsPromises, 'mkdir').mockImplementation();
+    jest.spyOn(fsPromises, 'readdir').mockResolvedValue([]);
     jest
-      .spyOn(fs.promises, 'readFile')
+      .spyOn(fsPromises, 'realpath')
+      .mockImplementation((path: PathLike) => Promise.resolve(path as string));
+    jest
+      .spyOn(fsPromises, 'readFile')
       .mockImplementation((path) =>
         typeof path === 'string' && path.includes('foreman.toml')
           ? Promise.resolve(
               '[tools]\nstylua = { source = "JohnnyMorganz/StyLua", version = "=0.14.2" }'
             )
-          : Promise.resolve('')
+          : Promise.resolve(
+              '-- ROBLOX upstream: https://github.com/facebook/jest/blob/test/boo.js\n'
+            )
       );
-    jest.spyOn(fs.promises, 'writeFile').mockImplementation();
-    jest.spyOn(fs.promises, 'copyFile').mockImplementation();
+    jest.spyOn(fsPromises, 'writeFile').mockImplementation();
+    jest.spyOn(fsPromises, 'copyFile').mockImplementation();
     jest.spyOn(lp, 'lookpath').mockReturnValue(Promise.resolve('/fake-path'));
 
     jest.spyOn(process, 'chdir').mockImplementation((directory) => {
@@ -125,6 +147,7 @@ describe('diffTool', () => {
 
     gitCwd = jest.fn();
     branch = jest.fn();
+    applyPatch = jest.fn();
     checkIsRepo = jest.fn().mockReturnValue(true);
     checkout = jest.fn();
     checkoutBranch = jest.fn();
@@ -143,6 +166,7 @@ describe('diffTool', () => {
     jest.spyOn(simpleGit, 'simpleGit').mockReturnValue({
       cwd: gitCwd,
       branch,
+      applyPatch,
       checkIsRepo,
       checkout,
       checkoutBranch,
@@ -178,6 +202,7 @@ describe('diffTool', () => {
     expect(branch).toHaveBeenCalledWith(['-m', 'main']);
     expect(mergeFromTo).toHaveBeenCalledTimes(1);
     expect(diff).toHaveBeenCalledWith(['HEAD~1']);
+    expect(execFile).toHaveBeenCalledTimes(2);
     expect(execFile).toHaveBeenCalledWith(
       'node',
       [
@@ -185,9 +210,23 @@ describe('diffTool', () => {
         '-o',
         `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/output`,
         '-i',
-        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/**/*`,
-        '--root',
-        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input`,
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/test/**/*`,
+        '--rootDir',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/test`,
+      ],
+      expect.objectContaining({ maxBuffer: Infinity }),
+      expect.any(Function)
+    );
+    expect(execFile).toHaveBeenCalledWith(
+      'node',
+      [
+        MOCK_TOOL_CMD_PATH,
+        '-o',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/output`,
+        '-i',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/main/**/*`,
+        '--rootDir',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/main`,
       ],
       expect.objectContaining({ maxBuffer: Infinity }),
       expect.any(Function)

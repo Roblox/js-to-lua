@@ -5,6 +5,7 @@ export interface ConversionOptions {
   outDir?: string;
   babelConfig?: string;
   babelTransformConfig?: string;
+  remoteUrl?: string;
 }
 
 export interface ComparisonResponse {

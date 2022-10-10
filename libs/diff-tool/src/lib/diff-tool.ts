@@ -1,7 +1,14 @@
 import { applyPatch, commitFiles } from '@js-to-lua/upstream-utils';
 import { ConversionConfig } from '@roblox/release-tracker';
 import * as crypto from 'crypto';
-import * as fs from 'fs';
+import {
+  copyFile,
+  mkdir,
+  readFile,
+  realpath,
+  rm,
+  writeFile,
+} from 'fs/promises';
 import * as g from 'glob';
 import {
   exec as childProcessExec,
@@ -10,6 +17,7 @@ import {
 import * as os from 'os';
 import * as path from 'path';
 import * as process from 'process';
+import { groupBy } from 'ramda';
 import {
   CheckRepoActions,
   GitError,
@@ -87,12 +95,11 @@ export async function compare(
     // Attempt to remove the conversion directory if a previous run created one
     // earlier. This is done to prevent previous conversions from interfering
     // with the current one.
-    await fs.promises.rm(conversionDir, { recursive: true, force: true });
-    await fs.promises.mkdir(conversionDir, { recursive: true });
-    await fs.promises.mkdir(
-      `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}`,
-      { recursive: true }
-    );
+    await rm(conversionDir, { recursive: true, force: true });
+    await mkdir(conversionDir, { recursive: true });
+    await mkdir(`${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}`, {
+      recursive: true,
+    });
     process.chdir(conversionDir);
 
     await git.cwd(conversionDir);
@@ -113,6 +120,7 @@ export async function compare(
       message: 'port: initial upstream version',
       babelConfig: options?.babelConfig,
       babelTransformConfig: options?.babelTransformConfig,
+      remoteUrl: options?.remoteUrl,
     });
     stdout += initialUpstreamResults.stdout;
     stderr += initialUpstreamResults.stderr;
@@ -132,6 +140,8 @@ export async function compare(
       babelConfig: options?.babelConfig,
       babelTransformConfig: options?.babelTransformConfig,
       targetRef: targetRevision,
+      sha: targetRevision,
+      remoteUrl: options?.remoteUrl,
     });
     stdout += latestUpstreamResults.stdout;
     stderr += latestUpstreamResults.stderr;
@@ -197,6 +207,8 @@ type ConvertUpstreamSourcesOptions = {
   upstreamPath: string;
   fileMap: UpstreamFileMap;
   message: string;
+  remoteUrl?: string;
+  sha?: string;
   babelConfig?: string;
   babelTransformConfig?: string;
   targetRef?: string;
@@ -219,24 +231,24 @@ async function convertUpstreamSources(
     babelConfig,
     babelTransformConfig,
     targetRef,
+    remoteUrl,
+    sha,
   } = options;
   let stdout = '';
   let stderr = '';
 
   await Promise.allSettled(
-    Object.entries(fileMap).map(([downstreamFilePath, reference]) =>
-      copyUpstreamFile(
-        upstreamPath,
-        downstreamFilePath,
-        reference.path,
-        targetRef ?? reference.ref
-      )
+    Object.values(fileMap).map((reference) =>
+      copyUpstreamFile(upstreamPath, reference.path, targetRef ?? reference.ref)
     )
   );
 
   const initialUpstreamResponse = await convertSources(
     toolPath,
     conversionDir,
+    fileMap,
+    remoteUrl,
+    sha,
     babelConfig,
     babelTransformConfig
   );
@@ -334,7 +346,7 @@ async function attemptFixPatch(targetRepository: string, patchPath: string) {
   const newPatchFilename = `${crypto.randomBytes(16).toString('hex')}.patch`;
   const newPatchPath = path.join(os.tmpdir(), newPatchFilename);
 
-  await fs.promises.copyFile(patchPath, newPatchPath);
+  await copyFile(patchPath, newPatchPath);
 
   let allFailedFiles: Set<string> = new Set();
   let failedFiles: Set<string> = new Set();
@@ -370,13 +382,13 @@ async function attemptFixPatch(targetRepository: string, patchPath: string) {
       newPatchFile = await removeFilesFromUnifiedDiff(newPatchPath, [
         ...failedFiles,
       ]);
-      await fs.promises.writeFile(newPatchPath, newPatchFile, {
+      await writeFile(newPatchPath, newPatchFile, {
         encoding: 'utf8',
       });
     }
   } while (failedFiles.size > 0);
 
-  await fs.promises.writeFile(patchPath, newPatchFile, {
+  await writeFile(patchPath, newPatchFile, {
     encoding: 'utf8',
   });
 
@@ -387,7 +399,7 @@ async function removeFilesFromUnifiedDiff(
   patchPath: string,
   filenames: string[]
 ) {
-  const patchContents = await fs.promises.readFile(patchPath, {
+  const patchContents = await readFile(patchPath, {
     encoding: 'utf8',
   });
   const filenameSet = new Set(filenames);
@@ -454,22 +466,26 @@ async function getUpstreamSourceReferences(
     sources = sources.concat(files);
   }
 
-  return sources.reduce((previous, current) => {
-    const upstreamUrl = extractUpstreamFileUrl(
-      path.join(downstreamPath, current)
+  const map = {} as UpstreamFileMap;
+  for (const source of sources) {
+    const upstreamUrl = await extractUpstreamFileUrl(
+      path.join(downstreamPath, source)
     );
     if (upstreamUrl) {
       const upstreamReference = extractUpstreamReferenceFromUrl(upstreamUrl);
       if (upstreamReference) {
-        previous[current] = upstreamReference;
+        map[source] = upstreamReference;
       }
     }
-    return previous;
-  }, {} as UpstreamFileMap);
+  }
+  return map;
 }
 
-function extractUpstreamFileUrl(filepath: string): string | undefined {
-  const contents = fs.readFileSync(filepath, { encoding: 'utf-8' }).split('\n');
+async function extractUpstreamFileUrl(
+  filepath: string
+): Promise<string | undefined> {
+  const fileContent = await readFile(filepath, { encoding: 'utf-8' });
+  const contents = fileContent.split('\n');
 
   for (const line of contents) {
     const match = line.match(ROBLOX_UPSTREAM_REGEX);
@@ -502,7 +518,7 @@ function extractUpstreamReferenceFromUrl(
  * Automatically resolve merge conflicts in favor of downstream.
  */
 async function resolveMergeConflicts(file: string) {
-  const contents = await fs.promises.readFile(file, { encoding: 'utf-8' });
+  const contents = await readFile(file, { encoding: 'utf-8' });
 
   let sectionType = MergeSection.Resolved;
   let resolvedContents = '';
@@ -526,7 +542,7 @@ async function resolveMergeConflicts(file: string) {
 
   resolvedContents = `${resolvedContents.trimEnd()}\n`;
 
-  await fs.promises.writeFile(file, resolvedContents);
+  await writeFile(file, resolvedContents);
   return count > 0 ? { [file]: count } : {};
 }
 
@@ -536,27 +552,30 @@ async function resolveMergeConflicts(file: string) {
  */
 async function copyUpstreamFile(
   upstreamDir: string,
-  downstreamFilePath: string,
   upstreamFilePath: string,
   upstreamRef: string
 ) {
   const git = simpleGit();
-  const upstreamFilename = path.basename(upstreamFilePath);
-  const fullDownstreamPath = path.join(
-    DEFAULT_CONVERSION_INPUT_DIR,
-    downstreamFilePath,
-    '..',
-    upstreamFilename
-  );
 
   try {
     await git.cwd(path.resolve(upstreamDir));
     const contents = await git.show(`${upstreamRef}:${upstreamFilePath}`);
 
-    await fs.promises.mkdir(path.join(fullDownstreamPath, '..'), {
-      recursive: true,
-    });
-    await fs.promises.writeFile(fullDownstreamPath, contents);
+    await mkdir(
+      path.join(
+        DEFAULT_CONVERSION_INPUT_DIR,
+        upstreamRef,
+        upstreamFilePath,
+        '..'
+      ),
+      {
+        recursive: true,
+      }
+    );
+    await writeFile(
+      path.join(DEFAULT_CONVERSION_INPUT_DIR, upstreamRef, upstreamFilePath),
+      contents
+    );
   } catch (e) {
     if (e instanceof GitError) {
       console.error(
@@ -584,10 +603,10 @@ async function copyDownstreamFile(
     await git.cwd(path.resolve(downstreamDir));
     const contents = await git.show(`${downstreamRef}:${downstreamFilePath}`);
 
-    await fs.promises.mkdir(path.join(fullDownstreamPath, '..'), {
+    await mkdir(path.join(fullDownstreamPath, '..'), {
       recursive: true,
     });
-    await fs.promises.writeFile(fullDownstreamPath, contents);
+    await writeFile(fullDownstreamPath, contents);
   } catch (e) {
     if (e instanceof GitError) {
       console.error(
@@ -634,7 +653,7 @@ async function generatePatch(
     .join('\n');
 
   const patchPath = path.join(outputDir, DEFAULT_PATCH_NAME);
-  await fs.promises.writeFile(patchPath, patch);
+  await writeFile(patchPath, patch);
 
   return patchPath;
 }
@@ -645,33 +664,69 @@ async function generatePatch(
 async function convertSources(
   toolPath: string,
   conversionDir: string,
+  fileMap: UpstreamFileMap,
+  remoteUrl?: string,
+  sha?: string,
   babelConfig?: string,
   babelTransformConfig?: string
 ) {
   const DIST_MAIN_FILE = 'dist/apps/convert-js-to-lua/main.js';
   const originalDir = process.cwd();
   process.chdir(path.resolve(toolPath));
-
+  let stdout = '';
+  let stderr = '';
   try {
     const execFile = util.promisify(childProcessExecFile);
 
-    const args = [
-      DIST_MAIN_FILE,
-      '-o',
-      `${conversionDir}/${DEFAULT_CONVERSION_OUTPUT_DIR}`,
-      '-i',
-      `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}/**/*`,
-      '--root',
-      `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}`,
-    ];
-    if (babelConfig) {
-      args.push('--babelConfig', babelConfig);
-    }
-    if (babelTransformConfig) {
-      args.push('--babelTransformConfig', babelTransformConfig);
+    // TODO: realpath should be handled by the conversion tool
+    conversionDir = await realpath(conversionDir);
+
+    const files = Object.keys(fileMap).map((key) => {
+      return {
+        key,
+        ...fileMap[key],
+      };
+    }, []);
+
+    const groupByRef = groupBy(
+      (file: { ref: string; path: string; key: string }) => sha || file.ref
+    );
+
+    const groups = groupByRef(files);
+
+    for (const revision of Object.keys(groups)) {
+      const args = [
+        DIST_MAIN_FILE,
+        '-o',
+        `${conversionDir}/${DEFAULT_CONVERSION_OUTPUT_DIR}`,
+        '-i',
+        `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}/${revision}/**/*`,
+        '--rootDir',
+        `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}/${revision}`,
+      ];
+      if (babelConfig) {
+        args.push('--babelConfig', babelConfig);
+      }
+      if (babelTransformConfig) {
+        args.push('--babelTransformConfig', babelTransformConfig);
+      }
+
+      if (remoteUrl && revision) {
+        args.push('--remoteUrl', remoteUrl, '--sha', revision);
+      }
+      console.log(
+        'converting:',
+        `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}/${revision}/**/*`
+      );
+      stdout += `node ${args.join(' ')}`;
+      const { stdout: out, stderr: err } = await execFile('node', args, {
+        maxBuffer: Infinity,
+      });
+      stdout += out ? `${out}\n` : '';
+      stderr += err ? `${err}\n` : '';
     }
 
-    return execFile('node', args, { maxBuffer: Infinity });
+    return { stdout, stderr };
   } finally {
     process.chdir(originalDir);
   }

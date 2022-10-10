@@ -2,6 +2,7 @@ import { SimpleGit } from 'simple-git';
 import * as lp from 'lookpath';
 import * as versionManager from './version-manager';
 import * as fs from 'fs';
+import * as fsPromises from 'fs/promises';
 import * as childProcess from 'node:child_process';
 import * as simpleGit from 'simple-git';
 import { ExecException, ExecFileException } from 'child_process';
@@ -64,9 +65,7 @@ describe('versionManager', () => {
     jest.spyOn(fs, 'existsSync').mockReturnValue(false);
     rm = jest.fn();
     jest.spyOn(process, 'chdir');
-    jest
-      .spyOn(fs, 'promises', 'get')
-      .mockReturnValue({ rm } as unknown as typeof fs.promises);
+    jest.spyOn(fsPromises, 'rm').mockImplementation(rm);
     jest.spyOn(simpleGit, 'simpleGit').mockReturnValue({
       cwd,
       clone,

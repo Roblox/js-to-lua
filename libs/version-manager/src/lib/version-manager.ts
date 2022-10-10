@@ -1,13 +1,14 @@
-import { simpleGit, CheckRepoActions } from 'simple-git';
+import * as fs from 'fs';
+import { rm } from 'fs/promises';
+import { lookpath } from 'lookpath';
 import {
   exec as childProcessExec,
   execFile as childProcessExecFile,
 } from 'node:child_process';
-import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { CheckRepoActions, simpleGit } from 'simple-git';
 import * as util from 'util';
-import { lookpath } from 'lookpath';
 
 const ORG_NAME = 'Roblox';
 const REPO_NAME = 'js-to-lua';
@@ -76,11 +77,11 @@ async function installConversionTool(installPath: string, ref: string) {
     const remoteUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${ORG_NAME}/${REPO_NAME}.git`;
 
     console.log('⬇️  Cloning js-to-lua from github...');
-    await fs.promises.rm(installPath, { recursive: true, force: true });
+    await rm(installPath, { recursive: true, force: true });
     await shallowCloneRepository(remoteUrl, ref, installPath);
     await buildConversionTool(installPath);
   } catch (e) {
-    await fs.promises.rm(installPath, { recursive: true, force: true });
+    await rm(installPath, { recursive: true, force: true });
     throw e;
   }
 }
@@ -159,7 +160,7 @@ export async function setupUpstreamRepository(
     await updateUpstreamRepository(localRepoPath, ref);
   } else {
     console.log(`⬇️  Cloning upstream repository '${name}' from github...`);
-    await fs.promises.rm(localRepoPath, { recursive: true, force: true });
+    await rm(localRepoPath, { recursive: true, force: true });
     await cloneUpstreamRepository(owner, name, localRepoPath, ref);
   }
 
@@ -181,7 +182,7 @@ async function cloneUpstreamRepository(
     await git.cwd(repoPath);
     await git.checkout(ref);
   } catch (e) {
-    await fs.promises.rm(repoPath, { recursive: true, force: true });
+    await rm(repoPath, { recursive: true, force: true });
     throw e;
   }
 }

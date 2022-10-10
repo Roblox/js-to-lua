@@ -55,6 +55,7 @@ export const upgrade = async ({
       outDir,
       revision,
       log,
+      remoteUrl: `https://github.com/${config.upstream.owner}/${config.upstream.repo}`,
       babelConfig,
       babelTransformConfig,
     });

@@ -5,7 +5,7 @@ import {
   setupUpstreamRepository,
 } from '@roblox/version-manager';
 import { ExecException } from 'child_process';
-import * as fs from 'fs';
+import { writeFile } from 'fs/promises';
 import { getConfig } from './get-config';
 
 const STDOUT_FILENAME = 'fast-follow.stdout.log';
@@ -14,6 +14,7 @@ const STDERR_FILENAME = 'fast-follow.stderr.log';
 export interface CompareOptions {
   log: boolean;
   outDir?: string;
+  remoteUrl: string;
   revision?: string;
   sourceDir: string;
   babelConfig?: string;
@@ -66,6 +67,7 @@ export async function compareSinceLastSync(
         outDir: options.outDir,
         babelConfig: options.babelConfig,
         babelTransformConfig: options.babelTransformConfig,
+        remoteUrl: options.remoteUrl,
       }
     );
     stdout += comparisonResponse.stdout;
@@ -93,10 +95,10 @@ export async function compareSinceLastSync(
   } finally {
     if (options.log) {
       if (stdout) {
-        await fs.promises.writeFile(STDOUT_FILENAME, stdout);
+        await writeFile(STDOUT_FILENAME, stdout);
       }
       if (stderr) {
-        await fs.promises.writeFile(STDERR_FILENAME, stderr);
+        await writeFile(STDERR_FILENAME, stderr);
       }
     }
   }
