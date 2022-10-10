@@ -8,5 +8,12 @@
       }
     ]
   ],
-  "presets": ["@babel/preset-react"]
+  "presets": [
+    [
+      "@babel/preset-react",
+      {
+        "useBuiltIns": true
+      }
+    ]
+  ]
 }
