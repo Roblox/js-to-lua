@@ -1,18 +1,28 @@
 name: Fast Follow
+description: 'Run fast follow tool on a target repository'
 
 inputs:
-  slack-channel-id:
-    required: true
-  slack-signing-secret:
-    required: true
-  slack-bot-token:
-    required: true
-  slack-app-token:
-    required: true
   github-token:
+    description: 'GitHub API token'
     required: true
   repo-path:
+    description: 'Path to a target repository directory'
     required: true
+  slack-channel-id:
+    description: 'Slack channel id'
+    required: false
+  slack-signing-secret:
+    description: 'Signing secret of the Slack App'
+    required: false
+  slack-bot-token:
+    description: 'Token of the Slack bot account'
+    required: false
+  slack-app-token:
+    description: 'Slack app API token'
+    required: false
+  pr-description-cc-users:
+    description: 'Comma separated GitHub user names which start with @ (e.g. "@foo,@bar"). They will be mentioned in created PR description.'
+    required: false
 
 runs:
   using: composite
@@ -93,7 +103,7 @@ runs:
 
     - name: Run Fast Follow
       shell: bash
-      run: npx fast-follow upgrade ${{inputs.repo-path}} -c ${{ inputs.slack-channel-id }}
+      run: npx fast-follow upgrade ${{inputs.repo-path}} ${{ inputs.slack-channel-id && format('-c {0}', inputs.slack-channel-id)}} ${{ inputs.pr-description-cc-users && format('--prCC "{0}"', inputs.pr-description-cc-users)}}
       env:
         SLACK_SIGNING_SECRET: ${{ inputs.slack-signing-secret }}
         SLACK_BOT_TOKEN: ${{ inputs.slack-bot-token }}

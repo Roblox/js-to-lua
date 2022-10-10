@@ -202,6 +202,7 @@ export function setupCommands({
             type: 'string',
             describe:
               'target revision to upgrade to. If not provided latest release will be used',
+            requiresArg: true,
           })
           .option('babelConfig', {
             description: 'Babel config file',
@@ -212,7 +213,22 @@ export function setupCommands({
             description: 'Babel transform config file',
             type: 'string',
             requiresArg: true,
-          }),
+          })
+          .option('pullRequestCC', {
+            alias: ['prCC'],
+            type: 'array',
+            describe:
+              'GitHub user names which start with @ (e.g. "@foo"). They will be mentioned in created PR description.',
+            requiresArg: true,
+          })
+          .coerce(
+            'pullRequestCC',
+            (value: Array<string | number>): Array<string> =>
+              value
+                .map(String)
+                .map((v) => v.split(','))
+                .flat()
+          ),
       (argv) => {
         const {
           channel,
@@ -222,6 +238,8 @@ export function setupCommands({
           revision,
           babelConfig,
           babelTransformConfig,
+
+          pullRequestCC = [],
         } = argv;
         return upgrade({
           channel,
@@ -231,6 +249,7 @@ export function setupCommands({
           revision,
           babelConfig,
           babelTransformConfig,
+          pullRequestCC,
         });
       }
     )

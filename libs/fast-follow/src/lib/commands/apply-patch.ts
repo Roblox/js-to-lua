@@ -7,6 +7,7 @@ import {
   sendPullRequestSuccessNotification,
 } from '../slack-notifications';
 import { getConfig } from './get-config';
+import { normalizeTagUser } from './gh-utils';
 import { getPullRequestBranchName, isPullRequestOpen } from './pr-utils';
 
 export type ApplyPatchOptions = {
@@ -18,6 +19,7 @@ export type ApplyPatchOptions = {
   descriptionData?: {
     failedFiles: Set<string>;
     conflictsSummary: { [key: string]: number };
+    pullRequestCC: string[];
   };
 };
 
@@ -71,23 +73,29 @@ export async function applyPatch(options: ApplyPatchOptions) {
   const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
   let description = `Fast Follow: Automatic upgrade to ${options.revision}`;
   if (descriptionData) {
-    if (Object.keys(descriptionData.conflictsSummary).length) {
+    const { conflictsSummary, failedFiles, pullRequestCC } = descriptionData;
+    if (Object.keys(conflictsSummary).length) {
       description +=
         '\n\nSome files had conflicts that were automatically resolved:\n';
-      description += Object.keys(descriptionData.conflictsSummary)
+      description += Object.keys(conflictsSummary)
         .map((key) => {
           const filename = key.slice(DEFAULT_CONVERSION_OUTPUT_DIR.length + 1);
-          return `- [ ] ${filename}: ${descriptionData.conflictsSummary[key]}`;
+          return `- [ ] ${filename}: ${conflictsSummary[key]}`;
         })
         .join('\n');
     }
 
-    if (descriptionData.failedFiles.size) {
+    if (failedFiles.size) {
       description +=
         '\n\nPatch files could not be applied to some files and were skipped:\n';
-      description += [...descriptionData.failedFiles]
-        .map((file) => `- [ ] ${file}`)
-        .join('\n');
+      description += [...failedFiles].map((file) => `- [ ] ${file}`).join('\n');
+    }
+
+    if (pullRequestCC.length) {
+      description += `\n\nCC: ${pullRequestCC
+        .map(normalizeTagUser)
+        .filter(Boolean)
+        .join(' ')}`;
     }
   }
 

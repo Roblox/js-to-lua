@@ -12,6 +12,7 @@ export type UpgradeOptions = {
   log: boolean;
   babelConfig?: string;
   babelTransformConfig?: string;
+  pullRequestCC: string[];
 };
 
 /**
@@ -25,6 +26,7 @@ export const upgrade = async ({
   revision: targetRev,
   babelConfig,
   babelTransformConfig,
+  pullRequestCC,
 }: UpgradeOptions) => {
   const config = await getConfig(sourceDir);
 
@@ -60,6 +62,7 @@ export const upgrade = async ({
   const descriptionData = {
     failedFiles,
     conflictsSummary,
+    pullRequestCC,
   };
 
   console.log('Conversion completed.');
