@@ -8,30 +8,37 @@ import {
   AsStatementHandlerFunction,
   AsStatementReturnType,
   asStatementReturnTypeInline,
+  asStatementReturnTypeStandaloneOrInline,
   createAsStatementHandler,
   createHandler,
 } from '@js-to-lua/handler-utils';
 import {
   asStatementReturnTypeToExpression,
   asStatementReturnTypeToReturn,
+  asStatementReturnTypeToStatement,
   booleanInferableExpression,
   booleanMethod,
   defaultExpressionAsStatementHandler,
+  generateUniqueIdentifier,
   isBooleanInferable,
+  unwrapNestedNodeGroups,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   callExpression,
   elseExpressionClause,
   identifier,
+  ifClause,
   ifElseExpression,
   ifExpressionClause,
+  ifStatement,
   logicalExpression,
   LuaExpression,
   LuaLogicalExpression,
   LuaLogicalExpressionOperatorEnum,
   LuaStatement,
   nilLiteral,
+  nodeGroup,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -130,26 +137,28 @@ export const createLogicalExpressionAsStatementHandler = (
                 ),
                 leftExpressionReturn.postStatements
               )
-            : asStatementReturnTypeInline(
-                [
-                  ...leftExpressionReturn.preStatements,
-                  variableDeclaration(
-                    [variableDeclaratorIdentifier(identifier('ref'))],
-                    [variableDeclaratorValue(leftExpression)]
-                  ),
-                ],
-                logicalExpression(
-                  LuaLogicalExpressionOperatorEnum.OR,
-                  logicalExpression(
-                    LuaLogicalExpressionOperatorEnum.AND,
-                    callExpression(booleanMethod('toJSBoolean'), [
-                      identifier('ref'),
-                    ]),
-                    identifier('ref')
-                  ),
-                  rightExpression
-                ),
-                leftExpressionReturn.postStatements
+            : applyTo(
+                identifier(generateUniqueIdentifier([], 'ref')),
+                (refId) =>
+                  asStatementReturnTypeInline(
+                    [
+                      ...leftExpressionReturn.preStatements,
+                      variableDeclaration(
+                        [variableDeclaratorIdentifier(refId)],
+                        [variableDeclaratorValue(leftExpression)]
+                      ),
+                    ],
+                    logicalExpression(
+                      LuaLogicalExpressionOperatorEnum.OR,
+                      logicalExpression(
+                        LuaLogicalExpressionOperatorEnum.AND,
+                        callExpression(booleanMethod('toJSBoolean'), [refId]),
+                        refId
+                      ),
+                      rightExpression
+                    ),
+                    leftExpressionReturn.postStatements
+                  )
               );
         }
         case '&&': {
@@ -158,6 +167,15 @@ export const createLogicalExpressionAsStatementHandler = (
           const isRightExpressionBooleanInferable =
             isBooleanInferable(rightExpression);
 
+          const rightExpressionAsStatement = unwrapNestedNodeGroups(
+            nodeGroup([
+              asStatementReturnTypeToStatement(
+                source,
+                node.right,
+                rightAsStatementResult
+              ),
+            ])
+          );
           if (isLeftExpressionBooleanInferable) {
             return applyTo(
               logicalExpression(
@@ -171,18 +189,30 @@ export const createLogicalExpressionAsStatementHandler = (
                     ? booleanInferableExpression(expression)
                     : expression,
                 (expression) =>
-                  asStatementReturnTypeInline(
+                  asStatementReturnTypeStandaloneOrInline(
                     leftExpressionReturn.preStatements,
-                    expression,
-                    leftExpressionReturn.postStatements
+                    leftExpressionReturn.postStatements,
+                    ifStatement(
+                      ifClause(leftExpression, rightExpressionAsStatement)
+                    ),
+                    expression
                   )
               )
             );
           }
           return isBabelIdentifier(node.left) ||
             isBabelMemberExpression(node.left)
-            ? asStatementReturnTypeInline(
+            ? asStatementReturnTypeStandaloneOrInline(
                 leftExpressionReturn.preStatements,
+                leftExpressionReturn.postStatements,
+                ifStatement(
+                  ifClause(
+                    callExpression(booleanMethod('toJSBoolean'), [
+                      leftExpression,
+                    ]),
+                    rightExpressionAsStatement
+                  )
+                ),
                 ifElseExpression(
                   ifExpressionClause(
                     callExpression(booleanMethod('toJSBoolean'), [
@@ -191,27 +221,34 @@ export const createLogicalExpressionAsStatementHandler = (
                     rightExpression
                   ),
                   elseExpressionClause(leftExpression)
-                ),
-                leftExpressionReturn.postStatements
+                )
               )
-            : asStatementReturnTypeInline(
-                [
-                  ...leftExpressionReturn.preStatements,
-                  variableDeclaration(
-                    [variableDeclaratorIdentifier(identifier('ref'))],
-                    [variableDeclaratorValue(leftExpression)]
-                  ),
-                ],
-                ifElseExpression(
-                  ifExpressionClause(
-                    callExpression(booleanMethod('toJSBoolean'), [
-                      identifier('ref'),
-                    ]),
-                    rightExpression
-                  ),
-                  elseExpressionClause(identifier('ref'))
-                ),
-                leftExpressionReturn.postStatements
+            : applyTo(
+                identifier(generateUniqueIdentifier([], 'ref')),
+                (refId) =>
+                  asStatementReturnTypeStandaloneOrInline(
+                    [
+                      ...leftExpressionReturn.preStatements,
+                      variableDeclaration(
+                        [variableDeclaratorIdentifier(refId)],
+                        [variableDeclaratorValue(leftExpression)]
+                      ),
+                    ],
+                    leftExpressionReturn.postStatements,
+                    ifStatement(
+                      ifClause(
+                        callExpression(booleanMethod('toJSBoolean'), [refId]),
+                        rightExpressionAsStatement
+                      )
+                    ),
+                    ifElseExpression(
+                      ifExpressionClause(
+                        callExpression(booleanMethod('toJSBoolean'), [refId]),
+                        rightExpression
+                      ),
+                      elseExpressionClause(refId)
+                    )
+                  )
               );
         }
         case '??': {
@@ -228,22 +265,26 @@ export const createLogicalExpressionAsStatementHandler = (
                 ),
                 leftExpressionReturn.postStatements
               )
-            : asStatementReturnTypeInline(
-                [
-                  ...leftExpressionReturn.preStatements,
-                  variableDeclaration(
-                    [variableDeclaratorIdentifier(identifier('ref'))],
-                    [variableDeclaratorValue(leftExpression)]
-                  ),
-                ],
-                ifElseExpression(
-                  ifExpressionClause(
-                    binaryExpression(identifier('ref'), '~=', nilLiteral()),
-                    identifier('ref')
-                  ),
-                  elseExpressionClause(rightExpression)
-                ),
-                leftExpressionReturn.postStatements
+            : applyTo(
+                identifier(generateUniqueIdentifier([], 'ref')),
+                (refId) =>
+                  asStatementReturnTypeInline(
+                    [
+                      ...leftExpressionReturn.preStatements,
+                      variableDeclaration(
+                        [variableDeclaratorIdentifier(refId)],
+                        [variableDeclaratorValue(leftExpression)]
+                      ),
+                    ],
+                    ifElseExpression(
+                      ifExpressionClause(
+                        binaryExpression(refId, '~=', nilLiteral()),
+                        refId
+                      ),
+                      elseExpressionClause(rightExpression)
+                    ),
+                    leftExpressionReturn.postStatements
+                  )
               );
         }
         default:

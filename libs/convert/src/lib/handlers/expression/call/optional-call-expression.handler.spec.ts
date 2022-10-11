@@ -1,8 +1,6 @@
 import * as Babel from '@babel/types';
 import {
-  asStatementInline,
   asStatementReturnTypeStandaloneOrInline,
-  asStatementStandalone,
   createHandlerFunction,
   testUtils,
 } from '@js-to-lua/handler-utils';
@@ -146,28 +144,20 @@ describe('OptionalCallExpression handler', () => {
       );
 
       const expected = asStatementReturnTypeStandaloneOrInline(
-        asStatementStandalone(
-          [],
-          ifStatement(
-            ifClause(
-              binaryExpression(identifier('foo'), '~=', nilLiteral()),
-              nodeGroup([
-                expressionStatement(callExpression(identifier('foo'))),
-              ])
-            )
-          ),
-          []
-        ),
-        asStatementInline(
-          [],
-          [],
-          ifElseExpression(
-            ifExpressionClause(
-              binaryExpression(identifier('foo'), '~=', nilLiteral()),
-              callExpression(identifier('foo'))
-            ),
-            elseExpressionClause(nilLiteral())
+        [],
+        [],
+        ifStatement(
+          ifClause(
+            binaryExpression(identifier('foo'), '~=', nilLiteral()),
+            nodeGroup([expressionStatement(callExpression(identifier('foo')))])
           )
+        ),
+        ifElseExpression(
+          ifExpressionClause(
+            binaryExpression(identifier('foo'), '~=', nilLiteral()),
+            callExpression(identifier('foo'))
+          ),
+          elseExpressionClause(nilLiteral())
         )
       );
 

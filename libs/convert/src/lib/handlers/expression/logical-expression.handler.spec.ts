@@ -1,29 +1,19 @@
-import {
-  arrayExpression as babelArrayExpression,
-  booleanLiteral as babelBooleanLiteral,
-  callExpression as babelCallExpression,
-  identifier as babelIdentifier,
-  logicalExpression as babelLogicalExpression,
-  nullLiteral as babelNullLiteral,
-  numericLiteral as babelNumericLiteral,
-  objectExpression as babelObjectExpression,
-  stringLiteral as babelStringLiteral,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   asStatementReturnTypeInline,
+  asStatementReturnTypeStandaloneOrInline,
   createAsStatementHandlerFunction,
   testUtils,
 } from '@js-to-lua/handler-utils';
 import {
   booleanInferableExpression,
   booleanMethod,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   binaryExpression,
   callExpression,
-  elseClause,
   elseExpressionClause,
-  functionExpression,
   identifier,
   ifClause,
   ifElseExpression,
@@ -31,9 +21,10 @@ import {
   ifStatement,
   logicalExpression,
   LuaLogicalExpressionOperatorEnum,
+  LuaStatement,
   nilLiteral,
   nodeGroup,
-  returnStatement,
+  unhandledStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
@@ -50,28 +41,28 @@ const source = '';
 
 describe('Logical Expression Handler', () => {
   const falsyValues = [
-    babelBooleanLiteral(false),
-    babelNullLiteral(),
-    babelIdentifier('undefined'),
+    Babel.booleanLiteral(false),
+    Babel.nullLiteral(),
+    Babel.identifier('undefined'),
   ];
 
   const truthyValues = [
-    babelNumericLiteral(0),
-    babelNumericLiteral(1),
-    babelStringLiteral(''),
-    babelStringLiteral('abc'),
-    babelBooleanLiteral(true),
-    babelObjectExpression([]),
-    babelArrayExpression([]),
-    babelIdentifier('NaN'),
+    Babel.numericLiteral(0),
+    Babel.numericLiteral(1),
+    Babel.stringLiteral(''),
+    Babel.stringLiteral('abc'),
+    Babel.booleanLiteral(true),
+    Babel.objectExpression([]),
+    Babel.arrayExpression([]),
+    Babel.identifier('NaN'),
   ];
 
   describe('as expression', () => {
     describe(`should handle || operator`, () => {
       it('with 2 identifiers', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('||', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const rightGiven = Babel.identifier('bar');
+        const given = Babel.logicalExpression('||', leftGiven, rightGiven);
 
         const handleLogicalExpression = createLogicalExpressionHandler(
           mockNodeAsStatementWithValueHandler
@@ -95,9 +86,9 @@ describe('Logical Expression Handler', () => {
       });
 
       it('with boolean inferable expressions', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('||', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const rightGiven = Babel.identifier('bar');
+        const given = Babel.logicalExpression('||', leftGiven, rightGiven);
 
         const handleLogicalExpression = createLogicalExpressionHandler(
           createAsStatementHandlerFunction(
@@ -136,9 +127,9 @@ describe('Logical Expression Handler', () => {
 
     describe(`should handle && operator`, () => {
       it('when right side is unknown', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const rightGiven = Babel.identifier('bar');
+        const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
 
         const handleLogicalExpression = createLogicalExpressionHandler(
           mockNodeAsStatementWithValueHandler
@@ -160,8 +151,8 @@ describe('Logical Expression Handler', () => {
       });
 
       it.each(falsyValues)(`when right side is falsy: %s`, (rightGiven) => {
-        const leftGiven = babelIdentifier('foo');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
 
         const handleLogicalExpression = createLogicalExpressionHandler(
           mockNodeAsStatementWithValueHandler
@@ -184,8 +175,8 @@ describe('Logical Expression Handler', () => {
       it.each(truthyValues)(
         `when right side is truthy in Lua: %s`,
         (rightGiven) => {
-          const leftGiven = babelIdentifier('foo');
-          const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+          const leftGiven = Babel.identifier('foo');
+          const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
 
           const handleLogicalExpression = createLogicalExpressionHandler(
             mockNodeAsStatementWithValueHandler
@@ -208,9 +199,9 @@ describe('Logical Expression Handler', () => {
       );
 
       it('with boolean inferable expressions', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const rightGiven = Babel.identifier('bar');
+        const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
 
         const handleLogicalExpression = createLogicalExpressionHandler(
           createAsStatementHandlerFunction(
@@ -251,8 +242,8 @@ describe('Logical Expression Handler', () => {
       it.each([...truthyValues, ...falsyValues])(
         `when right side is either truthy or falsy: %s`,
         (rightGiven) => {
-          const leftGiven = babelIdentifier('foo');
-          const given = babelLogicalExpression('??', leftGiven, rightGiven);
+          const leftGiven = Babel.identifier('foo');
+          const given = Babel.logicalExpression('??', leftGiven, rightGiven);
 
           const handleLogicalExpression = createLogicalExpressionHandler(
             mockNodeAsStatementWithValueHandler
@@ -298,9 +289,9 @@ describe('Logical Expression Handler', () => {
 
     describe(`should handle || operator`, () => {
       it('with 2 identifiers', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('||', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const rightGiven = Babel.identifier('bar');
+        const given = Babel.logicalExpression('||', leftGiven, rightGiven);
 
         const expected = asStatementReturnTypeInline(
           [],
@@ -324,9 +315,9 @@ describe('Logical Expression Handler', () => {
       });
 
       it('with 2 call expressions', () => {
-        const leftGiven = babelCallExpression(babelIdentifier('foo'), []);
-        const rightGiven = babelCallExpression(babelIdentifier('bar'), []);
-        const given = babelLogicalExpression('||', leftGiven, rightGiven);
+        const leftGiven = Babel.callExpression(Babel.identifier('foo'), []);
+        const rightGiven = Babel.callExpression(Babel.identifier('bar'), []);
+        const given = Babel.logicalExpression('||', leftGiven, rightGiven);
 
         const expected = asStatementReturnTypeInline(
           [
@@ -353,9 +344,9 @@ describe('Logical Expression Handler', () => {
       });
 
       it('with boolean inferable expressions', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('||', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const rightGiven = Babel.identifier('bar');
+        const given = Babel.logicalExpression('||', leftGiven, rightGiven);
 
         handleExpressionAsStatement
           .mockImplementationOnce(() =>
@@ -392,12 +383,27 @@ describe('Logical Expression Handler', () => {
 
     describe(`should handle && operator`, () => {
       it('when right side is unknown', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const rightGiven = Babel.identifier('bar');
 
-        const expected = asStatementReturnTypeInline(
+        const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
+
+        const expected = asStatementReturnTypeStandaloneOrInline(
           [],
+          [],
+          ifStatement(
+            ifClause(
+              callExpression(booleanMethod('toJSBoolean'), [
+                mockNodeWithValue(leftGiven),
+              ]),
+              nodeGroup([
+                withTrailingConversionComment(
+                  unhandledStatement(),
+                  "ROBLOX TODO: Lua doesn't support 'MockNode' as a standalone type"
+                ),
+              ])
+            )
+          ),
           ifElseExpression(
             ifExpressionClause(
               callExpression(booleanMethod('toJSBoolean'), [
@@ -406,90 +412,70 @@ describe('Logical Expression Handler', () => {
               mockNodeWithValue(rightGiven)
             ),
             elseExpressionClause(mockNodeWithValue(leftGiven))
-          ),
-          []
+          )
         );
 
-        callExpression(
-          functionExpression(
-            [],
-            nodeGroup([
-              ifStatement(
-                ifClause(
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    mockNodeWithValue(leftGiven),
-                  ]),
-                  nodeGroup([returnStatement(mockNodeWithValue(rightGiven))])
-                ),
-                [],
-                elseClause(
-                  nodeGroup([returnStatement(mockNodeWithValue(leftGiven))])
-                )
-              ),
-            ])
-          ),
-          []
-        );
-
-        expect(handleLogicalExpressionAsStatement(source, {}, given)).toEqual(
-          expected
-        );
+        const actual = handleLogicalExpressionAsStatement(source, {}, given);
+        expect(actual).toEqual(expected);
       });
 
       it('when right side is unknown and left is call expression', () => {
-        const leftGiven = babelCallExpression(babelIdentifier('foo'), []);
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+        const leftGiven = Babel.callExpression(Babel.identifier('foo'), []);
+        const rightGiven = Babel.identifier('bar');
+        const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
 
-        const expected = asStatementReturnTypeInline(
+        const expected = asStatementReturnTypeStandaloneOrInline<LuaStatement>(
           [
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('ref'))],
               [variableDeclaratorValue(mockNodeWithValue(leftGiven))]
             ),
           ],
+          [],
+          ifStatement(
+            ifClause(
+              callExpression(booleanMethod('toJSBoolean'), [identifier('ref')]),
+              nodeGroup([
+                withTrailingConversionComment(
+                  unhandledStatement(),
+                  "ROBLOX TODO: Lua doesn't support 'MockNode' as a standalone type"
+                ),
+              ])
+            )
+          ),
           ifElseExpression(
             ifExpressionClause(
               callExpression(booleanMethod('toJSBoolean'), [identifier('ref')]),
               mockNodeWithValue(rightGiven)
             ),
             elseExpressionClause(identifier('ref'))
-          ),
-          []
+          )
         );
 
-        callExpression(
-          functionExpression(
-            [],
-            nodeGroup([
-              ifStatement(
-                ifClause(
-                  callExpression(booleanMethod('toJSBoolean'), [
-                    mockNodeWithValue(leftGiven),
-                  ]),
-                  nodeGroup([returnStatement(mockNodeWithValue(rightGiven))])
-                ),
-                [],
-                elseClause(
-                  nodeGroup([returnStatement(mockNodeWithValue(leftGiven))])
-                )
-              ),
-            ])
-          ),
-          []
-        );
-
-        expect(handleLogicalExpressionAsStatement(source, {}, given)).toEqual(
-          expected
-        );
+        const actual = handleLogicalExpressionAsStatement(source, {}, given);
+        expect(actual).toEqual(expected);
       });
 
       it.each(falsyValues)(`when right side is falsy: %s`, (rightGiven) => {
-        const leftGiven = babelIdentifier('foo');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
 
-        const expected = asStatementReturnTypeInline(
+        const expected = asStatementReturnTypeStandaloneOrInline(
           [],
+          [],
+          ifStatement(
+            ifClause(
+              callExpression(booleanMethod('toJSBoolean'), [
+                mockNodeWithValue(leftGiven),
+              ]),
+              nodeGroup([
+                withTrailingConversionComment(
+                  unhandledStatement(),
+                  "ROBLOX TODO: Lua doesn't support 'MockNode' as a standalone type"
+                ),
+              ])
+            )
+          ),
           ifElseExpression(
             ifExpressionClause(
               callExpression(booleanMethod('toJSBoolean'), [
@@ -498,8 +484,7 @@ describe('Logical Expression Handler', () => {
               mockNodeWithValue(rightGiven)
             ),
             elseExpressionClause(mockNodeWithValue(leftGiven))
-          ),
-          []
+          )
         );
 
         expect(handleLogicalExpressionAsStatement(source, {}, given)).toEqual(
@@ -510,11 +495,25 @@ describe('Logical Expression Handler', () => {
       it.each(truthyValues)(
         `when right side is truthy in Lua: %s`,
         (rightGiven) => {
-          const leftGiven = babelIdentifier('foo');
-          const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+          const leftGiven = Babel.identifier('foo');
+          const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
 
-          const expected = asStatementReturnTypeInline(
+          const expected = asStatementReturnTypeStandaloneOrInline(
             [],
+            [],
+            ifStatement(
+              ifClause(
+                callExpression(booleanMethod('toJSBoolean'), [
+                  mockNodeWithValue(leftGiven),
+                ]),
+                nodeGroup([
+                  withTrailingConversionComment(
+                    unhandledStatement(),
+                    "ROBLOX TODO: Lua doesn't support 'MockNode' as a standalone type"
+                  ),
+                ])
+              )
+            ),
             ifElseExpression(
               ifExpressionClause(
                 callExpression(booleanMethod('toJSBoolean'), [
@@ -523,8 +522,7 @@ describe('Logical Expression Handler', () => {
                 mockNodeWithValue(rightGiven)
               ),
               elseExpressionClause(mockNodeWithValue(leftGiven))
-            ),
-            []
+            )
           );
 
           expect(handleLogicalExpressionAsStatement(source, {}, given)).toEqual(
@@ -534,9 +532,9 @@ describe('Logical Expression Handler', () => {
       );
 
       it('with boolean inferable expressions', () => {
-        const leftGiven = babelIdentifier('foo');
-        const rightGiven = babelIdentifier('bar');
-        const given = babelLogicalExpression('&&', leftGiven, rightGiven);
+        const leftGiven = Babel.identifier('foo');
+        const rightGiven = Babel.identifier('bar');
+        const given = Babel.logicalExpression('&&', leftGiven, rightGiven);
 
         handleExpressionAsStatement
           .mockImplementationOnce(() =>
@@ -554,29 +552,39 @@ describe('Logical Expression Handler', () => {
             )
           );
 
-        const expected = asStatementReturnTypeInline(
+        const expected = asStatementReturnTypeStandaloneOrInline(
           [],
+          [],
+          ifStatement(
+            ifClause(
+              booleanInferableExpression(identifier('foo')),
+              nodeGroup([
+                withTrailingConversionComment(
+                  unhandledStatement(),
+                  "ROBLOX TODO: Lua doesn't support 'Identifier' as a standalone type"
+                ),
+              ])
+            )
+          ),
           booleanInferableExpression(
             logicalExpression(
               LuaLogicalExpressionOperatorEnum.AND,
               booleanInferableExpression(identifier('foo')),
               booleanInferableExpression(identifier('bar'))
             )
-          ),
-          []
+          )
         );
 
-        expect(handleLogicalExpressionAsStatement(source, {}, given)).toEqual(
-          expected
-        );
+        const actual = handleLogicalExpressionAsStatement(source, {}, given);
+        expect(actual).toEqual(expected);
       });
     });
 
     describe(`should handle ?? operator`, () => {
       it('with 2 call expressions', () => {
-        const leftGiven = babelCallExpression(babelIdentifier('foo'), []);
-        const rightGiven = babelCallExpression(babelIdentifier('bar'), []);
-        const given = babelLogicalExpression('??', leftGiven, rightGiven);
+        const leftGiven = Babel.callExpression(Babel.identifier('foo'), []);
+        const rightGiven = Babel.callExpression(Babel.identifier('bar'), []);
+        const given = Babel.logicalExpression('??', leftGiven, rightGiven);
 
         const expected = asStatementReturnTypeInline(
           [
@@ -603,8 +611,8 @@ describe('Logical Expression Handler', () => {
       it.each([...truthyValues, ...falsyValues])(
         `when right side is either truthy or falsy: %s`,
         (rightGiven) => {
-          const leftGiven = babelIdentifier('foo');
-          const given = babelLogicalExpression('??', leftGiven, rightGiven);
+          const leftGiven = Babel.identifier('foo');
+          const given = Babel.logicalExpression('??', leftGiven, rightGiven);
 
           const expected = asStatementReturnTypeInline(
             [],

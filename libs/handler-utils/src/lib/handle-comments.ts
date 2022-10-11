@@ -96,10 +96,10 @@ export const handleAsStatementResultComments = <
         },
         inline: {
           ...result.inline,
-          identifier: handleComments(
+          inlineExpression: handleComments(
             source,
             babelNode,
-            result.inline.identifier,
+            result.inline.inlineExpression,
             shouldWrap
           ),
         },

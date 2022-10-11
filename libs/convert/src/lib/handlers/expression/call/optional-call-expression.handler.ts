@@ -1,9 +1,7 @@
 import * as Babel from '@babel/types';
 import {
-  asStatementInline,
   AsStatementReturnType,
   asStatementReturnTypeStandaloneOrInline,
-  asStatementStandalone,
   createAsStatementHandler,
   createHandler,
   HandlerFunction,
@@ -69,65 +67,48 @@ export const createOptionalCallExpressionAsStatementHandler = (
 
       if (isPure(calleeExpression)) {
         return asStatementReturnTypeStandaloneOrInline(
-          asStatementStandalone(
-            [],
-            ifStatement(
-              ifClause(
-                binaryExpression(calleeExpression, '~=', nilLiteral()),
-                nodeGroup([
-                  expressionStatement(callExpression(calleeExpression, args)),
-                ])
-              )
-            ),
-            []
-          ),
-          asStatementInline(
-            [],
-            [],
-            ifElseExpression(
-              ifExpressionClause(
-                binaryExpression(calleeExpression, '~=', nilLiteral()),
-                callExpression(calleeExpression, args)
-              ),
-              elseExpressionClause(nilLiteral())
+          [],
+          [],
+          ifStatement(
+            ifClause(
+              binaryExpression(calleeExpression, '~=', nilLiteral()),
+              nodeGroup([
+                expressionStatement(callExpression(calleeExpression, args)),
+              ])
             )
+          ),
+          ifElseExpression(
+            ifExpressionClause(
+              binaryExpression(calleeExpression, '~=', nilLiteral()),
+              callExpression(calleeExpression, args)
+            ),
+            elseExpressionClause(nilLiteral())
           )
         );
       }
 
       const refId = identifier(generateUniqueIdentifier([], 'ref'));
 
-      return asStatementReturnTypeStandaloneOrInline(
-        asStatementStandalone<LuaStatement>(
-          [
-            variableDeclaration(
-              [variableDeclaratorIdentifier(refId)],
-              [variableDeclaratorValue(calleeExpression)]
-            ),
-          ],
-          ifStatement(
-            ifClause(
-              binaryExpression(refId, '~=', nilLiteral()),
-              nodeGroup([expressionStatement(callExpression(refId, args))])
-            )
+      return asStatementReturnTypeStandaloneOrInline<LuaStatement>(
+        [
+          variableDeclaration(
+            [variableDeclaratorIdentifier(refId)],
+            [variableDeclaratorValue(calleeExpression)]
           ),
-          []
-        ),
-        asStatementInline(
-          [
-            variableDeclaration(
-              [variableDeclaratorIdentifier(refId)],
-              [variableDeclaratorValue(calleeExpression)]
-            ),
-          ],
-          [],
-          ifElseExpression(
-            ifExpressionClause(
-              binaryExpression(refId, '~=', nilLiteral()),
-              callExpression(refId, args)
-            ),
-            elseExpressionClause(nilLiteral())
+        ],
+        [],
+        ifStatement(
+          ifClause(
+            binaryExpression(refId, '~=', nilLiteral()),
+            nodeGroup([expressionStatement(callExpression(refId, args))])
           )
+        ),
+        ifElseExpression(
+          ifExpressionClause(
+            binaryExpression(refId, '~=', nilLiteral()),
+            callExpression(refId, args)
+          ),
+          elseExpressionClause(nilLiteral())
         )
       );
     }

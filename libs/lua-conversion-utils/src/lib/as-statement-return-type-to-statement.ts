@@ -51,7 +51,7 @@ export const asStatementReturnTypeToReturnStatement = (
     return [
       ...value.inline.preStatements,
       ...value.inline.postStatements,
-      returnStatement(value.inline.identifier),
+      returnStatement(value.inline.inlineExpression),
     ];
   }
 
@@ -77,9 +77,11 @@ export const asStatementReturnTypeToReturnStatement = (
 export const asStatementReturnTypeToExpression = (
   value: AsStatementReturnType
 ): LuaExpression => {
-  return isAsStatementReturnTypeInline(value) &&
-    !value.preStatements.length &&
-    !value.postStatements.length
+  return isAsStatementReturnTypeStandaloneOrInline(value)
+    ? asStatementReturnTypeToExpression(value.inline)
+    : isAsStatementReturnTypeInline(value) &&
+      !value.preStatements.length &&
+      !value.postStatements.length
     ? value.inlineExpression
     : callExpression(
         functionExpression(
@@ -105,7 +107,7 @@ export const asStatementReturnTypeToReturn = <
     ? value.inlineExpression
     : isAsStatementReturnTypeWithIdentifier(value)
     ? value.identifier
-    : value.inline.identifier;
+    : value.inline.inlineExpression;
 
   const { preStatements, postStatements } =
     isAsStatementReturnTypeStandaloneOrInline(value) ? value.inline : value;
