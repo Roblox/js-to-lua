@@ -24,6 +24,7 @@ import {
   LuaStatement,
   nilLiteral,
   nodeGroup,
+  unaryNegationExpression,
   unhandledStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -293,8 +294,24 @@ describe('Logical Expression Handler', () => {
         const rightGiven = Babel.identifier('bar');
         const given = Babel.logicalExpression('||', leftGiven, rightGiven);
 
-        const expected = asStatementReturnTypeInline(
+        const expected = asStatementReturnTypeStandaloneOrInline(
           [],
+          [],
+          ifStatement(
+            ifClause(
+              unaryNegationExpression(
+                callExpression(booleanMethod('toJSBoolean'), [
+                  mockNodeWithValue(leftGiven),
+                ])
+              ),
+              nodeGroup([
+                withTrailingConversionComment(
+                  unhandledStatement(),
+                  "ROBLOX TODO: Lua doesn't support 'MockNode' as a standalone type"
+                ),
+              ])
+            )
+          ),
           logicalExpression(
             LuaLogicalExpressionOperatorEnum.OR,
             logicalExpression(
@@ -305,8 +322,7 @@ describe('Logical Expression Handler', () => {
               mockNodeWithValue(leftGiven)
             ),
             mockNodeWithValue(rightGiven)
-          ),
-          []
+          )
         );
 
         expect(handleLogicalExpressionAsStatement(source, {}, given)).toEqual(
@@ -319,13 +335,29 @@ describe('Logical Expression Handler', () => {
         const rightGiven = Babel.callExpression(Babel.identifier('bar'), []);
         const given = Babel.logicalExpression('||', leftGiven, rightGiven);
 
-        const expected = asStatementReturnTypeInline(
+        const expected = asStatementReturnTypeStandaloneOrInline<LuaStatement>(
           [
             variableDeclaration(
               [variableDeclaratorIdentifier(identifier('ref'))],
               [variableDeclaratorValue(mockNodeWithValue(leftGiven))]
             ),
           ],
+          [],
+          ifStatement(
+            ifClause(
+              unaryNegationExpression(
+                callExpression(booleanMethod('toJSBoolean'), [
+                  identifier('ref'),
+                ])
+              ),
+              nodeGroup([
+                withTrailingConversionComment(
+                  unhandledStatement(),
+                  "ROBLOX TODO: Lua doesn't support 'MockNode' as a standalone type"
+                ),
+              ])
+            )
+          ),
           logicalExpression(
             LuaLogicalExpressionOperatorEnum.OR,
             logicalExpression(
@@ -334,8 +366,7 @@ describe('Logical Expression Handler', () => {
               identifier('ref')
             ),
             mockNodeWithValue(rightGiven)
-          ),
-          []
+          )
         );
 
         expect(handleLogicalExpressionAsStatement(source, {}, given)).toEqual(
@@ -363,16 +394,29 @@ describe('Logical Expression Handler', () => {
               []
             )
           );
-        const expected = asStatementReturnTypeInline(
+        const expected = asStatementReturnTypeStandaloneOrInline(
           [],
+          [],
+          ifStatement(
+            ifClause(
+              unaryNegationExpression(
+                booleanInferableExpression(identifier('foo'))
+              ),
+              nodeGroup([
+                withTrailingConversionComment(
+                  unhandledStatement(),
+                  "ROBLOX TODO: Lua doesn't support 'Identifier' as a standalone type"
+                ),
+              ])
+            )
+          ),
           booleanInferableExpression(
             logicalExpression(
               LuaLogicalExpressionOperatorEnum.OR,
               booleanInferableExpression(identifier('foo')),
               booleanInferableExpression(identifier('bar'))
             )
-          ),
-          []
+          )
         );
 
         expect(handleLogicalExpressionAsStatement(source, {}, given)).toEqual(

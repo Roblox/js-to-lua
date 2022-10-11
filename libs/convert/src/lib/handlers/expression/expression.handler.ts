@@ -55,7 +55,7 @@ import { createIdentifierHandler } from './identifier.handler';
 import {
   createLogicalExpressionAsStatementHandler,
   createLogicalExpressionHandler,
-} from './logical-expression.handler';
+} from './logical-expression/logical-expression.handler';
 import { createMemberExpressionHandler } from './member-expression.handler';
 import { createNewExpressionHandler } from './new-expression.handler';
 import { createObjectExpressionAsStatementHandler } from './object-expression/as-statement/object-expression-as-statement.handler';
