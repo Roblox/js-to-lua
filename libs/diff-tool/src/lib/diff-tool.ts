@@ -1,14 +1,6 @@
-import { applyPatch, commitFiles } from '@js-to-lua/upstream-utils';
+import { commitFiles } from '@js-to-lua/upstream-utils';
 import { ConversionConfig } from '@roblox/release-tracker';
-import * as crypto from 'crypto';
-import {
-  copyFile,
-  mkdir,
-  readFile,
-  realpath,
-  rm,
-  writeFile,
-} from 'fs/promises';
+import { mkdir, readFile, realpath, rm, writeFile } from 'fs/promises';
 import * as g from 'glob';
 import {
   exec as childProcessExec,
@@ -26,6 +18,7 @@ import {
   simpleGit,
 } from 'simple-git';
 import * as util from 'util';
+import { attemptFixPatch } from './attempt-fix-patch';
 import {
   ChildExecException,
   ComparisonResponse,
@@ -48,8 +41,6 @@ const DEFAULT_PATCH_NAME = 'fast-follow.patch';
 
 const ROBLOX_UPSTREAM_REGEX = /-- ROBLOX upstream: (.*$)/;
 const GITHUB_URL_REF_REGEX = /blob\/(.*?)\/(.*$)/;
-const PATCH_ERROR_REGEX = /^error: (.*):(.*)$/;
-const DIFF_FILE_HEADER_REGEX = /^diff --git a\/output\/(.*) b\/output\/(.*)$/;
 
 /**
  * Generate a unified diff containing non-conflicting upstream changes in files
@@ -336,94 +327,6 @@ async function mergeUpstreamChanges(conversionDir: string, message: string) {
   return { stdout, stderr, conflictsSummary };
 }
 
-/**
- * Attempt to apply a patch to the target repository. Whenever files in the
- * unified diff fail to apply, they will be removed and the patch application
- * will be attempted again. This will happen either until the application
- * succeeds, or it gets stuck with the same error.
- */
-async function attemptFixPatch(targetRepository: string, patchPath: string) {
-  const newPatchFilename = `${crypto.randomBytes(16).toString('hex')}.patch`;
-  const newPatchPath = path.join(os.tmpdir(), newPatchFilename);
-
-  await copyFile(patchPath, newPatchPath);
-
-  let allFailedFiles: Set<string> = new Set();
-  let failedFiles: Set<string> = new Set();
-  let lastError = '';
-  let newPatchFile = '';
-
-  do {
-    try {
-      await applyPatch(targetRepository, newPatchPath, { check: true });
-
-      failedFiles = new Set();
-    } catch (e) {
-      if (e instanceof GitError) {
-        const message = e.message;
-
-        if (message === lastError) {
-          throw new Error(
-            `fatal: cannot apply patch '${newPatchPath}': ${message}`
-          );
-        }
-
-        lastError = message ?? '';
-      }
-
-      failedFiles = new Set(
-        lastError
-          .split('\n')
-          .map((error) => (error.match(PATCH_ERROR_REGEX) ?? [])[1])
-          .filter((filename): filename is string => !!filename)
-      );
-      allFailedFiles = new Set([...allFailedFiles, ...failedFiles]);
-
-      newPatchFile = await removeFilesFromUnifiedDiff(newPatchPath, [
-        ...failedFiles,
-      ]);
-      await writeFile(newPatchPath, newPatchFile, {
-        encoding: 'utf8',
-      });
-    }
-  } while (failedFiles.size > 0);
-
-  await writeFile(patchPath, newPatchFile, {
-    encoding: 'utf8',
-  });
-
-  return { patchPath, failedFiles: allFailedFiles };
-}
-
-async function removeFilesFromUnifiedDiff(
-  patchPath: string,
-  filenames: string[]
-) {
-  const patchContents = await readFile(patchPath, {
-    encoding: 'utf8',
-  });
-  const filenameSet = new Set(filenames);
-
-  let filteredPatch = '';
-  let inBadFile = false;
-
-  for (const line of patchContents.split('\n')) {
-    if (line.startsWith('diff --git a/')) {
-      const header = line.match(DIFF_FILE_HEADER_REGEX) ?? [];
-      const beforePath = header[1];
-      const afterPath = header[2];
-
-      inBadFile = filenameSet.has(beforePath) || filenameSet.has(afterPath);
-    }
-
-    if (!inBadFile) {
-      filteredPatch += line + '\n';
-    }
-  }
-
-  return filteredPatch;
-}
-
 async function styluaFormat(conversionDir: string) {
   const exec = util.promisify(childProcessExec);
   const originalDir = process.cwd();
@@ -433,7 +336,8 @@ async function styluaFormat(conversionDir: string) {
     const response = await exec('npx @johnnymorganz/stylua-bin .');
     return response;
   } catch (e) {
-    let stdout, stderr;
+    let stdout = '';
+    let stderr = '';
     if (e instanceof Error && errorHasOutput(e) && e.stdout) {
       stdout = e.stdout;
     }
