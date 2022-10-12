@@ -1,4 +1,8 @@
-import { unhandledIdentifier } from '@js-to-lua/lua-conversion-utils';
+import {
+  isMathConst,
+  MathConst,
+  unhandledIdentifier,
+} from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
   LuaExpression,
@@ -14,9 +18,10 @@ export function addMathConsts(program: LuaProgram) {
   const mathConsts = Object.keys(extras)
     .filter((key) => key.startsWith('mathConst.'))
     .map((key) => key.split('.')[1])
+    .filter(isMathConst)
     .sort();
 
-  const mathPropertyMap: Record<string, LuaExpression> = {
+  const mathPropertyMap: Record<MathConst, LuaExpression> = {
     E: numericLiteral(Math.E),
     LN2: numericLiteral(Math.LN2),
     LN10: numericLiteral(Math.LN10),

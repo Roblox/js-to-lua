@@ -113,7 +113,7 @@ export const createCallExpressionKnownMathMethodHandlerFunction = (
         : isJSMathProperty(propertyName)
         ? withTrailingConversionComment(
             polyfillMathExpression,
-            `ROBLOX NOTE: Math.${propertyName} is currently not supported by the lua Math polyfill, please add your own implementation or file a ticket on the same`
+            `ROBLOX NOTE: Math.${propertyName} is currently not supported by the Luau Math polyfill, please add your own implementation or file a ticket on the same`
           )
         : undefined;
     }

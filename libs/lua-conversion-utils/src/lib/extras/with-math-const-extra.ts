@@ -13,10 +13,8 @@ const mathConsts = [
 
 export type MathConst = typeof mathConsts[number];
 
-export const isMathConst = (
-  id: string,
-  validConsts: MathConst[]
-): id is MathConst => validConsts.includes(id as MathConst);
+export const isMathConst = (id: string): id is MathConst =>
+  mathConsts.includes(id as MathConst);
 
 type MathConstName<S extends string> = `mathConst.${S}`;
 

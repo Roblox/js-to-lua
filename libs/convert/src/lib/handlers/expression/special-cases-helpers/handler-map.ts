@@ -5,8 +5,10 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import { LuaNode } from '@js-to-lua/lua-types';
+
 export type HandlerMap<
   R extends LuaNode,
   T extends BabelNode = BabelNode,
-  Config extends ConfigBase = EmptyConfig
-> = Record<string, HandlerFunction<R, T, Config>>;
+  Config extends ConfigBase = EmptyConfig,
+  K extends string = string
+> = Record<K, HandlerFunction<R, T, Config>>;

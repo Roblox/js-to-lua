@@ -4,6 +4,7 @@ import { pipe } from 'ramda';
 import { addExports } from './steps/add-exports';
 import { addImports } from './steps/add-imports';
 import { addMathConsts } from './steps/add-math-consts';
+import { addNumberConsts } from './steps/add-number-consts';
 import { addPolyfills } from './steps/add-polyfills';
 import { addPromiseImport } from './steps/add-promise-import';
 import { addQualifiedNameImports } from './steps/add-qualified-name-imports';
@@ -17,6 +18,7 @@ const runStage = pipe(
   addPromiseImport,
   addPolyfills,
   addMathConsts,
+  addNumberConsts,
   addImports,
   addVoidPolyfillType,
   addQualifiedNameImports

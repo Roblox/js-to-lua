@@ -9,6 +9,7 @@ import { createCallExpressionCallMethodHandlerFunction } from './call-expression
 import { createCallExpressionComputedPropertyHandlerFunction } from './call-expression-computed-property.handler';
 import { createCallExpressionDateMethodHandler } from './call-expression-date-method.handler';
 import { createCallExpressionDotNotationHandlerFunction } from './call-expression-dot-notation.handler';
+import { createCallExpressionKnownNumberMethodHandlerFunction } from './call-expression-known-number-methods.handler';
 import { createCallExpressionParseIntHandler } from './call-expression-parse-int.handler';
 import { createCallExpressionToStringMethodHandlerFunction } from './call-expression-to-string-method.handlers';
 import { createCallExpressionKnownArrayMethodHandlerFunction } from './know-array-methods/call-expression-known-array-method.handler';
@@ -31,6 +32,8 @@ export const createCallExpressionSpecialCasesHandler = (
     createCallExpressionKnownMathMethodHandlerFunction(handleExpression),
     // eg. Date.now() or Date['now']()
     createCallExpressionDateMethodHandler(),
+    // eg. Number.isNaN(v) or Number['isNaN'](v)
+    createCallExpressionKnownNumberMethodHandlerFunction(handleExpression),
     // eg. value.toString()
     createCallExpressionToStringMethodHandlerFunction(handleExpression),
     // eg. func.call(thisArg, arg1, arg2)

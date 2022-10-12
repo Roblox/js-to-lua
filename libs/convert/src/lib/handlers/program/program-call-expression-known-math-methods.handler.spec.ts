@@ -139,7 +139,7 @@ describe('Known Math methods', () => {
                 memberExpression(identifier('Math'), '.', identifier('trunc')),
                 [numericLiteral(1.23, '1.23')]
               ),
-              'ROBLOX NOTE: Math.trunc is currently not supported by the lua Math polyfill, please add your own implementation or file a ticket on the same'
+              'ROBLOX NOTE: Math.trunc is currently not supported by the Luau Math polyfill, please add your own implementation or file a ticket on the same'
             )
           ),
         ]
