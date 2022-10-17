@@ -41,6 +41,7 @@ runs:
         registry-url: https://npm.pkg.github.com/
         scope: '@roblox'
         cache: npm
+        cache-dependency-path: js-to-lua-build/package-lock.json
 
     - name: Install dependencies
       working-directory: js-to-lua-build
