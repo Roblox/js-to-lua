@@ -1,25 +1,4 @@
-import {
-  Expression,
-  isIdentifier as isBabelIdentifier,
-  isNumericLiteral,
-  isTSLiteralType,
-  isTSNumberKeyword,
-  TSAnyKeyword,
-  TSBooleanKeyword,
-  TSIntersectionType,
-  TSNeverKeyword,
-  TSNullKeyword,
-  TSNumberKeyword,
-  TSStringKeyword,
-  TSType,
-  TSTypeAnnotation,
-  TSTypePredicate,
-  TSTypeQuery,
-  TSUndefinedKeyword,
-  TSUnionType,
-  TSUnknownKeyword,
-  TSVoidKeyword,
-} from '@babel/types';
+import { Expression, TSType, TSTypeAnnotation } from '@babel/types';
 import {
   BaseNodeHandler,
   combineHandlers,
@@ -27,46 +6,36 @@ import {
   forwardHandlerRef,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
+import { defaultTypeHandler } from '@js-to-lua/lua-conversion-utils';
 import {
-  defaultTypeHandler,
-  defaultUnhandledIdentifierHandler,
-  getNodeSource,
-  withTrailingConversionComment,
-  withVoidTypePolyfillExtra,
-} from '@js-to-lua/lua-conversion-utils';
-import {
-  identifier,
   LuaExpression,
   LuaType,
   LuaTypeAnnotation,
-  LuaTypeAny,
-  LuaTypeBoolean,
-  LuaTypeIntersection,
-  LuaTypeNumber,
-  LuaTypeString,
-  LuaTypeUnion,
   typeAnnotation,
-  typeAny,
-  typeBoolean,
-  typeIntersection,
-  typeNil,
-  typeNumber,
-  typeQuery,
-  typeReference,
-  typeString,
-  typeUnion,
 } from '@js-to-lua/lua-types';
-import { uniqWith } from 'ramda';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
+import { createTsAnyKeywordHandler } from './ts-any-keyword.handler';
 import { createTsArrayTypeHandler } from './ts-array-type.handler';
+import { createTsBooleanKeywordHandler } from './ts-boolean-keyword.handler';
 import { createTsFunctionTypeHandler } from './ts-function-type.handler';
 import { createTsIndexedAccessTypeHandler } from './ts-indexed-access-type';
 import { createTsLiteralTypeHandler } from './ts-literal-type.handler';
+import { createTsNeverKeywordHandler } from './ts-never-keyword.handler';
+import { createTsNullKeywordHandler } from './ts-null-keyword.handler';
+import { createTsNumberKeywordHandler } from './ts-number-keyword.handler';
 import { createTsParenthesizedTypeHandler } from './ts-parenthesized-type.handler';
 import { createTsQualifiedNameHandler } from './ts-qualified-name.handler';
+import { createTsStringKeywordHandler } from './ts-string-keyword.handler';
 import { createTsTupleTypeHandler } from './ts-tuple-type.handler';
+import { createTsTypeIntersectionHandler } from './ts-type-intersection.handler';
 import { createTsTypeLiteralHandler } from './ts-type-literal.handler';
+import { createTsTypePredicateHandler } from './ts-type-predicate.handler';
+import { createTsTypeQueryHandler } from './ts-type-query.handler';
 import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
+import { createTsTypeUnionHandler } from './ts-type-union.handler';
+import { createTsUndefinedKeywordHandler } from './ts-undefined-keyword.handler';
+import { createTsUnknownKeywordHandler } from './ts-unknown-keyword.handler';
+import { createTsVoidKeywordHandler } from './ts-void-keyword.handler';
 
 export const createTsTypeAnnotationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Expression>,
@@ -79,142 +48,45 @@ export const createTsTypeAnnotationHandler = (
     typeAnnotation(handleTsTypes.handler(source, config, node.typeAnnotation))
   );
 
-  const handleTsAnyKeyword = createHandler<LuaTypeAny, TSAnyKeyword>(
-    'TSAnyKeyword',
-    () => typeAny()
-  );
-
-  const handleTsStringKeyword = createHandler<LuaTypeString, TSStringKeyword>(
-    'TSStringKeyword',
-    () => typeString()
-  );
-
-  const handleTsNumberKeyword = createHandler<LuaTypeNumber, TSNumberKeyword>(
-    'TSNumberKeyword',
-    () => typeNumber()
-  );
-
-  const handleTsUndefinedKeyword = createHandler<LuaType, TSUndefinedKeyword>(
-    'TSUndefinedKeyword',
-    () => typeNil()
-  );
-
-  const handleTsUnknownKeyword = createHandler<LuaType, TSUnknownKeyword>(
-    'TSUnknownKeyword',
-    () => typeReference(identifier('unknown'))
-  );
-
-  const handleTsNeverKeyword = createHandler<LuaType, TSNeverKeyword>(
-    'TSNeverKeyword',
-    () => typeReference(identifier('never'))
-  );
-
-  const handleTsNullKeyword = createHandler<LuaType, TSNullKeyword>(
-    'TSNullKeyword',
-    () =>
-      withTrailingConversionComment(
-        typeNil(),
-        "ROBLOX CHECK: verify if `null` wasn't used differently than `undefined`"
-      )
-  );
-
-  const handleTsTypeQuery = createHandler<LuaType, TSTypeQuery>(
-    'TSTypeQuery',
-    (source, config, node) => {
-      const exprName = node.exprName;
-      return typeQuery(
-        isBabelIdentifier(exprName)
-          ? handleIdentifierStrict(source, config, exprName)
-          : defaultUnhandledIdentifierHandler(source, config, exprName)
-      );
-    }
-  );
-
-  const handleTsTypePredicate = createHandler<LuaType, TSTypePredicate>(
-    'TSTypePredicate',
-    (source, config, node) =>
-      withTrailingConversionComment(
-        typeBoolean(),
-        'ROBLOX FIXME: change to TSTypePredicate equivalent if supported',
-        getNodeSource(source, node)
-      )
-  );
-
-  const handleTsBooleanKeyword = createHandler<
-    LuaTypeBoolean,
-    TSBooleanKeyword
-  >('TSBooleanKeyword', () => typeBoolean());
-
-  const handleTsVoidKeyword = createHandler<LuaType, TSVoidKeyword>(
-    'TSVoidKeyword',
-    () => withVoidTypePolyfillExtra(typeReference(identifier('void')))
-  );
-
-  const handleTsTypeUnion = createHandler<LuaTypeUnion, TSUnionType>(
-    'TSUnionType',
-    (source, config, node) => {
-      const isNumericLiteralOrNumber = (node: TSType) =>
-        (isTSLiteralType(node) && isNumericLiteral(node.literal)) ||
-        isTSNumberKeyword(node);
-
-      return typeUnion(
-        uniqWith(
-          (a, b) => isNumericLiteralOrNumber(a) && isNumericLiteralOrNumber(b),
-          node.types
-        ).map((x) =>
-          isNumericLiteralOrNumber(x)
-            ? typeNumber()
-            : handleTsTypes.handler(source, config, x)
-        )
-      );
-    }
-  );
-
-  const handleTsTypeIntersection = createHandler<
-    LuaTypeIntersection,
-    TSIntersectionType
-  >('TSIntersectionType', (source, config, node) =>
-    typeIntersection(node.types.map(handleTsTypes.handler(source, config)))
-  );
-
+  const forwardedHandleTsType = forwardHandlerRef(() => handleTsTypes);
   const handleTsTypes: BaseNodeHandler<LuaType, TSType> = combineHandlers<
     LuaType,
     TSType
   >(
     [
-      handleTsStringKeyword,
-      handleTsNumberKeyword,
-      handleTsBooleanKeyword,
-      handleTsVoidKeyword,
-      handleTsAnyKeyword,
-      handleTsUndefinedKeyword,
-      handleTsUnknownKeyword,
-      handleTsNeverKeyword,
-      handleTsNullKeyword,
-      handleTsTypeQuery,
-      handleTsTypePredicate,
+      createTsStringKeywordHandler(),
+      createTsNumberKeywordHandler(),
+      createTsBooleanKeywordHandler(),
+      createTsVoidKeywordHandler(),
+      createTsAnyKeywordHandler(),
+      createTsUndefinedKeywordHandler(),
+      createTsUnknownKeywordHandler(),
+      createTsNeverKeywordHandler(),
+      createTsNullKeywordHandler(),
+      createTsTypeQueryHandler(handleIdentifierStrict),
+      createTsTypePredicateHandler(),
       createTsTypeLiteralHandler(
         handleIdentifierStrict,
         handleExpression,
         handleTsTypeAnnotation.handler,
-        forwardHandlerRef(() => handleTsTypes)
+        forwardedHandleTsType
       ),
-      handleTsTypeUnion,
-      handleTsTypeIntersection,
+      createTsTypeUnionHandler(forwardedHandleTsType),
+      createTsTypeIntersectionHandler(forwardedHandleTsType),
       createTsTypeReferenceHandler(
         handleIdentifierStrict,
         createTsQualifiedNameHandler(),
-        forwardHandlerRef(() => handleTsTypes)
+        forwardedHandleTsType
       ),
-      createTsArrayTypeHandler(forwardHandlerRef(() => handleTsTypes)),
-      createTsTupleTypeHandler(forwardHandlerRef(() => handleTsTypes)),
+      createTsArrayTypeHandler(forwardedHandleTsType),
+      createTsTupleTypeHandler(forwardedHandleTsType),
       createTsFunctionTypeHandler(
         handleIdentifierStrict,
-        forwardHandlerRef(() => handleTsTypes)
+        forwardedHandleTsType
       ),
       createTsLiteralTypeHandler(handleExpression),
-      createTsIndexedAccessTypeHandler(forwardHandlerRef(() => handleTsTypes)),
-      createTsParenthesizedTypeHandler(forwardHandlerRef(() => handleTsTypes)),
+      createTsIndexedAccessTypeHandler(forwardedHandleTsType),
+      createTsParenthesizedTypeHandler(forwardedHandleTsType),
     ],
     defaultTypeHandler
   );

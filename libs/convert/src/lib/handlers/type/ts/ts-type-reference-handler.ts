@@ -1,13 +1,11 @@
 import {
   Identifier,
-  TSEntityName,
   TSQualifiedName,
   TSType,
   TSTypeReference,
 } from '@babel/types';
 import {
   BaseNodeHandler,
-  combineHandlers,
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
@@ -23,23 +21,31 @@ import {
   typeReference,
 } from '@js-to-lua/lua-types';
 import { NonEmptyArray } from '@js-to-lua/shared-utils';
+import { createTsEntityNameHandler } from './ts-entity-name.handler';
+import { createTsTypeReferenceSpecialCasesHandler } from './ts-type-reference-special-cases.handler';
 
 export const createTsTypeReferenceHandler = (
   identifierHandlerFunction: HandlerFunction<LuaIdentifier, Identifier>,
   tsQualifiedNameHandler: BaseNodeHandler<LuaIdentifier, TSQualifiedName>,
   tsTypeHandlerFunction: HandlerFunction<LuaType, TSType>
 ) =>
-  createHandler<LuaTypeReference, TSTypeReference>(
+  createHandler<LuaType, TSTypeReference>(
     'TSTypeReference',
     (source, config, node) => {
-      const typeNameHandler = combineHandlers<LuaIdentifier, TSEntityName>(
-        [tsQualifiedNameHandler],
-        identifierHandlerFunction
-      ).handler;
+      const handled = createTsTypeReferenceSpecialCasesHandler(
+        identifierHandlerFunction,
+        tsQualifiedNameHandler,
+        tsTypeHandlerFunction
+      )(source, config, node);
+
+      if (handled) return handled;
 
       const handleType = tsTypeHandlerFunction(source, config);
-      const handleTypeName = typeNameHandler(source, config);
-      const id = handleTypeName(node.typeName);
+      const handleTsEntityName = createTsEntityNameHandler(
+        identifierHandlerFunction,
+        tsQualifiedNameHandler
+      )(source, config);
+      const id = handleTsEntityName(node.typeName);
 
       const polyfillType = requiresTsTypePolyfill.find(
         (type) => type.name === id.name

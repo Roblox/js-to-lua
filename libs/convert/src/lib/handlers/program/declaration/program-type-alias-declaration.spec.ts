@@ -6,6 +6,7 @@ import {
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
+  typeIndexSignature,
   typeLiteral,
   typeNumber,
   typeOptional,
@@ -161,6 +162,22 @@ describe('Program handler', () => {
         type Foo<T> = Record<string, T>
       `);
       const expected = programWithUpstreamComment([
+        withTrailingConversionComment(
+          typeAliasDeclaration(
+            identifier('Record'),
+            typeLiteral([
+              typeIndexSignature(
+                typeReference(identifier('K')),
+                typeAnnotation(typeReference(identifier('T')))
+              ),
+            ]),
+            typeParameterDeclaration([
+              typeReference(identifier('K')),
+              typeReference(identifier('T')),
+            ])
+          ),
+          "ROBLOX TODO: TS 'Record' built-in type is not available in Luau"
+        ),
         typeAliasDeclaration(
           identifier('Foo'),
           typeReference(identifier('Record'), [

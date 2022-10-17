@@ -1,10 +1,4 @@
 import * as Babel from '@babel/types';
-import {
-  identifier as babelIdentifier,
-  tsAnyKeyword as babelTsAnyKeyword,
-  tsTypeParameterInstantiation as babelTsTypeParameterInstantiation,
-  tsTypeReference as babelTsTypeReference,
-} from '@babel/types';
 import { createHandlerFunction, testUtils } from '@js-to-lua/handler-utils';
 import {
   TsBuiltInTypeId,
@@ -13,11 +7,11 @@ import {
 import { identifier, LuaIdentifier, typeReference } from '@js-to-lua/lua-types';
 import { mockNodeWithValue } from '@js-to-lua/lua-types/test-utils';
 import { createTsQualifiedNameHandler } from './ts-qualified-name.handler';
-import { createTsTypeReferenceHandler } from './ts-type-reference-handler';
+import { createTsTypeReferenceBuiltInHandler } from './ts-type-reference-built-in.handler';
 
 const { mockNodeWithValueHandler } = testUtils;
 
-describe('TSTypeReference handler', () => {
+describe('TsTypeReference built-in handler', () => {
   type IdentifierHandlerFunction = Parameters<
     typeof createHandlerFunction<LuaIdentifier, Babel.Identifier>
   >[0];
@@ -26,11 +20,11 @@ describe('TSTypeReference handler', () => {
     Parameters<IdentifierHandlerFunction>
   >((...args) => mockNodeWithValueHandler(...args));
 
-  const tsTypeReferenceHandler = createTsTypeReferenceHandler(
+  const handleTsTypeReferenceBuiltIn = createTsTypeReferenceBuiltInHandler(
     createHandlerFunction(mockIdentifierHandler),
     createTsQualifiedNameHandler(),
     mockNodeWithValueHandler
-  ).handler;
+  );
 
   const source = '';
 
@@ -38,43 +32,6 @@ describe('TSTypeReference handler', () => {
     mockIdentifierHandler.mockImplementation((...args) =>
       mockNodeWithValueHandler(...args)
     );
-  });
-
-  it('should handle TSTypeReference without generic params', () => {
-    const given = babelTsTypeReference(babelIdentifier('TypeReference'));
-
-    const expected = typeReference(
-      mockNodeWithValue(babelIdentifier('TypeReference'))
-    );
-
-    expect(tsTypeReferenceHandler(source, {}, given)).toEqual(expected);
-  });
-
-  it('should handle TSTypeReference with generic params', () => {
-    const given = babelTsTypeReference(
-      babelIdentifier('TypeReference'),
-      babelTsTypeParameterInstantiation([babelTsAnyKeyword()])
-    );
-
-    const expected = typeReference(
-      mockNodeWithValue(babelIdentifier('TypeReference')),
-      [mockNodeWithValue(babelTsAnyKeyword())]
-    );
-
-    expect(tsTypeReferenceHandler(source, {}, given)).toEqual(expected);
-  });
-
-  it('should handle TSTypeReference with empty generic params', () => {
-    const given = babelTsTypeReference(
-      babelIdentifier('TypeReference'),
-      babelTsTypeParameterInstantiation([])
-    );
-
-    const expected = typeReference(
-      mockNodeWithValue(babelIdentifier('TypeReference'))
-    );
-
-    expect(tsTypeReferenceHandler(source, {}, given)).toEqual(expected);
   });
 
   it.each(
@@ -117,8 +74,30 @@ describe('TSTypeReference handler', () => {
       ])
     );
 
-    const actual = tsTypeReferenceHandler(source, {}, given);
+    const actual = handleTsTypeReferenceBuiltIn(source, {}, given);
 
     expect(actual).toEqual(expected);
   });
+
+  it.each(['NotAwaited', 'NotRecord', 'NotPick', 'NotExclude'])(
+    'should NOT handle NOT built-in types',
+    (name) => {
+      mockIdentifierHandler.mockImplementation((source, config, node) =>
+        identifier(node.name)
+      );
+
+      const given = Babel.tsTypeReference(
+        Babel.identifier(name),
+        Babel.tsTypeParameterInstantiation([
+          Babel.tsTypeReference(Babel.identifier('Foo')),
+        ])
+      );
+
+      const expected = undefined;
+
+      const actual = handleTsTypeReferenceBuiltIn(source, {}, given);
+
+      expect(actual).toEqual(expected);
+    }
+  );
 });

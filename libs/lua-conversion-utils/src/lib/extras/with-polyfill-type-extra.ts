@@ -63,7 +63,10 @@ export const requiresFlowTypePolyfill = (
 type PolyfillTypeName<S extends PolyfillTypeID> = `polyfillType.${S}`;
 
 type PolyfillTypeExtra<S extends PolyfillTypeID> = {
-  [Property in PolyfillTypeName<S>]: true;
+  [Property in PolyfillTypeName<S>]: {
+    name: S;
+    generics?: string[];
+  };
 } & NeedsPackagesExtra;
 
 const polyfillTypeExtra = <P extends PolyfillTypeID>(

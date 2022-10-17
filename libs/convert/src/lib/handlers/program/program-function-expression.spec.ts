@@ -23,11 +23,14 @@ import {
   tableConstructor,
   tableNameKeyField,
   tableNoKeyField,
+  typeAliasDeclaration,
   typeAnnotation,
   typeAny,
+  typeIndexSignature,
   typeLiteral,
   typeNumber,
   typeOptional,
+  typeParameterDeclaration,
   typePropertySignature,
   typeReference,
   typeString,
@@ -276,6 +279,22 @@ describe('Program handler', () => {
       `);
 
       const expected: LuaProgram = programWithUpstreamComment([
+        withTrailingConversionComment(
+          typeAliasDeclaration(
+            identifier('Record'),
+            typeLiteral([
+              typeIndexSignature(
+                typeReference(identifier('K')),
+                typeAnnotation(typeReference(identifier('T')))
+              ),
+            ]),
+            typeParameterDeclaration([
+              typeReference(identifier('K')),
+              typeReference(identifier('T')),
+            ])
+          ),
+          "ROBLOX TODO: TS 'Record' built-in type is not available in Luau"
+        ),
         functionDeclaration(
           identifier('reduce'),
           [
