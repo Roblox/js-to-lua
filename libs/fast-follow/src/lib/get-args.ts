@@ -75,7 +75,7 @@ export function setupCommands({
           babelTransformConfig,
         } = argv;
         const config = await getConfig(sourceDir);
-        return compareSinceLastSync({
+        await compareSinceLastSync({
           sourceDir,
           outDir,
           revision,
@@ -103,9 +103,9 @@ export function setupCommands({
             describe: 'id of the slack channel to post the notification to',
             requiresArg: true,
           }),
-      (argv) => {
+      async (argv) => {
         const { sourceDir, channel } = argv;
-        return scanReleases({ sourceDir, channel });
+        await scanReleases({ sourceDir, channel });
       }
     )
     .command(
@@ -232,7 +232,7 @@ export function setupCommands({
                 .map((v) => v.split(','))
                 .flat()
           ),
-      (argv) => {
+      async (argv) => {
         const {
           channel,
           sourceDir,
@@ -244,7 +244,7 @@ export function setupCommands({
 
           pullRequestCC = [],
         } = argv;
-        return upgrade({
+        await upgrade({
           channel,
           sourceDir,
           outDir,

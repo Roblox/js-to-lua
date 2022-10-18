@@ -12,7 +12,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/diff-tool"],
+      "outputs": ["{workspaceRoot}/coverage/libs/diff-tool"],
       "options": {
         "jestConfig": "libs/diff-tool/jest.config.ts",
         "passWithNoTests": true

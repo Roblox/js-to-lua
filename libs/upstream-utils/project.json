@@ -22,7 +22,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/upstream-utils"],
+      "outputs": ["{workspaceRoot}/coverage/libs/upstream-utils"],
       "options": {
         "jestConfig": "libs/upstream-utils/jest.config.ts",
         "passWithNoTests": true

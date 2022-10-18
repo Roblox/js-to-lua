@@ -4,7 +4,7 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/node:webpack",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/convert-js-to-lua",
@@ -13,7 +13,9 @@
         "assets": [
           "apps/convert-js-to-lua/src/assets",
           "apps/convert-js-to-lua/src/fixtures"
-        ]
+        ],
+        "target": "node",
+        "compiler": "tsc"
       },
       "configurations": {
         "production": {
@@ -44,7 +46,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/convert-js-to-lua"],
+      "outputs": ["{workspaceRoot}/coverage/apps/convert-js-to-lua"],
       "options": {
         "jestConfig": "apps/convert-js-to-lua/jest.config.ts",
         "passWithNoTests": true
@@ -57,14 +59,14 @@
     },
     "e2e": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/convert-js-to-lua"],
+      "outputs": ["{workspaceRoot}/coverage/apps/convert-js-to-lua"],
       "options": {
         "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.js",
         "passWithNoTests": true
       }
     },
     "verify": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "outputs": [],
       "options": {
         "command": "node tools/scripts/verify-conformance-tests.js"

@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'diff-tool',
   preset: '../../jest.preset.js',

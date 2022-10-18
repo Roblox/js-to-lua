@@ -12,7 +12,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/lua-print"],
+      "outputs": ["{workspaceRoot}/coverage/libs/lua-print"],
       "options": {
         "jestConfig": "libs/lua-print/jest.config.ts",
         "passWithNoTests": true

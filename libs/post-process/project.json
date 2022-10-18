@@ -12,7 +12,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/post-process"],
+      "outputs": ["{workspaceRoot}/coverage/libs/post-process"],
       "options": {
         "jestConfig": "libs/post-process/jest.config.ts",
         "passWithNoTests": true

@@ -12,7 +12,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/fast-follow"],
+      "outputs": ["{workspaceRoot}/coverage/libs/fast-follow"],
       "options": {
         "jestConfig": "libs/fast-follow/jest.config.ts",
         "passWithNoTests": true

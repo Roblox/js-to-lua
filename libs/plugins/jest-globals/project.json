@@ -12,7 +12,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/plugins/jest-globals"],
+      "outputs": ["{workspaceRoot}/coverage/libs/plugins/jest-globals"],
       "options": {
         "jestConfig": "libs/plugins/jest-globals/jest.config.ts",
         "passWithNoTests": true

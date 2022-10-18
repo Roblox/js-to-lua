@@ -12,7 +12,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/lua-types"],
+      "outputs": ["{workspaceRoot}/coverage/libs/lua-types"],
       "options": {
         "jestConfig": "libs/lua-types/jest.config.ts",
         "passWithNoTests": true
