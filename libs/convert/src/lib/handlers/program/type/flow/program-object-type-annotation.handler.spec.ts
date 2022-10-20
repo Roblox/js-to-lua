@@ -4,7 +4,6 @@ import {
 } from '@js-to-lua/lua-conversion-utils';
 import {
   identifier,
-  stringLiteral,
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
@@ -84,15 +83,15 @@ describe('Program handler', () => {
           identifier('Test'),
           typeLiteral([
             typePropertySignature(
-              stringLiteral('foo'),
+              identifier('foo'),
               typeAnnotation(typeString())
             ),
             typePropertySignature(
-              stringLiteral('bar'),
+              identifier('bar'),
               typeAnnotation(typeNumber())
             ),
             typePropertySignature(
-              stringLiteral('baz'),
+              identifier('baz'),
               typeAnnotation(typeBoolean())
             ),
           ])

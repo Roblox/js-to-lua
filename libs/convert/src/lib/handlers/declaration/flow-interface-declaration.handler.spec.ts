@@ -8,7 +8,6 @@ import {
   identifier,
   LuaIdentifier,
   LuaType,
-  stringLiteral,
   typeAliasDeclaration,
   typeAnnotation,
   typeAny,
@@ -150,15 +149,15 @@ describe('Flow - InterfaceDeclaration handler', () => {
         identifier('Foo'),
         typeLiteral([
           typePropertySignature(
-            stringLiteral('foo'),
+            identifier('foo'),
             typeAnnotation(typeString())
           ),
           typePropertySignature(
-            stringLiteral('bar'),
+            identifier('bar'),
             typeAnnotation(typeNumber())
           ),
           typePropertySignature(
-            stringLiteral('baz'),
+            identifier('baz'),
             typeAnnotation(typeBoolean())
           ),
         ])
@@ -734,15 +733,15 @@ describe('Flow - InterfaceDeclaration handler', () => {
         withTrailingConversionComment(
           typeLiteral([
             typePropertySignature(
-              stringLiteral('foo'),
+              identifier('foo'),
               typeAnnotation(typeString())
             ),
             typePropertySignature(
-              stringLiteral('bar'),
+              identifier('bar'),
               typeAnnotation(typeNumber())
             ),
             typePropertySignature(
-              stringLiteral('baz'),
+              identifier('baz'),
               typeAnnotation(typeBoolean())
             ),
           ]),

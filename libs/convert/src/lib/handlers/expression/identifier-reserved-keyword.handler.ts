@@ -5,7 +5,7 @@ import {
   createWithOriginalIdentifierNameExtras,
 } from '@js-to-lua/lua-conversion-utils';
 import { identifier, LuaIdentifier, stringLiteral } from '@js-to-lua/lua-types';
-import { luaReservedKeywords } from './identifier-roblox-keywords';
+import { luaReservedKeywords } from '@js-to-lua/lua-conversion-utils';
 
 export const createReservedKeywordIdentifierOptionalHandler = () => {
   return createOptionalHandlerFunction<LuaIdentifier, Identifier>(

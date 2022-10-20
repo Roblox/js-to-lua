@@ -1,12 +1,9 @@
-import {
-  FlowType,
-  isIdentifier as isBabelIdentifier,
-  ObjectTypeProperty,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   createHandlerFunction,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
+import { getTypePropertySignatureKey } from '@js-to-lua/lua-conversion-utils';
 import {
   LuaType,
   LuaTypeElement,
@@ -19,13 +16,13 @@ import { createStringLiteralHandler } from '../../primitives/string.handler';
 
 export const createObjectTypePropertyHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction,
-  handleFlowType: HandlerFunction<LuaType, FlowType>
+  handleFlowType: HandlerFunction<LuaType, Babel.FlowType>
 ) => {
   const handleStringLiteral = createStringLiteralHandler().handler;
 
-  return createHandlerFunction<LuaTypeElement, ObjectTypeProperty>(
+  return createHandlerFunction<LuaTypeElement, Babel.ObjectTypeProperty>(
     (source, config, node) => {
-      const key = isBabelIdentifier(node.key)
+      const key = Babel.isIdentifier(node.key)
         ? handleIdentifierStrict(source, config, node.key)
         : handleStringLiteral(source, config, node.key);
 
@@ -33,7 +30,10 @@ export const createObjectTypePropertyHandler = (
         typeAnnotation(handleFlowType(source, config, node.value))
       );
 
-      return typePropertySignature(key, annotation);
+      return typePropertySignature(
+        getTypePropertySignatureKey(key),
+        annotation
+      );
     }
   );
 };

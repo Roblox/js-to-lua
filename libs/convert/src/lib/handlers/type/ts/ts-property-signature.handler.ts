@@ -7,6 +7,7 @@ import {
 } from '@babel/types';
 import {
   getNodeSource,
+  getTypePropertySignatureKey,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
@@ -38,21 +39,22 @@ export const createTsPropertySignatureHandler = (
     TSPropertySignature
   > = createHandler('TSPropertySignature', (source, config, node) => {
     const key = expressionHandlerFunction(source, config, node.key);
+    const annotation = node.typeAnnotation
+      ? applyTo(
+          typesHandlerFunction(source, config, node.typeAnnotation),
+          makeOptionalAnnotation(!!node.optional)
+        )
+      : undefined;
 
     return typePropertySignature(
       isIdentifier(key) || isStringLiteral(key)
-        ? key
+        ? getTypePropertySignatureKey(key)
         : withTrailingConversionComment(
             typeString(),
             `ROBLOX TODO: unhandled node for type: TSPropertySignature with key of type ${node.key.type}`,
             getNodeSource(source, node.key)
           ),
-      node.typeAnnotation
-        ? applyTo(
-            typesHandlerFunction(source, config, node.typeAnnotation),
-            makeOptionalAnnotation(!!node.optional)
-          )
-        : undefined
+      annotation
     );
   });
   return handleTsPropertySignature;

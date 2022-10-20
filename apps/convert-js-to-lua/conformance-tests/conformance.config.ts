@@ -46,5 +46,9 @@ export default {
 
     // TODO: handle ObjectTypeAnnotation https://github.com/Roblox/js-to-lua/issues/501
     'conformance-tests/flow-types/union/union-type-annotation-complex_m6.js',
+
+    // TODO: Handle node for flow type: ObjectTypeAnnotation when multiple indexers are present
+    'conformance-tests/flow-types/object-type-annotation/luau-globals-index-keys_m6.js',
+    'conformance-tests/flow-types/object-type-annotation/reserved-keyword-index-keys_m6.js',
   ],
 };

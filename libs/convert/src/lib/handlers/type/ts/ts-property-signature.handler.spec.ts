@@ -60,7 +60,22 @@ describe('TSPropertySignature handler', () => {
       tsTypeAnnotation(tsStringKeyword())
     );
     const expected = typePropertySignature(
-      stringLiteral('foo'),
+      identifier('foo'),
+      typeAnnotation(typeString())
+    );
+
+    expect(propertySignatureHandler.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
+  it('should not simplify non-alphanumeric strings', () => {
+    const given = tsPropertySignature(
+      babelStringLiteral('foo/bar buzz'),
+      tsTypeAnnotation(tsStringKeyword())
+    );
+    const expected = typePropertySignature(
+      stringLiteral('foo/bar buzz'),
       typeAnnotation(typeString())
     );
 

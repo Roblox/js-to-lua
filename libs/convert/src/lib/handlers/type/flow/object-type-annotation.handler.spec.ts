@@ -29,7 +29,6 @@ import {
   identifier,
   LuaIdentifier,
   LuaType,
-  stringLiteral,
   typeAnnotation,
   typeAny,
   typeBoolean,
@@ -107,18 +106,9 @@ describe('Flow - ObjectTypeAnnotation handler', () => {
         objectTypeProperty(babelStringLiteral('baz'), booleanTypeAnnotation()),
       ]);
       const expected = typeLiteral([
-        typePropertySignature(
-          stringLiteral('foo'),
-          typeAnnotation(typeString())
-        ),
-        typePropertySignature(
-          stringLiteral('bar'),
-          typeAnnotation(typeNumber())
-        ),
-        typePropertySignature(
-          stringLiteral('baz'),
-          typeAnnotation(typeBoolean())
-        ),
+        typePropertySignature(identifier('foo'), typeAnnotation(typeString())),
+        typePropertySignature(identifier('bar'), typeAnnotation(typeNumber())),
+        typePropertySignature(identifier('baz'), typeAnnotation(typeBoolean())),
       ]);
 
       expect(handler(source, {}, given)).toEqual(expected);
@@ -498,15 +488,15 @@ describe('Flow - ObjectTypeAnnotation handler', () => {
       const expected = withTrailingConversionComment(
         typeLiteral([
           typePropertySignature(
-            stringLiteral('foo'),
+            identifier('foo'),
             typeAnnotation(typeString())
           ),
           typePropertySignature(
-            stringLiteral('bar'),
+            identifier('bar'),
             typeAnnotation(typeNumber())
           ),
           typePropertySignature(
-            stringLiteral('baz'),
+            identifier('baz'),
             typeAnnotation(typeBoolean())
           ),
         ]),
@@ -929,7 +919,7 @@ describe('Flow - ObjectTypeAnnotation handler', () => {
       const expected = typeLiteral([
         withLuaComments(
           typePropertySignature(
-            withLuaComments(stringLiteral('foo'), 'foo id comment'),
+            withLuaComments(identifier('foo'), 'foo id comment'),
             typeAnnotation(
               withLuaComments(typeString(), 'foo type annotation comment')
             )
@@ -938,7 +928,7 @@ describe('Flow - ObjectTypeAnnotation handler', () => {
         ),
         withLuaComments(
           typePropertySignature(
-            withLuaComments(stringLiteral('bar'), 'bar id comment'),
+            withLuaComments(identifier('bar'), 'bar id comment'),
             typeAnnotation(
               withLuaComments(typeNumber(), 'bar type annotation comment')
             )
@@ -947,7 +937,7 @@ describe('Flow - ObjectTypeAnnotation handler', () => {
         ),
         withLuaComments(
           typePropertySignature(
-            withLuaComments(stringLiteral('baz'), 'baz id comment'),
+            withLuaComments(identifier('baz'), 'baz id comment'),
             typeAnnotation(
               withLuaComments(typeBoolean(), 'baz type annotation comment')
             )
@@ -1045,7 +1035,7 @@ describe('Flow - ObjectTypeAnnotation handler', () => {
         typeLiteral([
           withLuaComments(
             typePropertySignature(
-              withLuaComments(stringLiteral('foo'), 'foo id comment'),
+              withLuaComments(identifier('foo'), 'foo id comment'),
               typeAnnotation(
                 withLuaComments(typeString(), 'foo type annotation comment')
               )
@@ -1054,7 +1044,7 @@ describe('Flow - ObjectTypeAnnotation handler', () => {
           ),
           withLuaComments(
             typePropertySignature(
-              withLuaComments(stringLiteral('bar'), 'bar id comment'),
+              withLuaComments(identifier('bar'), 'bar id comment'),
               typeAnnotation(
                 withLuaComments(typeNumber(), 'bar type annotation comment')
               )
@@ -1063,7 +1053,7 @@ describe('Flow - ObjectTypeAnnotation handler', () => {
           ),
           withLuaComments(
             typePropertySignature(
-              withLuaComments(stringLiteral('baz'), 'baz id comment'),
+              withLuaComments(identifier('baz'), 'baz id comment'),
               typeAnnotation(
                 withLuaComments(typeBoolean(), 'baz type annotation comment')
               )
