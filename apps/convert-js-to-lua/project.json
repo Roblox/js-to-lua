@@ -50,19 +50,19 @@
       "options": {
         "jestConfig": "apps/convert-js-to-lua/jest.config.ts",
         "passWithNoTests": true
-      },
-      "configurations": {
-        "conformance": {
-          "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.ts"
-        }
       }
     },
     "e2e": {
       "executor": "@nrwl/jest:jest",
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/jest.preset.js",
+        "{workspaceRoot}/conformance-tests/**/*"
+      ],
       "outputs": ["{workspaceRoot}/coverage/apps/convert-js-to-lua"],
       "options": {
-        "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.js",
-        "passWithNoTests": true
+        "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.ts"
       }
     },
     "verify": {
