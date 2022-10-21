@@ -37,6 +37,11 @@ const MOCK_TOOL_CMD_PATH = 'dist/apps/convert-js-to-lua/main.js';
 const MOCK_TMP_DIR = 'mocked/tmp';
 const MOCK_UPSTREAM_PATH = '/path/to/upstream';
 const MOCK_DOWNSTREAM_PATH = '/path/to/downstream';
+const MOCK_REMOTE_URL = 'https://github.com/owner/repo';
+const MOCK_JS_TO_LUA_OPTIONS = {
+  remoteUrl: MOCK_REMOTE_URL,
+};
+const MOCK_COMPARE_OPTIONS = { outDir: 'mock-output-path' };
 const FF_CONVERSION_FOLDER = 'fast-follow-conversion';
 
 jest.mock(
@@ -193,7 +198,9 @@ describe('diffTool', () => {
       MOCK_CONFIG,
       MOCK_TOOL_PATH,
       MOCK_UPSTREAM_PATH,
-      MOCK_DOWNSTREAM_PATH
+      MOCK_DOWNSTREAM_PATH,
+      MOCK_COMPARE_OPTIONS,
+      MOCK_JS_TO_LUA_OPTIONS
     );
 
     expect(add).toHaveBeenCalled();
@@ -213,6 +220,10 @@ describe('diffTool', () => {
         `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/test/**/*`,
         '--rootDir',
         `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/test`,
+        '--remoteUrl',
+        MOCK_REMOTE_URL,
+        '--sha',
+        'test',
       ],
       expect.objectContaining({ maxBuffer: Infinity }),
       expect.any(Function)
@@ -227,6 +238,10 @@ describe('diffTool', () => {
         `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/main/**/*`,
         '--rootDir',
         `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/main`,
+        '--remoteUrl',
+        MOCK_REMOTE_URL,
+        '--sha',
+        'main',
       ],
       expect.objectContaining({ maxBuffer: Infinity }),
       expect.any(Function)
@@ -257,7 +272,9 @@ describe('diffTool', () => {
         MOCK_CONFIG,
         MOCK_TOOL_PATH,
         MOCK_UPSTREAM_PATH,
-        MOCK_DOWNSTREAM_PATH
+        MOCK_DOWNSTREAM_PATH,
+        MOCK_COMPARE_OPTIONS,
+        MOCK_JS_TO_LUA_OPTIONS
       )
     ).rejects.toThrow(
       `Unable to run conversion for '${MOCK_DOWNSTREAM_PATH}': destination directory is not a git repository`
@@ -273,7 +290,9 @@ describe('diffTool', () => {
         config,
         MOCK_TOOL_PATH,
         MOCK_UPSTREAM_PATH,
-        MOCK_DOWNSTREAM_PATH
+        MOCK_DOWNSTREAM_PATH,
+        MOCK_COMPARE_OPTIONS,
+        MOCK_JS_TO_LUA_OPTIONS
       )
     ).rejects.toThrow(
       `Unable to run conversion for '${MOCK_DOWNSTREAM_PATH}': no source patterns are specified in the downstream conversion config`
@@ -289,8 +308,73 @@ describe('diffTool', () => {
         MOCK_CONFIG,
         MOCK_TOOL_PATH,
         MOCK_UPSTREAM_PATH,
-        MOCK_DOWNSTREAM_PATH
+        MOCK_DOWNSTREAM_PATH,
+        MOCK_COMPARE_OPTIONS,
+        MOCK_JS_TO_LUA_OPTIONS
       )
     ).rejects.toThrow('Something terrible happened');
+  });
+
+  it('plugins are used as js-to-lua arguments', async () => {
+    await diffTool.compare(
+      MOCK_CONFIG,
+      MOCK_TOOL_PATH,
+      MOCK_UPSTREAM_PATH,
+      MOCK_DOWNSTREAM_PATH,
+      MOCK_COMPARE_OPTIONS,
+      {
+        ...MOCK_JS_TO_LUA_OPTIONS,
+        plugins: ['foo', 'bar', 'baz'],
+      }
+    );
+
+    expect(execFile).toHaveBeenCalledWith(
+      'node',
+      [
+        MOCK_TOOL_CMD_PATH,
+        '-o',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/output`,
+        '-i',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/test/**/*`,
+        '--rootDir',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/test`,
+        '--remoteUrl',
+        MOCK_REMOTE_URL,
+        '--sha',
+        'test',
+        '--plugin',
+        'foo',
+        '--plugin',
+        'bar',
+        '--plugin',
+        'baz',
+      ],
+      expect.objectContaining({ maxBuffer: Infinity }),
+      expect.any(Function)
+    );
+    expect(execFile).toHaveBeenCalledWith(
+      'node',
+      [
+        MOCK_TOOL_CMD_PATH,
+        '-o',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/output`,
+        '-i',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/main/**/*`,
+        '--rootDir',
+        `${MOCK_TMP_DIR}/${FF_CONVERSION_FOLDER}/input/main`,
+        '--remoteUrl',
+        MOCK_REMOTE_URL,
+        '--sha',
+        'main',
+        '--plugin',
+        'foo',
+        '--plugin',
+        'bar',
+        '--plugin',
+        'baz',
+      ],
+      expect.objectContaining({ maxBuffer: Infinity }),
+      expect.any(Function)
+    );
   });
 });

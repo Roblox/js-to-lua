@@ -27,9 +27,11 @@ import {
   UpstreamFileMap,
   UpstreamReference,
 } from './diff-tool.types';
+import { JsToLuaOptions } from './js-to-lua.types';
 import { logConflictsSummary } from './log-conflicts-summary';
 import { renameFiles } from './rename-files';
 export * from './diff-tool.types';
+export * from './js-to-lua.types';
 
 // TODO: Fix @js-to-lua/shared-utils build to allow usage by diff-tool.
 type Truthy<T> = NonNullable<T>;
@@ -51,7 +53,8 @@ export async function compare(
   toolPath: string,
   upstreamPath: string,
   downstreamPath: string,
-  options?: ConversionOptions
+  options: ConversionOptions,
+  jsToLuaOptions: JsToLuaOptions
 ): Promise<ComparisonResponse> {
   const git = simpleGit();
 
@@ -60,6 +63,7 @@ export async function compare(
 
   const targetRevision =
     options?.targetRevision ?? config.upstream.primaryBranch;
+
   const originalDir = process.cwd();
   const conversionDir = path.join(os.tmpdir(), 'fast-follow-conversion');
 
@@ -103,16 +107,17 @@ export async function compare(
 
     console.log(`🔨 Converting referenced sources to Luau...`);
 
-    const initialUpstreamResults = await convertUpstreamSources(config, {
-      conversionDir,
-      toolPath,
-      upstreamPath,
-      fileMap,
-      message: 'port: initial upstream version',
-      babelConfig: options?.babelConfig,
-      babelTransformConfig: options?.babelTransformConfig,
-      remoteUrl: options?.remoteUrl,
-    });
+    const initialUpstreamResults = await convertUpstreamSources(
+      config,
+      {
+        conversionDir,
+        toolPath,
+        upstreamPath,
+        fileMap,
+        message: 'port: initial upstream version',
+      },
+      jsToLuaOptions
+    );
     stdout += initialUpstreamResults.stdout;
     stderr += initialUpstreamResults.stderr;
 
@@ -122,18 +127,18 @@ export async function compare(
 
     await git.checkoutBranch('upstream', 'main');
 
-    const latestUpstreamResults = await convertUpstreamSources(config, {
-      conversionDir,
-      toolPath,
-      upstreamPath,
-      fileMap,
-      message: 'port: latest upstream version',
-      babelConfig: options?.babelConfig,
-      babelTransformConfig: options?.babelTransformConfig,
-      targetRef: targetRevision,
-      sha: targetRevision,
-      remoteUrl: options?.remoteUrl,
-    });
+    const latestUpstreamResults = await convertUpstreamSources(
+      config,
+      {
+        conversionDir,
+        toolPath,
+        upstreamPath,
+        fileMap,
+        message: 'port: latest upstream version',
+        targetRef: targetRevision,
+      },
+      { ...jsToLuaOptions, sha: targetRevision }
+    );
     stdout += latestUpstreamResults.stdout;
     stderr += latestUpstreamResults.stderr;
 
@@ -198,10 +203,6 @@ type ConvertUpstreamSourcesOptions = {
   upstreamPath: string;
   fileMap: UpstreamFileMap;
   message: string;
-  remoteUrl?: string;
-  sha?: string;
-  babelConfig?: string;
-  babelTransformConfig?: string;
   targetRef?: string;
 };
 
@@ -211,20 +212,11 @@ type ConvertUpstreamSourcesOptions = {
  */
 async function convertUpstreamSources(
   config: ConversionConfig,
-  options: ConvertUpstreamSourcesOptions
+  options: ConvertUpstreamSourcesOptions,
+  jsToLuaOptions: JsToLuaOptions
 ) {
-  const {
-    conversionDir,
-    toolPath,
-    upstreamPath,
-    fileMap,
-    message,
-    babelConfig,
-    babelTransformConfig,
-    targetRef,
-    remoteUrl,
-    sha,
-  } = options;
+  const { conversionDir, toolPath, upstreamPath, fileMap, message, targetRef } =
+    options;
   let stdout = '';
   let stderr = '';
 
@@ -238,10 +230,7 @@ async function convertUpstreamSources(
     toolPath,
     conversionDir,
     fileMap,
-    remoteUrl,
-    sha,
-    babelConfig,
-    babelTransformConfig
+    jsToLuaOptions
   );
   stdout += initialUpstreamResponse.stdout;
   stderr += initialUpstreamResponse.stderr;
@@ -569,11 +558,11 @@ async function convertSources(
   toolPath: string,
   conversionDir: string,
   fileMap: UpstreamFileMap,
-  remoteUrl?: string,
-  sha?: string,
-  babelConfig?: string,
-  babelTransformConfig?: string
+  jsToLuaOptions: JsToLuaOptions
 ) {
+  const { sha, remoteUrl, plugins, babelConfig, babelTransformConfig } =
+    jsToLuaOptions;
+
   const DIST_MAIN_FILE = 'dist/apps/convert-js-to-lua/main.js';
   const originalDir = process.cwd();
   process.chdir(path.resolve(toolPath));
@@ -608,6 +597,7 @@ async function convertSources(
         '--rootDir',
         `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}/${revision}`,
       ];
+
       if (babelConfig) {
         args.push('--babelConfig', babelConfig);
       }
@@ -618,11 +608,17 @@ async function convertSources(
       if (remoteUrl && revision) {
         args.push('--remoteUrl', remoteUrl, '--sha', revision);
       }
+
+      if (plugins && plugins.length) {
+        args.push(...plugins.map((plugin) => ['--plugin', plugin]).flat());
+      }
+
       console.log(
         'converting:',
         `${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}/${revision}/**/*`
       );
       stdout += `node ${args.join(' ')}`;
+
       const { stdout: out, stderr: err } = await execFile('node', args, {
         maxBuffer: Infinity,
       });

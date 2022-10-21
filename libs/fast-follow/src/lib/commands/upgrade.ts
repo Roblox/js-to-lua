@@ -1,3 +1,4 @@
+import { JsToLuaOptions } from '@roblox/diff-tool';
 import { applyPatch } from './apply-patch';
 import { compareSinceLastSync } from './compare';
 import { getConfig } from './get-config';
@@ -10,24 +11,23 @@ export type UpgradeOptions = {
   sourceDir: string;
   outDir?: string;
   log: boolean;
-  babelConfig?: string;
-  babelTransformConfig?: string;
   pullRequestCC: string[];
 };
 
 /**
  * apply upgrade a given source directory to the given upstream revision (or latest if revision not provided)
  */
-export const upgrade = async ({
-  channel,
-  sourceDir,
-  outDir,
-  log,
-  revision: targetRev,
-  babelConfig,
-  babelTransformConfig,
-  pullRequestCC,
-}: UpgradeOptions) => {
+export const upgrade = async (
+  {
+    channel,
+    sourceDir,
+    outDir,
+    log,
+    revision: targetRev,
+    pullRequestCC,
+  }: UpgradeOptions,
+  jsToLuaOptions: JsToLuaOptions
+) => {
   const config = await getConfig(sourceDir);
 
   let revision = targetRev;
@@ -50,15 +50,15 @@ export const upgrade = async ({
   console.log(`New release found: ${revision}. Starting conversion...`);
 
   const { patchPath, failedFiles, conflictsSummary } =
-    await compareSinceLastSync({
-      sourceDir,
-      outDir,
-      revision,
-      log,
-      remoteUrl: `https://github.com/${config.upstream.owner}/${config.upstream.repo}`,
-      babelConfig,
-      babelTransformConfig,
-    });
+    await compareSinceLastSync(
+      {
+        sourceDir,
+        outDir,
+        revision,
+        log,
+      },
+      jsToLuaOptions
+    );
 
   const descriptionData = {
     failedFiles,

@@ -1,4 +1,4 @@
-import { ComparisonResponse } from '@roblox/diff-tool';
+import { ComparisonResponse, JsToLuaOptions } from '@roblox/diff-tool';
 import * as yargs from 'yargs';
 import { ApplyPatchOptions } from './commands/apply-patch';
 import { CompareOptions } from './commands/compare';
@@ -6,6 +6,14 @@ import { getConfig } from './commands/get-config';
 import { ScanCommitsOptions } from './commands/scan-commits';
 import { ScanReleasesOptions } from './commands/scan-releases';
 import { UpgradeOptions } from './commands/upgrade';
+
+function extractCommaSeparatedValues(value: Array<string>): Array<string> {
+  return value.map((v) => v.split(',')).flat();
+}
+
+function arrayToStringArray(value: Array<string | number>): Array<string> {
+  return value.map(String);
+}
 
 export function setupCommands({
   scanReleases,
@@ -17,10 +25,14 @@ export function setupCommands({
   scanReleases: (options: ScanReleasesOptions) => Promise<string | void>;
   scanCommits: (options: ScanCommitsOptions) => Promise<void>;
   compareSinceLastSync: (
-    options: CompareOptions
+    options: CompareOptions,
+    jsToLuaOptions: JsToLuaOptions
   ) => Promise<ComparisonResponse>;
   applyPatch: (options: ApplyPatchOptions) => Promise<void>;
-  upgrade: (options: UpgradeOptions) => Promise<string | void>;
+  upgrade: (
+    options: UpgradeOptions,
+    jsToLuaOptions: JsToLuaOptions
+  ) => Promise<string | void>;
 }) {
   return yargs
     .scriptName('fast-follow')
@@ -49,22 +61,31 @@ export function setupCommands({
             describe: 'location to dump patch files',
             requiresArg: true,
           })
-          .option('babelConfig', {
-            description: 'Babel config file',
-            type: 'string',
-            requiresArg: true,
-          })
-          .option('babelTransformConfig', {
-            description: 'Babel transform config file',
-            type: 'string',
-            requiresArg: true,
-          })
           .option('log', {
             alias: ['l'],
             type: 'boolean',
             describe: 'output log files with output if specified',
             default: false,
-          }),
+          })
+          .option('babelConfig', {
+            description:
+              'Babel config file to be used by js-to-lua conversion tool',
+            type: 'string',
+            requiresArg: true,
+          })
+          .option('babelTransformConfig', {
+            description:
+              'Babel transform config file to be used by js-to-lua conversion tool',
+            type: 'string',
+            requiresArg: true,
+          })
+          .option('plugin', {
+            description:
+              'Post processing plugins to be used by js-to-lua conversion tool',
+            type: 'array',
+            requiresArg: true,
+          })
+          .coerce({ plugin: arrayToStringArray }),
       async (argv) => {
         const {
           sourceDir,
@@ -73,17 +94,25 @@ export function setupCommands({
           log,
           babelConfig,
           babelTransformConfig,
+          plugin: plugins,
         } = argv;
         const config = await getConfig(sourceDir);
-        await compareSinceLastSync({
-          sourceDir,
-          outDir,
-          revision,
-          log,
+        const jsToLuaOptions: JsToLuaOptions = {
           babelConfig,
           babelTransformConfig,
+          plugins,
           remoteUrl: `https://github.com/${config.upstream.owner}/${config.upstream.repo}`,
-        });
+        };
+
+        await compareSinceLastSync(
+          {
+            sourceDir,
+            outDir,
+            revision,
+            log,
+          },
+          jsToLuaOptions
+        );
       }
     )
     .command(
@@ -200,7 +229,7 @@ export function setupCommands({
             describe: 'output log files with output if specified',
             default: false,
           })
-          .options('revision', {
+          .option('revision', {
             alias: ['r'],
             type: 'string',
             describe:
@@ -208,13 +237,21 @@ export function setupCommands({
             requiresArg: true,
           })
           .option('babelConfig', {
-            description: 'Babel config file',
+            description:
+              'Babel config file to be used by js-to-lua conversion tool',
             type: 'string',
             requiresArg: true,
           })
           .option('babelTransformConfig', {
-            description: 'Babel transform config file',
+            description:
+              'Babel transform config file to be used by js-to-lua conversion tool',
             type: 'string',
+            requiresArg: true,
+          })
+          .option('plugin', {
+            description:
+              'Post processing plugins to be used by js-to-lua conversion tool',
+            type: 'array',
             requiresArg: true,
           })
           .option('pullRequestCC', {
@@ -224,14 +261,11 @@ export function setupCommands({
               'GitHub user names which start with @ (e.g. "@foo"). They will be mentioned in created PR description.',
             requiresArg: true,
           })
-          .coerce(
-            'pullRequestCC',
-            (value: Array<string | number>): Array<string> =>
-              value
-                .map(String)
-                .map((v) => v.split(','))
-                .flat()
-          ),
+          .coerce({
+            plugin: arrayToStringArray,
+            pullRequestCC: (value: Array<string | number>) =>
+              extractCommaSeparatedValues(arrayToStringArray(value)),
+          }),
       async (argv) => {
         const {
           channel,
@@ -241,19 +275,29 @@ export function setupCommands({
           revision,
           babelConfig,
           babelTransformConfig,
-
+          plugin: plugins,
           pullRequestCC = [],
         } = argv;
-        await upgrade({
-          channel,
-          sourceDir,
-          outDir,
-          log,
-          revision,
+
+        const config = await getConfig(sourceDir);
+        const jsToLuaOptions = {
           babelConfig,
           babelTransformConfig,
-          pullRequestCC,
-        });
+          plugins,
+          remoteUrl: `https://github.com/${config.upstream.owner}/${config.upstream.repo}`,
+        };
+
+        await upgrade(
+          {
+            channel,
+            sourceDir,
+            outDir,
+            log,
+            revision,
+            pullRequestCC,
+          },
+          jsToLuaOptions
+        );
       }
     )
     .help().argv;

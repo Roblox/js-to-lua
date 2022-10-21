@@ -1,4 +1,4 @@
-import { compare, ComparisonResponse } from '@roblox/diff-tool';
+import { compare, ComparisonResponse, JsToLuaOptions } from '@roblox/diff-tool';
 import {
   findRepositoryRoot,
   setupConversionTool,
@@ -14,11 +14,8 @@ const STDERR_FILENAME = 'fast-follow.stderr.log';
 export interface CompareOptions {
   log: boolean;
   outDir?: string;
-  remoteUrl: string;
   revision?: string;
   sourceDir: string;
-  babelConfig?: string;
-  babelTransformConfig?: string;
 }
 
 interface ChildExecException extends ExecException {
@@ -27,7 +24,8 @@ interface ChildExecException extends ExecException {
 }
 
 export async function compareSinceLastSync(
-  options: CompareOptions
+  options: CompareOptions,
+  jsToLuaOptions: JsToLuaOptions
 ): Promise<ComparisonResponse> {
   const config = await getConfig(options.sourceDir);
   const downstreamRepoRoot = await findRepositoryRoot(options.sourceDir);
@@ -65,10 +63,8 @@ export async function compareSinceLastSync(
       {
         targetRevision: options.revision,
         outDir: options.outDir,
-        babelConfig: options.babelConfig,
-        babelTransformConfig: options.babelTransformConfig,
-        remoteUrl: options.remoteUrl,
-      }
+      },
+      jsToLuaOptions
     );
     stdout += comparisonResponse.stdout;
     stderr += comparisonResponse.stderr;

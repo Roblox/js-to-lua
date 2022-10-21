@@ -3,9 +3,6 @@ import { ExecException } from 'node:child_process';
 export interface ConversionOptions {
   targetRevision?: string;
   outDir?: string;
-  babelConfig?: string;
-  babelTransformConfig?: string;
-  remoteUrl?: string;
 }
 
 export interface ComparisonResponse {
