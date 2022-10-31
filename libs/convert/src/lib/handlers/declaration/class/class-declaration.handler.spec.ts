@@ -77,7 +77,7 @@ describe('Class Declaration', () => {
         ],
         [identifier('BaseClass')]
       ),
-    ];
+    ] as const;
     const baseClassPrivateExpectedNodes = [
       variableDeclaration(
         [variableDeclaratorIdentifier(identifier('BaseClass'))],
@@ -118,7 +118,7 @@ describe('Class Declaration', () => {
         ],
         [identifier('BaseClass')]
       ),
-    ];
+    ] as const;
 
     const baseClassGenericExpectedNodes = [
       variableDeclaration(
@@ -146,7 +146,7 @@ describe('Class Declaration', () => {
         ],
         [identifier('BaseClass')]
       ),
-    ];
+    ] as const;
 
     it('should convert class', () => {
       const given = Babel.classDeclaration(
@@ -3045,7 +3045,7 @@ describe('Class Declaration', () => {
         ],
         [identifier('SubClass')]
       ),
-    ];
+    ] as const;
 
     const subClassGenericExpectedNodes = [
       variableDeclaration(
@@ -3084,7 +3084,7 @@ describe('Class Declaration', () => {
         ],
         [identifier('SubClass')]
       ),
-    ];
+    ] as const;
 
     const subClassGenericMultipleExpectedNodes = [
       variableDeclaration(
@@ -3123,7 +3123,7 @@ describe('Class Declaration', () => {
         ],
         [identifier('SubClass')]
       ),
-    ];
+    ] as const;
 
     it('should convert class', () => {
       const given = Babel.classDeclaration(

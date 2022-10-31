@@ -27,12 +27,12 @@ import {
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
-import { createTypeParameterDeclarationHandler } from '../../type/type-parameter-declaration.handler';
+import { createTypeParameterDeclarationHandler } from '../../../../type/type-parameter-declaration.handler';
 import {
   createClassIdentifierPrivate,
   createClassIdentifierStatics,
   hasNonPublicMembers,
-} from './class-declaration.utils';
+} from '../../class-declaration.utils';
 
 export const createClassVariableDeclarationHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,

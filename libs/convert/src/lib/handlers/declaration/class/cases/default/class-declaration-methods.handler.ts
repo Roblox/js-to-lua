@@ -25,19 +25,17 @@ import {
   unhandledStatement,
 } from '@js-to-lua/lua-types';
 import { applyTo } from 'ramda';
-import { createFunctionBodyHandler } from '../../expression/function-body.handler';
-import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
-import { createFunctionReturnTypeHandler } from '../../function-return-type.handler';
-import { createAssignmentPatternHandlerFunction } from '../../statement/assignment/assignment-pattern.handler';
+import { createFunctionBodyHandler } from '../../../../expression/function-body.handler';
+import { createFunctionParamsWithBodyHandler } from '../../../../function-params-with-body.handler';
+import { createFunctionReturnTypeHandler } from '../../../../function-return-type.handler';
+import { createAssignmentPatternHandlerFunction } from '../../../../statement/assignment/assignment-pattern.handler';
 import {
   createClassIdentifierPrivate,
   hasNonPublicMembers,
-  isAnyClassMethod,
-  isAnyClassProperty,
-  isClassConstructor,
-} from './class-declaration.utils';
+} from '../../class-declaration.utils';
+import { createClassMethodsHandlerFunction } from '../class-declaration-methods.handler';
 
-export const createClassMethodsHandlerFunction = (
+export const createDefaultClassMethodsHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
   handleExpressionAsStatement: AsStatementHandlerFunction<
     LuaStatement,
@@ -56,6 +54,11 @@ export const createClassMethodsHandlerFunction = (
   >,
   handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
 ) => {
+  const defaultClassMethodHandler = createDefaultClassMethodHandler();
+  const classMethodsHandler = createClassMethodsHandlerFunction(
+    defaultClassMethodHandler
+  );
+
   return createHandlerFunction<
     LuaNodeGroup,
     Babel.ClassDeclaration,
@@ -66,51 +69,41 @@ export const createClassMethodsHandlerFunction = (
         ? createClassIdentifierPrivate(config.classIdentifier)
         : config.classIdentifier;
 
-      const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
-        handleExpression,
-        handleIdentifier
+      return classMethodsHandler(
+        source,
+        { ...config, classBaseIdentifier },
+        node
       );
+    },
+    { skipComments: true }
+  );
 
-      const handleParamsWithBody = createFunctionParamsWithBodyHandler(
-        handleIdentifier,
-        handleDeclaration,
-        handleAssignmentPattern,
-        handleLVal,
-        handleTypeAnnotation,
-        handleType
-      );
+  function createDefaultClassMethodHandler() {
+    const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
+      handleExpression,
+      handleIdentifier
+    );
 
-      const functionBodyHandler = createFunctionBodyHandler(
-        handleStatement,
-        handleExpressionAsStatement
-      );
+    const handleParamsWithBody = createFunctionParamsWithBodyHandler(
+      handleIdentifier,
+      handleDeclaration,
+      handleAssignmentPattern,
+      handleLVal,
+      handleTypeAnnotation,
+      handleType
+    );
 
-      const bodyWithoutConstructor = node.body.body.filter(
-        (n) => !isClassConstructor(n)
-      );
+    const functionBodyHandler = createFunctionBodyHandler(
+      handleStatement,
+      handleExpressionAsStatement
+    );
 
-      const classMethods = bodyWithoutConstructor
-        .filter((n) => !isAnyClassProperty(n))
-        .map((n) => {
-          if (isAnyClassMethod(n)) {
-            return handleClassMethod(n);
-          } else {
-            return withTrailingConversionComment(
-              unhandledStatement(),
-              `ROBLOX comment: unhandled class body node type ${n.type}`,
-              getNodeSource(source, n)
-            );
-          }
-        });
-
-      return nodeGroup(classMethods);
-
-      function handleClassMethod(
-        node:
-          | Babel.ClassMethod
-          | Babel.ClassPrivateMethod
-          | Babel.TSDeclareMethod
-      ) {
+    return createHandlerFunction<
+      LuaStatement,
+      Babel.ClassMethod | Babel.ClassPrivateMethod | Babel.TSDeclareMethod,
+      EmptyConfig & { classBaseIdentifier: LuaIdentifier }
+    >(
+      (source, config, node) => {
         if (Babel.isPrivateName(node.key)) {
           return withTrailingConversionComment(
             unhandledStatement(),
@@ -138,9 +131,9 @@ export const createClassMethodsHandlerFunction = (
               (paramsResponse) =>
                 functionDeclarationMultipleReturn(
                   identifier(
-                    `${classBaseIdentifier.name}${node.static ? '.' : ':'}${
-                      id.name
-                    }`
+                    `${config.classBaseIdentifier.name}${
+                      node.static ? '.' : ':'
+                    }${id.name}`
                   ),
                   [...paramsResponse.params],
                   nodeGroup([
@@ -156,8 +149,8 @@ export const createClassMethodsHandlerFunction = (
               `ROBLOX comment: unhandled key type ${node.key.type}`,
               getNodeSource(source, node.key)
             );
-      }
-    },
-    { skipComments: true }
-  );
+      },
+      { skipComments: true }
+    );
+  }
 };

@@ -1,14 +1,16 @@
 import * as Babel from '@babel/types';
 import {
   AsStatementHandlerFunction,
+  combineOptionalHandlerFunctions,
   createHandler,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
   ClassDeclarationBody,
-  withClassDeclarationExtra,
+  defaultExpressionHandler,
 } from '@js-to-lua/lua-conversion-utils';
 import {
+  identifier,
   LuaDeclaration,
   LuaExpression,
   LuaLVal,
@@ -17,16 +19,15 @@ import {
   LuaType,
   LuaTypeAnnotation,
   nodeGroup,
+  typeAliasDeclaration,
+  typeReference,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { isTruthy } from '@js-to-lua/shared-utils';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
-import { createConstructorHandlerFunction } from './class-declaration-constructor.handler';
-import { createClassMethodsHandlerFunction } from './class-declaration-methods.handler';
-import { createStaticPropsHandlerFunction } from './class-declaration-static-properties.handler';
-import { createHandleClassTypePrivateAlias } from './class-declaration-type-private.handler';
-import { createHandleClassTypeStaticsAlias } from './class-declaration-type-statics.handler';
-import { createHandleClassTypeAlias } from './class-declaration-type.handler';
-import { createClassVariableDeclarationHandlerFunction } from './class-declaration-variable-declaration.handler';
+import { createClassDeclarationDefaultHandler } from './cases/default/class-declaration-default.handler';
+import { createHandleReactClassDeclaration } from './cases/react/react-class-declaration.handler';
 
 export const createClassDeclarationHandler = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
@@ -49,85 +50,48 @@ export const createClassDeclarationHandler = (
 ) =>
   createHandler<LuaNodeGroup<ClassDeclarationBody>, Babel.ClassDeclaration>(
     'ClassDeclaration',
-    (source, config, node) => {
-      const classIdentifier = handleIdentifierStrict(source, config, node.id);
-
-      const handleStaticProps = createStaticPropsHandlerFunction(
-        handleExpression
-      )(source, { ...config, classIdentifier });
-
-      const handleConstructor = createConstructorHandlerFunction(
-        handleExpression,
-        handleExpressionAsStatement,
-        handleIdentifierStrict,
-        handleStatement,
-        handleDeclaration,
-        handleLVal,
-        handleTypeAnnotation,
-        handleType
-      )(source, {
-        ...config,
-        classIdentifier,
-      });
-
-      const toClassVariableDeclaration =
-        createClassVariableDeclarationHandlerFunction(
+    (source, config, node): LuaNodeGroup<ClassDeclarationBody> => {
+      const handleSpecialCases = combineOptionalHandlerFunctions([
+        createHandleReactClassDeclaration(
           handleExpression,
+          handleExpressionAsStatement,
+          handleIdentifierStrict,
+          handleStatement,
+          handleDeclaration,
+          handleLVal,
+          handleTypeAnnotation,
           handleType
-        )(source, {
-          ...config,
+        ),
+        createClassDeclarationDefaultHandler(
+          handleExpression,
+          handleExpressionAsStatement,
+          handleIdentifierStrict,
+          handleStatement,
+          handleDeclaration,
+          handleLVal,
+          handleTypeAnnotation,
+          handleType
+        ),
+      ]);
+
+      const handled = handleSpecialCases(source, config, node);
+
+      if (handled) {
+        return handled;
+      }
+
+      const defaultExpression = defaultExpressionHandler(source, config, node);
+      const classIdentifier = handleIdentifierStrict(source, config, node.id);
+      return nodeGroup([
+        typeAliasDeclaration(
           classIdentifier,
-        });
-
-      const handleClassMethods = createClassMethodsHandlerFunction(
-        handleExpression,
-        handleExpressionAsStatement,
-        handleIdentifierStrict,
-        handleStatement,
-        handleDeclaration,
-        handleLVal,
-        handleTypeAnnotation,
-        handleType
-      )(source, {
-        ...config,
-        classIdentifier,
-      });
-
-      const handleClassTypeAlias = createHandleClassTypeAlias(
-        handleExpression,
-        handleIdentifierStrict,
-        handleTypeAnnotation,
-        handleType
-      )(source, { ...config, classIdentifier });
-
-      const handleClassTypePrivateAlias = createHandleClassTypePrivateAlias(
-        handleExpression,
-        handleIdentifierStrict,
-        handleTypeAnnotation,
-        handleType
-      )(source, { ...config, classIdentifier });
-
-      const handleClassTypeStaticsAlias = createHandleClassTypeStaticsAlias(
-        handleExpression,
-        handleIdentifierStrict,
-        handleTypeAnnotation,
-        handleType
-      )(source, { ...config, classIdentifier });
-
-      const classTypeAlias = handleClassTypeAlias(node);
-      const classTypePrivateAlias = handleClassTypePrivateAlias(node);
-      const classTypeStaticsAlias = handleClassTypeStaticsAlias(node);
-      return withClassDeclarationExtra(
-        nodeGroup([
-          classTypeAlias,
-          nodeGroup(
-            [classTypePrivateAlias, classTypeStaticsAlias].filter(isTruthy)
-          ),
-          ...toClassVariableDeclaration(node).body,
-          ...handleStaticProps(node).body,
-          handleConstructor(node),
-          ...handleClassMethods(node).body,
-        ])
-      );
+          typeReference(identifier('unknown'))
+        ),
+        nodeGroup([]),
+        variableDeclaration(
+          [variableDeclaratorIdentifier(classIdentifier)],
+          [variableDeclaratorValue(defaultExpression)]
+        ),
+      ]);
     }
   );

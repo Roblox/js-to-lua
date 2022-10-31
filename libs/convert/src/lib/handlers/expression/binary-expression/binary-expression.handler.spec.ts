@@ -709,8 +709,8 @@ describe('Binary Expression Handler', () => {
         babelIdentifier('foo'),
         babelIdentifier('bar')
       ),
-      // bamboozle TS into allowing this
-      operator: 'boom' as unknown as BabelBinaryExpression['operator'],
+      // @ts-expect-error: bamboozle TS into allowing this
+      operator: 'boom',
     };
 
     const handleBinaryExpression = createBinaryExpressionHandler(

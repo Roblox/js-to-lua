@@ -49,6 +49,7 @@ describe('With class declaration extra', () => {
 
   it('should return false when not enough node group members', () => {
     const given = withClassDeclarationExtra(
+      // @ts-expect-error: bamboozle TS into allowing this
       nodeGroup([
         typeAliasDeclaration(identifier('foo'), typeLiteral([])),
         nodeGroup([typeAliasDeclaration(identifier('bar'), typeLiteral([]))]),
@@ -59,6 +60,7 @@ describe('With class declaration extra', () => {
 
   it('should return false when node group members in wrong order', () => {
     const given = withClassDeclarationExtra(
+      // @ts-expect-error: bamboozle TS into allowing this
       nodeGroup([
         typeAliasDeclaration(identifier('foo'), typeLiteral([])),
         variableDeclaration(
@@ -72,13 +74,17 @@ describe('With class declaration extra', () => {
   });
 
   it('should return false when is empty LuaNodeGroup with declaration extra', () => {
-    const given = withClassDeclarationExtra(nodeGroup([]));
+    const given = withClassDeclarationExtra(
+      // @ts-expect-error: bamboozle TS into allowing this
+      nodeGroup([])
+    );
     expect(isClassDeclaration(given)).toBe(false);
   });
 
   it.each([
     nodeGroup([]),
     withClassDeclarationExtra(
+      // @ts-expect-error: bamboozle TS into allowing this
       expressionStatement(callExpression(identifier('foo'), []))
     ),
     expressionStatement(callExpression(identifier('foo'), [])),

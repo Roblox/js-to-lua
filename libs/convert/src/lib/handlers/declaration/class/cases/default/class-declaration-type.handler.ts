@@ -4,13 +4,8 @@ import {
   EmptyConfig,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
+import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
-  getNodeSource,
-  removeTypeAnnotation,
-  withTrailingConversionComment,
-} from '@js-to-lua/lua-conversion-utils';
-import {
-  identifier,
   isIdentifier,
   LuaExpression,
   LuaIdentifier,
@@ -22,19 +17,18 @@ import {
   typeAliasDeclaration,
   typeIntersection,
   typeLiteral,
-  typePropertySignature,
   typeReference,
 } from '@js-to-lua/lua-types';
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
-import { createTypeParameterDeclarationHandler } from '../../type/type-parameter-declaration.handler';
+import { createTypeParameterDeclarationHandler } from '../../../../type/type-parameter-declaration.handler';
 import {
-  isClassConstructor,
-  isClassMethod,
-  isPublic,
-} from './class-declaration.utils';
-import { createHandleMethodsAndProperties } from './class-methods-properties.handler';
-import { createClassTsParameterPropertyHandler } from './class-ts-parameter-property.handler';
+  getConstructorTsParameters,
+  getMethodsAndProperties,
+  groupProperties,
+} from '../../class-declaration.utils';
+import { createHandleMethodsAndProperties } from '../../class-methods-properties.handler';
+import { createParameterPropertyHandler } from '../../ts-parameter-property.handler';
 
 export const createHandleClassTypeAlias = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
@@ -45,8 +39,6 @@ export const createHandleClassTypeAlias = (
   >,
   handleType: HandlerFunction<LuaType, Babel.FlowType | Babel.TSType>
 ) => {
-  let unhandledAssignments = 0;
-
   return createHandlerFunction<
     LuaTypeAliasDeclaration,
     Babel.ClassDeclaration,
@@ -55,59 +47,35 @@ export const createHandleClassTypeAlias = (
     (source, config, node) => {
       const { classIdentifier } = config;
 
-      const constructorMethod = node.body.body.find(isClassConstructor);
-
-      const constructorPublicTsParameters: Babel.TSParameterProperty[] =
-        (constructorMethod &&
-          constructorMethod.params.filter(
-            (n): n is Babel.TSParameterProperty =>
-              Babel.isTSParameterProperty(n) && n.accessibility === 'public'
-          )) ||
-        [];
-
-      const bodyWithoutConstructor = node.body.body.filter(
-        (n) => !isClassConstructor(n)
+      const constructorTsParametersGrouped = groupProperties(
+        getConstructorTsParameters(node)
       );
 
-      const publicMethodsAndProperties = [
-        ...bodyWithoutConstructor.filter(
-          (
-            n
-          ): n is
-            | Babel.ClassMethod
-            | Babel.TSDeclareMethod
-            | Babel.ClassProperty =>
-            (isClassMethod(n) || Babel.isClassProperty(n)) &&
-            !n.static &&
-            isPublic(n)
-        ),
-      ];
+      const methodsAndPropertiesGrouped = groupProperties(
+        getMethodsAndProperties(node)
+      );
 
-      const handlePublicMethodsAndProperties = createHandleMethodsAndProperties(
+      const handleMethodsAndProperties = createHandleMethodsAndProperties(
         handleExpression,
         handleIdentifier,
         handleTypeAnnotation,
         handleType
       )(source, { ...config, classIdentifier });
 
-      const handleClassTsParameterProperty =
-        createClassTsParameterPropertyHandler(handleTypeAnnotation)(
-          source,
-          config
-        );
+      const toTypePropertySignature = createParameterPropertyHandler(
+        handleIdentifier,
+        handleTypeAnnotation
+      )(source, config);
 
       const publicTypes: LuaPropertySignature[] = [
-        ...constructorPublicTsParameters.map((property) => {
-          const id = getParameterPropertyIdentifier(property);
-          return typePropertySignature(
-            removeTypeAnnotation(id),
-            handleClassTsParameterProperty(property)
-          );
-        }),
-        ...publicMethodsAndProperties.map(handlePublicMethodsAndProperties),
+        ...constructorTsParametersGrouped.publicExplicit.map(
+          toTypePropertySignature
+        ),
+        ...methodsAndPropertiesGrouped.public.map(handleMethodsAndProperties),
       ];
 
       const classOwnType = typeLiteral(publicTypes);
+
       const superTypeParameters = node.superTypeParameters
         ? applyTo(
             node.superTypeParameters.params.map((p) =>
@@ -151,21 +119,6 @@ export const createHandleClassTypeAlias = (
         classType,
         genericTypeParametersDeclaration
       );
-
-      function getParameterPropertyIdentifier({
-        parameter,
-      }: Babel.TSParameterProperty): LuaIdentifier {
-        if (Babel.isIdentifier(parameter)) {
-          return handleIdentifier(source, config, parameter);
-        } else if (Babel.isIdentifier(parameter.left)) {
-          return handleIdentifier(source, config, parameter.left);
-        } else {
-          return withTrailingConversionComment(
-            identifier(`__unhandled__${'_'.repeat(unhandledAssignments++)}`),
-            getNodeSource(source, parameter.left)
-          );
-        }
-      }
     },
     { skipComments: true }
   );

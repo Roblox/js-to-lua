@@ -29,6 +29,11 @@ export const isAnyClassMethod = (
 const isObject = (node: unknown): node is Record<string, unknown> =>
   typeof node === 'object' && node !== null;
 
+export const isPublicExplicit = (
+  node: unknown
+): node is { accessibility?: 'public' } =>
+  isObject(node) && node.accessibility === 'public';
+
 export const isPublic = (
   node: unknown
 ): node is { accessibility?: 'public' | null } =>
@@ -88,3 +93,58 @@ export const hasProtectedMembers = (node: Babel.ClassDeclaration): boolean => {
 
 export const hasNonPublicMembers = (node: Babel.ClassDeclaration): boolean =>
   hasPrivateMembers(node) || hasProtectedMembers(node);
+
+export const groupProperties = <
+  P extends Babel.TSParameterProperty | BabelClassMethodOrProperty
+>(
+  properties: P[]
+) => ({
+  public: properties.filter(isPublic),
+  publicExplicit: properties.filter(isPublicExplicit),
+  protected: properties.filter(isProtected),
+  private: properties.filter(isPrivate),
+});
+
+export const getConstructorTsParameters = (
+  node: Babel.ClassDeclaration
+): Babel.TSParameterProperty[] => {
+  const constructorMethod = node.body.body.find(isClassConstructor);
+
+  return (
+    (constructorMethod &&
+      constructorMethod.params.filter((n): n is Babel.TSParameterProperty =>
+        Babel.isTSParameterProperty(n)
+      )) ||
+    []
+  );
+};
+
+type BabelClassMethodOrProperty =
+  | Babel.ClassMethod
+  | Babel.TSDeclareMethod
+  | Babel.ClassProperty;
+
+export const getMethodsAndProperties = (
+  node: Babel.ClassDeclaration
+): Array<BabelClassMethodOrProperty> => {
+  const bodyWithoutConstructor = node.body.body.filter(
+    (n) => !isClassConstructor(n)
+  );
+
+  return bodyWithoutConstructor.filter(
+    (n): n is BabelClassMethodOrProperty =>
+      (isClassMethod(n) || Babel.isClassProperty(n)) && !n.static
+  );
+};
+
+export const isReactComponentExtendedClass = (
+  node: Babel.ClassDeclaration
+): node is Omit<Babel.ClassDeclaration, 'superClass'> & {
+  superClass: Babel.MemberExpression;
+} =>
+  !!node.superClass &&
+  Babel.isMemberExpression(node.superClass) &&
+  Babel.isIdentifier(node.superClass.object) &&
+  node.superClass.object.name === 'React' &&
+  Babel.isIdentifier(node.superClass.property) &&
+  ['Component', 'PureComponent'].includes(node.superClass.property.name);

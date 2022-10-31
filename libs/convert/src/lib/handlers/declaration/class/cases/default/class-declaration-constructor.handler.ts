@@ -7,21 +7,14 @@ import {
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
-  defaultUnhandledIdentifierHandlerWithComment,
-  getNodeSource,
-  removeTypeAnnotation,
   selfIdentifier,
   typeReferenceWithoutDefaultType,
   withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
-  assignmentStatement,
-  AssignmentStatementOperatorEnum,
   callExpression,
   functionDeclaration,
   identifier,
-  indexExpression,
-  isIdentifier,
   LuaDeclaration,
   LuaExpression,
   LuaFunctionDeclaration,
@@ -31,31 +24,29 @@ import {
   LuaStatement,
   LuaType,
   LuaTypeAnnotation,
-  memberExpression,
-  nilLiteral,
   nodeGroup,
   returnStatement,
   tableConstructor,
   typeAny,
   typeCastExpression,
   typeReference,
-  unhandledStatement,
   variableDeclaration,
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { applyTo } from 'ramda';
-import { createFunctionBodyHandler } from '../../expression/function-body.handler';
-import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
-import { createAssignmentPatternHandlerFunction } from '../../statement/assignment/assignment-pattern.handler';
-import { createTypeParameterDeclarationHandler } from '../../type/type-parameter-declaration.handler';
+import { createFunctionBodyHandler } from '../../../../expression/function-body.handler';
+import { createFunctionParamsWithBodyHandler } from '../../../../function-params-with-body.handler';
+import { createAssignmentPatternHandlerFunction } from '../../../../statement/assignment/assignment-pattern.handler';
+import { createTypeParameterDeclarationHandler } from '../../../../type/type-parameter-declaration.handler';
+import { createConstructorTsParameterPropHandler } from '../../class-constructor-ts-parameter.handler';
 import {
   createClassIdentifierPrivate,
   hasNonPublicMembers,
-  isAnyClassProperty,
   isClassConstructor,
-} from './class-declaration.utils';
+} from '../../class-declaration.utils';
+import { createNonStaticInitializedClassPropertiesGetter } from '../../non-static-initialized-class-properties.handler';
 
 export const createConstructorHandlerFunction = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
@@ -84,35 +75,20 @@ export const createConstructorHandlerFunction = (
     }
   >(
     (source, config, node): LuaFunctionDeclaration => {
-      const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
-        handleExpression,
-        handleIdentifier
-      );
-
-      const handleParamsWithBody = createFunctionParamsWithBodyHandler(
-        handleIdentifier,
-        handleDeclaration,
-        handleAssignmentPattern,
-        handleLVal,
-        handleTypeAnnotation,
-        handleType
-      );
-
-      const functionBodyHandler = createFunctionBodyHandler(
-        handleStatement,
-        handleExpressionAsStatement
-      );
+      const {
+        handleParamsWithBody,
+        functionBodyHandler,
+        typeParameterDeclarationHandler,
+        constructorTsParameterPropHandler,
+        getNonStaticInitializedClassProperties,
+      } = getHandlers();
+      const handleConstructorTsParameterProp =
+        constructorTsParameterPropHandler(source, config);
 
       const { classIdentifier } = config;
       const classBaseIdentifier = hasNonPublicMembers(node)
         ? createClassIdentifierPrivate(classIdentifier)
         : classIdentifier;
-
-      const constructorMethod = node.body.body.find(isClassConstructor);
-
-      const nonStaticInitializedClassProperties = node.body.body
-        .filter(isAnyClassProperty)
-        .filter((n) => n.value && !n.static);
 
       const superClass = node.superClass
         ? handleExpression(source, config, node.superClass)
@@ -139,35 +115,16 @@ export const createConstructorHandlerFunction = (
             : declaration
       );
 
-      const nonStaticPropertiesConstructorInitializers =
-        nonStaticInitializedClassProperties.map((n) => {
-          const propertyKey = !Babel.isPrivateName(n.key)
-            ? handleExpression(source, config, n.key)
-            : defaultUnhandledIdentifierHandlerWithComment(
-                `ROBLOX comment: unhandled class body node type ${n.key.type}`
-              )(source, config, n.key);
-          return assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [
-              isIdentifier(propertyKey)
-                ? memberExpression(selfIdentifier(), '.', propertyKey)
-                : indexExpression(selfIdentifier(), propertyKey),
-            ],
-            [n.value ? handleExpression(source, config, n.value) : nilLiteral()]
-          );
-        });
+      const constructorMethod = node.body.body.find(isClassConstructor);
 
-      const handleTypeParameterDeclaration =
-        createTypeParameterDeclarationHandler(handleType).handler(
-          source,
-          config
-        );
+      const nonStaticPropertiesConstructorInitializers =
+        getNonStaticInitializedClassProperties(source, config, node);
 
       const genericTypeParametersDeclaration =
         node.typeParameters &&
         !Babel.isNoop(node.typeParameters) &&
         node.typeParameters.params.length
-          ? handleTypeParameterDeclaration(node.typeParameters)
+          ? typeParameterDeclarationHandler(source, config, node.typeParameters)
           : undefined;
 
       const genericTypeParameters = genericTypeParametersDeclaration
@@ -213,7 +170,6 @@ export const createConstructorHandlerFunction = (
                       )
                     ),
                   ]),
-
                   typeReference(classIdentifier, genericTypeParameters),
                   false,
                   genericTypeParametersDeclaration
@@ -233,69 +189,39 @@ export const createConstructorHandlerFunction = (
                 )
               ),
             ]),
-
             typeReference(classIdentifier, genericTypeParameters),
             false,
             genericTypeParametersDeclaration
           );
-
-      function handleConstructorTsParameterProp(
-        node: Babel.TSParameterProperty
-      ) {
-        if (Babel.isIdentifier(node.parameter)) {
-          return assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [
-              memberExpression(
-                selfIdentifier(),
-                '.',
-                handleIdentifier(
-                  source,
-                  config,
-                  removeTypeAnnotation(node.parameter)
-                )
-              ),
-            ],
-            [
-              handleIdentifier(
-                source,
-                config,
-                removeTypeAnnotation(node.parameter)
-              ),
-            ]
-          );
-        }
-
-        if (Babel.isIdentifier(node.parameter.left)) {
-          return assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [
-              memberExpression(
-                selfIdentifier(),
-                '.',
-                handleIdentifier(
-                  source,
-                  config,
-                  removeTypeAnnotation(node.parameter.left)
-                )
-              ),
-            ],
-            [
-              handleIdentifier(
-                source,
-                config,
-                removeTypeAnnotation(node.parameter.left)
-              ),
-            ]
-          );
-        }
-        return withTrailingConversionComment(
-          unhandledStatement(),
-          `ROBLOX comment: unhandled parameter type ${node.parameter.type} and left value of type ${node.parameter.left.type}`,
-          getNodeSource(source, node.parameter)
-        );
-      }
     },
     { skipComments: true }
   );
+
+  function getHandlers() {
+    const handleAssignmentPattern = createAssignmentPatternHandlerFunction(
+      handleExpression,
+      handleIdentifier
+    );
+
+    return {
+      handleParamsWithBody: createFunctionParamsWithBodyHandler(
+        handleIdentifier,
+        handleDeclaration,
+        handleAssignmentPattern,
+        handleLVal,
+        handleTypeAnnotation,
+        handleType
+      ),
+      functionBodyHandler: createFunctionBodyHandler(
+        handleStatement,
+        handleExpressionAsStatement
+      ),
+      typeParameterDeclarationHandler:
+        createTypeParameterDeclarationHandler(handleType).handler,
+      constructorTsParameterPropHandler:
+        createConstructorTsParameterPropHandler(handleIdentifier),
+      getNonStaticInitializedClassProperties:
+        createNonStaticInitializedClassPropertiesGetter(handleExpression),
+    };
+  }
 };

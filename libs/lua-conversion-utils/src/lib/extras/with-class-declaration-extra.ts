@@ -13,9 +13,9 @@ import {
 
 const classDeclarationSourceType = 'ClassDeclaration';
 
-export const withClassDeclarationExtra = createWithSourceTypeExtra(
-  classDeclarationSourceType
-);
+export const withClassDeclarationExtra = (
+  n: LuaNodeGroup<ClassDeclarationBody>
+) => createWithSourceTypeExtra(classDeclarationSourceType)(n);
 
 export const isClassDeclaration = (
   node: LuaNode

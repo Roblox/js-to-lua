@@ -47,7 +47,7 @@ type ParamsBodyResponse = {
     LuaNodeGroup | LuaDeclaration | AssignmentStatement | LuaStatement
   >;
 };
-type ParamsBodyResponse1 = Array<{
+type ParamsBodyResponseElement = Array<{
   param: LuaFunctionParam;
   typeParam: LuaFunctionTypeParam;
   body?: LuaNodeGroup | LuaDeclaration | AssignmentStatement | LuaStatement;
@@ -134,7 +134,7 @@ export const createFunctionParamsWithBodyHandler = (
 
     const paramRefGenerator = createParamRefGenerator();
 
-    const mapFn = (node: BabelFunctionTypesParams): ParamsBodyResponse1 =>
+    const mapFn = (node: BabelFunctionTypesParams): ParamsBodyResponseElement =>
       node.params
         .map((param) => {
           if (Babel.isAssignmentPattern(param)) {
@@ -264,7 +264,7 @@ export const createFunctionParamsWithBodyHandler = (
     const needsSelf = Babel.isMemberExpression(config.assignedTo);
     const response = applyTo(
       mapFn(node),
-      (res): ParamsBodyResponse1 =>
+      (res): ParamsBodyResponseElement =>
         needsSelf
           ? [
               paramNameToFunctionParams(

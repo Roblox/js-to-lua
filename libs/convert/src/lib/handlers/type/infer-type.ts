@@ -11,12 +11,14 @@ import {
   ObjectPattern,
 } from '@babel/types';
 import {
-  identifier,
+  arrayTypeReference,
+  objectTypeReference,
+} from '@js-to-lua/lua-conversion-utils';
+import {
   LuaType,
   typeAny,
   typeBoolean,
   typeNumber,
-  typeReference,
   typeString,
 } from '@js-to-lua/lua-types';
 
@@ -33,16 +35,16 @@ export const inferType = (
     return typeBoolean();
   }
   if (isObjectExpression(node)) {
-    return typeReference(identifier('Object'));
+    return objectTypeReference();
   }
   if (isArrayExpression(node)) {
-    return typeReference(identifier('Array'), [typeAny()]);
+    return arrayTypeReference();
   }
   if (isObjectPattern(node)) {
-    return typeReference(identifier('Object'));
+    return objectTypeReference();
   }
   if (isArrayPattern(node)) {
-    return typeReference(identifier('Array'), [typeAny()]);
+    return arrayTypeReference();
   }
   return typeAny();
 };

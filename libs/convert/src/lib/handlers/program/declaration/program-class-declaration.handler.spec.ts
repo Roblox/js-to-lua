@@ -1474,6 +1474,31 @@ describe('Program handler', () => {
        `);
 
         const expected = programWithUpstreamComment([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('LuauPolyfill')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          typeAliasDeclaration(
+            identifier('Object'),
+            typeReference(identifier('LuauPolyfill.Object'))
+          ),
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),
@@ -1560,6 +1585,32 @@ describe('Program handler', () => {
        `);
 
         const expected = programWithUpstreamComment([
+          withTrailingConversionComment(
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Packages'))],
+              []
+            ),
+            'ROBLOX comment: must define Packages module'
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  memberExpression(
+                    identifier('Packages'),
+                    '.',
+                    identifier('LuauPolyfill')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          typeAliasDeclaration(
+            identifier('Array'),
+            typeReference(identifier('LuauPolyfill.Array<T>')),
+            typeParameterDeclaration([typeReference(identifier('T'))])
+          ),
           nodeGroup([
             typeAliasDeclaration(
               identifier('BaseClass'),

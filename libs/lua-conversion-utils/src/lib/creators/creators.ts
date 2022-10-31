@@ -2,9 +2,17 @@ import {
   identifier,
   LuaIdentifier,
   LuaMemberExpression,
+  LuaType,
+  LuaTypeReference,
   memberExpression,
+  typeAny,
+  typeReference,
 } from '@js-to-lua/lua-types';
-import { withNeedsPromiseExtra, withPolyfillExtra } from '../extras';
+import {
+  withNeedsPromiseExtra,
+  withPolyfillExtra,
+  withPolyfillTypeExtra,
+} from '../extras';
 
 type BooleanMethod = 'toJSBoolean';
 export const booleanIdentifier = (): LuaIdentifier =>
@@ -72,5 +80,20 @@ export const objectKeys = (): LuaMemberExpression =>
 
 export const objectNone = (): LuaMemberExpression =>
   memberExpression(objectIdentifier(), '.', identifier('None'));
+
+export const objectTypeIdentifier = (): LuaIdentifier =>
+  withPolyfillTypeExtra<LuaIdentifier, 'Object'>('Object')(
+    identifier('Object')
+  );
+export const arrayTypeIdentifier = (): LuaIdentifier =>
+  withPolyfillTypeExtra<LuaIdentifier, 'Array'>('Array', ['T'])(
+    identifier('Array')
+  );
+
+export const objectTypeReference = (): LuaTypeReference =>
+  typeReference(objectTypeIdentifier());
+export const arrayTypeReference = (
+  type: LuaType = typeAny()
+): LuaTypeReference => typeReference(arrayTypeIdentifier(), [type]);
 
 export const selfIdentifier = (): LuaIdentifier => identifier('self');

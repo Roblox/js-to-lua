@@ -23,13 +23,13 @@ import {
 } from '@js-to-lua/lua-types';
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { applyTo, pipe } from 'ramda';
-import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
-import { createFunctionParamsWithBodyHandler } from '../../function-params-with-body.handler';
-import { createTypeParameterDeclarationHandler } from '../../type/type-parameter-declaration.handler';
+import { IdentifierStrictHandlerFunction } from '../../../../expression/identifier-handler-types';
+import { createFunctionParamsWithBodyHandler } from '../../../../function-params-with-body.handler';
+import { createTypeParameterDeclarationHandler } from '../../../../type/type-parameter-declaration.handler';
 import {
   createClassIdentifierStatics,
   isClassConstructor,
-} from './class-declaration.utils';
+} from '../../class-declaration.utils';
 
 export const createHandleClassTypeStaticsAlias = (
   handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,

@@ -1,5 +1,7 @@
 -- ROBLOX upstream: https://github.com/Roblox/js-to-lua/blob/sha/conformance-tests/structural-types/functions/expressions/async/with-default-value-and-body-infer_m5.js
 local Packages --[[ ROBLOX comment: must define Packages module ]]
+local LuauPolyfill = require(Packages.LuauPolyfill)
+type Array<T> = LuauPolyfill.Array<T>
 local Promise = require(Packages.Promise)
 local function fooBool(bar_: boolean?)
 	local bar: boolean = if bar_ ~= nil then bar_ else true
