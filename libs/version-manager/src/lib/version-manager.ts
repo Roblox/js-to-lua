@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import { rm } from 'fs/promises';
-import { lookpath } from 'lookpath';
 import {
   exec as childProcessExec,
   execFile as childProcessExecFile,
@@ -69,8 +68,6 @@ async function installConversionTool(installPath: string, ref: string) {
     throw new Error(
       'fatal: the GITHUB_TOKEN environment variable must be set to download the conversion tool'
     );
-  } else if (!(await lookpath('wasm-pack'))) {
-    throw new Error('fatal: wasm-pack must be installed to install js-to-lua');
   }
 
   try {
@@ -96,9 +93,6 @@ async function buildConversionTool(installPath: string): Promise<string> {
 
     console.log('📦 Installing dependencies from npm...');
     await exec('npm i');
-
-    console.log('🔨 Building stylua-wasm...');
-    await exec('npm run build:stylua-wasm');
 
     console.log('🔨 Building js-to-lua...');
     await exec('npm run build');

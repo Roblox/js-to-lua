@@ -48,10 +48,6 @@ runs:
       run: npm i
       shell: bash
 
-    - name: Install wasm-pack
-      shell: bash
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
     - name: Build Fast Follow
       working-directory: js-to-lua-build
       shell: bash

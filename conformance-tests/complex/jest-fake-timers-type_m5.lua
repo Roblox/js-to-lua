@@ -2,4 +2,7 @@
 type Exclude<T, U> = any --[[ ROBLOX TODO: TS 'Exclude' built-in type is not available in Luau ]]
 type FakeTimers =
 	GlobalFakeTimersConfig
-	& ((FakeTimersConfig & { now: Exclude<typeof((({} :: any) :: FakeTimersConfig).now), Date>? }) | LegacyFakeTimersConfig)
+	& (
+		(FakeTimersConfig & { now: Exclude<typeof((({} :: any) :: FakeTimersConfig).now), Date>? })
+		| LegacyFakeTimersConfig
+	)

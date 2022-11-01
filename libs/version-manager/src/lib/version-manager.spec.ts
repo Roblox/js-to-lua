@@ -125,20 +125,6 @@ describe('versionManager', () => {
     expect(exec).toHaveBeenCalledWith('npm run build:prod', expect.anything());
   });
 
-  it('should not install if wasm-pack is missing', async () => {
-    jest.spyOn(lp, 'lookpath').mockReturnValue(Promise.resolve(undefined));
-
-    await expect(async () =>
-      versionManager.setupConversionTool('fake-branch-name')
-    ).rejects.toThrow();
-
-    expect(clone).toHaveBeenCalledTimes(0);
-    expect(exec).not.toHaveBeenCalledWith(
-      'npm run build:stylua-wasm',
-      expect.anything()
-    );
-  });
-
   it('should delete the cloned repo if the build process fails', async () => {
     (
       jest.spyOn(

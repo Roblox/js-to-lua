@@ -13,7 +13,7 @@ type MockModule = {
 		methodName: M,
 		accessType: "set"
 	) -> SpyInstance<void, Array<any --[[ ROBLOX FIXME: Luau types cannot be used for indexing. ]] --[[ Upstream: T[M] ]]>>,
-	spyOn: (self: MockModule, object: T, methodName: M) -> any, -- eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types --[[ ROBLOX TODO: Unhandled node for type: TSConditionalType ]] --[[ T[M] extends (...args: Array<any>) => any ? SpyInstance<ReturnType<T[M]>, Parameters<T[M]>> : never ]]
+	spyOn: (self: MockModule, object: T, methodName: M) -> any, -- eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types--[[ ROBLOX TODO: Unhandled node for type: TSConditionalType ]]--[[ T[M] extends (...args: Array<any>) => any ? SpyInstance<ReturnType<T[M]>, Parameters<T[M]>> : never ]]
 	spyOn: (self: MockModule, object: T, methodName: M, accessType: ("get" | "set")?) -> any,
 }
 type MockModule_statics = { new: () -> MockModule }

@@ -16,26 +16,8 @@ Conversion tool for migrating JS/TS code into Luau.
 **The project requires the following tools:**
 
 - [Node](https://nodejs.org) (version >= 16)
-- [Rust](https://www.rust-lang.org/tools/install)
-- [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 
 ## Setup
-
-### stylua-wasm dependency
-
-We're maintaining our local [Stylua](https://github.com/JohnnyMorganz/StyLua) WASM port. Since it is used as a dependency for our project you need to build it first.
-You can read more details on `stylua-wasm` specific [README](libs/stylua-wasm/README.md).
-
-To build `stylua-wasm` you need the following tools:
-
-- [install Rust](https://www.rust-lang.org/tools/install)
-- [`wasm-pack` installer](https://rustwasm.github.io/wasm-pack/installer/)
-
-After installing those tools you can build `stylua-wasm`. To do so just run the following command:
-
-```bash
-npm run build:stylua-wasm
-```
 
 ### Project installation
 

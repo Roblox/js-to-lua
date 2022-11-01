@@ -30,7 +30,6 @@
     "workspace-generator": "nx workspace-generator",
     "dep-graph": "nx dep-graph",
     "help": "nx help",
-    "build:stylua-wasm": "wasm-pack build --target nodejs libs/stylua-wasm",
     "prepare": "husky install & npm run playground:assume-unchanged",
     "playground:assume-unchanged": "git update-index --assume-unchanged apps/playground/src/main.ts apps/playground/src/main.spec.ts apps/playground/src/run.ts",
     "playground:no-assume-unchanged": "git update-index --no-assume-unchanged apps/playground/src/main.ts apps/playground/src/main.spec.ts apps/playground/src/run.ts"
@@ -44,6 +43,7 @@
     "@babel/preset-typescript": "^7.15.0",
     "@babel/traverse": "^7.18.2",
     "@babel/types": "7.15.0",
+    "@johnnymorganz/stylua": "=0.15.2",
     "@slack/bolt": "^3.11.3",
     "glob": "^7.2.3",
     "lookpath": "^1.2.2",
@@ -51,9 +51,8 @@
     "ramda": "^0.27.1",
     "semver": "^7.3.7",
     "simple-git": "^3.10.0",
-    "stylua-wasm": "file:libs/stylua-wasm/pkg",
     "throat": "^6.0.1",
-    "tslib": "^2.0.0",
+    "tslib": "^2.3.0",
     "yargs": "^17.6.0"
   },
   "devDependencies": {

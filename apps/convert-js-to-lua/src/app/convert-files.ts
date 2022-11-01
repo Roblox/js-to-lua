@@ -1,9 +1,8 @@
 import { JsToLuaPlugin } from '@js-to-lua/plugin-utils';
-import { safeApply } from '@js-to-lua/shared-utils';
+import { formatCode, safeApply } from '@js-to-lua/shared-utils';
 import { createUpstreamPath, inferRootDir } from '@js-to-lua/upstream-utils';
 import { mkdir, readFile, stat, writeFile } from 'fs/promises';
 import { join, parse, relative, resolve } from 'path';
-import { format_code } from 'stylua-wasm';
 import throat from 'throat';
 import { convert } from './convert';
 import { transform } from './transform';
@@ -97,7 +96,7 @@ export const convertFiles =
               // apply StyLua code formatting (which is not stable) until the code is not changed
               do {
                 beforeCode = afterCode;
-                afterCode = safeApply(format_code)(beforeCode);
+                afterCode = safeApply(formatCode)(beforeCode);
               } while (beforeCode !== afterCode);
 
               return afterCode;

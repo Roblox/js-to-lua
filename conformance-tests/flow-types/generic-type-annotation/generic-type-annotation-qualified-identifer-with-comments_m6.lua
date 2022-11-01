@@ -18,7 +18,10 @@ local function myFunc2(
 	--[[ After Value ]]
 end
 local function myFunc3(
-	baz:  --[[ Before React ]] --[[ Before Node ]] --[[ Before Value ]]React_Node_Value --[[ After React ]] --[[ After Node ]] --[[ After Value ]],
+	baz:  --[[ Before React ]] --[[ Before Node ]] --[[ Before Value ]]React_Node_Value,
+	--[[ After React ]]
+	--[[ After Node ]]
+	--[[ After Value ]]
 	biz:  --[[ Before React ]] --[[ Before Node ]] --[[ Before Value ]] --[[ Before AnotherType ]]React_Node_Value_AnotherType
 	--[[ After React ]]
 	--[[ After Node ]]
