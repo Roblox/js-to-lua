@@ -28,7 +28,30 @@
           "executor": "@jscutlery/semver:version",
           "options": {
             "syncVersions": true,
-            "preset": "conventional"
+            "preset": "conventional",
+            "skipProjectChangelog": true,
+            "skipRootChangelog": true
+          },
+          "configurations": {
+            "tag-only": {
+              "skipCommit": true
+            }
+          }
+        },
+        "release-branch": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": [
+              "./tools/scripts/generate-release/generate-release-branch.js"
+            ]
+          }
+        },
+        "release-tag": {
+          "executor": "nx:run-commands",
+          "options": {
+            "commands": [
+              "./tools/scripts/generate-release/generate-release-tag.js"
+            ]
           }
         }
       }

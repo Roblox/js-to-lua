@@ -156,3 +156,28 @@ npm run affected:lint
 ```bash
 npm run lint:all
 ```
+
+## Releasing
+
+### Overview
+
+Because the `main` branch is protected we can't push directly to it after creating a release commit & tag. For this reason I've split the release process into to commands:
+
+- `npx nx run workspace:release-branch` which would create a branch `release/v<new_version>`with necessary version bumps that needs to be reviewed and squash merged
+- `npx nx run workspace:release-tag` after squash merging a branch then we can run this command which would just create a proper tag and verify that the git tree is clean. If it's not clean it would revert tag creation
+
+### Release process
+
+- First we need to initiate the release by creating a release branch. To do that you need to run the following command from `main` branch:
+  `npx nx run workspace:release-branch --releaseAs=<major | minor | patch>`
+  - This will create a `release/v<new-version>`
+- Push the created release branch and create a PR into `main`
+- Wait for PR approval and merge it into `main`
+- Execute the second command providing the same `releaseAs` param
+  `npx nx run workspace:release-tag --releaseAs=<major | minor | patch>`
+  - This command will create a new tag but not create any new commits
+- Push the new tag to origin
+  `git push origin <tag-name>`
+- Pushing a tag will trigger the `.github/workflows/release.yml` workflow. It will:
+  - create a new release based on the tag
+  - build all the apps into packed artifacts and upload them to the release
