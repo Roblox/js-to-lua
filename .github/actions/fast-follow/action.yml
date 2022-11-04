@@ -55,7 +55,7 @@ runs:
 
     - name: Run Fast Follow
       shell: bash
-      run: npx -y js-to-lua-build/dist/apps/roblox-fast-follow-*.tgz upgrade ${{inputs.repo-path}} ${{ inputs.slack-channel-id && format('-c {0}', inputs.slack-channel-id)}} ${{ inputs.pr-description-cc-users && format('--prCC "{0}"', inputs.pr-description-cc-users)}}
+      run: npx -y js-to-lua-build/dist/apps/roblox-fast-follow.tgz upgrade ${{inputs.repo-path}} ${{ inputs.slack-channel-id && format('-c {0}', inputs.slack-channel-id)}} ${{ inputs.pr-description-cc-users && format('--prCC "{0}"', inputs.pr-description-cc-users)}}
       env:
         SLACK_SIGNING_SECRET: ${{ inputs.slack-signing-secret }}
         SLACK_BOT_TOKEN: ${{ inputs.slack-bot-token }}

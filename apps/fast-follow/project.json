@@ -74,9 +74,16 @@
     },
     "pack": {
       "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/apps/roblox-fast-follow.tgz"],
       "options": {
-        "commands": ["npm pack --pack-destination=\"..\""],
-        "cwd": "dist/apps/fast-follow"
+        "commands": [
+          "npm pack --pack-destination=..",
+          "# the following command will extract package's version without double quotes so we can rename a specific version of a package file",
+          "# npm pkg get version | awk -F \\\" '{print $2}",
+          "mv ../roblox-fast-follow-$(npm pkg get version | awk -F \\\" '{print $2}').tgz ../roblox-fast-follow.tgz"
+        ],
+        "cwd": "dist/apps/fast-follow",
+        "parallel": false
       }
     }
   },

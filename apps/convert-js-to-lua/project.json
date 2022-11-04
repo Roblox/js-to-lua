@@ -99,9 +99,16 @@
     },
     "pack": {
       "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/coverage/apps/roblox-convert-js-to-lua.tgz"],
       "options": {
-        "commands": ["npm pack --pack-destination=\"..\""],
-        "cwd": "dist/apps/convert-js-to-lua"
+        "commands": [
+          "npm pack --pack-destination=..",
+          "# the following command will extract package's version without double quotes so we can rename a specific version of a package file",
+          "# npm pkg get version | awk -F \\\" '{print $2}'",
+          "mv ../roblox-convert-js-to-lua-$(npm pkg get version | awk -F \\\" '{print $2}').tgz ../roblox-convert-js-to-lua.tgz"
+        ],
+        "cwd": "dist/apps/convert-js-to-lua",
+        "parallel": false
       }
     }
   },

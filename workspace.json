@@ -20,7 +20,19 @@
     "release-tracker": "libs/release-tracker",
     "shared-utils": "libs/shared-utils",
     "upstream-utils": "libs/upstream-utils",
-    "version-manager": "libs/version-manager"
+    "version-manager": "libs/version-manager",
+    "workspace": {
+      "root": ".",
+      "targets": {
+        "version": {
+          "executor": "@jscutlery/semver:version",
+          "options": {
+            "syncVersions": true,
+            "preset": "conventional"
+          }
+        }
+      }
+    }
   },
   "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }
