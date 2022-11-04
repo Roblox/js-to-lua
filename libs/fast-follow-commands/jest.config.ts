@@ -1,5 +1,5 @@
 export default {
-  displayName: 'fast-follow',
+  displayName: 'fast-follow-commands',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,5 +11,5 @@ export default {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/fast-follow',
+  coverageDirectory: '../../coverage/libs/fast-follow-commands',
 };

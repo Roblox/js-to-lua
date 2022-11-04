@@ -48,50 +48,14 @@ runs:
       run: npm i
       shell: bash
 
-    - name: Build Fast Follow
+    - name: Pack Fast Follow
       working-directory: js-to-lua-build
       shell: bash
-      run: |
-        npx nx run upstream-utils:build
-        npx nx run release-tracker:build
-        npx nx run version-manager:build
-        npx nx run diff-tool:build
-        npx nx run fast-follow:build
-
-    - name: Link Release Tracker
-      shell: bash
-      working-directory: js-to-lua-build/dist/libs/release-tracker
-      run: npm link
-
-    - name: Link Version Manager
-      shell: bash
-      working-directory: js-to-lua-build/dist/libs/version-manager
-      run: npm link
-
-    - name: Link Diff Tool
-      shell: bash
-      working-directory: js-to-lua-build/dist/libs/diff-tool
-      run: npm link
-
-    - name: Link Upstream Utils
-      shell: bash
-      working-directory: js-to-lua-build/dist/libs/upstream-utils
-      run: npm link
-
-    - name: Link Fast Follow
-      shell: bash
-      working-directory: js-to-lua-build/dist/libs/fast-follow
-      run: |
-        npm link @roblox/version-manager @roblox/release-tracker @roblox/diff-tool @js-to-lua/upstream-utils
-        npm link
-
-    - name: Link Release Tracker (root)
-      shell: bash
-      run: npm link @roblox/version-manager @roblox/release-tracker @roblox/diff-tool @js-to-lua/upstream-utils
+      run: npx nx run fast-follow:pack
 
     - name: Run Fast Follow
       shell: bash
-      run: npx fast-follow upgrade ${{inputs.repo-path}} ${{ inputs.slack-channel-id && format('-c {0}', inputs.slack-channel-id)}} ${{ inputs.pr-description-cc-users && format('--prCC "{0}"', inputs.pr-description-cc-users)}}
+      run: npx -y js-to-lua-build/dist/apps/roblox-fast-follow-*.tgz upgrade ${{inputs.repo-path}} ${{ inputs.slack-channel-id && format('-c {0}', inputs.slack-channel-id)}} ${{ inputs.pr-description-cc-users && format('--prCC "{0}"', inputs.pr-description-cc-users)}}
       env:
         SLACK_SIGNING_SECRET: ${{ inputs.slack-signing-secret }}
         SLACK_BOT_TOKEN: ${{ inputs.slack-bot-token }}

@@ -76,7 +76,7 @@ The CLI tool accepts the following input parameters:
 To show help you can always use `--help` flag.
 
 ```bash
-node dist/apps/convert-js-to-lua/main.js --help
+dist/apps/convert-js-to-lua/index.js --help
 ```
 
 To run the JS/TS files via the conversion tool let's assume the following file structure:
@@ -104,7 +104,7 @@ npm install @babel/plugin-syntax-typescript @babel/preset-react @babel/core
 To convert all the files in `source-files` directory you can run the following command:
 
 ```bash
-node ./js-to-lua/dist/apps/convert-js-to-lua/main.js \
+./js-to-lua/dist/apps/convert-js-to-lua/index.js \
  --input source-files/**/*.js source-files/**/*.ts \
  --output lua-source-files
 ```
@@ -112,7 +112,7 @@ node ./js-to-lua/dist/apps/convert-js-to-lua/main.js \
 If `source-files` contain files using Flow types you can use a provided default flow configuration:
 
 ```bash
-node ./js-to-lua/dist/apps/convert-js-to-lua/main.js \
+./js-to-lua/dist/apps/convert-js-to-lua/index.js \
  --input source-files/**/*.js source-files/**/*.ts \
  --output lua-source-files \
  --babelConfig js-to-lua/babel-flow.config.json

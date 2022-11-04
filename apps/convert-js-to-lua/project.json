@@ -3,19 +3,21 @@
   "sourceRoot": "apps/convert-js-to-lua/src",
   "projectType": "application",
   "targets": {
-    "build": {
+    "_build": {
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/apps/convert-js-to-lua",
         "main": "apps/convert-js-to-lua/src/main.ts",
         "tsConfig": "apps/convert-js-to-lua/tsconfig.app.json",
         "assets": [
           "apps/convert-js-to-lua/src/assets",
-          "apps/convert-js-to-lua/src/fixtures"
+          "apps/convert-js-to-lua/src/fixtures",
+          "apps/convert-js-to-lua/src/index.js"
         ],
-        "target": "node",
-        "compiler": "tsc"
+        "generatePackageJson": true
       },
       "configurations": {
         "production": {
@@ -27,9 +29,26 @@
               "replace": "apps/convert-js-to-lua/src/environments/environment.ts",
               "with": "apps/convert-js-to-lua/src/environments/environment.prod.ts"
             }
+          ],
+          "assets": [
+            "apps/convert-js-to-lua/src/assets",
+            "apps/convert-js-to-lua/src/index.js"
           ]
         }
       }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "commands": ["chmod +x dist/apps/convert-js-to-lua/index.js"]
+      },
+      "dependsOn": [
+        {
+          "target": "_build",
+          "projects": "self"
+        }
+      ]
     },
     "serve": {
       "executor": "@nrwl/node:node",
@@ -63,13 +82,26 @@
       "outputs": ["{workspaceRoot}/coverage/apps/convert-js-to-lua"],
       "options": {
         "jestConfig": "apps/convert-js-to-lua/jest-conformance.config.ts"
-      }
+      },
+      "dependsOn": [
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
     },
     "verify": {
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
         "command": "node tools/scripts/verify-conformance-tests.js"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["npm pack --pack-destination=\"..\""],
+        "cwd": "dist/apps/convert-js-to-lua"
       }
     }
   },

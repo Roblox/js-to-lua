@@ -17,16 +17,6 @@
         "jestConfig": "libs/release-tracker/jest.config.ts",
         "passWithNoTests": true
       }
-    },
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/release-tracker",
-        "tsConfig": "libs/release-tracker/tsconfig.lib.json",
-        "packageJson": "libs/release-tracker/package.json",
-        "main": "libs/release-tracker/src/index.ts"
-      }
     }
   },
   "tags": ["type:entry", "feature:fast-follow"]

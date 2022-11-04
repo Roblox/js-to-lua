@@ -17,17 +17,6 @@
         "jestConfig": "libs/diff-tool/jest.config.ts",
         "passWithNoTests": true
       }
-    },
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/diff-tool",
-        "tsConfig": "libs/diff-tool/tsconfig.lib.json",
-        "packageJson": "libs/diff-tool/package.json",
-        "main": "libs/diff-tool/src/index.ts",
-        "assets": ["libs/diff-tool/*.md"]
-      }
     }
   },
   "tags": ["feature:fast-follow"]

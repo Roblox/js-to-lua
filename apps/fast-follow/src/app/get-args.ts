@@ -1,11 +1,13 @@
+import {
+  ApplyPatchOptions,
+  CompareOptions,
+  getConfig,
+  ScanCommitsOptions,
+  ScanReleasesOptions,
+  UpgradeOptions,
+} from '@js-to-lua/fast-follow-commands';
 import { ComparisonResponse, JsToLuaOptions } from '@roblox/diff-tool';
 import * as yargs from 'yargs';
-import { ApplyPatchOptions } from './commands/apply-patch';
-import { CompareOptions } from './commands/compare';
-import { getConfig } from './commands/get-config';
-import { ScanCommitsOptions } from './commands/scan-commits';
-import { ScanReleasesOptions } from './commands/scan-releases';
-import { UpgradeOptions } from './commands/upgrade';
 
 function extractCommaSeparatedValues(value: Array<string>): Array<string> {
   return value.map((v) => v.split(',')).flat();

@@ -1,0 +1,84 @@
+{
+  "name": "fast-follow",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/fast-follow/src",
+  "projectType": "application",
+  "targets": {
+    "_build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/fast-follow",
+        "main": "apps/fast-follow/src/main.ts",
+        "tsConfig": "apps/fast-follow/tsconfig.app.json",
+        "assets": [
+          "apps/fast-follow/src/assets",
+          "apps/fast-follow/src/index.js"
+        ],
+        "generatePackageJson": true
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/fast-follow/src/environments/environment.ts",
+              "with": "apps/fast-follow/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "commands": ["chmod +x dist/apps/fast-follow/index.js"]
+      },
+      "dependsOn": [
+        {
+          "target": "_build",
+          "projects": "self"
+        }
+      ]
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "options": {
+        "buildTarget": "fast-follow:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "fast-follow:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/fast-follow/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/fast-follow/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["npm pack --pack-destination=\"..\""],
+        "cwd": "dist/apps/fast-follow"
+      }
+    }
+  },
+  "tags": ["feature:fast-follow"]
+}

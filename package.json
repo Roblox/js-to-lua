@@ -10,7 +10,7 @@
     "test": "nx test",
     "test:js-to-lua": "nx test js-to-lua",
     "test:all": "nx run-many --target test --all",
-    "test:conformance": "nx build convert-js-to-lua && nx run convert-js-to-lua:e2e",
+    "test:conformance": "nx run convert-js-to-lua:e2e",
     "verify:conformance": "node tools/scripts/verify-conformance-tests.js",
     "lint": "nx workspace-lint && nx lint",
     "lint:all": "nx workspace-lint && nx run-many --target lint --all",

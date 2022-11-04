@@ -4,6 +4,7 @@ const DEFAULT_BABEL_OPTIONS: TransformOptions = {
   sourceType: 'unambiguous',
   plugins: [['@babel/plugin-syntax-typescript', { isTSX: true }]],
   presets: ['@babel/preset-react'],
+  cwd: __dirname,
 };
 
 export function transform(

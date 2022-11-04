@@ -17,17 +17,6 @@
         "jestConfig": "libs/version-manager/jest.config.ts",
         "passWithNoTests": true
       }
-    },
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/version-manager",
-        "tsConfig": "libs/version-manager/tsconfig.lib.json",
-        "packageJson": "libs/version-manager/package.json",
-        "webpackConfig": "libs/version-manager/webpack.config.js",
-        "main": "libs/version-manager/src/index.ts"
-      }
     }
   },
   "tags": ["type:entry", "feature:fast-follow"]

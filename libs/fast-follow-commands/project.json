@@ -1,23 +1,24 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/upstream-utils/src",
+  "name": "fast-follow-commands",
+  "sourceRoot": "libs/fast-follow-commands/src",
   "projectType": "library",
   "targets": {
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/upstream-utils/**/*.ts"]
+        "lintFilePatterns": ["libs/fast-follow-commands/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/upstream-utils"],
+      "outputs": ["{workspaceRoot}/coverage/libs/fast-follow-commands"],
       "options": {
-        "jestConfig": "libs/upstream-utils/jest.config.ts",
+        "jestConfig": "libs/fast-follow-commands/jest.config.ts",
         "passWithNoTests": true
       }
     }
   },
-  "tags": ["type:entry", "feature:upstream"]
+  "tags": ["feature:fast-follow"]
 }
