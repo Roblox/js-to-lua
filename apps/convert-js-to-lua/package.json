@@ -1,6 +1,6 @@
 {
   "name": "@roblox/convert-js-to-lua",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "bin": "index.js",
   "dependencies": {
     "@babel/plugin-syntax-typescript": "*",
