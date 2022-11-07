@@ -17,7 +17,8 @@
           "apps/convert-js-to-lua/src/fixtures",
           "apps/convert-js-to-lua/src/index.js"
         ],
-        "generatePackageJson": true
+        "generatePackageJson": true,
+        "webpackConfig": "custom-webpack.config.js"
       },
       "configurations": {
         "production": {

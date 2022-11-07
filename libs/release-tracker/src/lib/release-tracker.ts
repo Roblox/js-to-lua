@@ -36,7 +36,7 @@ async function executeQuery<T>(
 export async function getLocalRepoConversionConfig(
   configPath: string
 ): Promise<ConversionConfig> {
-  return await import(configPath);
+  return import(/* webpackIgnore: true */ configPath);
 }
 
 export async function getRepoConversionConfig(options: {

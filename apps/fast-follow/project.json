@@ -17,7 +17,8 @@
           "apps/fast-follow/src/assets",
           "apps/fast-follow/src/index.js"
         ],
-        "generatePackageJson": true
+        "generatePackageJson": true,
+        "webpackConfig": "custom-webpack.config.js"
       },
       "configurations": {
         "production": {

@@ -45,7 +45,7 @@ const resolvePlugin = async (
   }
   if (plugin) {
     try {
-      return require(plugin);
+      return import(/* webpackIgnore: true */ plugin);
     } catch (err) {
       console.warn(`Couldn't resolve plugin "${plugin}":\n${err}`);
     }
