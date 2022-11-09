@@ -138,7 +138,8 @@
                 "sourceTag": "feature:fast-follow",
                 "onlyDependOnLibsWithTags": [
                   "feature:fast-follow",
-                  "feature:upstream"
+                  "feature:upstream",
+                  "feature:shared"
                 ]
               }
             ]
