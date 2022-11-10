@@ -1,6 +1,7 @@
 import { checkForNewRelease } from '@roblox/release-tracker';
 import { sendReleaseNotification } from '../slack-notifications';
 import { getConfig } from './get-config';
+import { isPullRequestOpen } from './pr-utils';
 
 export type ScanReleasesOptions = {
   sourceDir: string;
@@ -15,12 +16,14 @@ export async function scanReleases(
   const newRelease = await checkForNewRelease({ config });
   if (newRelease) {
     const { release, config } = newRelease;
-    await sendReleaseNotification(
-      config.upstream.owner,
-      config.upstream.repo,
-      release.tagName,
-      channel
-    );
+    if (!(await isPullRequestOpen(release.tagName, config))) {
+      await sendReleaseNotification(
+        config.upstream.owner,
+        config.upstream.repo,
+        release.tagName,
+        channel
+      );
+    }
     return release.tagName;
   }
 }
