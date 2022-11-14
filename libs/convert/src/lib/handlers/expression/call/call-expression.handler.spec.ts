@@ -13,10 +13,13 @@ import {
 } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
+  expressionStatement,
+  functionExpression,
   identifier,
   indexExpression,
   LuaCallExpression,
   memberExpression,
+  nodeGroup,
   numericLiteral,
   stringLiteral,
 } from '@js-to-lua/lua-types';
@@ -366,6 +369,34 @@ describe('Call Expression Handler', () => {
         identifier('foo'),
         numericLiteral(16),
       ]);
+
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle bind function call', () => {
+      const given = babelCallExpression(
+        babelMemberExpression(
+          babelMemberExpression(
+            babelIdentifier('greet'),
+            babelIdentifier('person'),
+            false
+          ),
+          babelIdentifier('bind')
+        ),
+        [babelIdentifier('greet'), babelStringLiteral('Chris')]
+      );
+
+      const expected = functionExpression(
+        [identifier('...')],
+        nodeGroup([
+          expressionStatement(
+            callExpression(
+              memberExpression(identifier('greet'), '.', identifier('person')),
+              [identifier('greet'), stringLiteral('Chris'), identifier('...')]
+            )
+          ),
+        ])
+      );
 
       expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
     });

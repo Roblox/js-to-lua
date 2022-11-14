@@ -5,6 +5,7 @@ import {
 } from '@js-to-lua/handler-utils';
 import { LuaExpression } from '@js-to-lua/lua-types';
 import { createCallExpressionApplyMethodHandlerFunction } from './call-expression-apply-method.handlers';
+import { createCallExpressionBindHandlerFunction } from './call-expression-bind.handler';
 import { createCallExpressionCallMethodHandlerFunction } from './call-expression-call-method.handlers';
 import { createCallExpressionComputedPropertyHandlerFunction } from './call-expression-computed-property.handler';
 import { createCallExpressionDateMethodHandler } from './call-expression-date-method.handler';
@@ -24,6 +25,8 @@ export const createCallExpressionSpecialCasesHandler = (
       so it's safest to add new ones in front
       so that other handlers don't intercept the execution
     */
+    // eg. `func.bind(thisArg, p1, p2)` converts to: `function(...) func(thisArg, p1, p2, ...) end`
+    createCallExpressionBindHandlerFunction(handleExpression),
     // eg. React.createElement(JSX) or Promise.new() etc.
     createCallExpressionDotNotationHandlerFunction(handleExpression),
     // eg. arr.push(v) or arr['push'](v)
