@@ -38,7 +38,9 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "commands": ["chmod +x dist/apps/fast-follow/index.js"]
+        "commands": [
+          "node tools/scripts/make-file-executable.js dist/apps/fast-follow/index.js"
+        ]
       },
       "dependsOn": [
         {

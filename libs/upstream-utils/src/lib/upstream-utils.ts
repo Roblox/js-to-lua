@@ -1,6 +1,7 @@
 import { relative } from 'path';
 import { realpath } from 'fs/promises';
 import { getRemoteUrl, getSha, getTag, getTopLevelPath } from './git-utils';
+import { normalizePathSeparators } from '@js-to-lua/shared-utils';
 
 const REGEX_SSH = /^git@github.com:(?<owner>[\w-]+)\/(?<repo>[\w-]+)(\.git)?$/;
 const REGEX_HTTPS =
@@ -59,7 +60,9 @@ const getUpstreamPathInfo = async (
   const realFilePath = await realpath(filePath);
   if (hasRemoteUrlProp(options)) {
     const { remoteUrl, sha, rootDir } = options;
-    const relativeFilePath = relative(rootDir, realFilePath);
+    const relativeFilePath = normalizePathSeparators(
+      relative(rootDir, realFilePath)
+    );
     const baseRepoUrl = extractUrl(remoteUrl);
 
     return { baseRepoUrl, sha, relativeFilePath };
@@ -70,7 +73,9 @@ const getUpstreamPathInfo = async (
     if (origin) {
       const sha = await (sha_ || getRev(rootDir));
 
-      const relativeFilePath = relative(rootDir, realFilePath);
+      const relativeFilePath = normalizePathSeparators(
+        relative(rootDir, realFilePath)
+      );
       const baseRepoUrl = extractUrl(origin);
 
       return { baseRepoUrl, sha, relativeFilePath };

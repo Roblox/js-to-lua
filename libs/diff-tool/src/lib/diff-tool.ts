@@ -7,7 +7,7 @@ import {
   execFile as childProcessExecFile,
 } from 'node:child_process';
 import * as os from 'os';
-import * as path from 'path';
+import * as path from 'path/posix';
 import * as process from 'process';
 import { groupBy } from 'ramda';
 import {

@@ -9,3 +9,4 @@ export * from './lib/safe-apply';
 export * from './lib/split-by';
 export * from './lib/string-utils';
 export * from './lib/types';
+export * from './lib/normalize-path-separators';

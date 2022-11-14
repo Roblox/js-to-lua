@@ -68,7 +68,7 @@ export const conformanceTests = (
 
     rmSync(outputPath, { recursive: true, force: true });
 
-    const command = `dist/apps/convert-js-to-lua/index.js -i "${
+    const command = `node dist/apps/convert-js-to-lua/index.js -i "${
       normalizedConfig.inputPath
     }/**/*.js" -i "${normalizedConfig.inputPath}/**/*.ts" -i "${
       normalizedConfig.inputPath
@@ -82,7 +82,7 @@ export const conformanceTests = (
       config?.plugins?.length
         ? config.plugins.map((plugin) => ` --plugin ${plugin}`)
         : ''
-    } --rootDir './' --sha sha`;
+    } --rootDir ./ --sha sha`;
 
     execSync(command, { stdio: [] });
 

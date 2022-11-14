@@ -40,6 +40,7 @@ jest.mock(
   'path',
   (): Partial<typeof pathModule> => ({
     relative: (...args) => relative(...args),
+    join: (...args) => args.join('/'),
   })
 );
 

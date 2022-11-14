@@ -42,7 +42,9 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "commands": ["chmod +x dist/apps/convert-js-to-lua/index.js"]
+        "commands": [
+          "node tools/scripts/make-file-executable.js dist/apps/convert-js-to-lua/index.js"
+        ]
       },
       "dependsOn": [
         {

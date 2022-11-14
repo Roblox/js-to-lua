@@ -1,7 +1,7 @@
 import { ConversionConfig } from '@roblox/release-tracker';
 import * as fs from 'fs';
 import { mkdir, readdir, rename } from 'fs/promises';
-import * as path from 'path';
+import * as path from 'path/posix';
 async function getFilesToRename(
   directory: string,
   config: ConversionConfig
