@@ -13,7 +13,6 @@ import {
 } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
-  expressionStatement,
   functionExpression,
   identifier,
   indexExpression,
@@ -21,10 +20,11 @@ import {
   memberExpression,
   nodeGroup,
   numericLiteral,
+  returnStatement,
   stringLiteral,
 } from '@js-to-lua/lua-types';
-import { createCallExpressionHandler } from './call-expression.handler';
 import { expressionHandler } from '../../expression-statement.handler';
+import { createCallExpressionHandler } from './call-expression.handler';
 import {
   ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION,
   USE_DOT_NOTATION_IN_CALL_EXPRESSION,
@@ -389,7 +389,7 @@ describe('Call Expression Handler', () => {
       const expected = functionExpression(
         [identifier('...')],
         nodeGroup([
-          expressionStatement(
+          returnStatement(
             callExpression(
               memberExpression(identifier('greet'), '.', identifier('person')),
               [identifier('greet'), stringLiteral('Chris'), identifier('...')]

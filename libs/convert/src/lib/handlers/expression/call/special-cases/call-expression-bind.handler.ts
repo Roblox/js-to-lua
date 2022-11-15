@@ -1,32 +1,27 @@
+import * as Babel from '@babel/types';
 import {
   createOptionalHandlerFunction,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
   callExpression,
-  expressionStatement,
   functionExpression,
   identifier,
   LuaExpression,
   nodeGroup,
+  returnStatement,
 } from '@js-to-lua/lua-types';
-import {
-  CallExpression,
-  Expression,
-  isIdentifier,
-  isMemberExpression as isBabelMemberExpression,
-} from '@babel/types';
 import { createCallExpressionArgumentsHandler } from '../call-expression-arguments.handler';
 import { createCalleeExpressionHandlerFunction } from '../callee-expression.handler';
 
 export const createCallExpressionBindHandlerFunction = (
-  handleExpression: HandlerFunction<LuaExpression, Expression>
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>
 ) =>
-  createOptionalHandlerFunction<LuaExpression, CallExpression>(
+  createOptionalHandlerFunction<LuaExpression, Babel.CallExpression>(
     (source, config, expression) => {
       if (
-        isBabelMemberExpression(expression.callee) &&
-        isIdentifier(expression.callee.property) &&
+        Babel.isMemberExpression(expression.callee) &&
+        Babel.isIdentifier(expression.callee.property) &&
         expression.callee.property.name === 'bind'
       ) {
         const handleCalleeExpression =
@@ -46,7 +41,7 @@ export const createCallExpressionBindHandlerFunction = (
         return functionExpression(
           [identifier('...')],
           nodeGroup([
-            expressionStatement(
+            returnStatement(
               callExpression(
                 handleCalleeExpression(
                   source,

@@ -5,10 +5,10 @@ local greet = {
 	end,
 }
 local greetChris = function(...)
-	greet.person(greet, "Chris", ...)
+	return greet.person(greet, "Chris", ...)
 end
 local greetJan = function(...)
-	greet.person(greet, "Jan", ...)
+	return greet.person(greet, "Jan", ...)
 end
 greetChris()
 greetJan()
