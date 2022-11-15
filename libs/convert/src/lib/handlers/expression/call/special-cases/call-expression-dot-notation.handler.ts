@@ -70,6 +70,8 @@ export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
   'console',
   'Promise',
   'chalk',
+  'JSON',
+  'path',
   isExpectCall,
   isNestedExpectCall,
   isExpectMethod,
