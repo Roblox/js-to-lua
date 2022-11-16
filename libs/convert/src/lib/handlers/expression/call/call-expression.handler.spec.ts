@@ -1,10 +1,4 @@
-import {
-  callExpression as babelCallExpression,
-  identifier as babelIdentifier,
-  memberExpression as babelMemberExpression,
-  numericLiteral as babelNumericLiteral,
-  stringLiteral as babelStringLiteral,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   dateTimeMethodCall,
   PolyfillID,
@@ -38,7 +32,7 @@ const handleCallExpression = createCallExpressionHandler(
 
 describe('Call Expression Handler', () => {
   it(`should return Call with no parameters`, () => {
-    const given = babelCallExpression(babelIdentifier('Symbol'), []);
+    const given = Babel.callExpression(Babel.identifier('Symbol'), []);
 
     const expected = callExpression(identifier('Symbol'), []);
 
@@ -46,9 +40,9 @@ describe('Call Expression Handler', () => {
   });
 
   it(`should return Call with parameters`, () => {
-    const given = babelCallExpression(babelIdentifier('test'), [
-      babelNumericLiteral(5),
-      babelStringLiteral('wole'),
+    const given = Babel.callExpression(Babel.identifier('test'), [
+      Babel.numericLiteral(5),
+      Babel.stringLiteral('wole'),
     ]);
 
     const expected = callExpression(identifier('test'), [
@@ -60,13 +54,13 @@ describe('Call Expression Handler', () => {
   });
 
   it(`should handle computed member expressions`, () => {
-    const given = babelCallExpression(
-      babelMemberExpression(
-        babelIdentifier('foo'),
-        babelStringLiteral('bar'),
+    const given = Babel.callExpression(
+      Babel.memberExpression(
+        Babel.identifier('foo'),
+        Babel.stringLiteral('bar'),
         true
       ),
-      [babelStringLiteral('baz')]
+      [Babel.stringLiteral('baz')]
     );
 
     const expected = callExpression(
@@ -78,9 +72,9 @@ describe('Call Expression Handler', () => {
   });
 
   it(`should handle not computed member expressions`, () => {
-    const given = babelCallExpression(
-      babelMemberExpression(babelIdentifier('foo'), babelIdentifier('bar')),
-      [babelStringLiteral('baz')]
+    const given = Babel.callExpression(
+      Babel.memberExpression(Babel.identifier('foo'), Babel.identifier('bar')),
+      [Babel.stringLiteral('baz')]
     );
 
     const expected = callExpression(
@@ -93,10 +87,10 @@ describe('Call Expression Handler', () => {
 
   describe('Special cases', () => {
     it(`should handle not computed toString() method`, () => {
-      const given = babelCallExpression(
-        babelMemberExpression(
-          babelIdentifier('foo'),
-          babelIdentifier('toString')
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.identifier('foo'),
+          Babel.identifier('toString')
         ),
         []
       );
@@ -109,10 +103,10 @@ describe('Call Expression Handler', () => {
     });
 
     it(`should handle computed toString() method`, () => {
-      const given = babelCallExpression(
-        babelMemberExpression(
-          babelIdentifier('foo'),
-          babelStringLiteral('toString'),
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.identifier('foo'),
+          Babel.stringLiteral('toString'),
           true
         ),
         []
@@ -126,13 +120,13 @@ describe('Call Expression Handler', () => {
     });
 
     it(`should handle treat toString() method as a regular method when it has arguments`, () => {
-      const given = babelCallExpression(
-        babelMemberExpression(
-          babelIdentifier('foo'),
-          babelStringLiteral('toString'),
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.identifier('foo'),
+          Babel.stringLiteral('toString'),
           true
         ),
-        [babelStringLiteral('bar')]
+        [Babel.stringLiteral('bar')]
       );
 
       const expected = callExpression(
@@ -151,8 +145,8 @@ describe('Call Expression Handler', () => {
       ).filter((e) => e !== 'chalk')
     )('dot notation special cases without polyfill imports: %s', (id) => {
       it(`should handle not computed ${id} object`, () => {
-        const given = babelCallExpression(
-          babelMemberExpression(babelIdentifier(id), babelIdentifier('foo')),
+        const given = Babel.callExpression(
+          Babel.memberExpression(Babel.identifier(id), Babel.identifier('foo')),
           []
         );
 
@@ -167,10 +161,10 @@ describe('Call Expression Handler', () => {
       });
 
       it(`should handle computed ${id} object`, () => {
-        const given = babelCallExpression(
-          babelMemberExpression(
-            babelIdentifier(id),
-            babelStringLiteral('foo'),
+        const given = Babel.callExpression(
+          Babel.memberExpression(
+            Babel.identifier(id),
+            Babel.stringLiteral('foo'),
             true
           ),
           []
@@ -190,8 +184,8 @@ describe('Call Expression Handler', () => {
     describe('dot notation special cases without polyfill imports: chalk', () => {
       const id = 'chalk';
       it(`should handle not computed ${id} object`, () => {
-        const given = babelCallExpression(
-          babelMemberExpression(babelIdentifier(id), babelIdentifier('foo')),
+        const given = Babel.callExpression(
+          Babel.memberExpression(Babel.identifier(id), Babel.identifier('foo')),
           []
         );
 
@@ -208,10 +202,10 @@ describe('Call Expression Handler', () => {
       });
 
       it(`should handle computed ${id} object`, () => {
-        const given = babelCallExpression(
-          babelMemberExpression(
-            babelIdentifier(id),
-            babelStringLiteral('foo'),
+        const given = Babel.callExpression(
+          Babel.memberExpression(
+            Babel.identifier(id),
+            Babel.stringLiteral('foo'),
             true
           ),
           []
@@ -238,8 +232,8 @@ describe('Call Expression Handler', () => {
       )
     )('dot notation special cases with polyfill import: %s', (id) => {
       it(`should handle not computed ${id} object`, () => {
-        const given = babelCallExpression(
-          babelMemberExpression(babelIdentifier(id), babelIdentifier('foo')),
+        const given = Babel.callExpression(
+          Babel.memberExpression(Babel.identifier(id), Babel.identifier('foo')),
           []
         );
 
@@ -258,10 +252,10 @@ describe('Call Expression Handler', () => {
       });
 
       it(`should handle computed ${id} object`, () => {
-        const given = babelCallExpression(
-          babelMemberExpression(
-            babelIdentifier(id),
-            babelStringLiteral('foo'),
+        const given = Babel.callExpression(
+          Babel.memberExpression(
+            Babel.identifier(id),
+            Babel.stringLiteral('foo'),
             true
           ),
           []
@@ -282,60 +276,72 @@ describe('Call Expression Handler', () => {
       });
     });
 
-    it('should handle method calls on expect Jest helper', () => {
-      const given = babelCallExpression(
-        babelMemberExpression(
-          babelCallExpression(babelIdentifier('expect'), [
-            babelIdentifier('foo'),
-          ]),
-          babelIdentifier('toEqual')
-        ),
-        [babelIdentifier('bar')]
-      );
+    describe.each(['expect', 'jestExpect'])(
+      "dot notation for '%s' methods",
+      (expectName) => {
+        it(`should handle method calls on ${expectName} Jest helper`, () => {
+          const given = Babel.callExpression(
+            Babel.memberExpression(
+              Babel.callExpression(Babel.identifier(expectName), [
+                Babel.identifier('foo'),
+              ]),
+              Babel.identifier('toEqual')
+            ),
+            [Babel.identifier('bar')]
+          );
 
-      const expected = callExpression(
-        memberExpression(
-          callExpression(identifier('expect'), [identifier('foo')]),
-          '.',
-          identifier('toEqual')
-        ),
-        [identifier('bar')]
-      );
-      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
-    });
+          const expected = callExpression(
+            memberExpression(
+              callExpression(identifier(expectName), [identifier('foo')]),
+              '.',
+              identifier('toEqual')
+            ),
+            [identifier('bar')]
+          );
+          expect(handleCallExpression.handler(source, {}, given)).toEqual(
+            expected
+          );
+        });
 
-    it('should handle chained method calls on expect Jest helper', () => {
-      const given = babelCallExpression(
-        babelMemberExpression(
-          babelMemberExpression(
-            babelCallExpression(babelIdentifier('expect'), [
-              babelIdentifier('foo'),
-            ]),
-            babelIdentifier('never')
-          ),
-          babelIdentifier('toEqual')
-        ),
-        [babelIdentifier('bar')]
-      );
+        it(`should handle chained method calls on ${expectName} Jest helper`, () => {
+          const given = Babel.callExpression(
+            Babel.memberExpression(
+              Babel.memberExpression(
+                Babel.callExpression(Babel.identifier(expectName), [
+                  Babel.identifier('foo'),
+                ]),
+                Babel.identifier('never')
+              ),
+              Babel.identifier('toEqual')
+            ),
+            [Babel.identifier('bar')]
+          );
 
-      const expected = callExpression(
-        memberExpression(
-          memberExpression(
-            callExpression(identifier('expect'), [identifier('foo')]),
-            '.',
-            identifier('never')
-          ),
-          '.',
-          identifier('toEqual')
-        ),
-        [identifier('bar')]
-      );
-      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
-    });
+          const expected = callExpression(
+            memberExpression(
+              memberExpression(
+                callExpression(identifier(expectName), [identifier('foo')]),
+                '.',
+                identifier('never')
+              ),
+              '.',
+              identifier('toEqual')
+            ),
+            [identifier('bar')]
+          );
+          expect(handleCallExpression.handler(source, {}, given)).toEqual(
+            expected
+          );
+        });
+      }
+    );
 
     it('should handle Date.now() call', () => {
-      const given = babelCallExpression(
-        babelMemberExpression(babelIdentifier('Date'), babelIdentifier('now')),
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.identifier('Date'),
+          Babel.identifier('now')
+        ),
         []
       );
 
@@ -348,8 +354,8 @@ describe('Call Expression Handler', () => {
     });
 
     it('should handle parseInt simple function call', () => {
-      const given = babelCallExpression(babelIdentifier('parseInt'), [
-        babelIdentifier('foo'),
+      const given = Babel.callExpression(Babel.identifier('parseInt'), [
+        Babel.identifier('foo'),
       ]);
 
       const expected = callExpression(identifier('tonumber'), [
@@ -360,9 +366,9 @@ describe('Call Expression Handler', () => {
     });
 
     it('should handle parseInt with base function call', () => {
-      const given = babelCallExpression(babelIdentifier('parseInt'), [
-        babelIdentifier('foo'),
-        babelNumericLiteral(16),
+      const given = Babel.callExpression(Babel.identifier('parseInt'), [
+        Babel.identifier('foo'),
+        Babel.numericLiteral(16),
       ]);
 
       const expected = callExpression(identifier('tonumber'), [
@@ -374,16 +380,16 @@ describe('Call Expression Handler', () => {
     });
 
     it('should handle bind function call', () => {
-      const given = babelCallExpression(
-        babelMemberExpression(
-          babelMemberExpression(
-            babelIdentifier('greet'),
-            babelIdentifier('person'),
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.memberExpression(
+            Babel.identifier('greet'),
+            Babel.identifier('person'),
             false
           ),
-          babelIdentifier('bind')
+          Babel.identifier('bind')
         ),
-        [babelIdentifier('greet'), babelStringLiteral('Chris')]
+        [Babel.identifier('greet'), Babel.stringLiteral('Chris')]
       );
 
       const expected = functionExpression(

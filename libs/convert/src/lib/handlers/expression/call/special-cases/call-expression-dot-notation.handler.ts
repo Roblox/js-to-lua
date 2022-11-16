@@ -33,8 +33,9 @@ const knownJestExpectMethods = [
 
 const isExpectIdentifier = (
   node: Babel.Node
-): node is Babel.Identifier & { name: 'expect' } =>
-  Babel.isIdentifier(node) && node.name === 'expect';
+): node is Babel.Identifier & { name: 'expect' | 'jestExpect' } =>
+  Babel.isIdentifier(node) &&
+  (node.name === 'expect' || node.name === 'jestExpect');
 
 const isExpectCall = (node: Babel.MemberExpression): boolean => {
   return (
