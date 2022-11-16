@@ -14,6 +14,7 @@ import {
   numericLiteral,
   stringLiteral,
 } from '@js-to-lua/lua-types';
+import { pipe } from 'ramda';
 import { expressionHandler } from '../expression-statement.handler';
 import { createTypeAnnotationHandler } from '../type/type-annotation.handler';
 import {
@@ -115,9 +116,10 @@ describe('Identifier Handler', () => {
   KEYWORDS.forEach((name) => {
     it(`should return Lua Identifier Node with '_' prepended when name is not undefined and is a keyword`, () => {
       const given = babelIdentifier(name);
-      const expected = createWithAlternativeExpressionExtras(
-        stringLiteral(name)
-      )(createWithOriginalIdentifierNameExtras(name)(identifier(`${name}_`)));
+      const expected = pipe(
+        createWithAlternativeExpressionExtras(stringLiteral(name)),
+        createWithOriginalIdentifierNameExtras(name)
+      )(identifier(`${name}_`));
 
       expect(handleIdentifier.handler(source, {}, given)).toEqual(expected);
     });

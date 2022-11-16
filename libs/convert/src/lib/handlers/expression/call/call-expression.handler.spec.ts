@@ -32,9 +32,9 @@ const handleCallExpression = createCallExpressionHandler(
 
 describe('Call Expression Handler', () => {
   it(`should return Call with no parameters`, () => {
-    const given = Babel.callExpression(Babel.identifier('Symbol'), []);
+    const given = Babel.callExpression(Babel.identifier('Hello'), []);
 
-    const expected = callExpression(identifier('Symbol'), []);
+    const expected = callExpression(identifier('Hello'), []);
 
     expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
   });
@@ -402,6 +402,107 @@ describe('Call Expression Handler', () => {
             )
           ),
         ])
+      );
+
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle new Symbol creation', () => {
+      const given = Babel.callExpression(Babel.identifier('Symbol'), [
+        Babel.stringLiteral('foo'),
+      ]);
+
+      const expected = withPolyfillExtra<LuaCallExpression, PolyfillID>(
+        'Symbol'
+      )(callExpression(identifier('Symbol'), [stringLiteral('foo')]));
+
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle Symbol.for call', () => {
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.identifier('Symbol'),
+          Babel.identifier('for')
+        ),
+        [Babel.stringLiteral('foo')]
+      );
+
+      const expected = withPolyfillExtra<LuaCallExpression, PolyfillID>(
+        'Symbol'
+      )(
+        callExpression(
+          memberExpression(identifier('Symbol'), '.', identifier('for_')),
+          [stringLiteral('foo')]
+        )
+      );
+
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle Symbol["for"] call', () => {
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.identifier('Symbol'),
+          Babel.stringLiteral('for'),
+          true
+        ),
+        [Babel.stringLiteral('foo')]
+      );
+
+      const expected = withPolyfillExtra<LuaCallExpression, PolyfillID>(
+        'Symbol'
+      )(
+        callExpression(
+          memberExpression(identifier('Symbol'), '.', identifier('for_')),
+          [stringLiteral('foo')]
+        )
+      );
+
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle Symbol.aMethod call', () => {
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.identifier('Symbol'),
+          Babel.identifier('aMethod')
+        ),
+        [Babel.stringLiteral('foo')]
+      );
+
+      const expected = withPolyfillExtra<LuaCallExpression, PolyfillID>(
+        'Symbol'
+      )(
+        callExpression(
+          memberExpression(identifier('Symbol'), '.', identifier('aMethod')),
+          [stringLiteral('foo')]
+        )
+      );
+
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle Symbol[aMethod] call', () => {
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.identifier('Symbol'),
+          Babel.identifier('aMethod'),
+          true
+        ),
+        [Babel.stringLiteral('foo')]
+      );
+
+      const expected = withPolyfillExtra<LuaCallExpression, PolyfillID>(
+        'Symbol'
+      )(
+        callExpression(
+          indexExpression(
+            identifier('Symbol'),
+            callExpression(identifier('tostring'), [identifier('aMethod')])
+          ),
+          [stringLiteral('foo')]
+        )
       );
 
       expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);

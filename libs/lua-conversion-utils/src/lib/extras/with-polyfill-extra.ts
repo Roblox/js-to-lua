@@ -2,27 +2,30 @@ import { LuaNode } from '@js-to-lua/lua-types';
 import { withExtras } from './extras';
 import { NeedsPackagesExtra } from './with-needs-packages-extra';
 
-export type PolyfillID =
-  | 'Array'
-  | 'Boolean'
-  | 'instanceof'
-  | 'Map'
-  | 'Math'
-  | 'Number'
-  | 'Object'
-  | 'Set'
-  | 'String'
-  | 'Symbol'
-  | 'WeakMap'
-  | 'clearInterval'
-  | 'setInterval'
-  | 'clearTimeout'
-  | 'console'
-  | 'setTimeout';
+const polyfillIds = [
+  'Array',
+  'Boolean',
+  'instanceof',
+  'Map',
+  'Math',
+  'Number',
+  'Object',
+  'Set',
+  'String',
+  'Symbol',
+  'WeakMap',
+  'clearInterval',
+  'setInterval',
+  'clearTimeout',
+  'console',
+  'setTimeout',
+] as const;
+
+export type PolyfillID = typeof polyfillIds[number];
 
 export const isPolyfillID = (
   id: string,
-  validPolyfills: PolyfillID[]
+  validPolyfills: ReadonlyArray<PolyfillID>
 ): id is PolyfillID => validPolyfills.includes(id as PolyfillID);
 
 type PolyfillName<S extends string> = `polyfill.${S}`;

@@ -3,9 +3,10 @@ import { createOptionalHandlerFunction } from '@js-to-lua/handler-utils';
 import {
   createWithAlternativeExpressionExtras,
   createWithOriginalIdentifierNameExtras,
+  luaReservedKeywords,
 } from '@js-to-lua/lua-conversion-utils';
 import { identifier, LuaIdentifier, stringLiteral } from '@js-to-lua/lua-types';
-import { luaReservedKeywords } from '@js-to-lua/lua-conversion-utils';
+import { pipe } from 'ramda';
 
 export const createReservedKeywordIdentifierOptionalHandler = () => {
   return createOptionalHandlerFunction<LuaIdentifier, Identifier>(
@@ -15,9 +16,10 @@ export const createReservedKeywordIdentifierOptionalHandler = () => {
           createWithOriginalIdentifierNameExtras(node.name);
         const withAlternativeStringLiteral =
           createWithAlternativeExpressionExtras(stringLiteral(node.name));
-        return withAlternativeStringLiteral(
-          withOriginalIdentifierNameExtras(identifier(`${node.name}_`))
-        );
+        return pipe(
+          withAlternativeStringLiteral,
+          withOriginalIdentifierNameExtras
+        )(identifier(`${node.name}_`));
       }
     }
   );

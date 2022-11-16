@@ -12,6 +12,7 @@ import { createCallExpressionDateMethodHandler } from './call-expression-date-me
 import { createCallExpressionDotNotationHandlerFunction } from './call-expression-dot-notation.handler';
 import { createCallExpressionKnownNumberMethodHandlerFunction } from './call-expression-known-number-methods.handler';
 import { createCallExpressionParseIntHandler } from './call-expression-parse-int.handler';
+import { createCallExpressionSymbolMethodsHandlers } from './call-expression-symbol-methods.handlers';
 import { createCallExpressionToStringMethodHandlerFunction } from './call-expression-to-string-method.handlers';
 import { createCallExpressionKnownArrayMethodHandlerFunction } from './know-array-methods/call-expression-known-array-method.handler';
 import { createCallExpressionKnownMathMethodHandlerFunction } from './known-math-methods/call-expression-known-math-methods.handler';
@@ -25,6 +26,8 @@ export const createCallExpressionSpecialCasesHandler = (
       so it's safest to add new ones in front
       so that other handlers don't intercept the execution
     */
+    // eg. Symbol('foo')
+    createCallExpressionSymbolMethodsHandlers(handleExpression),
     // eg. `func.bind(thisArg, p1, p2)` converts to: `function(...) func(thisArg, p1, p2, ...) end`
     createCallExpressionBindHandlerFunction(handleExpression),
     // eg. React.createElement(JSX) or Promise.new() etc.

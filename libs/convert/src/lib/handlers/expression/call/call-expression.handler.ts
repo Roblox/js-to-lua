@@ -14,7 +14,7 @@ import {
   memberExpression,
 } from '@js-to-lua/lua-types';
 import { createCallExpressionArgumentsHandler } from './call-expression-arguments.handler';
-import { createCalleeExpressionHandlerFunction } from './callee-expression.handler';
+import { createCallExpressionDefaultHandler } from './call-expression-default.handler';
 import { createCallExpressionSpecialCasesHandler } from './special-cases/call-expression-special-cases.handler';
 
 export const createCallExpressionHandler = (
@@ -34,13 +34,13 @@ export const createCallExpressionHandler = (
       }
 
       const callee = expression.callee;
-      const args = createCallExpressionArgumentsHandler(handleExpression)(
-        source,
-        config,
-        expression.arguments
-      );
 
       if (isBabelMemberExpression(callee)) {
+        const args = createCallExpressionArgumentsHandler(handleExpression)(
+          source,
+          config,
+          expression.arguments
+        );
         const propertyExpression = isPrivateName(callee.property)
           ? defaultExpressionHandler(source, config, callee.property)
           : handleExpression(source, config, callee.property);
@@ -61,12 +61,10 @@ export const createCallExpressionHandler = (
             );
       }
 
-      const handleCalleeExpression =
-        createCalleeExpressionHandlerFunction(handleExpression);
-
-      return callExpression(
-        handleCalleeExpression(source, config, expression.callee),
-        args
+      return createCallExpressionDefaultHandler(handleExpression)(
+        source,
+        config,
+        expression
       );
     }
   );
