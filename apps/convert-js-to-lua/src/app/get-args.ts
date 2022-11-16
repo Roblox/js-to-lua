@@ -1,3 +1,4 @@
+import { join } from 'path/posix';
 import * as yargs from 'yargs';
 
 interface Args {
@@ -66,10 +67,11 @@ export const getArgs = (): Args => {
     .help()
     .alias('help', 'h');
 
+  const baseDir = process.cwd();
   const DEFAULT_ARGS: Args = {
-    input: [__dirname + '/fixtures/**/*sample.ts'],
-    output: __dirname + '/output',
-    filemap: __dirname + '/filemap.json',
+    input: [join(baseDir, 'fixtures/**/*sample.ts')],
+    output: join(baseDir, 'output'),
+    filemap: join(baseDir, 'filemap.json'),
     plugin: [],
   };
 

@@ -35,6 +35,8 @@ testem.log
 /typings
 pnpm-lock.yaml
 foreman.toml
+filemap.json
+output
 
 # System Files
 .DS_Store
