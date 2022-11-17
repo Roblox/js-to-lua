@@ -49,6 +49,7 @@ export const commitFiles = async (
 
   await git.add(files);
   await git.commit(message);
+  console.log('Committed: ', message);
 };
 
 export const applyPatch = async (

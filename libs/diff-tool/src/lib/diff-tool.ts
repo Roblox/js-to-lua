@@ -15,6 +15,7 @@ import {
   GitError,
   GitResponseError,
   MergeResult,
+  SimpleGit,
   simpleGit,
 } from 'simple-git';
 import * as util from 'util';
@@ -30,6 +31,7 @@ import {
 import { JsToLuaOptions } from './js-to-lua.types';
 import { logConflictsSummary } from './log-conflicts-summary';
 import { renameFiles } from './rename-files';
+
 export * from './diff-tool.types';
 export * from './js-to-lua.types';
 
@@ -56,145 +58,251 @@ export async function compare(
   options: ConversionOptions,
   jsToLuaOptions: JsToLuaOptions
 ): Promise<ComparisonResponse> {
-  const git = simpleGit();
+  const gitClient = simpleGit();
 
-  await git.cwd(downstreamPath);
-  await git.checkout(config.downstream.primaryBranch);
+  await gitClient.cwd(downstreamPath);
+  await gitClient.checkout(config.downstream.primaryBranch);
 
   const targetRevision =
     options?.targetRevision ?? config.upstream.primaryBranch;
 
   const originalDir = process.cwd();
-  const conversionDir = path.join(os.tmpdir(), 'fast-follow-conversion');
-
-  let failedFiles = new Set<string>();
-  let stdout = '';
-  let stderr = '';
-  let patchPath = '';
-  let conflictsSummary: { [key: string]: number };
 
   try {
     process.chdir(downstreamPath);
-    await git.cwd(downstreamPath);
+    const { conflictsSummary, patchPath, failedFiles, stdout, stderr } =
+      await Promise.resolve({
+        conversionDir: path.join(os.tmpdir(), 'fast-follow-conversion'),
+        git: gitClient,
+        stdout: '',
+        stderr: '',
+      })
+        .then(verifyDownstreamRepoStep())
+        .then(initConversionDirStep())
+        .then(initRepoStep())
+        .then(createFileMapStep())
+        .then(downstreamCleanStep())
+        .then(upstreamCleanStep())
+        .then(downstreamCurrentStep())
+        .then(mergeStep())
+        .then(generatePatchStep())
+        .then(applyPatchStep());
 
-    if (!git.checkIsRepo(CheckRepoActions.IN_TREE)) {
-      throw new Error(
-        `Unable to run conversion for '${downstreamPath}': destination directory is not a git repository`
-      );
-    } else if (config.downstream.patterns.length < 1) {
-      throw new Error(
-        `Unable to run conversion for '${downstreamPath}': no source patterns are specified in the downstream conversion config`
-      );
-    }
-
-    // Attempt to remove the conversion directory if a previous run created one
-    // earlier. This is done to prevent previous conversions from interfering
-    // with the current one.
-    await rm(conversionDir, { recursive: true, force: true });
-    await mkdir(conversionDir, { recursive: true });
-    await mkdir(`${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}`, {
-      recursive: true,
-    });
-    process.chdir(conversionDir);
-
-    await git.cwd(conversionDir);
-    await git.init();
-    await git.branch(['-m', 'main']);
-
-    const fileMap = await getUpstreamSourceReferences(downstreamPath, config);
-
-    // Step 1: Copy and convert referenced upstream files.
-
-    console.log(`🔨 Converting referenced sources to Luau...`);
-
-    const initialUpstreamResults = await convertUpstreamSources(
-      config,
-      {
-        conversionDir,
-        toolPath,
-        upstreamPath,
-        fileMap,
-        message: 'port: initial upstream version',
-      },
-      jsToLuaOptions
-    );
-    stdout += initialUpstreamResults.stdout;
-    stderr += initialUpstreamResults.stderr;
-
-    // Step 2: Copy upstream sources from the new updated version and convert.
-
-    console.log(`🔨 Converting latest sources to Luau...`);
-
-    await git.checkoutBranch('upstream', 'main');
-
-    const latestUpstreamResults = await convertUpstreamSources(
-      config,
-      {
-        conversionDir,
-        toolPath,
-        upstreamPath,
-        fileMap,
-        message: 'port: latest upstream version',
-        targetRef: targetRevision,
-      },
-      { ...jsToLuaOptions, sha: targetRevision }
-    );
-    stdout += latestUpstreamResults.stdout;
-    stderr += latestUpstreamResults.stderr;
-
-    // Step 3: Commit existing downstream changes into their own branch.
-
-    console.log(`🔨 Copying pre-existing downstream changes...`);
-
-    await git.checkoutBranch('downstream', 'main');
-
-    await copyDownstreamSources(
-      conversionDir,
-      downstreamPath,
-      fileMap,
-      'port: latest downstream version',
-      config.downstream.primaryBranch
-    );
-
-    // Step 4: Merge automatic upstream changes into the downstream branch and
-    // attempt to automatically resolve conflicts if they're present in favor or
-    // deviations in the downstream.
-
-    console.log(`↪️  Merging and automatically resolving conflicts...`);
-
-    const mergeResults = await mergeUpstreamChanges(
-      conversionDir,
-      'port: automatic merge of upstream changes'
-    );
-    stdout += mergeResults.stdout;
-    stderr += mergeResults.stderr;
-    conflictsSummary = mergeResults.conflictsSummary;
-
-    // Step 5: Generate a patch file in the current working directory.
-
-    const outputDir = options?.outDir ?? originalDir;
-    patchPath = await generatePatch(conversionDir, outputDir);
-
-    // Step 6: Apply the patch file to the repository.
-
-    const { patchPath: newPatchPath, failedFiles: failedFilesFromFix } =
-      await attemptFixPatch(downstreamPath, patchPath);
-    patchPath = newPatchPath;
-    failedFiles = failedFilesFromFix;
-
-    console.log(`✅ ...done! Patch file written to '${newPatchPath}'\n`);
+    return {
+      failedFiles,
+      stdout,
+      stderr,
+      patchPath,
+      revision: targetRevision,
+      conflictsSummary,
+    };
   } finally {
     process.chdir(originalDir);
   }
 
-  return {
-    failedFiles,
-    stdout,
-    stderr,
-    patchPath,
-    revision: targetRevision,
-    conflictsSummary,
-  };
+  type StepParams = { git: SimpleGit; stdout: string; stderr: string };
+  type ConversionDirParam = { conversionDir: string };
+  type FileMapParam = { fileMap: UpstreamFileMap };
+
+  function verifyDownstreamRepoStep() {
+    return async <T extends Record<string, unknown> & ConversionDirParam>(
+      params: StepParams & T
+    ): Promise<StepParams & T> => {
+      await gitClient.cwd(downstreamPath);
+
+      if (!gitClient.checkIsRepo(CheckRepoActions.IN_TREE)) {
+        throw new Error(
+          `Unable to run conversion for '${downstreamPath}': destination directory is not a git repository`
+        );
+      } else if (config.downstream.patterns.length < 1) {
+        throw new Error(
+          `Unable to run conversion for '${downstreamPath}': no source patterns are specified in the downstream conversion config`
+        );
+      }
+
+      return params;
+    };
+  }
+
+  function initConversionDirStep() {
+    return async <T extends Record<string, unknown> & ConversionDirParam>(
+      params: StepParams & T
+    ): Promise<StepParams & T> => {
+      const { conversionDir } = params;
+      // Attempt to remove the conversion directory if a previous run created one
+      // earlier. This is done to prevent previous conversions from interfering
+      // with the current one.
+      await rm(conversionDir, { recursive: true, force: true });
+      await mkdir(conversionDir, { recursive: true });
+      await mkdir(`${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}`, {
+        recursive: true,
+      });
+      process.chdir(conversionDir);
+
+      return params;
+    };
+  }
+
+  function initRepoStep() {
+    return async <T extends Record<string, unknown> & ConversionDirParam>(
+      params: StepParams & T
+    ): Promise<StepParams & T> => {
+      const { git, conversionDir } = params;
+      await git.cwd(conversionDir);
+      await git.init();
+      await git.branch(['-m', 'main']);
+
+      return params;
+    };
+  }
+
+  function createFileMapStep() {
+    return async <T extends Record<string, unknown>>(
+      params: StepParams & T
+    ): Promise<StepParams & T & FileMapParam> => {
+      const fileMap = await getUpstreamSourceReferences(downstreamPath, config);
+
+      return { ...params, fileMap };
+    };
+  }
+
+  function downstreamCleanStep() {
+    return async <
+      T extends Record<string, unknown> & ConversionDirParam & FileMapParam
+    >(
+      params: StepParams & T
+    ): Promise<StepParams & T> => {
+      const { conversionDir, fileMap } = params;
+      // Step 1: Copy and convert referenced upstream files.
+
+      console.log(`🔨 Converting referenced sources to Luau...`);
+
+      const initialUpstreamResults = await convertUpstreamSources(
+        config,
+        {
+          conversionDir,
+          toolPath,
+          upstreamPath,
+          fileMap,
+          message: 'port: initial upstream version',
+        },
+        jsToLuaOptions
+      );
+
+      return appendOutputs(params, initialUpstreamResults);
+    };
+  }
+
+  function upstreamCleanStep() {
+    return async <
+      T extends Record<string, unknown> & ConversionDirParam & FileMapParam
+    >(
+      params: StepParams & T
+    ): Promise<StepParams & T> => {
+      const { git, conversionDir, fileMap } = params;
+      // Step 2: Copy upstream sources from the new updated version and convert.
+
+      console.log(`🔨 Converting latest sources to Luau...`);
+
+      await git.checkoutBranch('upstream', 'main');
+
+      const latestUpstreamResults = await convertUpstreamSources(
+        config,
+        {
+          conversionDir,
+          toolPath,
+          upstreamPath,
+          fileMap,
+          message: 'port: latest upstream version',
+          targetRef: targetRevision,
+        },
+        { ...jsToLuaOptions, sha: targetRevision }
+      );
+
+      return appendOutputs(params, latestUpstreamResults);
+    };
+  }
+
+  function downstreamCurrentStep() {
+    return async <
+      T extends Record<string, unknown> & ConversionDirParam & FileMapParam
+    >(
+      params: StepParams & T
+    ): Promise<StepParams & T> => {
+      const { git, conversionDir, fileMap } = params;
+      // Step 3: Commit existing downstream changes into their own branch.
+
+      console.log(`🔨 Copying pre-existing downstream changes...`);
+
+      await git.checkoutBranch('downstream', 'main');
+
+      await copyDownstreamSources(
+        conversionDir,
+        downstreamPath,
+        fileMap,
+        'port: latest downstream version',
+        config.downstream.primaryBranch
+      );
+
+      return params;
+    };
+  }
+
+  function mergeStep() {
+    return async <T extends Record<string, unknown> & ConversionDirParam>(
+      params: StepParams & T
+    ): Promise<
+      StepParams & T & { conflictsSummary: Record<string, number> }
+    > => {
+      const { conversionDir } = params;
+      // Step 4: Merge automatic upstream changes into the downstream branch and
+      // attempt to automatically resolve conflicts if they're present in favor or
+      // deviations in the downstream.
+
+      console.log(`↪️  Merging and automatically resolving conflicts...`);
+
+      const mergeResults = await mergeUpstreamChanges(
+        conversionDir,
+        'port: automatic merge of upstream changes'
+      );
+      const conflictsSummary = mergeResults.conflictsSummary;
+
+      return appendOutputs({ ...params, conflictsSummary }, mergeResults);
+    };
+  }
+
+  function generatePatchStep() {
+    return async <T extends Record<string, unknown> & ConversionDirParam>(
+      params: StepParams & T
+    ): Promise<StepParams & T & { patchPath: string }> => {
+      const { conversionDir } = params;
+      // Step 5: Generate a patch file in the current working directory.
+
+      const outputDir = options?.outDir ?? originalDir;
+      const patchPath = await generatePatch(conversionDir, outputDir);
+
+      return { ...params, patchPath };
+    };
+  }
+
+  function applyPatchStep() {
+    return async <T extends Record<string, unknown> & { patchPath: string }>(
+      params: StepParams & T
+    ): Promise<StepParams & T & { failedFiles: Set<string> }> => {
+      // Step 6: Apply the patch file to the repository.
+
+      const { patchPath: newPatchPath, failedFiles: failedFilesFromFix } =
+        await attemptFixPatch(downstreamPath, params.patchPath);
+
+      console.log(`✅ ...done! Patch file written to '${newPatchPath}'\n`);
+
+      return {
+        ...params,
+        patchPath: newPatchPath,
+        failedFiles: failedFilesFromFix,
+      };
+    };
+  }
 }
 
 type ConvertUpstreamSourcesOptions = {
@@ -634,4 +742,15 @@ async function convertSources(
 
 function errorHasOutput(e: Error): e is ChildExecException {
   return 'stderr' in e || 'stdout' in e;
+}
+
+function appendOutputs<R extends Record<string, unknown>>(
+  dst: R & { stdout: string; stderr: string },
+  src: { stdout: string; stderr: string }
+): R & { stdout: string; stderr: string } {
+  return {
+    ...dst,
+    stdout: dst.stdout + src.stdout,
+    stderr: dst.stderr + src.stderr,
+  };
 }
