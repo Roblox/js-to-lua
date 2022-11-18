@@ -7,6 +7,7 @@ import { LuaExpression } from '@js-to-lua/lua-types';
 import { createCallExpressionApplyMethodHandlerFunction } from './call-expression-apply-method.handlers';
 import { createCallExpressionBindHandlerFunction } from './call-expression-bind.handler';
 import { createCallExpressionCallMethodHandlerFunction } from './call-expression-call-method.handlers';
+import { createCallExpressionChalkMethodHandlerFunction } from './call-expression-chalk-method.handler';
 import { createCallExpressionComputedPropertyHandlerFunction } from './call-expression-computed-property.handler';
 import { createCallExpressionDateMethodHandler } from './call-expression-date-method.handler';
 import { createCallExpressionDotNotationHandlerFunction } from './call-expression-dot-notation.handler';
@@ -27,6 +28,13 @@ export const createCallExpressionSpecialCasesHandler = (
       so it's safest to add new ones in front
       so that other handlers don't intercept the execution
     */
+    /**
+     * Note: issue #911
+     * This chalk handler is needed because our current ChalkLua implementation doesn't support chaining methods
+     * It should be removed when ChalkLua starts supporting chaining methods: https://github.com/Roblox/chalk-lua/issues/12
+     */
+    // eg. chalk.red('hello') or chalk.red.bold.underline('world')
+    createCallExpressionChalkMethodHandlerFunction(handleExpression),
     // eg. Symbol('foo')
     createCallExpressionSymbolMethodsHandlers(handleExpression),
     // eg. `func.bind(thisArg, p1, p2)` converts to: `function(...) func(thisArg, p1, p2, ...) end`

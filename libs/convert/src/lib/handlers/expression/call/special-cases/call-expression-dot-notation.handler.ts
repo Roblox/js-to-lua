@@ -1,21 +1,22 @@
+import * as Babel from '@babel/types';
 import {
   createOptionalHandlerFunction,
   HandlerFunction,
 } from '@js-to-lua/handler-utils';
 import {
-  callExpression,
-  LuaCallExpression,
-  LuaExpression,
-} from '@js-to-lua/lua-types';
-import * as Babel from '@babel/types';
-import { createCallExpressionArgumentsHandler } from '../call-expression-arguments.handler';
-import { matchesBabelMemberExpressionObject } from './utils';
-import { createCalleeExpressionHandlerFunction } from '../callee-expression.handler';
-import {
   PolyfillID,
   stringInferableExpression,
   withPolyfillExtra,
 } from '@js-to-lua/lua-conversion-utils';
+import {
+  callExpression,
+  LuaCallExpression,
+  LuaExpression,
+} from '@js-to-lua/lua-types';
+import { createCallExpressionArgumentsHandler } from '../call-expression-arguments.handler';
+import { createCalleeExpressionHandlerFunction } from '../callee-expression.handler';
+import { isChalkCallee, isNestedChalkCallee } from './chalk.utils';
+import { matchesBabelMemberExpressionObject } from './utils';
 
 type MemberExpressionPredicate = (node: Babel.MemberExpression) => boolean;
 
@@ -70,12 +71,13 @@ export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
   'jest',
   'console',
   'Promise',
-  'chalk',
   'JSON',
   'path',
   isExpectCall,
   isNestedExpectCall,
   isExpectMethod,
+  isChalkCallee,
+  isNestedChalkCallee,
 ];
 
 export const ADD_POLYFILL_EXTRA_IN_CALL_EXPRESSION: Array<PolyfillID> = [

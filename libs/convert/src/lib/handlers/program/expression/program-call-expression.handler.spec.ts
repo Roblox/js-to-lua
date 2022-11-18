@@ -175,283 +175,376 @@ describe('Program handler', () => {
     });
 
     describe('Special cases', () => {
-      it('should handle new Symbol creation', () => {
-        const source = `
-          s = Symbol("foo")
-        `;
-        const given = getProgramNode(source);
+      describe('Symbol', () => {
+        it('should handle new Symbol creation', () => {
+          const source = `
+            s = Symbol("foo")
+          `;
+          const given = getProgramNode(source);
 
-        const expected = programWithUpstreamComment([
-          withTrailingConversionComment(
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('Packages'))],
-              []
+          const expected = programWithUpstreamComment([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
             ),
-            'ROBLOX comment: must define Packages module'
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-            [
-              variableDeclaratorValue(
-                callExpression(identifier('require'), [
-                  memberExpression(
-                    identifier('Packages'),
-                    '.',
-                    identifier('LuauPolyfill')
-                  ),
-                ])
-              ),
-            ]
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('Symbol'))],
-            [
-              variableDeclaratorValue(
-                memberExpression(
-                  identifier('LuauPolyfill'),
-                  '.',
-                  identifier('Symbol')
-                )
-              ),
-            ]
-          ),
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [identifier('s')],
-            [callExpression(identifier('Symbol'), [stringLiteral('foo')])]
-          ),
-        ]);
-
-        expect(convertProgram(source, {}, given)).toEqual(expected);
-      });
-
-      it('should handle Symbol.for call', () => {
-        const source = `
-          s = Symbol.for("foo")
-        `;
-        const given = getProgramNode(source);
-
-        const expected = programWithUpstreamComment([
-          withTrailingConversionComment(
             variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('Packages'))],
-              []
-            ),
-            'ROBLOX comment: must define Packages module'
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-            [
-              variableDeclaratorValue(
-                callExpression(identifier('require'), [
-                  memberExpression(
-                    identifier('Packages'),
-                    '.',
-                    identifier('LuauPolyfill')
-                  ),
-                ])
-              ),
-            ]
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('Symbol'))],
-            [
-              variableDeclaratorValue(
-                memberExpression(
-                  identifier('LuauPolyfill'),
-                  '.',
-                  identifier('Symbol')
-                )
-              ),
-            ]
-          ),
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [identifier('s')],
-            [
-              callExpression(
-                memberExpression(identifier('Symbol'), '.', identifier('for_')),
-                [stringLiteral('foo')]
-              ),
-            ]
-          ),
-        ]);
-
-        expect(convertProgram(source, {}, given)).toEqual(expected);
-      });
-
-      it('should handle Symbol["for"] call', () => {
-        const source = `
-          s = Symbol["for"]("foo")
-        `;
-        const given = getProgramNode(source);
-
-        const expected = programWithUpstreamComment([
-          withTrailingConversionComment(
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('Packages'))],
-              []
-            ),
-            'ROBLOX comment: must define Packages module'
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-            [
-              variableDeclaratorValue(
-                callExpression(identifier('require'), [
-                  memberExpression(
-                    identifier('Packages'),
-                    '.',
-                    identifier('LuauPolyfill')
-                  ),
-                ])
-              ),
-            ]
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('Symbol'))],
-            [
-              variableDeclaratorValue(
-                memberExpression(
-                  identifier('LuauPolyfill'),
-                  '.',
-                  identifier('Symbol')
-                )
-              ),
-            ]
-          ),
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [identifier('s')],
-            [
-              callExpression(
-                memberExpression(identifier('Symbol'), '.', identifier('for_')),
-                [stringLiteral('foo')]
-              ),
-            ]
-          ),
-        ]);
-
-        expect(convertProgram(source, {}, given)).toEqual(expected);
-      });
-
-      it('should handle Symbol.aMethod call', () => {
-        const source = `
-          s = Symbol.aMethod("foo")
-        `;
-        const given = getProgramNode(source);
-
-        const expected = programWithUpstreamComment([
-          withTrailingConversionComment(
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('Packages'))],
-              []
-            ),
-            'ROBLOX comment: must define Packages module'
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-            [
-              variableDeclaratorValue(
-                callExpression(identifier('require'), [
-                  memberExpression(
-                    identifier('Packages'),
-                    '.',
-                    identifier('LuauPolyfill')
-                  ),
-                ])
-              ),
-            ]
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('Symbol'))],
-            [
-              variableDeclaratorValue(
-                memberExpression(
-                  identifier('LuauPolyfill'),
-                  '.',
-                  identifier('Symbol')
-                )
-              ),
-            ]
-          ),
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [identifier('s')],
-            [
-              callExpression(
-                memberExpression(
-                  identifier('Symbol'),
-                  '.',
-                  identifier('aMethod')
-                ),
-                [stringLiteral('foo')]
-              ),
-            ]
-          ),
-        ]);
-
-        expect(convertProgram(source, {}, given)).toEqual(expected);
-      });
-
-      it('should handle Symbol[aMethod] call', () => {
-        const source = `
-          s = Symbol[aMethod]("foo")
-        `;
-        const given = getProgramNode(source);
-
-        const expected = programWithUpstreamComment([
-          withTrailingConversionComment(
-            variableDeclaration(
-              [variableDeclaratorIdentifier(identifier('Packages'))],
-              []
-            ),
-            'ROBLOX comment: must define Packages module'
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
-            [
-              variableDeclaratorValue(
-                callExpression(identifier('require'), [
-                  memberExpression(
-                    identifier('Packages'),
-                    '.',
-                    identifier('LuauPolyfill')
-                  ),
-                ])
-              ),
-            ]
-          ),
-          variableDeclaration(
-            [variableDeclaratorIdentifier(identifier('Symbol'))],
-            [
-              variableDeclaratorValue(
-                memberExpression(
-                  identifier('LuauPolyfill'),
-                  '.',
-                  identifier('Symbol')
-                )
-              ),
-            ]
-          ),
-          assignmentStatement(
-            AssignmentStatementOperatorEnum.EQ,
-            [identifier('s')],
-            [
-              callExpression(
-                indexExpression(
-                  identifier('Symbol'),
-                  callExpression(identifier('tostring'), [
-                    identifier('aMethod'),
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
                   ])
                 ),
-                [stringLiteral('foo')]
-              ),
-            ]
-          ),
-        ]);
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Symbol'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Symbol')
+                  )
+                ),
+              ]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('s')],
+              [callExpression(identifier('Symbol'), [stringLiteral('foo')])]
+            ),
+          ]);
 
-        expect(convertProgram(source, {}, given)).toEqual(expected);
+          expect(convertProgram(source, {}, given)).toEqual(expected);
+        });
+
+        it('should handle Symbol.for call', () => {
+          const source = `
+            s = Symbol.for("foo")
+          `;
+          const given = getProgramNode(source);
+
+          const expected = programWithUpstreamComment([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Symbol'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Symbol')
+                  )
+                ),
+              ]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('s')],
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Symbol'),
+                    '.',
+                    identifier('for_')
+                  ),
+                  [stringLiteral('foo')]
+                ),
+              ]
+            ),
+          ]);
+
+          expect(convertProgram(source, {}, given)).toEqual(expected);
+        });
+
+        it('should handle Symbol["for"] call', () => {
+          const source = `
+            s = Symbol["for"]("foo")
+          `;
+          const given = getProgramNode(source);
+
+          const expected = programWithUpstreamComment([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Symbol'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Symbol')
+                  )
+                ),
+              ]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('s')],
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Symbol'),
+                    '.',
+                    identifier('for_')
+                  ),
+                  [stringLiteral('foo')]
+                ),
+              ]
+            ),
+          ]);
+
+          expect(convertProgram(source, {}, given)).toEqual(expected);
+        });
+
+        it('should handle Symbol.aMethod call', () => {
+          const source = `
+            s = Symbol.aMethod("foo")
+          `;
+          const given = getProgramNode(source);
+
+          const expected = programWithUpstreamComment([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Symbol'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Symbol')
+                  )
+                ),
+              ]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('s')],
+              [
+                callExpression(
+                  memberExpression(
+                    identifier('Symbol'),
+                    '.',
+                    identifier('aMethod')
+                  ),
+                  [stringLiteral('foo')]
+                ),
+              ]
+            ),
+          ]);
+
+          expect(convertProgram(source, {}, given)).toEqual(expected);
+        });
+
+        it('should handle Symbol[aMethod] call', () => {
+          const source = `
+            s = Symbol[aMethod]("foo")
+          `;
+          const given = getProgramNode(source);
+
+          const expected = programWithUpstreamComment([
+            withTrailingConversionComment(
+              variableDeclaration(
+                [variableDeclaratorIdentifier(identifier('Packages'))],
+                []
+              ),
+              'ROBLOX comment: must define Packages module'
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('LuauPolyfill'))],
+              [
+                variableDeclaratorValue(
+                  callExpression(identifier('require'), [
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('LuauPolyfill')
+                    ),
+                  ])
+                ),
+              ]
+            ),
+            variableDeclaration(
+              [variableDeclaratorIdentifier(identifier('Symbol'))],
+              [
+                variableDeclaratorValue(
+                  memberExpression(
+                    identifier('LuauPolyfill'),
+                    '.',
+                    identifier('Symbol')
+                  )
+                ),
+              ]
+            ),
+            assignmentStatement(
+              AssignmentStatementOperatorEnum.EQ,
+              [identifier('s')],
+              [
+                callExpression(
+                  indexExpression(
+                    identifier('Symbol'),
+                    callExpression(identifier('tostring'), [
+                      identifier('aMethod'),
+                    ])
+                  ),
+                  [stringLiteral('foo')]
+                ),
+              ]
+            ),
+          ]);
+
+          expect(convertProgram(source, {}, given)).toEqual(expected);
+        });
+      });
+
+      describe('chalk', () => {
+        it('should handle simple chalk call', () => {
+          const source = `
+            chalk.red('hello')
+          `;
+          const given = getProgramNode(source);
+
+          const expected = programWithUpstreamComment([
+            expressionStatement(
+              callExpression(
+                memberExpression(identifier('chalk'), '.', identifier('red')),
+                [stringLiteral('hello')]
+              )
+            ),
+          ]);
+
+          expect(convertProgram(source, {}, given)).toEqual(expected);
+        });
+
+        it('should handle chained chalk call', () => {
+          const source = `
+            chalk.red.bold('hello')
+          `;
+          const given = getProgramNode(source);
+
+          const expected = programWithUpstreamComment([
+            expressionStatement(
+              callExpression(
+                memberExpression(identifier('chalk'), '.', identifier('red')),
+                [
+                  callExpression(
+                    memberExpression(
+                      identifier('chalk'),
+                      '.',
+                      identifier('bold')
+                    ),
+                    [stringLiteral('hello')]
+                  ),
+                ]
+              )
+            ),
+          ]);
+
+          expect(convertProgram(source, {}, given)).toEqual(expected);
+        });
+
+        it('should handle deeply chained chalk call', () => {
+          const source = `
+            chalk.red.bold.underline('hello')
+          `;
+          const given = getProgramNode(source);
+
+          const expected = programWithUpstreamComment([
+            expressionStatement(
+              callExpression(
+                memberExpression(identifier('chalk'), '.', identifier('red')),
+                [
+                  callExpression(
+                    memberExpression(
+                      identifier('chalk'),
+                      '.',
+                      identifier('bold')
+                    ),
+                    [
+                      callExpression(
+                        memberExpression(
+                          identifier('chalk'),
+                          '.',
+                          identifier('underline')
+                        ),
+                        [stringLiteral('hello')]
+                      ),
+                    ]
+                  ),
+                ]
+              )
+            ),
+          ]);
+
+          expect(convertProgram(source, {}, given)).toEqual(expected);
+        });
       });
     });
   });

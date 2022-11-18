@@ -337,6 +337,99 @@ describe('Call Expression Handler', () => {
       }
     );
 
+    describe('chalk', () => {
+      it('should handle simple chalk call', () => {
+        const given = Babel.callExpression(
+          Babel.memberExpression(
+            Babel.identifier('chalk'),
+            Babel.identifier('red')
+          ),
+          [Babel.stringLiteral('hello')]
+        );
+
+        const expected = stringInferableExpression(
+          callExpression(
+            memberExpression(identifier('chalk'), '.', identifier('red')),
+            [stringLiteral('hello')]
+          )
+        );
+
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
+      });
+
+      it('should handle chained chalk call', () => {
+        const given = Babel.callExpression(
+          Babel.memberExpression(
+            Babel.memberExpression(
+              Babel.identifier('chalk'),
+              Babel.identifier('red')
+            ),
+            Babel.identifier('bold')
+          ),
+          [Babel.stringLiteral('hello')]
+        );
+
+        const expected = stringInferableExpression(
+          callExpression(
+            memberExpression(identifier('chalk'), '.', identifier('red')),
+            [
+              callExpression(
+                memberExpression(identifier('chalk'), '.', identifier('bold')),
+                [stringLiteral('hello')]
+              ),
+            ]
+          )
+        );
+
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
+      });
+
+      it('should handle deeply chained chalk call', () => {
+        const given = Babel.callExpression(
+          Babel.memberExpression(
+            Babel.memberExpression(
+              Babel.memberExpression(
+                Babel.identifier('chalk'),
+                Babel.identifier('red')
+              ),
+              Babel.identifier('bold')
+            ),
+            Babel.identifier('underline')
+          ),
+          [Babel.stringLiteral('hello')]
+        );
+
+        const expected = stringInferableExpression(
+          callExpression(
+            memberExpression(identifier('chalk'), '.', identifier('red')),
+            [
+              callExpression(
+                memberExpression(identifier('chalk'), '.', identifier('bold')),
+                [
+                  callExpression(
+                    memberExpression(
+                      identifier('chalk'),
+                      '.',
+                      identifier('underline')
+                    ),
+                    [stringLiteral('hello')]
+                  ),
+                ]
+              ),
+            ]
+          )
+        );
+
+        expect(handleCallExpression.handler(source, {}, given)).toEqual(
+          expected
+        );
+      });
+    });
+
     it('should handle Date.now() call', () => {
       const given = Babel.callExpression(
         Babel.memberExpression(
