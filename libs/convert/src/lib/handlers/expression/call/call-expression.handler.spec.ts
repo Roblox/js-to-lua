@@ -4,6 +4,7 @@ import {
   PolyfillID,
   stringInferableExpression,
   withPolyfillExtra,
+  withTrailingConversionComment,
 } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
@@ -503,6 +504,43 @@ describe('Call Expression Handler', () => {
           ),
           [stringLiteral('foo')]
         )
+      );
+
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle string.repeat() call on string', () => {
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          Babel.stringLiteral('foobar'),
+          Babel.identifier('repeat')
+        ),
+        [Babel.numericLiteral(10)]
+      );
+
+      const expected = callExpression(
+        memberExpression(identifier('string'), '.', identifier('rep')),
+        [stringLiteral('foobar'), numericLiteral(10)]
+      );
+      expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);
+    });
+
+    it('should handle string.repeat() on unknown type', () => {
+      const source = 'foo.repeat(10)';
+      const given = Babel.callExpression(
+        Babel.memberExpression(
+          { ...Babel.identifier('foo'), start: 0, end: 3 },
+          Babel.identifier('repeat')
+        ),
+        [Babel.numericLiteral(10)]
+      );
+
+      const expected = withTrailingConversionComment(
+        callExpression(
+          memberExpression(identifier('string'), '.', identifier('rep')),
+          [identifier('foo'), numericLiteral(10)]
+        ),
+        `ROBLOX CHECK: check if 'foo' is a string`
       );
 
       expect(handleCallExpression.handler(source, {}, given)).toEqual(expected);

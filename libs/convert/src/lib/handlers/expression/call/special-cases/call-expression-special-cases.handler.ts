@@ -14,6 +14,7 @@ import { createCallExpressionKnownNumberMethodHandlerFunction } from './call-exp
 import { createCallExpressionParseIntHandler } from './call-expression-parse-int.handler';
 import { createCallExpressionSymbolMethodsHandlers } from './call-expression-symbol-methods.handlers';
 import { createCallExpressionToStringMethodHandlerFunction } from './call-expression-to-string-method.handlers';
+import { createCallExpressionStringRepeatMethodHandlerFunction } from './call-expression-string-repeat-method.handler';
 import { createCallExpressionKnownArrayMethodHandlerFunction } from './know-array-methods/call-expression-known-array-method.handler';
 import { createCallExpressionKnownMathMethodHandlerFunction } from './known-math-methods/call-expression-known-math-methods.handler';
 
@@ -42,6 +43,8 @@ export const createCallExpressionSpecialCasesHandler = (
     createCallExpressionKnownNumberMethodHandlerFunction(handleExpression),
     // eg. value.toString()
     createCallExpressionToStringMethodHandlerFunction(handleExpression),
+    // eg. string.repeat() or ''.repeat()
+    createCallExpressionStringRepeatMethodHandlerFunction(handleExpression),
     // eg. func.call(thisArg, arg1, arg2)
     createCallExpressionCallMethodHandlerFunction(handleExpression),
     // eg. func.apply(thisArg, [arg1, arg2])
