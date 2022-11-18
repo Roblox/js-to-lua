@@ -2,8 +2,10 @@ import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   callExpression,
   identifier,
+  indexExpression,
   memberExpression,
   nodeGroup,
+  stringLiteral,
   typeAliasDeclaration,
   variableDeclaration,
   variableDeclaratorIdentifier,
@@ -316,6 +318,197 @@ describe('Program handler', () => {
       expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
+    it(`should import relative multiple named identifiers - with dot in imported path`, () => {
+      const given = getProgramNode(`
+        import { fizz, buzz } from '../foo/bar.js'
+      `);
+      const expected = programWithUpstreamComment([
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('barJsModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  indexExpression(
+                    memberExpression(
+                      memberExpression(
+                        memberExpression(
+                          identifier('script'),
+                          '.',
+                          identifier('Parent')
+                        ),
+                        '.',
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('foo')
+                    ),
+                    stringLiteral('bar.js')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('barJsModule'),
+                  '.',
+                  identifier('fizz')
+                )
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('buzz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('barJsModule'),
+                  '.',
+                  identifier('buzz')
+                )
+              ),
+            ]
+          ),
+        ]),
+      ]);
+
+      const actual = convertProgram(source, {}, given);
+      expect(JSON.stringify(actual, undefined, 2)).toEqual(
+        JSON.stringify(expected, undefined, 2)
+      );
+    });
+
+    it(`should import relative multiple named identifiers - with dash in imported path`, () => {
+      const given = getProgramNode(`
+        import { fizz, buzz } from '../foo/bar-js'
+      `);
+      const expected = programWithUpstreamComment([
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('barJsModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  indexExpression(
+                    memberExpression(
+                      memberExpression(
+                        memberExpression(
+                          identifier('script'),
+                          '.',
+                          identifier('Parent')
+                        ),
+                        '.',
+                        identifier('Parent')
+                      ),
+                      '.',
+                      identifier('foo')
+                    ),
+                    stringLiteral('bar-js')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('barJsModule'),
+                  '.',
+                  identifier('fizz')
+                )
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('buzz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('barJsModule'),
+                  '.',
+                  identifier('buzz')
+                )
+              ),
+            ]
+          ),
+        ]),
+      ]);
+
+      const actual = convertProgram(source, {}, given);
+      expect(JSON.stringify(actual, undefined, 2)).toEqual(
+        JSON.stringify(expected, undefined, 2)
+      );
+    });
+
+    it(`should import relative multiple named identifiers - with mixed dot and dash in imported path`, () => {
+      const given = getProgramNode(`
+        import { fizz, buzz } from '../foo.bar-baz/fizz-buzz.js'
+      `);
+      const expected = programWithUpstreamComment([
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizzBuzzJsModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  indexExpression(
+                    indexExpression(
+                      memberExpression(
+                        memberExpression(
+                          identifier('script'),
+                          '.',
+                          identifier('Parent')
+                        ),
+                        '.',
+                        identifier('Parent')
+                      ),
+                      stringLiteral('foo.bar-baz')
+                    ),
+                    stringLiteral('fizz-buzz.js')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('fizzBuzzJsModule'),
+                  '.',
+                  identifier('fizz')
+                )
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('buzz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('fizzBuzzJsModule'),
+                  '.',
+                  identifier('buzz')
+                )
+              ),
+            ]
+          ),
+        ]),
+      ]);
+
+      const actual = convertProgram(source, {}, given);
+      expect(JSON.stringify(actual, undefined, 2)).toEqual(
+        JSON.stringify(expected, undefined, 2)
+      );
+    });
+
     it(`should import global named identifier`, () => {
       const given = getProgramNode(`
         import { foo } from 'foo/bar'
@@ -414,6 +607,198 @@ describe('Program handler', () => {
       ]);
 
       expect(convertProgram(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should import global multiple named identifiers - with dot in imported path`, () => {
+      const given = getProgramNode(`
+        import { fizz, buzz } from 'foo/bar.js'
+      `);
+      const expected = programWithUpstreamComment([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fooBarJsModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  indexExpression(
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('foo')
+                    ),
+                    stringLiteral('bar.js')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('fooBarJsModule'),
+                  '.',
+                  identifier('fizz')
+                )
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('buzz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('fooBarJsModule'),
+                  '.',
+                  identifier('buzz')
+                )
+              ),
+            ]
+          ),
+        ]),
+      ]);
+
+      const actual = convertProgram(source, {}, given);
+      expect(JSON.stringify(actual, undefined, 2)).toEqual(
+        JSON.stringify(expected, undefined, 2)
+      );
+    });
+
+    it(`should import global multiple named identifiers - with dash in imported path`, () => {
+      const given = getProgramNode(`
+        import { fizz, buzz } from 'foo/bar-js'
+      `);
+      const expected = programWithUpstreamComment([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        nodeGroup([
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fooBarJsModule'))],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  indexExpression(
+                    memberExpression(
+                      identifier('Packages'),
+                      '.',
+                      identifier('foo')
+                    ),
+                    stringLiteral('bar-js')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('fooBarJsModule'),
+                  '.',
+                  identifier('fizz')
+                )
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('buzz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('fooBarJsModule'),
+                  '.',
+                  identifier('buzz')
+                )
+              ),
+            ]
+          ),
+        ]),
+      ]);
+
+      const actual = convertProgram(source, {}, given);
+      expect(JSON.stringify(actual, undefined, 2)).toEqual(
+        JSON.stringify(expected, undefined, 2)
+      );
+    });
+
+    it(`should import global multiple named identifiers - with mixed dot and dash in imported path`, () => {
+      const given = getProgramNode(`
+        import { fizz, buzz } from 'foo.bar-baz/fizz-buzz.js'
+      `);
+      const expected = programWithUpstreamComment([
+        withTrailingConversionComment(
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('Packages'))],
+            []
+          ),
+          'ROBLOX comment: must define Packages module'
+        ),
+        nodeGroup([
+          variableDeclaration(
+            [
+              variableDeclaratorIdentifier(
+                identifier('fooBarBazFizzBuzzJsModule')
+              ),
+            ],
+            [
+              variableDeclaratorValue(
+                callExpression(identifier('require'), [
+                  indexExpression(
+                    indexExpression(
+                      identifier('Packages'),
+                      stringLiteral('foo.bar-baz')
+                    ),
+                    stringLiteral('fizz-buzz.js')
+                  ),
+                ])
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('fizz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('fooBarBazFizzBuzzJsModule'),
+                  '.',
+                  identifier('fizz')
+                )
+              ),
+            ]
+          ),
+          variableDeclaration(
+            [variableDeclaratorIdentifier(identifier('buzz'))],
+            [
+              variableDeclaratorValue(
+                memberExpression(
+                  identifier('fooBarBazFizzBuzzJsModule'),
+                  '.',
+                  identifier('buzz')
+                )
+              ),
+            ]
+          ),
+        ]),
+      ]);
+
+      const actual = convertProgram(source, {}, given);
+      expect(JSON.stringify(actual, undefined, 2)).toEqual(
+        JSON.stringify(expected, undefined, 2)
+      );
     });
   });
 

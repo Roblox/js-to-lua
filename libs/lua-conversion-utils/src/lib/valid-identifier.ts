@@ -1,9 +1,17 @@
-const unhandledIdentifierCharactersRegexString = '[^\\w_]';
+import { capitalize, decapitalize } from '@js-to-lua/shared-utils';
+
+const unhandledIdentifierCharactersRegex = /[^\w_]/;
+const unhandledIdentifierCharactersRegexGlobal = /[^\w_]/g;
 
 export const isValidIdentifier = (name: string): boolean =>
-  !new RegExp(unhandledIdentifierCharactersRegexString).test(name);
+  !unhandledIdentifierCharactersRegex.test(name);
 export const toValidIdentifier = (name: string): string =>
-  name.replace(new RegExp(unhandledIdentifierCharactersRegexString, 'g'), '_');
+  name.replace(unhandledIdentifierCharactersRegexGlobal, '_');
 
-export const removeInvalidChars = (name: string): string =>
-  name.replace(new RegExp(unhandledIdentifierCharactersRegexString, 'g'), '');
+export const capitalizeOnInvalidChars = (name: string): string =>
+  decapitalize(
+    name
+      .split(unhandledIdentifierCharactersRegexGlobal)
+      .map(capitalize)
+      .join('')
+  );
