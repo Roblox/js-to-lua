@@ -170,7 +170,7 @@ async function cloneUpstreamRepository(
   const git = simpleGit();
 
   try {
-    const remoteUrl = `https://github.com/${owner}/${name}.git`;
+    const remoteUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${owner}/${name}.git`;
 
     await git.clone(remoteUrl, repoPath);
     await git.cwd(repoPath);
