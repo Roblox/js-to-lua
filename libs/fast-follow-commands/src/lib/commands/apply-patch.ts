@@ -9,6 +9,7 @@ import {
 import { getConfig } from './get-config';
 import { normalizeTagUser } from './gh-utils';
 import { getPullRequestBranchName, isPullRequestOpen } from './pr-utils';
+import { add } from 'ramda';
 
 export type ApplyPatchOptions = {
   sourceDir: string;
@@ -59,6 +60,7 @@ export async function applyPatch(options: ApplyPatchOptions) {
   });
   await git.checkoutBranch(id, config.downstream.primaryBranch);
 
+
   console.log('applying conflicts patch file...');
   try {
     await git.applyPatch(patchFile.replace('.patch', '-conflicts.patch'));
@@ -94,11 +96,14 @@ export async function applyPatch(options: ApplyPatchOptions) {
   console.log('creating PR...');
   const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
   let description = `Fast Follow: Automatic upgrade to ${options.revision}`;
+
   if (descriptionData) {
     const { conflictsSummary, failedFiles, pullRequestCC } = descriptionData;
     if (Object.keys(conflictsSummary).length) {
+      const totalConflicts = Object.values(conflictsSummary).reduce(add, 0);
+      description += `\n\n### Summary of ${totalConflicts} conflicts\n`;
       description +=
-        '\n\nSome files had conflicts that were automatically resolved:\n';
+        '\nSome files had conflicts that were automatically resolved:\n';
       description += Object.keys(conflictsSummary)
         .map((key) => {
           const filename = key.slice(DEFAULT_CONVERSION_OUTPUT_DIR.length + 1);
