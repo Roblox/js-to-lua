@@ -1,7 +1,7 @@
 import { findRepositoryRoot } from '@roblox/version-manager';
 import { Octokit } from 'octokit';
 import * as path from 'path';
-import { simpleGit } from 'simple-git';
+import { GitError, simpleGit } from 'simple-git';
 import {
   sendPullRequestFailureNotification,
   sendPullRequestSuccessNotification,
@@ -59,12 +59,34 @@ export async function applyPatch(options: ApplyPatchOptions) {
   });
   await git.checkoutBranch(id, config.downstream.primaryBranch);
 
-  console.log('applying patch file...');
-  await git.applyPatch(patchFile);
+  console.log('applying conflicts patch file...');
+  try {
+    await git.applyPatch(patchFile.replace('.patch', '-conflicts.patch'));
+    console.log('committing files...');
+    await git.add('.');
+    await git.commit('fast-follow - apply conflicts');
+  } catch (e) {
+    if (!(e instanceof GitError)) {
+      throw e;
+    }
+    console.log('There seem to be no conflicts to apply');
+  }
 
-  console.log('commiting files...');
-  await git.add('.');
-  await git.commit('fast-follow - apply patch');
+  console.log('applying patch file...');
+  try {
+    await git.applyPatch(patchFile);
+
+    console.log('committing files...');
+    await git.add('.');
+    await git.commit('fast-follow - apply patch');
+  } catch (e) {
+    if (!(e instanceof GitError)) {
+      throw e;
+    }
+    // Stacking the patches fail if there were no conflicts and no deviations.
+    // We can use the previous commit as the patch commit in that case.
+    await git.commit('fast-follow - apply patch', { '--amend': null });
+  }
 
   console.log('pushing branch...');
   await git.push(['--set-upstream', 'origin', id, '--force']);

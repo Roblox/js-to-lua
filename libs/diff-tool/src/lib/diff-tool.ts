@@ -85,8 +85,10 @@ export async function compare(
         .then(upstreamCleanStep())
         .then(downstreamCurrentStep())
         .then(mergeStep())
-        .then(generatePatchStep())
-        .then(applyPatchStep());
+        .then(generatePatchStep('fast-follow-conflicts.patch'))
+        .then(applyPatchStep())
+        .then(resolveConflictsStep())
+        .then(generatePatchStep());
 
     return {
       failedFiles,
@@ -251,9 +253,7 @@ export async function compare(
   function mergeStep() {
     return async <T extends Record<string, unknown> & ConversionDirParam>(
       params: StepParams & T
-    ): Promise<
-      StepParams & T & { conflictsSummary: Record<string, number> }
-    > => {
+    ): Promise<StepParams & T & { gitSummary: MergeResult }> => {
       const { conversionDir } = params;
       // Step 4: Merge automatic upstream changes into the downstream branch and
       // attempt to automatically resolve conflicts if they're present in favor or
@@ -265,13 +265,15 @@ export async function compare(
         conversionDir,
         'port: automatic merge of upstream changes'
       );
-      const conflictsSummary = mergeResults.conflictsSummary;
 
-      return appendOutputs({ ...params, conflictsSummary }, mergeResults);
+      return appendOutputs(
+        { ...params, gitSummary: mergeResults.gitSummary },
+        mergeResults
+      );
     };
   }
 
-  function generatePatchStep() {
+  function generatePatchStep(patchName?: string) {
     return async <T extends Record<string, unknown> & ConversionDirParam>(
       params: StepParams & T
     ): Promise<StepParams & T & { patchPath: string }> => {
@@ -279,7 +281,11 @@ export async function compare(
       // Step 5: Generate a patch file in the current working directory.
 
       const outputDir = options?.outDir ?? originalDir;
-      const patchPath = await generatePatch(conversionDir, outputDir);
+      const patchPath = await generatePatch(
+        conversionDir,
+        outputDir,
+        patchName
+      );
 
       return { ...params, patchPath };
     };
@@ -301,6 +307,33 @@ export async function compare(
         patchPath: newPatchPath,
         failedFiles: failedFilesFromFix,
       };
+    };
+  }
+
+  function resolveConflictsStep() {
+    return async <T extends { patchPath: string; gitSummary: MergeResult }>(
+      params: StepParams & T
+    ) => {
+      const { git, gitSummary: summary } = params;
+      let conflictsSummary: { [key: string]: number } = {};
+
+      await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
+      await git.commit('port: store conflicts');
+
+      for (const conflict of summary.conflicts) {
+        if (conflict.file) {
+          conflictsSummary = {
+            ...conflictsSummary,
+            ...(await resolveMergeConflicts(conflict.file)),
+          };
+        }
+      }
+
+      logConflictsSummary(conflictsSummary);
+      await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
+      await git.commit('port: resolve conflicts for final patch');
+
+      return { ...params, conflictsSummary };
     };
   }
 }
@@ -395,18 +428,6 @@ async function mergeUpstreamChanges(conversionDir: string, message: string) {
     }
   }
 
-  let conflictsSummary: { [key: string]: number } = {};
-  for (const conflict of summary.conflicts) {
-    if (conflict.file) {
-      conflictsSummary = {
-        ...conflictsSummary,
-        ...(await resolveMergeConflicts(conflict.file)),
-      };
-    }
-  }
-
-  logConflictsSummary(conflictsSummary);
-
   const mergedStyleResponse = await styluaFormat(conversionDir);
   stdout += mergedStyleResponse.stdout;
   stderr += mergedStyleResponse.stderr;
@@ -421,7 +442,7 @@ async function mergeUpstreamChanges(conversionDir: string, message: string) {
 
   await commitFiles(conversionDir, conflictFiles, message);
 
-  return { stdout, stderr, conflictsSummary };
+  return { stdout, stderr, gitSummary: summary };
 }
 
 async function styluaFormat(conversionDir: string) {
@@ -430,8 +451,7 @@ async function styluaFormat(conversionDir: string) {
 
   try {
     process.chdir(conversionDir);
-    const response = await exec('npx @johnnymorganz/stylua-bin .');
-    return response;
+    return await exec('npx @johnnymorganz/stylua-bin .');
   } catch (e) {
     let stdout = '';
     let stderr = '';
@@ -628,7 +648,8 @@ async function copyDownstreamFile(
  */
 async function generatePatch(
   conversionDir: string,
-  outputDir: string
+  outputDir: string,
+  patchName?: string
 ): Promise<string> {
   const git = simpleGit();
 
@@ -653,7 +674,7 @@ async function generatePatch(
     })
     .join('\n');
 
-  const patchPath = path.join(outputDir, DEFAULT_PATCH_NAME);
+  const patchPath = path.join(outputDir, patchName || DEFAULT_PATCH_NAME);
   await writeFile(patchPath, patch);
 
   return patchPath;
