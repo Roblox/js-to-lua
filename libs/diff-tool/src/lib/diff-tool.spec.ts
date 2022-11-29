@@ -204,7 +204,7 @@ describe('diffTool', () => {
     );
 
     expect(add).toHaveBeenCalled();
-    expect(commit).toHaveBeenCalledTimes(6);
+    expect(commit).toHaveBeenCalledTimes(8);
     expect(branch).toHaveBeenCalledTimes(1);
     expect(branch).toHaveBeenCalledWith(['-m', 'main']);
     expect(mergeFromTo).toHaveBeenCalledTimes(1);

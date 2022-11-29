@@ -31,6 +31,7 @@ import {
 import { JsToLuaOptions } from './js-to-lua.types';
 import { logConflictsSummary } from './log-conflicts-summary';
 import { renameFiles } from './rename-files';
+import { applyKnownDeviations } from './deviations';
 
 export * from './diff-tool.types';
 export * from './js-to-lua.types';
@@ -82,7 +83,9 @@ export async function compare(
         .then(initRepoStep())
         .then(createFileMapStep())
         .then(downstreamCleanStep())
+        .then(deviationsStep())
         .then(upstreamCleanStep())
+        .then(deviationsStep())
         .then(downstreamCurrentStep())
         .then(mergeStep())
         .then(generatePatchStep('fast-follow-conflicts.patch'))
@@ -222,6 +225,44 @@ export async function compare(
       );
 
       return appendOutputs(params, latestUpstreamResults);
+    };
+  }
+
+  function deviationsStep() {
+    return async <
+      T extends Record<string, unknown> & ConversionDirParam & FileMapParam
+    >(
+      params: StepParams & T
+    ): Promise<StepParams & T> => {
+      const { fileMap, git } = params;
+      console.log('🔨 Applying deviations');
+
+      await Promise.allSettled(
+        Object.keys(fileMap).map(async (file) => {
+          const pathLeft = path.join(downstreamPath, file);
+          const pathRight = path.join(
+            params.conversionDir,
+            DEFAULT_CONVERSION_OUTPUT_DIR,
+            file
+          );
+          const [left, right] = await Promise.all([
+            readFile(pathLeft, { encoding: 'utf-8' }),
+            readFile(pathRight, { encoding: 'utf-8' }),
+          ]);
+          const result = applyKnownDeviations(left, right);
+          if (result === right) {
+            return;
+          }
+
+          console.log(`... ${pathRight} has new deviations`);
+
+          await writeFile(pathRight, result, { encoding: 'utf-8' });
+        })
+      );
+      await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
+      await git.commit('port: apply deviations');
+
+      return params;
     };
   }
 
