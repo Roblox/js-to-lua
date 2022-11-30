@@ -18,6 +18,7 @@ import {
 } from '@js-to-lua/lua-types';
 import { isNonEmptyArray } from '@js-to-lua/shared-utils';
 import { IdentifierStrictHandlerFunction } from '../../expression/identifier-handler-types';
+import { createFlowGenericTypeSpecialCasesHandler } from './flow-generic-type-special-cases.handler';
 import { createFlowQualifiedTypeIdentifierHandler } from './qualified-identifer.handler';
 
 export const createFlowGenericTypeAnnotationHandler = (
@@ -27,6 +28,13 @@ export const createFlowGenericTypeAnnotationHandler = (
   return createHandler<LuaType, GenericTypeAnnotation>(
     'GenericTypeAnnotation',
     (source, config, node) => {
+      const handled = createFlowGenericTypeSpecialCasesHandler(
+        handleIdentifierStrict,
+        handleFlowTypes
+      )(source, config, node);
+
+      if (handled) return handled;
+
       let params = Array<LuaType>();
       if (node.typeParameters) {
         params = node.typeParameters.params.map((param) =>

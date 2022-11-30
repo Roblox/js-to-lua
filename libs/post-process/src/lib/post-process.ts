@@ -2,6 +2,7 @@ import { LuaProgram } from '@js-to-lua/lua-types';
 import { getPluginsStages, JsToLuaPlugin } from '@js-to-lua/plugin-utils';
 import { pipe } from 'ramda';
 import { addExports } from './steps/add-exports';
+import { addFlowBuiltInTypes } from './steps/add-flow-built-in-types';
 import { addImports } from './steps/add-imports';
 import { addMathConsts } from './steps/add-math-consts';
 import { addNumberConsts } from './steps/add-number-consts';
@@ -17,6 +18,7 @@ import { removeExtras } from './steps/remove-extras';
 const runStage = pipe(
   addExports,
   addPromiseImport,
+  addFlowBuiltInTypes,
   addTsBuiltInTypes,
   addPolyfills,
   addMathConsts,
