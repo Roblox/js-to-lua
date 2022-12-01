@@ -83,6 +83,7 @@ describe('diffTool', () => {
     checkIsRepo: jest.Mock,
     checkout: jest.Mock,
     checkoutBranch: jest.Mock,
+    checkoutLocalBranch: jest.Mock,
     revparse: jest.Mock,
     add: jest.Mock,
     commit: jest.Mock,
@@ -156,6 +157,7 @@ describe('diffTool', () => {
     checkIsRepo = jest.fn().mockReturnValue(true);
     checkout = jest.fn();
     checkoutBranch = jest.fn();
+    checkoutLocalBranch = jest.fn();
     revparse = jest.fn().mockReturnValue('1234567');
     add = jest.fn();
     commit = jest.fn();
@@ -175,6 +177,7 @@ describe('diffTool', () => {
       checkIsRepo,
       checkout,
       checkoutBranch,
+      checkoutLocalBranch,
       revparse,
       add,
       commit,

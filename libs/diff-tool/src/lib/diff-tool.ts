@@ -23,6 +23,7 @@ import { attemptFixPatch } from './attempt-fix-patch';
 import {
   ChildExecException,
   ComparisonResponse,
+  ConflictsSummary,
   ConversionOptions,
   MergeSection,
   UpstreamFileMap,
@@ -35,6 +36,7 @@ import { applyKnownDeviations } from './deviations';
 
 export * from './diff-tool.types';
 export * from './js-to-lua.types';
+export * from './log-conflicts-summary';
 
 // TODO: Fix @js-to-lua/shared-utils build to allow usage by diff-tool.
 type Truthy<T> = NonNullable<T>;
@@ -83,9 +85,9 @@ export async function compare(
         .then(initRepoStep())
         .then(createFileMapStep())
         .then(downstreamCleanStep())
-        .then(deviationsStep())
+        .then(downstreamApplyStep())
         .then(upstreamCleanStep())
-        .then(deviationsStep())
+        .then(upstreamApplyStep())
         .then(downstreamCurrentStep())
         .then(mergeStep())
         .then(generatePatchStep('fast-follow-conflicts.patch'))
@@ -177,9 +179,10 @@ export async function compare(
     >(
       params: StepParams & T
     ): Promise<StepParams & T> => {
-      const { conversionDir, fileMap } = params;
+      const { conversionDir, fileMap, git } = params;
       // Step 1: Copy and convert referenced upstream files.
 
+      await git.checkoutLocalBranch('downstream-clean');
       console.log(`🔨 Converting referenced sources to Luau...`);
 
       const initialUpstreamResults = await convertUpstreamSources(
@@ -209,7 +212,7 @@ export async function compare(
 
       console.log(`🔨 Converting latest sources to Luau...`);
 
-      await git.checkoutBranch('upstream', 'main');
+      await git.checkoutBranch('upstream-clean', 'downstream-apply');
 
       const latestUpstreamResults = await convertUpstreamSources(
         config,
@@ -228,13 +231,27 @@ export async function compare(
     };
   }
 
-  function deviationsStep() {
+  function downstreamApplyStep() {
+    return deviationsStep('downstream');
+  }
+
+  function upstreamApplyStep() {
+    return deviationsStep('upstream');
+  }
+
+  function deviationsStep(branchPrefix: string) {
     return async <
       T extends Record<string, unknown> & ConversionDirParam & FileMapParam
     >(
       params: StepParams & T
     ): Promise<StepParams & T> => {
       const { fileMap, git } = params;
+
+      await git.checkoutBranch(
+        `${branchPrefix}-apply`,
+        `${branchPrefix}-clean`
+      );
+
       console.log('🔨 Applying deviations');
 
       await Promise.allSettled(
@@ -277,7 +294,7 @@ export async function compare(
 
       console.log(`🔨 Copying pre-existing downstream changes...`);
 
-      await git.checkoutBranch('downstream', 'main');
+      await git.checkoutBranch('downstream-current', 'downstream-apply');
 
       await copyDownstreamSources(
         conversionDir,
@@ -356,10 +373,10 @@ export async function compare(
       params: StepParams & T
     ) => {
       const { git, gitSummary: summary } = params;
-      let conflictsSummary: { [key: string]: number } = {};
+      let conflictsSummary: ConflictsSummary = {};
 
       await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
-      await git.commit('port: store conflicts');
+      await git.commit('port: store conflicted merge', { '--amend': null });
 
       for (const conflict of summary.conflicts) {
         if (conflict.file) {
@@ -460,7 +477,7 @@ async function mergeUpstreamChanges(conversionDir: string, message: string) {
   let stderr = '';
 
   try {
-    summary = await git.mergeFromTo('upstream', 'downstream');
+    summary = await git.mergeFromTo('upstream-apply', 'downstream-current');
   } catch (e) {
     if (e instanceof GitResponseError) {
       summary = e.git;
@@ -585,15 +602,21 @@ async function resolveMergeConflicts(file: string) {
   let sectionType = MergeSection.Resolved;
   let resolvedContents = '';
   let count = 0;
+  let lineCount = 0;
+  let lineSum = 0;
 
   for (const line of contents.split('\n')) {
+    lineCount++;
     if (line.startsWith('<<<<<<<')) {
       sectionType = MergeSection.Current;
       count++;
+      lineCount = 0;
     } else if (line.startsWith('=======')) {
       sectionType = MergeSection.Incoming;
+      lineCount--;
     } else if (line.startsWith('>>>>>>>')) {
       sectionType = MergeSection.Resolved;
+      lineSum += lineCount - 1;
     } else if (
       sectionType === MergeSection.Resolved ||
       sectionType === MergeSection.Current
@@ -605,7 +628,7 @@ async function resolveMergeConflicts(file: string) {
   resolvedContents = `${resolvedContents.trimEnd()}\n`;
 
   await writeFile(file, resolvedContents);
-  return count > 0 ? { [file]: count } : {};
+  return count > 0 ? { [file]: { conflicts: count, lines: lineSum } } : {};
 }
 
 /**

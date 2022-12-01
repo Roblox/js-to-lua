@@ -1,4 +1,9 @@
-import { compare, ComparisonResponse, JsToLuaOptions } from '@roblox/diff-tool';
+import {
+  compare,
+  ComparisonResponse,
+  ConflictsSummary,
+  JsToLuaOptions,
+} from '@roblox/diff-tool';
 import {
   findRepositoryRoot,
   setupConversionTool,
@@ -40,7 +45,7 @@ export async function compareSinceLastSync(
   let patchPath = '';
   let revision = '';
   let failedFiles: Set<string>;
-  let conflictsSummary: { [key: string]: number };
+  let conflictsSummary: ConflictsSummary;
 
   try {
     console.log('🛞  Downloading and installing js-to-lua "main"');

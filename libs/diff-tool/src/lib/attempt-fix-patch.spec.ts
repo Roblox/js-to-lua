@@ -1,7 +1,6 @@
 import * as utils from '@js-to-lua/upstream-utils';
 import * as fsPromise from 'fs/promises';
 import { GitError } from 'simple-git';
-import { EmptyTask } from 'simple-git/dist/src/lib/tasks/task';
 import { attemptFixPatch } from './attempt-fix-patch';
 
 jest.mock('@js-to-lua/upstream-utils');
@@ -16,7 +15,7 @@ index 9506e04..e4a2b53 100644
 --- OK
 +-- NOT OK
  ...
- 
+
  ...
 `;
 
@@ -28,7 +27,7 @@ index 9506e04..e4a2b53 100644
 --- OK
 +-- NOT OK
  ...
- 
+
  ...
 `;
 
@@ -74,7 +73,11 @@ describe('attemptFixPatch', () => {
       .mockImplementationOnce(() =>
         Promise.reject(
           new GitError(
-            null as any as EmptyTask,
+            {
+              commands: [],
+              format: 'empty',
+              parser: () => undefined,
+            },
             `error: ${FAILED_FILEPATH}: something failed`
           )
         )

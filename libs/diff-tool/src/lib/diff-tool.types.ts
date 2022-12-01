@@ -5,13 +5,18 @@ export interface ConversionOptions {
   outDir?: string;
 }
 
+export type ConflictsSummary = Record<
+  string,
+  { conflicts: number; lines: number }
+>;
+
 export interface ComparisonResponse {
   failedFiles: Set<string>;
   stdout: string;
   stderr: string;
   patchPath: string;
   revision: string;
-  conflictsSummary: { [key: string]: number };
+  conflictsSummary: ConflictsSummary;
 }
 
 export type UpstreamFileMap = Record<string, UpstreamReference>;

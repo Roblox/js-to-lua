@@ -9,7 +9,7 @@ import {
 import { getConfig } from './get-config';
 import { normalizeTagUser } from './gh-utils';
 import { getPullRequestBranchName, isPullRequestOpen } from './pr-utils';
-import { add } from 'ramda';
+import { ConflictsSummary, sumConflicts } from '@roblox/diff-tool';
 
 export type ApplyPatchOptions = {
   sourceDir: string;
@@ -19,7 +19,7 @@ export type ApplyPatchOptions = {
   channel?: string;
   descriptionData?: {
     failedFiles: Set<string>;
-    conflictsSummary: { [key: string]: number };
+    conflictsSummary: ConflictsSummary;
     pullRequestCC: string[];
   };
 };
@@ -60,7 +60,6 @@ export async function applyPatch(options: ApplyPatchOptions) {
   });
   await git.checkoutBranch(id, config.downstream.primaryBranch);
 
-
   console.log('applying conflicts patch file...');
   try {
     await git.applyPatch(patchFile.replace('.patch', '-conflicts.patch'));
@@ -100,14 +99,15 @@ export async function applyPatch(options: ApplyPatchOptions) {
   if (descriptionData) {
     const { conflictsSummary, failedFiles, pullRequestCC } = descriptionData;
     if (Object.keys(conflictsSummary).length) {
-      const totalConflicts = Object.values(conflictsSummary).reduce(add, 0);
-      description += `\n\n### Summary of ${totalConflicts} conflicts\n`;
+      const totalConflicts = sumConflicts('conflicts', conflictsSummary);
+      const totalLines = sumConflicts('lines', conflictsSummary);
+      description += `\n\n### Summary of ${totalConflicts} conflicts in ${totalLines} lines\n`;
       description +=
         '\nSome files had conflicts that were automatically resolved:\n';
       description += Object.keys(conflictsSummary)
         .map((key) => {
           const filename = key.slice(DEFAULT_CONVERSION_OUTPUT_DIR.length + 1);
-          return `- [ ] ${filename}: ${conflictsSummary[key]}`;
+          return `- [ ] ${filename}: ${conflictsSummary[key].conflicts} (lines: ${conflictsSummary[key].lines})`;
         })
         .join('\n');
     }

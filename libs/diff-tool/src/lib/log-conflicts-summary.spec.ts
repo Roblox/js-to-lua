@@ -1,9 +1,13 @@
 import { logConflictsSummary } from './log-conflicts-summary';
+
 describe('log-conflicts-summary', function () {
   const spy = jest.spyOn(console, 'log').mockImplementation(() => {
     /* Do nothing */
   });
-  const summary = { ['foo']: 1, ['bar']: 2 };
+  const summary = {
+    ['foo']: { conflicts: 1, lines: 3 },
+    ['bar']: { conflicts: 2, lines: 2 },
+  };
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -24,7 +28,6 @@ describe('log-conflicts-summary', function () {
 
   it('should log conflicts details', function () {
     logConflictsSummary(summary);
-    expect(spy).toHaveBeenCalledWith('foo:', 1);
-    expect(spy).toHaveBeenCalledWith('bar:', 2);
+    expect(spy).toHaveBeenCalledWith('Total conflicted lines:', 5);
   });
 });
