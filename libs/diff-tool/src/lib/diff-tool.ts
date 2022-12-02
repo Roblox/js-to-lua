@@ -494,10 +494,6 @@ async function mergeUpstreamChanges(conversionDir: string, message: string) {
     .map((conflict) => conflict.file)
     .filter(isTruthy);
 
-  for (const file of conflictFiles) {
-    await git.add(file);
-  }
-
   await commitFiles(conversionDir, conflictFiles, message);
 
   return { stdout, stderr, gitSummary: summary };

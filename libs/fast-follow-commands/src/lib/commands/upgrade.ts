@@ -4,8 +4,9 @@ import { compareSinceLastSync } from './compare';
 import { getConfig } from './get-config';
 import { isPullRequestOpen } from './pr-utils';
 import { scanReleases } from './scan-releases';
+import { GenericOptions } from '../generic-options';
 
-export type UpgradeOptions = {
+export type UpgradeOptions = GenericOptions & {
   revision?: string;
   channel?: string;
   sourceDir: string;
@@ -25,6 +26,7 @@ export const upgrade = async (
     log,
     revision: targetRev,
     pullRequestCC,
+    allowPublicActions,
   }: UpgradeOptions,
   jsToLuaOptions: JsToLuaOptions
 ) => {
@@ -75,5 +77,6 @@ export const upgrade = async (
     log,
     channel,
     descriptionData,
+    allowPublicActions,
   });
 };

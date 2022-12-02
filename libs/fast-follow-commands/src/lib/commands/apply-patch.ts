@@ -6,12 +6,14 @@ import {
   sendPullRequestFailureNotification,
   sendPullRequestSuccessNotification,
 } from '../slack-notifications';
+
 import { getConfig } from './get-config';
 import { normalizeTagUser } from './gh-utils';
 import { getPullRequestBranchName, isPullRequestOpen } from './pr-utils';
+import { GenericOptions } from '../generic-options';
 import { ConflictsSummary, sumConflicts } from '@roblox/diff-tool';
 
-export type ApplyPatchOptions = {
+export type ApplyPatchOptions = GenericOptions & {
   sourceDir: string;
   patchPath: string;
   revision: string;
@@ -27,7 +29,7 @@ export type ApplyPatchOptions = {
 const DEFAULT_CONVERSION_OUTPUT_DIR = 'output';
 
 /**
- * apply patch file to a generated branch, push to remote and send slack message when done
+ * apply patch file to a generated branch, push to remote and send Slack message when done
  */
 export async function applyPatch(options: ApplyPatchOptions) {
   const { sourceDir, descriptionData } = options;
@@ -87,6 +89,11 @@ export async function applyPatch(options: ApplyPatchOptions) {
     // Stacking the patches fail if there were no conflicts and no deviations.
     // We can use the previous commit as the patch commit in that case.
     await git.commit('fast-follow - apply patch', { '--amend': null });
+  }
+
+  if (!options.allowPublicActions) {
+    console.log('🎉 All done, not making a PR or notifying Slack');
+    return;
   }
 
   console.log('pushing branch...');

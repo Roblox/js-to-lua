@@ -17,6 +17,80 @@ function arrayToStringArray(value: Array<string | number>): Array<string> {
   return value.map(String);
 }
 
+const allowPublicActionsArgOptions = {
+  alias: 'y',
+  description:
+    'Whether public actions like creating a PR or posting to Slack is allowed',
+  type: 'boolean',
+  default: process.env.CI === 'true',
+} as const;
+const allowPublicActionsArg = [
+  'allowPublicActions',
+  allowPublicActionsArgOptions,
+] as const;
+const babelConfigArgOptions = {
+  description: 'Babel config file to be used by js-to-lua conversion tool',
+  type: 'string',
+  requiresArg: true,
+} as const;
+const babelConfigArg = ['babelConfig', babelConfigArgOptions] as const;
+const babelConfigTransformArgOptions = {
+  description:
+    'Babel transform config file to be used by js-to-lua conversion tool',
+  type: 'string',
+  requiresArg: true,
+} as const;
+const babelConfigTransformArg = [
+  'babelTransformConfig',
+  babelConfigTransformArgOptions,
+] as const;
+const channelArgOptions = {
+  alias: 'c',
+  type: 'string',
+  describe: 'id of the slack channel to post the notification to',
+  requiresArg: true,
+} as const;
+const channelArg = ['channel', channelArgOptions] as const;
+const logArgOptions = {
+  alias: ['l'],
+  type: 'boolean',
+  describe: 'output log files with output if specified',
+  default: false,
+} as const;
+const logArg = ['log', logArgOptions] as const;
+const outputDirArgOptions = {
+  alias: ['out-dir', 'o'],
+  type: 'string',
+  describe: 'location to dump patch files',
+  requiresArg: true,
+} as const;
+const outputDirArg = ['outDir', outputDirArgOptions] as const;
+const pluginArgOptions = {
+  description:
+    'Post processing plugins to be used by js-to-lua conversion tool',
+  type: 'array',
+  requiresArg: true,
+} as const;
+const pluginArg = ['plugin', pluginArgOptions] as const;
+const revisionArgOptions = {
+  alias: ['r'],
+  type: 'string',
+  describe: 'target revision upstream to sync to',
+  requiresArg: true,
+} as const;
+const revisionArg = ['revision', revisionArgOptions] as const;
+const requiredRevisionArg = [
+  'revision',
+  { ...revisionArgOptions, demandOption: true } as const,
+] as const;
+const sourceDirArgOptions = {
+  alias: ['source-dir', 's'],
+  type: 'string',
+  describe: 'location of the source code to work with',
+  demandOption: true,
+} as const;
+const sourceDirArg = ['sourceDir', sourceDirArgOptions] as const;
+
 export function setupCommands({
   scanReleases,
   scanCommits,
@@ -45,48 +119,13 @@ export function setupCommands({
       'compare changes in upstream between js-to-lua versions',
       (yargs) =>
         yargs
-          .positional('sourceDir', {
-            alias: ['source-dir', 's'],
-            type: 'string',
-            describe: 'location of the source code to work with',
-            demandOption: true,
-          })
-          .option('revision', {
-            alias: ['r'],
-            type: 'string',
-            describe: 'target revision upstream to sync to',
-            requiresArg: true,
-          })
-          .option('outDir', {
-            alias: ['out-dir', 'o'],
-            type: 'string',
-            describe: 'location to dump patch files',
-            requiresArg: true,
-          })
-          .option('log', {
-            alias: ['l'],
-            type: 'boolean',
-            describe: 'output log files with output if specified',
-            default: false,
-          })
-          .option('babelConfig', {
-            description:
-              'Babel config file to be used by js-to-lua conversion tool',
-            type: 'string',
-            requiresArg: true,
-          })
-          .option('babelTransformConfig', {
-            description:
-              'Babel transform config file to be used by js-to-lua conversion tool',
-            type: 'string',
-            requiresArg: true,
-          })
-          .option('plugin', {
-            description:
-              'Post processing plugins to be used by js-to-lua conversion tool',
-            type: 'array',
-            requiresArg: true,
-          })
+          .positional(...sourceDirArg)
+          .option(...revisionArg)
+          .option(...outputDirArg)
+          .option(...logArg)
+          .option(...babelConfigArg)
+          .option(...babelConfigTransformArg)
+          .option(...pluginArg)
           .coerce({ plugin: arrayToStringArray }),
       async (argv) => {
         const {
@@ -120,20 +159,7 @@ export function setupCommands({
     .command(
       'release-scan',
       'scan a repository for new releases and notify about changes made upstream.',
-      (yargs) =>
-        yargs
-          .positional('sourceDir', {
-            alias: ['source-dir', 's'],
-            type: 'string',
-            describe: 'location of the source code to work with',
-            demandOption: true,
-          })
-          .option('channel', {
-            alias: 'c',
-            type: 'string',
-            describe: 'id of the slack channel to post the notification to',
-            requiresArg: true,
-          }),
+      (yargs) => yargs.positional(...sourceDirArg).option(...channelArg),
       async (argv) => {
         const { sourceDir, channel } = argv;
         await scanReleases({ sourceDir, channel });
@@ -142,13 +168,7 @@ export function setupCommands({
     .command(
       'commit-scan',
       'scan a repository for new commits and notify about changes made upstream.',
-      (yargs) =>
-        yargs.option('channel', {
-          alias: 'c',
-          type: 'string',
-          describe: 'id of the slack channel to post the notification to',
-          requiresArg: true,
-        }),
+      (yargs) => yargs.option(...channelArg),
       (argv) => {
         const { sourceDir, channel } = argv;
         return scanCommits({ sourceDir, channel });
@@ -159,39 +179,26 @@ export function setupCommands({
       'apply patch file in downstream repo',
       (yargs) =>
         yargs
-          .positional('sourceDir', {
-            alias: ['source-dir', 's'],
-            type: 'string',
-            describe: 'location of the source code to work with',
-            demandOption: true,
-          })
+          .positional(...sourceDirArg)
           .positional('patchPath', {
             alias: ['patch'],
             type: 'string',
             describe: 'location of the patch file to apply',
             demandOption: true,
           })
-          .option('revision', {
-            alias: ['r'],
-            type: 'string',
-            describe: 'target revision upstream to sync to',
-            requiresArg: true,
-            demandOption: true,
-          })
-          .option('log', {
-            alias: ['l'],
-            type: 'boolean',
-            describe: 'output log files with output if specified',
-            default: false,
-          })
-          .option('channel', {
-            alias: 'c',
-            type: 'string',
-            describe: 'id of the slack channel to post the notification to',
-            requiresArg: true,
-          }),
+          .option(...requiredRevisionArg)
+          .option(...logArg)
+          .option(...channelArg)
+          .option(...allowPublicActionsArg),
       (argv) => {
-        const { sourceDir, patchPath, revision, log, channel } = argv;
+        const {
+          sourceDir,
+          patchPath,
+          revision,
+          log,
+          channel,
+          allowPublicActions,
+        } = argv;
 
         return applyPatch({
           sourceDir,
@@ -199,6 +206,7 @@ export function setupCommands({
           revision,
           log,
           channel,
+          allowPublicActions,
         });
       }
     )
@@ -207,55 +215,14 @@ export function setupCommands({
       'track releases and opens pr if possible',
       (yargs) =>
         yargs
-          .positional('sourceDir', {
-            alias: ['source-dir', 's'],
-            type: 'string',
-            describe: 'location of the source code to work with',
-            demandOption: true,
-          })
-          .option('outDir', {
-            alias: ['out-dir', 'o'],
-            type: 'string',
-            describe: 'location to dump patch files',
-            requiresArg: true,
-          })
-          .option('channel', {
-            alias: 'c',
-            type: 'string',
-            describe: 'id of the slack channel to post the notification to',
-            requiresArg: true,
-          })
-          .option('log', {
-            alias: ['l'],
-            type: 'boolean',
-            describe: 'output log files with output if specified',
-            default: false,
-          })
-          .option('revision', {
-            alias: ['r'],
-            type: 'string',
-            describe:
-              'target revision to upgrade to. If not provided latest release will be used',
-            requiresArg: true,
-          })
-          .option('babelConfig', {
-            description:
-              'Babel config file to be used by js-to-lua conversion tool',
-            type: 'string',
-            requiresArg: true,
-          })
-          .option('babelTransformConfig', {
-            description:
-              'Babel transform config file to be used by js-to-lua conversion tool',
-            type: 'string',
-            requiresArg: true,
-          })
-          .option('plugin', {
-            description:
-              'Post processing plugins to be used by js-to-lua conversion tool',
-            type: 'array',
-            requiresArg: true,
-          })
+          .positional(...sourceDirArg)
+          .option(...outputDirArg)
+          .option(...channelArg)
+          .option(...logArg)
+          .option(...revisionArg)
+          .option(...babelConfigArg)
+          .option(...babelConfigTransformArg)
+          .option(...pluginArg)
           .option('pullRequestCC', {
             alias: ['prCC'],
             type: 'array',
@@ -263,6 +230,7 @@ export function setupCommands({
               'GitHub user names which start with @ (e.g. "@foo"). They will be mentioned in created PR description.',
             requiresArg: true,
           })
+          .option(...allowPublicActionsArg)
           .coerce({
             plugin: arrayToStringArray,
             pullRequestCC: (value: Array<string | number>) =>
@@ -279,6 +247,7 @@ export function setupCommands({
           babelTransformConfig,
           plugin: plugins,
           pullRequestCC = [],
+          allowPublicActions,
         } = argv;
 
         const config = await getConfig(sourceDir);
@@ -297,6 +266,7 @@ export function setupCommands({
             log,
             revision,
             pullRequestCC,
+            allowPublicActions,
           },
           jsToLuaOptions
         );
