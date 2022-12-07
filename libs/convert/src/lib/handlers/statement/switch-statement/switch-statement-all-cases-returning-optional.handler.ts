@@ -1,13 +1,4 @@
-import {
-  BlockStatement,
-  Expression,
-  isBlockStatement,
-  isBreakStatement as isBabelBreakStatement,
-  isReturnStatement as isBabelReturnStatement,
-  Statement,
-  SwitchCase,
-  SwitchStatement,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   AsStatementHandlerFunction,
   createOptionalHandlerFunction,
@@ -45,14 +36,14 @@ import { applyTo, dropLast, last } from 'ramda';
 import { isDefaultSwitchCase, isNotDefaultSwitchCase } from './utils';
 
 export const createSwitchStatementAllCasesReturningOptionalHandler = (
-  handleStatement: HandlerFunction<LuaStatement, Statement>,
-  handleExpression: HandlerFunction<LuaExpression, Expression>,
+  handleStatement: HandlerFunction<LuaStatement, Babel.Statement>,
+  handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
   handleExpressionAsStatement: AsStatementHandlerFunction<
     LuaStatement,
-    Expression
+    Babel.Expression
   >
 ) => {
-  return createOptionalHandlerFunction<LuaStatement, SwitchStatement>(
+  return createOptionalHandlerFunction<LuaStatement, Babel.SwitchStatement>(
     (source, config, node) => {
       const notDefaultCases = node.cases.filter(isNotDefaultSwitchCase);
       const splitCases = notDefaultCases.reduce(groupCases, []);
@@ -159,21 +150,22 @@ const createLogicalOrExpression = (
         last(expressions)!
       );
 
-function isLastStatementReturnOrBreak(statements: Statement[]) {
+function isLastStatementReturnOrBreak(statements: Babel.Statement[]) {
   return applyTo(
     last(statements),
     (lastStatement) =>
-      !!lastStatement &&
-      (isBabelReturnStatement(lastStatement) ||
-        isBabelBreakStatement(lastStatement))
+      (!!lastStatement &&
+        (Babel.isReturnStatement(lastStatement) ||
+          Babel.isBreakStatement(lastStatement))) ||
+      Babel.isContinueStatement(lastStatement)
   );
 }
 
 const groupCases = (
-  splitResult: SwitchCase[][],
-  switchCase: SwitchCase,
+  splitResult: Babel.SwitchCase[][],
+  switchCase: Babel.SwitchCase,
   index: number,
-  arr: SwitchCase[]
+  arr: Babel.SwitchCase[]
 ) => {
   const lastResult = last(splitResult);
   if (lastResult && !isNotFallThroughCase(arr[index - 1])) {
@@ -185,26 +177,27 @@ const groupCases = (
 };
 
 const isNotFallThroughCase = (
-  switchCase: SwitchCase
-): switchCase is SwitchCase & {
+  switchCase: Babel.SwitchCase
+): switchCase is Babel.SwitchCase & {
   consequent:
     | NonEmptyArray<LuaStatement>
-    | [BlockStatement & { body: NonEmptyArray<LuaStatement> }];
+    | [Babel.BlockStatement & { body: NonEmptyArray<LuaStatement> }];
 } => {
   return (
     (switchCase.consequent.length &&
       switchCase.consequent.some(
-        (statement) => !isBlockStatement(statement)
+        (statement) => !Babel.isBlockStatement(statement)
       )) ||
     (switchCase.consequent.length === 1 &&
       applyTo(
         switchCase.consequent[0],
-        (statement) => isBlockStatement(statement) && !!statement.body.length
+        (statement) =>
+          Babel.isBlockStatement(statement) && !!statement.body.length
       ))
   );
 };
 
-const isCaseReturningOrBreaking = (switchCase: SwitchCase): boolean => {
+const isCaseReturningOrBreaking = (switchCase: Babel.SwitchCase): boolean => {
   return (
     isDefaultSwitchCase(switchCase) ||
     isLastStatementReturnOrBreak(switchCase.consequent) ||
@@ -212,20 +205,20 @@ const isCaseReturningOrBreaking = (switchCase: SwitchCase): boolean => {
       applyTo(
         switchCase.consequent[0],
         (statement) =>
-          isBlockStatement(statement) &&
+          Babel.isBlockStatement(statement) &&
           isLastStatementReturnOrBreak(statement.body)
       ))
   );
 };
 
 const needsWrappingLoop = (
-  node: SwitchStatement,
+  node: Babel.SwitchStatement,
   switchCaseBody: LuaIfStatement
 ) => {
   const immediateBreakStatementsCount = node.cases
     .map((switchCase) =>
       switchCase.consequent.filter((statement) =>
-        isBabelBreakStatement(statement)
+        Babel.isBreakStatement(statement)
       )
     )
     .flat().length;
