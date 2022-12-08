@@ -23,6 +23,7 @@ import { createTsLiteralTypeHandler } from './ts-literal-type.handler';
 import { createTsNeverKeywordHandler } from './ts-never-keyword.handler';
 import { createTsNullKeywordHandler } from './ts-null-keyword.handler';
 import { createTsNumberKeywordHandler } from './ts-number-keyword.handler';
+import { createTsObjectKeywordHandler } from './ts-object-keyword.handler';
 import { createTsParenthesizedTypeHandler } from './ts-parenthesized-type.handler';
 import { createTsQualifiedNameHandler } from './ts-qualified-name.handler';
 import { createTsStringKeywordHandler } from './ts-string-keyword.handler';
@@ -63,6 +64,7 @@ export const createTsTypeAnnotationHandler = (
       createTsUnknownKeywordHandler(),
       createTsNeverKeywordHandler(),
       createTsNullKeywordHandler(),
+      createTsObjectKeywordHandler(),
       createTsTypeQueryHandler(handleIdentifierStrict),
       createTsTypePredicateHandler(),
       createTsTypeLiteralHandler(
