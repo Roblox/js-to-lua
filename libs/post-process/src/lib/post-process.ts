@@ -9,6 +9,7 @@ import { addNumberConsts } from './steps/add-number-consts';
 import { addPolyfills } from './steps/add-polyfills';
 import { addPromiseImport } from './steps/add-promise-import';
 import { addQualifiedNameImports } from './steps/add-qualified-name-imports';
+import { addRegExpImport } from './steps/add-regexp-import';
 import { addTsBuiltInTypes } from './steps/add-ts-built-in-types';
 import { addVoidPolyfillType } from './steps/add-void-polyfill-type';
 import { extractCopyrightComment } from './steps/extract-copyright-comment';
@@ -17,6 +18,7 @@ import { removeExtras } from './steps/remove-extras';
 
 const runStage = pipe(
   addExports,
+  addRegExpImport,
   addPromiseImport,
   addFlowBuiltInTypes,
   addTsBuiltInTypes,

@@ -30,6 +30,7 @@ import { handleBooleanLiteral } from '../primitives/boolean.handler';
 import { handleNullLiteral } from '../primitives/null.handler';
 import { handleNumericLiteral } from '../primitives/numeric.handler';
 import { createStringLiteralHandler } from '../primitives/string.handler';
+import { createRegExpLiteralHandler } from '../primitives/regexp.handler';
 import { createTemplateLiteralHandler } from '../primitives/template-literal.handler';
 import { createAssignmentExpressionHandlerFunction } from '../statement/assignment/assignment-expression.handler';
 import { createAssignmentPatternHandlerFunction } from '../statement/assignment/assignment-pattern.handler';
@@ -144,6 +145,7 @@ export const createExpressionHandler = (
       handleNumericLiteral,
       handleBigIntLiteral,
       createStringLiteralHandler(),
+      createRegExpLiteralHandler(),
       createTemplateLiteralHandler(forwardedHandleExpression),
       createThisExpressionHandler(),
       handleBooleanLiteral,

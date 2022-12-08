@@ -31,3 +31,4 @@ export * from './lib/type-reference-without-default-type';
 export * from './lib/unwrap-node-group';
 export * from './lib/valid-identifier';
 export * from './lib/visitor';
+export * from './lib/escape-pattern';
