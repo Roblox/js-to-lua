@@ -36,7 +36,8 @@ export function dedent(
   // fixes indentation by removing leading spaces and tabs from each line
   let indent = '';
   for (const char of trimmedStr) {
-    if (char !== ' ' && char !== '\t') {
+    // We only remove spaces or tabs indents and we don't want to mix spaces and tabs
+    if ((char !== ' ' && char !== '\t') || (indent && indent.at(0) !== char)) {
       break;
     }
     indent += char;

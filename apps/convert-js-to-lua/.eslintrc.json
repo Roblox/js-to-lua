@@ -7,12 +7,10 @@
       "rules": {}
     },
     {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
-      "rules": {}
+      "files": ["conformance-tests/conformance.config.ts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
     }
   ]
 }

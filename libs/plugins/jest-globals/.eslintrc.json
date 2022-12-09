@@ -7,12 +7,10 @@
       "rules": {}
     },
     {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
-      "rules": {}
+      "files": ["src/lib/plugins-jest-globals.ts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
     }
   ]
 }

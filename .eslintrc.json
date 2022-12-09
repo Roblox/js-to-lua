@@ -1,7 +1,11 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx"],
+  "plugins": ["@nrwl/nx", "import", "filenames"],
+  "rules": {
+    "import/no-default-export": "error",
+    "filenames/match-regex": ["error", "^[a-z-\\._0-9]+$"]
+  },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -156,6 +160,12 @@
       "files": ["*.js", "*.jsx"],
       "extends": ["plugin:@nrwl/nx/javascript"],
       "rules": {}
+    },
+    {
+      "files": ["./*.config.ts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
     }
   ]
 }

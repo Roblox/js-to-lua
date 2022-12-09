@@ -25,7 +25,6 @@ import {
   ComparisonResponse,
   ConflictsSummary,
   ConversionOptions,
-  MergeSection,
   UpstreamFileMap,
   UpstreamReference,
 } from './diff-tool.types';
@@ -33,6 +32,12 @@ import { JsToLuaOptions } from './js-to-lua.types';
 import { logConflictsSummary } from './log-conflicts-summary';
 import { renameFiles } from './rename-files';
 import { applyKnownDeviations } from './deviations';
+import {
+  allConflictsFrom,
+  ConflictStrategy,
+  keepCurrent,
+  upgradeVersionHeader,
+} from './conflict';
 
 export * from './diff-tool.types';
 export * from './js-to-lua.types';
@@ -594,36 +599,24 @@ function extractUpstreamReferenceFromUrl(
  */
 async function resolveMergeConflicts(file: string) {
   const contents = await readFile(file, { encoding: 'utf-8' });
+  const conflicts = allConflictsFrom(contents);
 
-  let sectionType = MergeSection.Resolved;
-  let resolvedContents = '';
-  let count = 0;
-  let lineCount = 0;
-  let lineSum = 0;
+  const strategies: ConflictStrategy[] = [upgradeVersionHeader];
+  const [resolvedContents, unresolvedConflicts] = strategies.reduce(
+    ([toParse, unresolvedConflicts], strategy) =>
+      strategy(toParse, unresolvedConflicts),
+    [contents, conflicts]
+  );
 
-  for (const line of contents.split('\n')) {
-    lineCount++;
-    if (line.startsWith('<<<<<<<')) {
-      sectionType = MergeSection.Current;
-      count++;
-      lineCount = 0;
-    } else if (line.startsWith('=======')) {
-      sectionType = MergeSection.Incoming;
-      lineCount--;
-    } else if (line.startsWith('>>>>>>>')) {
-      sectionType = MergeSection.Resolved;
-      lineSum += lineCount - 1;
-    } else if (
-      sectionType === MergeSection.Resolved ||
-      sectionType === MergeSection.Current
-    ) {
-      resolvedContents += line + '\n';
-    }
-  }
+  const count = unresolvedConflicts.length;
+  const lineSum = unresolvedConflicts.reduce(
+    (sum, conflict) => sum + conflict.length,
+    0
+  );
 
-  resolvedContents = `${resolvedContents.trimEnd()}\n`;
+  const [finalContents] = keepCurrent(resolvedContents, unresolvedConflicts);
 
-  await writeFile(file, resolvedContents);
+  await writeFile(file, finalContents);
   return count > 0 ? { [file]: { conflicts: count, lines: lineSum } } : {};
 }
 
