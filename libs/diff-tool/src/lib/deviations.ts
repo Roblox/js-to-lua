@@ -69,7 +69,7 @@ export const applyKnownDeviations = (left: string, right: string): string => {
     const flatRight = patchedRight.replaceAll(/^\t*/gm, '');
     const blockCharacterIndex = flatRight.indexOf(badCode); // The index of the first character indicating the block of troublesome code
 
-    if (blockCharacterIndex === -1) {
+    if (blockCharacterIndex === -1 || !badCode) {
       return patchedRight; // troublesome code is no longer in upstream, no need to patch
     }
 

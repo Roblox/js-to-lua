@@ -229,5 +229,18 @@ describe('deviations', () => {
         -- local bar = "string with tab characters '\t\t\t' inside"
         -- ROBLOX deviation END`);
     });
+
+    it('prevents inserting deviations without comment body', () => {
+      const left = dedent`
+        -- ROBLOX deviation START
+        local foo = "my awesome string"
+        -- ROBLOX deviation END`;
+      const right = dedent`
+        local just = "first string"
+        local some = "second string"
+        local definitions = "third string"`;
+
+      expect(applyKnownDeviations(left, right)).toBe(right);
+    });
   });
 });
