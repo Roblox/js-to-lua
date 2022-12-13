@@ -1,2 +1,2 @@
+export * from './lib/conversion-config';
 export * from './lib/release-tracker';
-export * from './lib/release-tracker.types';

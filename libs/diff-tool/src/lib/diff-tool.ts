@@ -542,7 +542,10 @@ async function getUpstreamSourceReferences(
 
   let sources: string[] = [];
   for (const pattern of config.downstream.patterns) {
-    const files = await glob(pattern, { cwd: downstreamPath });
+    const files = await glob(pattern, {
+      cwd: downstreamPath,
+      ignore: config.downstream.ignorePatterns,
+    });
     sources = sources.concat(files);
   }
 

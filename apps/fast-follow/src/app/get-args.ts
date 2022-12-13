@@ -157,7 +157,7 @@ export function setupCommands({
       }
     )
     .command(
-      'release-scan',
+      'release-scan <sourceDir>',
       'scan a repository for new releases and notify about changes made upstream.',
       (yargs) => yargs.positional(...sourceDirArg).option(...channelArg),
       async (argv) => {
@@ -166,7 +166,7 @@ export function setupCommands({
       }
     )
     .command(
-      'commit-scan',
+      'commit-scan <sourceDir>',
       'scan a repository for new commits and notify about changes made upstream.',
       (yargs) => yargs.option(...channelArg),
       (argv) => {
