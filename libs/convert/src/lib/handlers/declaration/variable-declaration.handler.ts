@@ -38,7 +38,7 @@ import {
   variableDeclaratorIdentifier,
   variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
-import { isTruthy, splitBy } from '@js-to-lua/shared-utils';
+import { splitBy } from '@js-to-lua/shared-utils';
 import {
   IdentifierHandlerFunction,
   IdentifierStrictHandlerFunction,
@@ -347,7 +347,9 @@ export const createVariableDeclarationHandler = (
         }
       ): (LuaVariableDeclaration | UnhandledStatement)[] {
         const init = handleExpression(source, config, declarator.init);
-        const elements = declarator.id.elements.filter(isTruthy);
+        const elements = declarator.id.elements.map(
+          (x) => x || Babel.arrayPattern([])
+        );
         if (hasUnhandledArrayDestructuringParam(elements)) {
           return [
             withTrailingConversionComment(

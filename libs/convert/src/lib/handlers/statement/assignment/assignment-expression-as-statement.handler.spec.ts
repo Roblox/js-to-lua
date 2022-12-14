@@ -206,6 +206,30 @@ describe('Assignment Statement Handler', () => {
       ).toEqual(expected);
     });
 
+    it(`should handle array destructuring with missing values`, () => {
+      const given = babelAssignmentExpression(
+        '=',
+        arrayPattern([null, babelIdentifier('a')]),
+        babelIdentifier('values')
+      );
+
+      const expected = asStatementReturnTypeWithIdentifier(
+        [
+          assignmentStatement(
+            AssignmentStatementOperatorEnum.EQ,
+            [identifier('a')],
+            [indexExpression(identifier('values'), numericLiteral(2))]
+          ),
+        ],
+        [],
+        identifier('values')
+      );
+
+      expect(
+        handleAssignmentExpressionAsStatement.handler(source, {}, given)
+      ).toEqual(expected);
+    });
+
     it(`should handle array destructuring with nested arrays`, () => {
       const given = babelAssignmentExpression(
         '=',

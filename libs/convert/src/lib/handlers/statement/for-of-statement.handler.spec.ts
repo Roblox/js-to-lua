@@ -4,8 +4,13 @@ import { withTrailingConversionComment } from '@js-to-lua/lua-conversion-utils';
 import {
   forGenericStatement,
   identifier,
+  indexExpression,
   nodeGroup,
+  numericLiteral,
   unhandledStatement,
+  variableDeclaration,
+  variableDeclaratorIdentifier,
+  variableDeclaratorValue,
 } from '@js-to-lua/lua-types';
 import {
   mockNodeWithValue,
@@ -78,6 +83,48 @@ describe('For Of statement Handler', () => {
             )
           ),
         ]),
+      ]
+    );
+
+    expect(handleForOfStatement.handler(source, {}, given)).toEqual(expected);
+  });
+
+  it(`should handle loop with array pattern and missing variables`, () => {
+    const source = 'bar';
+
+    const given = Babel.forOfStatement(
+      Babel.variableDeclaration('const', [
+        Babel.variableDeclarator(
+          Babel.arrayPattern([null, Babel.identifier('foo')])
+        ),
+      ]),
+      withLocation({ start: 0, end: 3 })(Babel.identifier('bar')),
+      Babel.blockStatement([])
+    );
+
+    const expected = forGenericStatement(
+      [identifier('_'), identifier('ref')],
+      [
+        mockNodeWithValue(
+          withLocation({ start: 0, end: 3 })(Babel.identifier('bar'))
+        ),
+      ],
+      [
+        nodeGroup([
+          variableDeclaration(
+            [
+              variableDeclaratorIdentifier(
+                mockNodeWithValue(Babel.identifier('foo'))
+              ),
+            ],
+            [
+              variableDeclaratorValue(
+                indexExpression(identifier('ref'), numericLiteral(2))
+              ),
+            ]
+          ),
+        ]),
+        nodeGroup([]),
       ]
     );
 

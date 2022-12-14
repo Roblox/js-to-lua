@@ -202,6 +202,83 @@ describe('Variable Declaration', () => {
     );
   });
 
+  it(`should handle array destructuring with missing values`, () => {
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.arrayPattern([null, Babel.identifier('bar')]),
+        Babel.identifier('baz')
+      ),
+    ]);
+
+    const expected = variableDeclaration(
+      [variableDeclaratorIdentifier(identifier('bar'))],
+      [
+        variableDeclaratorValue(
+          indexExpression(identifier('baz'), numericLiteral(2))
+        ),
+      ]
+    );
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
+
+  it(`should handle array destructuring with large missing values`, () => {
+    const given = Babel.variableDeclaration('let', [
+      Babel.variableDeclarator(
+        Babel.arrayPattern([
+          null,
+          Babel.identifier('a'),
+          null,
+          null,
+          Babel.identifier('b'),
+          Babel.identifier('c'),
+          null,
+          Babel.identifier('e'),
+        ]),
+        Babel.identifier('values')
+      ),
+    ]);
+
+    const expected = nodeGroup([
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('a'))],
+        [
+          variableDeclaratorValue(
+            indexExpression(identifier('values'), numericLiteral(2))
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [
+          variableDeclaratorIdentifier(identifier('b')),
+          variableDeclaratorIdentifier(identifier('c')),
+        ],
+        [
+          variableDeclaratorValue(
+            tableUnpackCall(
+              identifier('values'),
+              numericLiteral(5),
+              numericLiteral(6)
+            )
+          ),
+        ]
+      ),
+      variableDeclaration(
+        [variableDeclaratorIdentifier(identifier('e'))],
+        [
+          variableDeclaratorValue(
+            indexExpression(identifier('values'), numericLiteral(8))
+          ),
+        ]
+      ),
+    ]);
+
+    expect(handleVariableDeclaration.handler(source, {}, given)).toEqual(
+      expected
+    );
+  });
   it(`should handle array destructuring with nested arrays`, () => {
     const given = Babel.variableDeclaration('let', [
       Babel.variableDeclarator(

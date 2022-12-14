@@ -1,9 +1,4 @@
-import {
-  ArrayPattern,
-  AssignmentExpression,
-  Expression,
-  LVal,
-} from '@babel/types';
+import * as Babel from '@babel/types';
 import {
   asStatementReturnTypeWithIdentifier,
   createAsStatementHandlerFunction,
@@ -30,15 +25,18 @@ import {
 
 export const createArrayPatternDestructuringAssignmentAsStatementHandlerFunction =
   (
-    handleExpression: HandlerFunction<LuaExpression, Expression>,
-    handleLVal: HandlerFunction<LuaLVal, LVal>
+    handleExpression: HandlerFunction<LuaExpression, Babel.Expression>,
+    handleLVal: HandlerFunction<LuaLVal, Babel.LVal>
   ) => {
     return createAsStatementHandlerFunction<
       LuaStatement,
-      AssignmentExpression & { left: ArrayPattern }
+      Babel.AssignmentExpression & { left: Babel.ArrayPattern }
     >((source, config, node) => {
       const arrayPatternDestructuringHandler =
         createArrayPatternDestructuringHandler(handleExpression);
+      const elements = node.left.elements.map(
+        (x) => x || Babel.arrayPattern([])
+      );
       if (
         hasUnhandledArrayDestructuringParam(node.left.elements.filter(isTruthy))
       ) {
@@ -59,7 +57,7 @@ export const createArrayPatternDestructuringAssignmentAsStatementHandlerFunction
       const assignmentStatements = arrayPatternDestructuringHandler(
         source,
         config,
-        node.left.elements.filter(isTruthy),
+        elements,
         expression
       ).map((item) =>
         assignmentStatement(

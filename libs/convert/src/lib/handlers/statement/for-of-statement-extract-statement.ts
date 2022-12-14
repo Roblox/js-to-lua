@@ -102,6 +102,7 @@ export const createExtractForOfAssignmentStatement = (
         ),
       };
     } else if (Babel.isArrayPattern(left)) {
+      const elements = left.elements.map((x) => x || Babel.arrayPattern([]));
       const arrayPatternDestructuringHandler =
         createArrayPatternDestructuringHandler(handleExpression);
       if (hasUnhandledArrayDestructuringParam(left.elements.filter(isTruthy))) {
@@ -110,7 +111,7 @@ export const createExtractForOfAssignmentStatement = (
       const destructured = arrayPatternDestructuringHandler(
         source,
         config,
-        left.elements.filter(isTruthy),
+        elements,
         refIdentifier
       ).map((item) =>
         assignmentOrDeclaration(
