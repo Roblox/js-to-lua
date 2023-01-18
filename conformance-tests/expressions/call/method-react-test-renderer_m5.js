@@ -1,0 +1,1 @@
+ReactTestRenderer.create(something)

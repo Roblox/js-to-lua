@@ -66,6 +66,8 @@ export const USE_DOT_NOTATION_IN_CALL_EXPRESSION: Array<
   string | MemberExpressionPredicate
 > = [
   'React',
+  'ReactIs',
+  'ReactTestRenderer',
   'Object',
   'Array',
   'jest',

@@ -1,0 +1,1 @@
+ReactIs.isValidElementType(something)

@@ -426,6 +426,103 @@ describe('Call Expression Handler', () => {
       expect(convertProgram(source, {}, given)).toEqual(expected);
     });
 
+    it(`should handle ReactIs object`, () => {
+      const given = getProgramNode(`
+        ReactIs.isValidElementType(something)
+        ReactIs['isValidElementType'](something)
+        ReactIs.foo()
+        ReactIs['foo']()
+      `);
+
+      const expected = programWithUpstreamComment([
+        expressionStatement(
+          callExpression(
+            memberExpression(
+              identifier('ReactIs'),
+              '.',
+              identifier('isValidElementType')
+            ),
+            [identifier('something')]
+          )
+        ),
+        expressionStatement(
+          callExpression(
+            indexExpression(
+              identifier('ReactIs'),
+              stringLiteral('isValidElementType')
+            ),
+            [identifier('something')]
+          )
+        ),
+        expressionStatement(
+          callExpression(
+            memberExpression(identifier('ReactIs'), '.', identifier('foo')),
+            []
+          )
+        ),
+        expressionStatement(
+          callExpression(
+            indexExpression(identifier('ReactIs'), stringLiteral('foo')),
+            []
+          )
+        ),
+      ]);
+
+      expect(convertProgram(source, {}, given)).toEqual(expected);
+    });
+
+    it(`should handle ReactTestRenderer object`, () => {
+      const given = getProgramNode(`
+        ReactTestRenderer.create(something)
+        ReactTestRenderer['create'](something)
+        ReactTestRenderer.foo()
+        ReactTestRenderer['foo']()
+      `);
+
+      const expected = programWithUpstreamComment([
+        expressionStatement(
+          callExpression(
+            memberExpression(
+              identifier('ReactTestRenderer'),
+              '.',
+              identifier('create')
+            ),
+            [identifier('something')]
+          )
+        ),
+        expressionStatement(
+          callExpression(
+            indexExpression(
+              identifier('ReactTestRenderer'),
+              stringLiteral('create')
+            ),
+            [identifier('something')]
+          )
+        ),
+        expressionStatement(
+          callExpression(
+            memberExpression(
+              identifier('ReactTestRenderer'),
+              '.',
+              identifier('foo')
+            ),
+            []
+          )
+        ),
+        expressionStatement(
+          callExpression(
+            indexExpression(
+              identifier('ReactTestRenderer'),
+              stringLiteral('foo')
+            ),
+            []
+          )
+        ),
+      ]);
+
+      expect(convertProgram(source, {}, given)).toEqual(expected);
+    });
+
     describe('should handle Jest expect calls', () => {
       it(`direct method call`, () => {
         const given = getProgramNode(`
