@@ -3,10 +3,9 @@ import * as crypto from 'crypto';
 import { copyFile, readFile, writeFile } from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
-import { GitError } from 'simple-git';
 
-const PATCH_ERROR_REGEX = /^error: (.*):(.*)$/;
-const DIFF_FILE_HEADER_REGEX = /^diff --git a\/output\/(.*) b\/output\/(.*)$/;
+const PATCH_ERROR_REGEX = /^error: (.*):(.*)$/m;
+const DIFF_FILE_HEADER_REGEX = /^diff --git a\/(.*) b\/(.*)$/;
 
 /**
  * Attempt to apply a patch to the target repository. Whenever files in the
@@ -16,7 +15,8 @@ const DIFF_FILE_HEADER_REGEX = /^diff --git a\/output\/(.*) b\/output\/(.*)$/;
  */
 export async function attemptFixPatch(
   targetRepository: string,
-  patchPath: string
+  patchPath: string,
+  patchStack: string[] = []
 ) {
   const newPatchFilename = `${crypto.randomBytes(16).toString('hex')}.patch`;
   const newPatchPath = path.join(os.tmpdir(), newPatchFilename);
@@ -30,11 +30,13 @@ export async function attemptFixPatch(
 
   do {
     try {
-      await applyPatch(targetRepository, newPatchPath, { check: true });
+      await applyPatch(targetRepository, [...patchStack, newPatchPath], {
+        check: true,
+      });
 
       failedFiles = new Set();
     } catch (e) {
-      if (e instanceof GitError) {
+      if (hasMessage(e) && PATCH_ERROR_REGEX.test(e.message)) {
         const message = e.message;
 
         if (message === lastError) {
@@ -97,4 +99,12 @@ async function removeFilesFromUnifiedDiff(
   }
 
   return filteredPatch;
+}
+
+function hasMessage(object: unknown): object is { message: string } {
+  return (
+    !!object &&
+    'message' in object &&
+    typeof (object as Record<string, unknown>).message === 'string'
+  );
 }

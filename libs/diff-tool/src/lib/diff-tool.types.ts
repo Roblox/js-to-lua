@@ -14,7 +14,7 @@ export interface ComparisonResponse {
   failedFiles: Set<string>;
   stdout: string;
   stderr: string;
-  patchPath: string;
+  patches: string[];
   revision: string;
   conflictsSummary: ConflictsSummary;
 }

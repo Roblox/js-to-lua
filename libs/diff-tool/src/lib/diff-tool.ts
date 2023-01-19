@@ -54,6 +54,8 @@ const DEFAULT_PATCH_NAME = 'fast-follow.patch';
 const ROBLOX_UPSTREAM_REGEX = /-- ROBLOX upstream: (.*$)/;
 const GITHUB_URL_REF_REGEX = /blob\/(.*?)\/(.*$)/;
 
+const TAG_PATCH_START = 'PATCH_START';
+
 /**
  * Generate a unified diff containing non-conflicting upstream changes in files
  * that contain an upstream reference.
@@ -78,7 +80,7 @@ export async function compare(
 
   try {
     process.chdir(downstreamPath);
-    const { conflictsSummary, patchPath, failedFiles, stdout, stderr } =
+    const { conflictsSummary, failedFiles, patches, stdout, stderr } =
       await Promise.resolve({
         conversionDir: path.join(os.tmpdir(), 'fast-follow-conversion'),
         git: gitClient,
@@ -98,16 +100,20 @@ export async function compare(
         .then(generatePatchStep('fast-follow-conflicts.patch'))
         .then(applyPatchStep())
         .then(resolveConflictsStep())
-        .then(generatePatchStep());
+        .then(generatePatchStep())
+        .then(applyPatchStep());
 
     return {
       failedFiles,
       stdout,
       stderr,
-      patchPath,
+      patches,
       revision: targetRevision,
       conflictsSummary,
     };
+  } catch (e) {
+    console.log(e);
+    throw e;
   } finally {
     process.chdir(originalDir);
   }
@@ -146,7 +152,10 @@ export async function compare(
       // with the current one.
       await rm(conversionDir, { recursive: true, force: true });
       await mkdir(conversionDir, { recursive: true });
-      await mkdir(`${conversionDir}/${DEFAULT_CONVERSION_INPUT_DIR}`, {
+      await mkdir(path.join(conversionDir, DEFAULT_CONVERSION_INPUT_DIR), {
+        recursive: true,
+      });
+      await mkdir(path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR), {
         recursive: true,
       });
       process.chdir(conversionDir);
@@ -160,9 +169,8 @@ export async function compare(
       params: StepParams & T
     ): Promise<StepParams & T> => {
       const { git, conversionDir } = params;
-      await git.cwd(conversionDir);
+      await git.cwd(path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR));
       await git.init();
-      await git.branch(['-m', 'main']);
 
       return params;
     };
@@ -281,7 +289,7 @@ export async function compare(
           await writeFile(pathRight, result, { encoding: 'utf-8' });
         })
       );
-      await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
+      await git.add('.');
       await git.commit('port: apply deviations');
 
       return params;
@@ -308,6 +316,7 @@ export async function compare(
         'port: latest downstream version',
         config.downstream.primaryBranch
       );
+      await git.addTag(TAG_PATCH_START);
 
       return params;
     };
@@ -337,9 +346,12 @@ export async function compare(
   }
 
   function generatePatchStep(patchName?: string) {
-    return async <T extends Record<string, unknown> & ConversionDirParam>(
+    return async <
+      T extends Record<string, unknown> &
+        ConversionDirParam & { patches?: string[] }
+    >(
       params: StepParams & T
-    ): Promise<StepParams & T & { patchPath: string }> => {
+    ): Promise<StepParams & T & { patches: string[] }> => {
       const { conversionDir } = params;
       // Step 5: Generate a patch file in the current working directory.
 
@@ -350,39 +362,62 @@ export async function compare(
         patchName
       );
 
-      return { ...params, patchPath };
+      return { ...params, patches: [...(params.patches ?? []), patchPath] };
     };
   }
 
   function applyPatchStep() {
-    return async <T extends Record<string, unknown> & { patchPath: string }>(
+    return async <
+      T extends Record<string, unknown> & {
+        patches: string[];
+        failedFiles?: Set<string>;
+      }
+    >(
       params: StepParams & T
     ): Promise<StepParams & T & { failedFiles: Set<string> }> => {
       // Step 6: Apply the patch file to the repository.
 
       const { patchPath: newPatchPath, failedFiles: failedFilesFromFix } =
-        await attemptFixPatch(downstreamPath, params.patchPath);
+        await attemptFixPatch(
+          downstreamPath,
+          params.patches[params.patches.length - 1],
+          params.patches.slice(0, params.patches.length - 1)
+        );
 
       console.log(`✅ ...done! Patch file written to '${newPatchPath}'\n`);
+      if (failedFilesFromFix.size !== 0) {
+        console.log('\n===Failed Files===');
+        console.log([...failedFilesFromFix].join('\n'));
+        console.log('======\n');
+      }
 
       return {
         ...params,
-        patchPath: newPatchPath,
-        failedFiles: failedFilesFromFix,
+        failedFiles: new Set([
+          ...failedFilesFromFix,
+          ...(params.failedFiles ?? []),
+        ]),
       };
     };
   }
 
   function resolveConflictsStep() {
-    return async <T extends { patchPath: string; gitSummary: MergeResult }>(
+    return async <
+      T extends {
+        gitSummary: MergeResult;
+      } & ConversionDirParam
+    >(
       params: StepParams & T
     ) => {
       const { git, gitSummary: summary } = params;
       let conflictsSummary: ConflictsSummary = {};
 
-      await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
-      await git.commit('port: store conflicted merge', { '--amend': null });
+      await git.add('.');
+      await git.commit('port: store unconflicted changes');
 
+      process.chdir(
+        path.resolve(params.conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR)
+      );
       for (const conflict of summary.conflicts) {
         if (conflict.file) {
           conflictsSummary = {
@@ -391,9 +426,10 @@ export async function compare(
           };
         }
       }
+      process.chdir(params.conversionDir);
 
       logConflictsSummary(conflictsSummary);
-      await git.add(DEFAULT_CONVERSION_OUTPUT_DIR);
+      await git.add('.');
       await git.commit('port: resolve conflicts for final patch');
 
       return { ...params, conflictsSummary };
@@ -424,9 +460,34 @@ async function convertUpstreamSources(
   let stdout = '';
   let stderr = '';
 
+  const git = simpleGit();
+
+  // Ensure references are up to date before copying files.
+  const refs = Object.values(fileMap).reduce(
+    (prev, cur) => prev.add(cur.ref),
+    new Set<string>()
+  );
+  await Promise.allSettled(
+    Array.from(refs).map((reference) => git.fetch('origin', reference))
+  );
+
   await Promise.allSettled(
     Object.values(fileMap).map((reference) =>
-      copyUpstreamFile(upstreamPath, reference.path, targetRef ?? reference.ref)
+      copyUpstreamFile(
+        upstreamPath,
+        reference.path,
+        targetRef ?? reference.ref
+      ).catch((e) => {
+        if (reference.path.endsWith('.js')) {
+          return copyUpstreamFile(
+            upstreamPath,
+            reference.path.replace('.js', '.ts'),
+            targetRef ?? reference.ref
+          );
+        } else {
+          throw e;
+        }
+      })
     )
   );
 
@@ -446,7 +507,7 @@ async function convertUpstreamSources(
   await renameFiles(DEFAULT_CONVERSION_OUTPUT_DIR, config);
 
   const outputDir = path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR);
-  await commitFiles(conversionDir, outputDir, message);
+  await commitFiles(outputDir, outputDir, message);
 
   return { stdout, stderr };
 }
@@ -468,14 +529,16 @@ async function copyDownstreamSources(
   );
 
   const outputDir = path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR);
-  await commitFiles(conversionDir, outputDir, message);
+  await commitFiles(outputDir, outputDir, message);
 }
 
 /**
  * Merge upstream changes inside of the temporary repo with the downstream ones.
  */
 async function mergeUpstreamChanges(conversionDir: string, message: string) {
-  const git = simpleGit(conversionDir);
+  const git = simpleGit(
+    path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR)
+  );
 
   let summary: MergeResult;
   let stdout = '';
@@ -499,7 +562,12 @@ async function mergeUpstreamChanges(conversionDir: string, message: string) {
     .map((conflict) => conflict.file)
     .filter(isTruthy);
 
-  await commitFiles(conversionDir, conflictFiles, message);
+  await git.raw('restore', '--staged', '.');
+  await commitFiles(
+    path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR),
+    conflictFiles,
+    message
+  );
 
   return { stdout, stderr, gitSummary: summary };
 }
@@ -634,35 +702,33 @@ async function copyUpstreamFile(
 ) {
   const git = simpleGit();
 
-  try {
-    await git.cwd(path.resolve(upstreamDir));
-    const contents = await git.show(`${upstreamRef}:${upstreamFilePath}`);
+  const attemptCopy = async (filePath: string) => {
+    try {
+      await git.cwd(path.resolve(upstreamDir));
+      const contents = await git.show(`${upstreamRef}:${filePath}`);
 
-    await mkdir(
-      path.join(
-        DEFAULT_CONVERSION_INPUT_DIR,
-        upstreamRef,
-        upstreamFilePath,
-        '..'
-      ),
-      {
-        recursive: true,
-      }
-    );
-    await writeFile(
-      path.join(DEFAULT_CONVERSION_INPUT_DIR, upstreamRef, upstreamFilePath),
-      contents
-    );
-  } catch (e) {
-    if (e instanceof GitError) {
-      console.error(
-        'warn: unable to find upstream ref for downstream file:',
-        e.message.trim()
+      await mkdir(
+        path.join(DEFAULT_CONVERSION_INPUT_DIR, upstreamRef, filePath, '..'),
+        {
+          recursive: true,
+        }
       );
-    } else {
-      throw e;
+      await writeFile(
+        path.join(DEFAULT_CONVERSION_INPUT_DIR, upstreamRef, filePath),
+        contents
+      );
+    } catch (e) {
+      if (e instanceof GitError) {
+        console.error(
+          'warn: unable to find upstream ref for downstream file:',
+          e.message.trim()
+        );
+      } else {
+        throw e;
+      }
     }
-  }
+  };
+  await attemptCopy(upstreamFilePath);
 }
 
 async function copyDownstreamFile(
@@ -709,29 +775,12 @@ async function generatePatch(
 ): Promise<string> {
   const git = simpleGit();
 
-  await git.cwd(conversionDir);
-  const contents = (await git.diff(['HEAD~1'])).split('\n');
-
-  const patch = contents
-    .map((line) => {
-      if (line.startsWith('--- a/')) {
-        return line.replace(
-          `--- a/${DEFAULT_CONVERSION_OUTPUT_DIR}/`,
-          '--- a/'
-        );
-      } else if (line.startsWith('+++ b/')) {
-        return line.replace(
-          `+++ b/${DEFAULT_CONVERSION_OUTPUT_DIR}/`,
-          '+++ b/'
-        );
-      } else {
-        return line;
-      }
-    })
-    .join('\n');
-
+  await git.cwd(path.join(conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR));
+  const contents = await git.diff([TAG_PATCH_START, 'HEAD']);
+  await git.tag(['-f', TAG_PATCH_START]);
   const patchPath = path.join(outputDir, patchName || DEFAULT_PATCH_NAME);
-  await writeFile(patchPath, patch);
+
+  await writeFile(patchPath, contents);
 
   return patchPath;
 }

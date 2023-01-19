@@ -51,16 +51,15 @@ export const upgrade = async (
 
   console.log(`New release found: ${revision}. Starting conversion...`);
 
-  const { patchPath, failedFiles, conflictsSummary } =
-    await compareSinceLastSync(
-      {
-        sourceDir,
-        outDir,
-        revision,
-        log,
-      },
-      jsToLuaOptions
-    );
+  const { patches, failedFiles, conflictsSummary } = await compareSinceLastSync(
+    {
+      sourceDir,
+      outDir,
+      revision,
+      log,
+    },
+    jsToLuaOptions
+  );
 
   const descriptionData = {
     failedFiles,
@@ -72,7 +71,7 @@ export const upgrade = async (
 
   return applyPatch({
     sourceDir,
-    patchPath,
+    patchPath: patches[patches.length - 1],
     revision,
     log,
     channel,

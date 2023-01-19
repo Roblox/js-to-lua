@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec } from 'node:child_process';
 import { dirname } from 'path';
 import { identity, memoizeWith } from 'ramda';
 import { simpleGit } from 'simple-git';
@@ -52,17 +52,22 @@ export const commitFiles = async (
   console.log('Committed: ', message);
 };
 
+/**
+ * Manual override for simple-gits patch method
+ *
+ * This version allows you to actually stack patches. Allowing to see whether
+ * our latest patch would work on top of earlier (e.g., conflicts) patches.
+ */
 export const applyPatch = async (
   rootDir: string,
-  patchPath: string,
+  patchPath: string | string[],
   options?: { check: boolean }
-) => {
-  const git = simpleGit(rootDir);
-  const patchOptions = [];
-
-  if (options?.check) {
-    patchOptions.push('--check');
-  }
-
-  return git.applyPatch(patchPath, patchOptions);
+): Promise<string> => {
+  const { stdout, stderr } = await promisify(exec)(
+    `cat ${
+      typeof patchPath === 'string' ? patchPath : patchPath.join(' ')
+    } | git apply${options?.check ? ' --check' : ''}`,
+    { cwd: rootDir }
+  );
+  return stdout + stderr;
 };

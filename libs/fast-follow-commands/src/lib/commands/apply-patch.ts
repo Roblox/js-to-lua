@@ -26,8 +26,6 @@ export type ApplyPatchOptions = GenericOptions & {
   };
 };
 
-const DEFAULT_CONVERSION_OUTPUT_DIR = 'output';
-
 /**
  * apply patch file to a generated branch, push to remote and send Slack message when done
  */
@@ -57,8 +55,8 @@ export async function applyPatch(options: ApplyPatchOptions) {
   console.log('checking out branch...');
   await git.cwd(downstreamRepoRoot);
   await git.checkout(config.downstream.primaryBranch);
-  await git.deleteLocalBranch(id).catch(() => {
-    /* do nothing */
+  await git.deleteLocalBranch(id, true).catch(() => {
+    // Branch didn't exist, perfect!
   });
   await git.checkoutBranch(id, config.downstream.primaryBranch);
 
@@ -72,6 +70,7 @@ export async function applyPatch(options: ApplyPatchOptions) {
     if (!(e instanceof GitError)) {
       throw e;
     }
+    console.log(e.message);
     console.log('There seem to be no conflicts to apply');
   }
 
@@ -88,6 +87,7 @@ export async function applyPatch(options: ApplyPatchOptions) {
     }
     // Stacking the patches fail if there were no conflicts and no deviations.
     // We can use the previous commit as the patch commit in that case.
+    console.log(e.message);
     await git.commit('fast-follow - apply patch', { '--amend': null });
   }
 
@@ -112,10 +112,10 @@ export async function applyPatch(options: ApplyPatchOptions) {
       description +=
         '\nSome files had conflicts that were automatically resolved:\n';
       description += Object.keys(conflictsSummary)
-        .map((key) => {
-          const filename = key.slice(DEFAULT_CONVERSION_OUTPUT_DIR.length + 1);
-          return `- [ ] ${filename}: ${conflictsSummary[key].conflicts} (lines: ${conflictsSummary[key].lines})`;
-        })
+        .map(
+          (key) =>
+            `- [ ] ${key}: ${conflictsSummary[key].conflicts} (lines: ${conflictsSummary[key].lines})`
+        )
         .join('\n');
     }
 

@@ -78,6 +78,7 @@ type execFileType = (
 describe('diffTool', () => {
   let execFile: jest.SpyInstance,
     gitCwd: jest.Mock,
+    addTag: jest.Mock,
     branch: jest.Mock,
     applyPatch: jest.Mock,
     checkIsRepo: jest.Mock,
@@ -91,6 +92,8 @@ describe('diffTool', () => {
     mergeFromTo: jest.Mock,
     diff: jest.Mock,
     show: jest.Mock,
+    tag: jest.Mock,
+    gitFetch: jest.Mock,
     init: jest.Mock,
     deleteLocalBranch: jest.Mock,
     mkdirSpy: jest.SpyInstance;
@@ -152,6 +155,7 @@ describe('diffTool', () => {
     jest.spyOn(process, 'cwd').mockImplementation(() => workingDir);
 
     gitCwd = jest.fn();
+    addTag = jest.fn();
     branch = jest.fn();
     applyPatch = jest.fn();
     checkIsRepo = jest.fn().mockReturnValue(true);
@@ -167,12 +171,15 @@ describe('diffTool', () => {
     );
     diff = jest.fn(() => '');
     show = jest.fn();
+    tag = jest.fn();
+    gitFetch = jest.fn();
     init = jest.fn();
     deleteLocalBranch = jest.fn();
 
     jest.spyOn(simpleGit, 'simpleGit').mockReturnValue({
       cwd: gitCwd,
       branch,
+      addTag,
       applyPatch,
       checkIsRepo,
       checkout,
@@ -185,6 +192,8 @@ describe('diffTool', () => {
       mergeFromTo,
       diff,
       show,
+      tag,
+      fetch: gitFetch,
       init,
       deleteLocalBranch,
     } as unknown as SimpleGit);
@@ -208,10 +217,7 @@ describe('diffTool', () => {
 
     expect(add).toHaveBeenCalled();
     expect(commit).toHaveBeenCalledTimes(8);
-    expect(branch).toHaveBeenCalledTimes(1);
-    expect(branch).toHaveBeenCalledWith(['-m', 'main']);
     expect(mergeFromTo).toHaveBeenCalledTimes(1);
-    expect(diff).toHaveBeenCalledWith(['HEAD~1']);
     expect(execFile).toHaveBeenCalledTimes(2);
     expect(execFile).toHaveBeenCalledWith(
       'node',
@@ -256,6 +262,7 @@ describe('diffTool', () => {
 
     jest.spyOn(simpleGit, 'simpleGit').mockReturnValue({
       cwd: gitCwd,
+      addTag,
       checkIsRepo,
       checkout,
       checkoutBranch,
@@ -266,6 +273,7 @@ describe('diffTool', () => {
       mergeFromTo,
       diff,
       show,
+      tag,
       init,
       deleteLocalBranch,
     } as unknown as SimpleGit);

@@ -1,13 +1,12 @@
 import * as utils from '@js-to-lua/upstream-utils';
 import * as fsPromise from 'fs/promises';
-import { GitError } from 'simple-git';
 import { attemptFixPatch } from './attempt-fix-patch';
 
 jest.mock('@js-to-lua/upstream-utils');
 const PATCH_PATH = 'path/to/patch';
 const FAILED_FILEPATH = 'src/test2.lua';
 
-const MOCK_PATCH_FILE_CONTENT = `diff --git a/output/src/test.lua b/output/src/test.lua
+const MOCK_PATCH_FILE_CONTENT = `diff --git a/src/test.lua b/src/test.lua
 index 9506e04..e4a2b53 100644
 --- a/src/test.lua
 +++ b/src/test.lua
@@ -19,7 +18,7 @@ index 9506e04..e4a2b53 100644
  ...
 `;
 
-const MOCK_PATCH_FILE_CONTENT_WONT_PATCH = `diff --git a/output/${FAILED_FILEPATH} b/output/${FAILED_FILEPATH}
+const MOCK_PATCH_FILE_CONTENT_WONT_PATCH = `diff --git a/${FAILED_FILEPATH} b/${FAILED_FILEPATH}
 index 9506e04..e4a2b53 100644
 --- a/${FAILED_FILEPATH}
 +++ b/${FAILED_FILEPATH}
@@ -71,16 +70,9 @@ describe('attemptFixPatch', () => {
     });
     mockUtils.applyPatch
       .mockImplementationOnce(() =>
-        Promise.reject(
-          new GitError(
-            {
-              commands: [],
-              format: 'empty',
-              parser: () => undefined,
-            },
-            `error: ${FAILED_FILEPATH}: something failed`
-          )
-        )
+        Promise.reject({
+          message: `error: ${FAILED_FILEPATH}: something failed`,
+        })
       )
       .mockImplementation(() => Promise.resolve('mocked'));
 

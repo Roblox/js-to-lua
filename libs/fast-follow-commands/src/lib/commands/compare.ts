@@ -73,7 +73,8 @@ export async function compareSinceLastSync(
     );
     stdout += comparisonResponse.stdout;
     stderr += comparisonResponse.stderr;
-    patchPath = comparisonResponse.patchPath;
+    patchPath =
+      comparisonResponse.patches[comparisonResponse.patches.length - 1];
     revision = comparisonResponse.revision;
     failedFiles = comparisonResponse.failedFiles;
     conflictsSummary = comparisonResponse.conflictsSummary;
@@ -106,7 +107,7 @@ export async function compareSinceLastSync(
   return {
     stdout,
     stderr,
-    patchPath,
+    patches: [patchPath],
     revision,
     failedFiles,
     conflictsSummary,
