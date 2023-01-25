@@ -19,6 +19,7 @@ import { createFlowNumberTypeAnnotationHandler } from './number-type-annotation.
 import { createFlowObjectTypeAnnotationHandler } from './object-type-annotation.handler';
 import { createStringLiteralTypeAnnotationHandler } from './string-literal-type-annotation.handler';
 import { createFlowStringTypeAnnotationHandler } from './string-type-annotation.handler';
+import { createTupleTypeAnnotationHandler } from './tuple-type-annotation.handler';
 import { createFlowTypeofTypeAnnotationHandler } from './typeof-type-annotation.handler';
 import { createUnionTypeAnnotationHandler } from './union-type-annotation.handler';
 import { createFlowVoidTypeAnnotationHandler } from './void-type-annotation.handler';
@@ -26,6 +27,7 @@ import { createFlowVoidTypeAnnotationHandler } from './void-type-annotation.hand
 export const createFlowTypeHandler = (
   handleIdentifierStrict: IdentifierStrictHandlerFunction
 ) => {
+  const forwardedHandleFlowType = forwardHandlerRef(() => handleFlowTypes);
   const handleFlowTypes: BaseNodeHandler<LuaType, FlowType> = combineHandlers<
     LuaType,
     FlowType
@@ -39,28 +41,23 @@ export const createFlowTypeHandler = (
       createFlowVoidTypeAnnotationHandler(),
       createFlowGenericTypeAnnotationHandler(
         handleIdentifierStrict,
-        forwardHandlerRef(() => handleFlowTypes)
+        forwardedHandleFlowType
       ),
-      createNullableTypeAnnotationHandler(
-        forwardHandlerRef(() => handleFlowTypes)
-      ),
+      createNullableTypeAnnotationHandler(forwardedHandleFlowType),
       createFunctionTypeAnnotationHandler(
         handleIdentifierStrict,
-        forwardHandlerRef(() => handleFlowTypes)
+        forwardedHandleFlowType
       ),
-      createUnionTypeAnnotationHandler(
-        forwardHandlerRef(() => handleFlowTypes)
-      ),
+      createUnionTypeAnnotationHandler(forwardedHandleFlowType),
       createFlowObjectTypeAnnotationHandler(
         handleIdentifierStrict,
-        forwardHandlerRef(() => handleFlowTypes)
+        forwardedHandleFlowType
       ),
-      createFlowTypeofTypeAnnotationHandler(
-        forwardHandlerRef(() => handleFlowTypes)
-      ),
+      createFlowTypeofTypeAnnotationHandler(forwardedHandleFlowType),
       createNullLiteralTypeAnnotationHandler(),
       createStringLiteralTypeAnnotationHandler(),
       createFlowMixedTypeAnnotationHandler(),
+      createTupleTypeAnnotationHandler(forwardedHandleFlowType),
     ],
     defaultTypeHandler
   );
