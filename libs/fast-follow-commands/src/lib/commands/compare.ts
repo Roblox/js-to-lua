@@ -11,6 +11,7 @@ import {
 } from '@roblox/version-manager';
 import { ExecException } from 'child_process';
 import { writeFile } from 'fs/promises';
+import { last } from 'ramda';
 import { getConfig } from './get-config';
 
 const STDOUT_FILENAME = 'fast-follow.stdout.log';
@@ -73,8 +74,7 @@ export async function compareSinceLastSync(
     );
     stdout += comparisonResponse.stdout;
     stderr += comparisonResponse.stderr;
-    patchPath =
-      comparisonResponse.patches[comparisonResponse.patches.length - 1];
+    patchPath = last(comparisonResponse.patches) || '';
     revision = comparisonResponse.revision;
     failedFiles = comparisonResponse.failedFiles;
     conflictsSummary = comparisonResponse.conflictsSummary;

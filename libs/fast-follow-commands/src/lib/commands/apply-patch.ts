@@ -85,6 +85,7 @@ export async function applyPatch(options: ApplyPatchOptions) {
     if (!(e instanceof GitError)) {
       throw e;
     }
+    console.log(e.message);
     // Stacking the patches fail if there were no conflicts and no deviations.
     // We can use the previous commit as the patch commit in that case.
     console.log(e.message);
@@ -111,12 +112,10 @@ export async function applyPatch(options: ApplyPatchOptions) {
       description += `\n\n### Summary of ${totalConflicts} conflicts in ${totalLines} lines\n`;
       description +=
         '\nSome files had conflicts that were automatically resolved:\n';
-      description += Object.keys(conflictsSummary)
-        .map(
-          (key) =>
-            `- [ ] ${key}: ${conflictsSummary[key].conflicts} (lines: ${conflictsSummary[key].lines})`
-        )
-        .join('\n');
+      description += Object.entries(conflictsSummary).map(
+        ([filename, summary]) =>
+          `- [ ] ${filename}: ${summary.conflicts} (lines: ${summary.lines})`
+      );
     }
 
     if (failedFiles.size) {

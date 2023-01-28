@@ -1,16 +1,39 @@
 import { ConflictStrategy } from './conflict.types';
+import { extractFromConflict, partiallyPatch } from './utilities';
+import { Conflict } from './conflict';
 
-const versionHeaderRegex = /^-- ROBLOX upstream:.*/;
+const versionHeaderRegex = /(^-- ROBLOX upstream:.*)\n?/m;
+
 export const upgradeVersionHeader: ConflictStrategy = (toParse, conflicts) => {
-  const [firstLine, secondLine] = conflicts[0]?.current?.split('\n') || [];
+  const firstConflict = conflicts[0];
 
-  // When there's just a single change in current, and that line matches the format of a Roblox version comment.
-  // We can safely replace it with the incoming change.
-  if (firstLine && !secondLine && versionHeaderRegex.test(firstLine)) {
+  if (!firstConflict?.hasContent()) {
+    return [toParse, conflicts];
+  }
+
+  if (
+    versionHeaderRegex.test(firstConflict.incoming) &&
+    versionHeaderRegex.test(firstConflict.current)
+  ) {
+    const newConflicts: [Conflict?, Conflict?] = [
+      extractFromConflict(firstConflict, versionHeaderRegex, 0),
+      extractFromConflict(firstConflict, versionHeaderRegex, 1),
+    ];
+    const versionMatch = firstConflict.incoming?.match(versionHeaderRegex);
+
     return [
-      toParse.replace(String(conflicts[0]), conflicts[0]?.incoming || ''),
-      conflicts.slice(1),
+      partiallyPatch(
+        toParse,
+        firstConflict,
+        versionMatch ? [versionMatch[1]] : [],
+        newConflicts
+      ),
+      [...conflicts, ...newConflicts].filter(
+        (conflict): conflict is Conflict =>
+          conflict != null && conflict !== firstConflict
+      ),
     ];
   }
+
   return [toParse, conflicts];
 };

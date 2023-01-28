@@ -35,7 +35,8 @@ import { applyKnownDeviations } from './deviations';
 import {
   allConflictsFrom,
   ConflictStrategy,
-  keepCurrent,
+  autoResolve,
+  matchComments,
   upgradeVersionHeader,
 } from './conflict';
 
@@ -415,14 +416,21 @@ export async function compare(
       await git.add('.');
       await git.commit('port: store unconflicted changes');
 
+      const outputDir = path.resolve(
+        params.conversionDir,
+        DEFAULT_CONVERSION_OUTPUT_DIR
+      );
+
       process.chdir(
         path.resolve(params.conversionDir, DEFAULT_CONVERSION_OUTPUT_DIR)
       );
       for (const conflict of summary.conflicts) {
         if (conflict.file) {
+          const filepath = path.join(outputDir, conflict.file);
+
           conflictsSummary = {
             ...conflictsSummary,
-            ...(await resolveMergeConflicts(conflict.file)),
+            ...(await resolveMergeConflicts(filepath)),
           };
         }
       }
@@ -463,10 +471,7 @@ async function convertUpstreamSources(
   const git = simpleGit();
 
   // Ensure references are up to date before copying files.
-  const refs = Object.values(fileMap).reduce(
-    (prev, cur) => prev.add(cur.ref),
-    new Set<string>()
-  );
+  const refs = new Set(Object.values(fileMap).map(({ ref }) => ref));
   await Promise.allSettled(
     Array.from(refs).map((reference) => git.fetch('origin', reference))
   );
@@ -672,7 +677,7 @@ async function resolveMergeConflicts(file: string) {
   const contents = await readFile(file, { encoding: 'utf-8' });
   const conflicts = allConflictsFrom(contents);
 
-  const strategies: ConflictStrategy[] = [upgradeVersionHeader];
+  const strategies: ConflictStrategy[] = [upgradeVersionHeader, matchComments];
   const [resolvedContents, unresolvedConflicts] = strategies.reduce(
     ([toParse, unresolvedConflicts], strategy) =>
       strategy(toParse, unresolvedConflicts),
@@ -685,7 +690,7 @@ async function resolveMergeConflicts(file: string) {
     0
   );
 
-  const [finalContents] = keepCurrent(resolvedContents, unresolvedConflicts);
+  const [finalContents] = autoResolve(resolvedContents, unresolvedConflicts);
 
   await writeFile(file, finalContents);
   return count > 0 ? { [file]: { conflicts: count, lines: lineSum } } : {};

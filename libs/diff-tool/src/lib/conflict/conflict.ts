@@ -27,4 +27,20 @@ export class Conflict {
       .filter((line) => line != null)
       .join('\n');
   }
+
+  public slice(start: number, end?: number): Conflict {
+    return new Conflict(
+      this.current?.split('\n').slice(start, end).join('\n'),
+      this.incoming?.split('\n').slice(start, end).join('\n'),
+      this.currentName,
+      this.incomingName
+    );
+  }
+
+  public hasContent(): this is Conflict & {
+    current: string;
+    incoming: string;
+  } {
+    return this.current != null && this.incoming != null;
+  }
 }
