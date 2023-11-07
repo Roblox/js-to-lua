@@ -44,7 +44,6 @@ export default {
     'conformance-tests/expressions/call/known-array-methods/maybe-array/unshift-multiple-apply_m5.js',
     'conformance-tests/expressions/call/known-array-methods/maybe-array/unshift-single-apply_m5.js',
 
-    // TODO: handle ObjectTypeAnnotation https://github.com/Roblox/js-to-lua/issues/501
     'conformance-tests/flow-types/union/union-type-annotation-complex_m6.js',
 
     // TODO: Handle node for flow type: ObjectTypeAnnotation when multiple indexers are present
