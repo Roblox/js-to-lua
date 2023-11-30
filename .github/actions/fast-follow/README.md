@@ -58,7 +58,6 @@ jobs:
         with:
           path: js-to-lua-action
           repository: roblox/js-to-lua
-          token: ${{secrets.PERSONAL_ACCESS_TOKEN}}
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -73,7 +72,7 @@ jobs:
       - name: Run fast follow
         uses: ./js-to-lua-action/.github/actions/fast-follow
         with:
-          github-token: ${{secrets.PERSONAL_ACCESS_TOKEN}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
           repo-path: downstream-repository
 
           # The following parameters are optional. Enable them if you've followed the `Slack channel setup` instructions first
